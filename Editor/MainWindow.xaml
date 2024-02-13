@@ -1,0 +1,21 @@
+﻿<Window x:Class="Reveal3d.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:userControls="clr-namespace:Reveal3d.Views.UserControls"
+        mc:Ignorable="d" WindowState="Maximized" 
+        Title="Reveal3d" StateChanged="WindowStateChangedEvent" 
+        d:DesignWidth="1920" d:DesignHeight="1080"
+        Style="{StaticResource RevealWindowStyle}">
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition/>
+            <RowDefinition Height="18"/>
+        </Grid.RowDefinitions>
+        <userControls:TitleBarView> </userControls:TitleBarView>
+        <userControls:WorldEditorView Grid.Row="1"></userControls:WorldEditorView>
+        <userControls:BottomBarView Grid.Row="2"></userControls:BottomBarView>
+    </Grid>
+</Window>

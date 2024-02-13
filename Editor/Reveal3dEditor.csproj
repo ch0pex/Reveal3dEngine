@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>Resources\EngineIconNoBackground.ico</ApplicationIcon>
+        <RootNamespace>Reveal3d</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>..\build\windows\debug\Editor</OutputPath>
+      <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <OutputPath>..\build\windows\release\Editor</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Resources\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\CrimeScene-2-0016.jpg" />
+      <Resource Include="Resources\CrimeScene-2-0016.jpg" />
+      <None Remove="Resources\habitacion.jpg" />
+      <Resource Include="Resources\habitacion.jpg" />
+      <None Remove="Resources\EngineIconNoBackground.png" />
+      <Resource Include="Resources\EngineIconNoBackground.png" />
+      <None Remove="Resources\Console.png" />
+      <Resource Include="Resources\Console.png" />
+      <None Remove="Resources\folder.png" />
+      <Resource Include="Resources\folder.png" />
+      <None Remove="Resources\folder-icon.png" />
+      <Resource Include="Resources\folder-icon.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\UserControls\RendererHostView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\UserControls\WorldEditorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\Windows\ProjectsDialogView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+      <PackageReference Include="Simplify.Windows.Forms" Version="1.1.3" />
+    </ItemGroup>
+
+</Project>

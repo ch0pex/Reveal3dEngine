@@ -1,0 +1,38 @@
+<!--TODO: Refactorize and create user controls-->
+<UserControl x:Class="Reveal3d.Views.UserControls.WorldEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             xmlns:userControls="clr-namespace:Reveal3d.Views.UserControls"
+             d:DesignHeight="1080" d:DesignWidth="1920">
+    <Grid Background="Transparent">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Border Grid.Column="0" Background="{StaticResource Palette.GrayBlueishBrush2}" Margin="3 3 2 0"
+                    CornerRadius="8 8 8 8">
+                <Canvas ClipToBounds="True">
+                    <userControls:FloatingWindowView Canvas.Bottom="80"></userControls:FloatingWindowView>     
+                </Canvas>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Style="{StaticResource VerticalSplitterStyle}" />
+        <Grid Grid.Column="1" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <GridSplitter Grid.Row="1" Style="{StaticResource HorizontalSplitterStyle}" />
+            <Border Grid.Row="0"
+                    Background="{StaticResource Palette.GrayBlueishBrush3}" Margin="2 3 3 2" CornerRadius="8 8 8 8">
+            </Border>
+            <Border Grid.Row="1" Background="{StaticResource Palette.GrayBlueishBrush3}" Margin="2 2 3 0"
+                    CornerRadius="8 8 8 8 ">
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
