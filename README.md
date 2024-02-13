@@ -1,2 +1,2 @@
-# Revel3dEngine
-Revel3d Engine C++ Static Library
+# Reveal3dEngine
+Reveal3d Engine C++ Static Library
