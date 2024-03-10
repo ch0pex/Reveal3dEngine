@@ -72,7 +72,7 @@ private:
     //D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 
     // Synchronization objects.
-    u32 frameIndex_;
+    u8 frameIndex_;
     HANDLE fenceEvent_;
     ComPtr<ID3D12Fence> fence_;
     u64 fenceValues_[bufferCount_];

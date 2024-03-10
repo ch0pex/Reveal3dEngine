@@ -105,9 +105,7 @@ void Graphics::WaitForGPU() {
     if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
         GetLastError() >> DxCheck;
     }
-
 }
-
 
 
 
