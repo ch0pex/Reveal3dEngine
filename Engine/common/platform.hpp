@@ -25,6 +25,8 @@ using WHandle = HWND;
 using WCallback = LRESULT(*)(WHandle, UINT, WPARAM, LPARAM);
 
 #else
-#include <glm/glm.h>
+//#include <glm/glm.h>
+#define INLINE inline
 
 #endif
+

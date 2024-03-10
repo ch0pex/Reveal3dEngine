@@ -25,13 +25,16 @@ template<graphics::HRI Gfx, template<typename> class Window>
 // requires,
 class Viewport {
 public:
-    explicit Viewport(window::InitInfo &info) :
-            renderer_(info.res),
-            window_(info) {}
+    explicit Viewport(window::InitInfo &info) : renderer_(info.res), window_(info) {}
     INLINE void Run() { window_.Run(renderer_);
     }
-    void Pause() {}
-    void Destroy() {}
+    void Pause() {
+        //renderer_.Pause();
+    }
+    void Destroy() {
+        renderer_.Destroy();
+        //window_.Close();
+    }
 private:
     Renderer<Gfx> renderer_;
     Window<Gfx> window_;

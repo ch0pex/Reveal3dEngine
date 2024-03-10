@@ -42,20 +42,20 @@ template<graphics::HRI Gfx>
 void Renderer<Gfx>::Render() {
     graphics_.PopulateCommands();
     graphics_.Draw();
-    graphics_.WaitFrame();
+    graphics_.MoveToNextFrame();
 }
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Destroy() {
-
+    graphics_.Terminate();
 }
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Resize(u32 width, u32 height) {
-
+    //camera.Resize();
+    //graphics.Resize();
 }
 
 template class Renderer<graphics::Dx::Graphics>;
-//template class Renderer<graphics::Vk::Graphics>;
 
 } // namespace reveal3d::render

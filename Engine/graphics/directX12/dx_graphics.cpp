@@ -21,7 +21,7 @@ namespace reveal3d::graphics::Dx {
 
 Graphics::Graphics(const window::Resolution &res) :
     rtvDescriptorSize_(0),
-    fenceValue_(0),
+    fenceValues_{},
     res(res)
 {
 }
@@ -29,14 +29,18 @@ Graphics::Graphics(const window::Resolution &res) :
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
-    InitCommandSystem();
+    CreateCommandQueue();
     CreateSwapChain();
-    InitRtvHeap();
-    InitFence();
+    InitFrameResources();
 }
 
 void Graphics::LoadAssets(){
+    device_->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators_[frameIndex_].Get(),
+                                nullptr, IID_PPV_ARGS(&commandList_)) >> DxCheck;
+    commandList_->Close();
 
+    InitFence();
+    WaitForGPU();
 }
 
 void Graphics::Update(render::Camera &camera) {
@@ -46,8 +50,8 @@ void Graphics::Update(render::Camera &camera) {
 //TODO: Functions to simplify barrier creation
 void Graphics::PopulateCommands() {
     auto &currentBuffer = renderTargets_[frameIndex_];
-    commandAllocator_->Reset() >> DxCheck;
-    commandList_->Reset(commandAllocator_.Get(), nullptr) >> DxCheck; //TODO: Add Pipeline state
+    commandAllocators_[frameIndex_]->Reset() >> DxCheck;
+    commandList_->Reset(commandAllocators_[frameIndex_].Get(), nullptr) >> DxCheck; //TODO: Add Pipeline state
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currentBuffer.Get(),
@@ -77,16 +81,34 @@ void Graphics::Draw() {
     swapChain_->Present(0, 0) >> DxCheck;
 }
 
-void Graphics::WaitFrame() {
+void Graphics::MoveToNextFrame() {
+    const u64 currentFenceVal = fenceValues_[frameIndex_];
 
-    commandQueue_->Signal(fence_.Get(), fenceValue_) >> DxCheck;
-    fence_->SetEventOnCompletion(fenceValue_++, fenceEvent_) >> DxCheck;
+    commandQueue_->Signal(fence_.Get(), currentFenceVal) >> DxCheck;
+
+    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
+
+    if (fence_->GetCompletedValue() < fenceValues_[frameIndex_])
+    {
+        fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> DxCheck;
+        if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
+            GetLastError() >> DxCheck;
+        }
+    }
+
+    fenceValues_[frameIndex_] = currentFenceVal + 1;
+}
+
+void Graphics::WaitForGPU() {
+    commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> DxCheck;
+    fence_->SetEventOnCompletion(fenceValues_[frameIndex_]++, fenceEvent_) >> DxCheck;
     if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
         GetLastError() >> DxCheck;
     }
 
-    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
 }
+
+
 
 
 //TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
@@ -103,7 +125,7 @@ void Graphics::InitDXGIAdapter() {
     D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> DxCheck;
 }
 
-void Graphics::InitCommandSystem() {
+void Graphics::CreateCommandQueue() {
     const D3D12_COMMAND_QUEUE_DESC queueDesc {
         .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
@@ -111,10 +133,6 @@ void Graphics::InitCommandSystem() {
         .NodeMask = 0
     };
     device_->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)) >> DxCheck;
-    device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator_)) >> DxCheck;
-    device_->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator_.Get(),
-                               nullptr, IID_PPV_ARGS(&commandList_)) >> DxCheck;
-    commandList_->Close();
 }
 
 void Graphics::CreateSwapChain() {
@@ -141,9 +159,10 @@ void Graphics::CreateSwapChain() {
             &swapChain1
             );
     swapChain1.As(&swapChain_) >> DxCheck;
+    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
 }
 
-void Graphics::InitRtvHeap() {
+void Graphics::InitFrameResources() {
     const D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
             .NumDescriptors = bufferCount_,
@@ -157,21 +176,22 @@ void Graphics::InitRtvHeap() {
        swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> DxCheck;
        device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
        rtvHandle.Offset(rtvDescriptorSize_);
+       device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators_[i])) >> DxCheck;
     }
 }
 
 void Graphics::InitFence() {
-    fenceValue_ = 0;
     device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> DxCheck;
     fenceEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
     if (!fenceEvent_) {
         GetLastError() >> DxCheck;
         throw std::runtime_error("Failed to create fence event");
     }
-    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
 }
-
-
+void Graphics::Terminate() {
+    WaitForGPU();
+    CloseHandle(fenceEvent_);
+}
 
 
 } // namespace reveal3d::graphics
