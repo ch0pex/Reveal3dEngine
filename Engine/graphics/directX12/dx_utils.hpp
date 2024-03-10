@@ -33,15 +33,10 @@ void operator>>(Error, Checker);
 
 class Debugger {
 public:
-    inline static void Enable(u32 &factoryFlag) {
-        ComPtr<ID3D12Debug> debugController;
-        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-            debugController->EnableDebugLayer();
-            factoryFlag |= DXGI_CREATE_FACTORY_DEBUG;
-        }
-    }
-
+    static void EnableCpuLayer(u32 &factoryFlag);
+    static void EnableGpuLayer();
     static void LogAdapters();
+
 private:
     static void LogAdapterOutputs(IDXGIAdapter* adapter);
     static void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);

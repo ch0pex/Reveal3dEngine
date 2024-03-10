@@ -67,7 +67,7 @@ void Graphics::PopulateCommands() {
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currentBuffer.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
-                    D3D12_RESOURCE_STATE_PRESENT
+            D3D12_RESOURCE_STATE_PRESENT
     );
     commandList_->ResourceBarrier(1, &presentBarrier);
 
@@ -116,7 +116,8 @@ void Graphics::InitDXGIAdapter() {
     u32 factoryFlags = 0;
 
 #ifdef _DEBUG
-    Debugger::Enable(factoryFlags);
+    Debugger::EnableCpuLayer(factoryFlags);
+    Debugger::EnableGpuLayer();
 #endif
 
     CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory_)) >> DxCheck;

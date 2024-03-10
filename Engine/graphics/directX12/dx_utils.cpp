@@ -22,6 +22,23 @@ namespace reveal3d::graphics::Dx {
 
 Checker DxCheck;
 
+void Debugger::EnableCpuLayer(reveal3d::u32 &factoryFlag) {
+    ComPtr<ID3D12Debug> debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+        debugController->EnableDebugLayer();
+        factoryFlag |= DXGI_CREATE_FACTORY_DEBUG;
+    }
+}
+
+void Debugger::EnableGpuLayer() {
+    ComPtr<ID3D12Debug> spDebugController0;
+    ComPtr<ID3D12Debug1> spDebugController1;
+    D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)) >> DxCheck;
+    spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)) >> DxCheck;
+    spDebugController1->SetEnableGPUBasedValidation(TRUE);
+}
+
+
 void Debugger::LogAdapters() {
     u32 index = 0;
     IDXGIAdapter *adapter = nullptr;
