@@ -27,7 +27,7 @@ class Entity {
 };
 
 struct Scene {
-    std::vector<Light> lights;
+    //std::vector<Light> lights;
     std::vector<Transform> transforms;
     std::vector<Geometry> geometries;
 

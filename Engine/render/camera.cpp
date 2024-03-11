@@ -20,8 +20,9 @@ Camera::Camera(const window::Resolution &res) {
 
 }
 
+//Update position and rotation
+//Update matrices
 void Camera::Update(f32 deltaTime) {
-
 }
 
 }

@@ -18,11 +18,15 @@
 #include <string>
 #include <vector>
 
-namespace reveal3d::graphics::Dx {
+namespace reveal3d::graphics::Dx::utl {
 
 Checker DxCheck;
+ID3D12DebugDevice2* reporter;
 
-void Debugger::EnableCpuLayer(reveal3d::u32 &factoryFlag) {
+static void LogAdapterOutputs(IDXGIAdapter* adapter);
+static void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);
+
+void EnableCpuLayer(reveal3d::u32 &factoryFlag) {
     ComPtr<ID3D12Debug> debugController;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
         debugController->EnableDebugLayer();
@@ -30,7 +34,7 @@ void Debugger::EnableCpuLayer(reveal3d::u32 &factoryFlag) {
     }
 }
 
-void Debugger::EnableGpuLayer() {
+void EnableGpuLayer() {
     ComPtr<ID3D12Debug> spDebugController0;
     ComPtr<ID3D12Debug1> spDebugController1;
     D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)) >> DxCheck;
@@ -39,7 +43,7 @@ void Debugger::EnableGpuLayer() {
 }
 
 
-void Debugger::LogAdapters() {
+void LogAdapters() {
     u32 index = 0;
     IDXGIAdapter *adapter = nullptr;
     IDXGIFactory7 *factory;
@@ -65,7 +69,7 @@ void Debugger::LogAdapters() {
     }
 }
 
-void Debugger::LogAdapterOutputs(IDXGIAdapter *adapter) {
+void LogAdapterOutputs(IDXGIAdapter *adapter) {
     UINT index = 0;
     IDXGIOutput *output = nullptr;
     while (adapter->EnumOutputs(index, &output) != DXGI_ERROR_NOT_FOUND) {
@@ -80,7 +84,7 @@ void Debugger::LogAdapterOutputs(IDXGIAdapter *adapter) {
     }
 }
 
-void Debugger::LogOutputDisplayModes(IDXGIOutput *output, DXGI_FORMAT format) {
+void LogOutputDisplayModes(IDXGIOutput *output, DXGI_FORMAT format) {
     UINT count = 0;
     UINT flags = 0;
     // Call with nullptr to get list count.
@@ -94,6 +98,22 @@ void Debugger::LogOutputDisplayModes(IDXGIOutput *output, DXGI_FORMAT format) {
                             L" " + L"Refresh = " + std::to_wstring(n) + L"/" + std::to_wstring(d) + L"\n";
         OutputDebugStringW(text.c_str());
     }
+}
+void QueueInfo(ID3D12Device *device, BOOL enable) {
+    ComPtr<ID3D12InfoQueue> infoQueue;
+    device->QueryInterface(IID_PPV_ARGS(&infoQueue));
+    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
+    //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
+    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
+}
+
+void SetReporter(ID3D12Device *device) {
+    device->QueryInterface(&reporter);
+}
+
+void ReportLiveDeviceObjs() {
+   reporter-> ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+   reporter->Release();
 }
 
 Error::Error(u32 hr, std::source_location location) noexcept : hr(hr), loc(location) {}

@@ -19,9 +19,8 @@ Timer::Timer() :
     secondPerCount_(0.0), deltaTime_(-1.0), baseTime_(0), pausedTime_(0), stopTime_(0), prevTime_(0), currTime_(0),
     stopped_(false)
 {
-    i64 countsPerSec = 0;
-    QueryFrequency(countsPerSec);
-    secondPerCount_ = 1.0 / (f64)countsPerSec;
+    QueryFrequency(countsPerSecond_);
+    secondPerCount_ = 1.0 / (f64)countsPerSecond_;
 }
 
 
@@ -81,6 +80,10 @@ f32 Timer::TotalTime() const {
 
     QueryCounter(currTime);
     return ((currTime - pausedTime_) - baseTime_) * secondPerCount_;
+}
+
+f32 Timer::Diff(f32 time) const {
+    return TotalTime() - time;
 }
 
 }

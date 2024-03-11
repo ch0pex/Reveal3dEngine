@@ -25,10 +25,14 @@ Renderer<Gfx>::Renderer(const window::Resolution &res) :
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Init(WHandle wHandle) {
+    f32 time = timer_.TotalTime();
 
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();
+    log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
+    time = timer_.TotalTime();
     graphics_.LoadAssets();
+    log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
@@ -47,7 +51,7 @@ void Renderer<Gfx>::Render() {
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Destroy() {
-    log(logDEBUG) << "Terminating renderer...\n";
+    log(logDEBUG) << "Initializing Pipeline...[" << timer_.TotalTime()  <<"]";
     graphics_.Terminate();
 }
 

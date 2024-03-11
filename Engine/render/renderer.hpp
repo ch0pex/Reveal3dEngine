@@ -31,9 +31,9 @@ public:
     [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
     //~Renderer();
 private:
+    Timer timer_;
     Gfx graphics_;
     Camera camera_;
-    Timer timer_;
 };
 
 }

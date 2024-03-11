@@ -31,6 +31,7 @@ public:
     void Start();
     void Stop();
     void Tick();
+    f32 Diff(f32 time) const;
 
 private:
 
@@ -42,6 +43,7 @@ private:
 #endif
 
     f64 secondPerCount_;
+    i64 countsPerSecond_;
     f64 deltaTime_;
 
     i64 baseTime_;

@@ -3,7 +3,7 @@
 #include "render/viewport.hpp"
 #include "window/window.hpp"
 
-#include "Engine/math/math.hpp"
+#include "math/math.hpp"
 
 
 using namespace reveal3d::graphics;
@@ -12,6 +12,7 @@ using namespace reveal3d::window;
 using namespace reveal3d::math;
 
 #if defined(D3D12)
+#include "graphics/directX12/dx_utils.hpp"
 using Gfx = Dx::Graphics;
 #elif defined(VULKAN)
 using Gfx = Vk::Graphics;
@@ -28,7 +29,11 @@ _Use_decl_annotations_ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevI
     Viewport<Gfx, Win32> viewport(windowInitInfo);
 
     viewport.Run();
-    OutputDebugStringA("Closed");
+
+#ifdef _DEBUG
+    Dx::utl::ReportLiveDeviceObjs();
+#endif
+
 }
 
 #else

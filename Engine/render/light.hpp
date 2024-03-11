@@ -11,11 +11,4 @@
  * Longer description
  */
 
-#ifndef REVEAL3DENGINE_LIGHT_HPP
-#define REVEAL3DENGINE_LIGHT_HPP
-
-
-class Light {};
-
-
-#endif // REVEAL3DENGINE_LIGHT_HPP
+#pragma once

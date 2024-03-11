@@ -28,8 +28,10 @@ class Logger
 {
 public:
     Logger(LogLevel _loglevel = logERROR) {
-        buffer_ << _loglevel << " :"
-                << std::string( _loglevel > logDEBUG ? (_loglevel - logDEBUG) * 4 : 1 , ' ');
+        if (_loglevel == logERROR)
+            buffer_ << "ERROR MSG" << ": ";
+        else
+            buffer_ << "DEBUG MSG" << ": ";
     }
 
     template <typename T>
