@@ -19,6 +19,8 @@ namespace reveal3d::math {
 
 class vec4;
 
+using vec2 = XMFLOAT2;
+
 class vec3 {
 public:
     INLINE vec3() : vec_() {}

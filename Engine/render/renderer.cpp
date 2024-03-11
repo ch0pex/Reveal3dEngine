@@ -47,6 +47,7 @@ void Renderer<Gfx>::Render() {
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Destroy() {
+    log(logDEBUG) << "Terminating renderer...\n";
     graphics_.Terminate();
 }
 

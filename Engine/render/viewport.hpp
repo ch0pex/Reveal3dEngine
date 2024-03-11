@@ -26,8 +26,7 @@ template<graphics::HRI Gfx, template<typename> class Window>
 class Viewport {
 public:
     explicit Viewport(window::InitInfo &info) : renderer_(info.res), window_(info) {}
-    INLINE void Run() { window_.Run(renderer_);
-    }
+    INLINE void Run() { window_.Run(renderer_); }
     void Pause() {
         //renderer_.Pause();
     }

@@ -36,7 +36,7 @@ void Win32<Gfx>::InitWindow(Renderer<Gfx> &renderer) {
     // Create the window_ and store a handle to it.
     info_.windowHandle = CreateWindow(
             windowClass.lpszClassName,
-            L"Reveal3d",
+            info_.name,
             WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
             windowRect.right - windowRect.left,
             windowRect.bottom - windowRect.top,
@@ -50,16 +50,17 @@ template<typename Gfx>
 i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
     try {
         MSG msg = {};
+        bool isRunning = true;
 
         InitWindow(renderer);
         ShowWindow(info_.windowHandle, SW_SHOW);
 
         renderer.Init(info_.windowHandle);
-
-        while (msg.message != WM_QUIT) {
-            if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+        while(isRunning) {
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
+                isRunning &= (msg.message != WM_QUIT);
             }
         }
         renderer.Destroy();
@@ -89,11 +90,11 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
         }
             return 0;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
         case WM_SIZE:
             InvalidateRect(hwnd, NULL, TRUE);
+            return 0;
+        case WM_DESTROY:
+            PostQuitMessage(0);
             return 0;
         case WM_PAINT:
             try {

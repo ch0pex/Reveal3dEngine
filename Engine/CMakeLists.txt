@@ -2,6 +2,10 @@ set(SOURCES
         render/renderer.cpp
         render/camera.cpp
         common/timer.cpp
+        core/scene.cpp
+        core/geometry.cpp
+        core/transform.cpp
+        render/light.cpp
 )
 
 message("Renderer: ${GFX}")

@@ -29,7 +29,7 @@ struct Resolution {
 struct InitInfo {
     WHandle windowHandle { nullptr };
     WCallback callback { nullptr }; // Unused for now, usefull in a future
-    const wchar_t * name { nullptr };
+    const wchar_t * name { L"Reveal3d" };
     Resolution res { 1920, 1080 };
 };
 
