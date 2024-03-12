@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file dx_commands.hpp
@@ -11,15 +11,43 @@
  * Longer description
  */
 
-#ifndef REVEAL3DENGINE_DX_COMMANDS_HPP
-#define REVEAL3DENGINE_DX_COMMANDS_HPP
+#include "dx_common.hpp"
 
+namespace reveal3d::graphics::dx {
 
+class Commands {
+public:
+    //explicit Commands(bufferCount);
+    void Init(ID3D12Device* device);
+    [[nodiscard]] inline ID3D12CommandQueue * GetQueue() const { return commandQueue_.Get(); }
+    [[nodiscard]] inline ID3D12GraphicsCommandList * const GetList() const { return commandList_.Get(); }
+    [[nodiscard]] inline u8 const FrameIndex() const { return frameIndex_; }
+    void Reset();
+    void Execute();
 
-class dx_commands {
+    void WaitForGPU();
+    void MoveToNextFrame();
 
+    void Terminate();
+
+private:
+    //This is right now the same render target buffers on the swap chain, but could be more
+    //Makes sense to be the same
+    //More adds delay to the app
+
+    static const u32 bufferCount_ = 3;
+    ComPtr<ID3D12CommandQueue> commandQueue_;
+    ComPtr<ID3D12GraphicsCommandList> commandList_;
+    ComPtr<ID3D12CommandAllocator> commandAllocators_[bufferCount_];
+
+    // Synchronization objects.
+    u8 frameIndex_ = 0;
+    HANDLE fenceEvent_;
+    ComPtr<ID3D12Fence> fence_;
+    u64 fenceValues_[bufferCount_] {0};
 };
 
+}
 
 
-#endif //REVEAL3DENGINE_DX_COMMANDS_HPP
+

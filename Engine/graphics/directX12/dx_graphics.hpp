@@ -18,13 +18,14 @@
 #endif
 
 
+#include "dx_commands.hpp"
 #include "dx_common.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
 
 #include <array>
 
-namespace reveal3d::graphics::Dx {
+namespace reveal3d::graphics::dx {
 
 class Graphics {
 public:
@@ -34,7 +35,6 @@ public:
     void Update(render::Camera &camera);
     void PopulateCommands();
     void Draw();
-    void MoveToNextFrame();
     void Terminate();
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
     [[nodiscard]] INLINE u32 GetWidth() const { return res.width; }
@@ -43,26 +43,20 @@ public:
 
 private:
     void InitDXGIAdapter();
-    void CreateCommandQueue();
     void CreateSwapChain();
     void InitFrameResources();
-    void InitFence();
-    void WaitForGPU();
-
 
     /****************** Device Resources ******************/
-    static const u32 bufferCount_ = 3;
 
+    static const u32 bufferCount_ = 3;
     //D3D12_VIEWPORT viewport_;
     //D3D12_RECT scissorRect_;
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
-    ComPtr<ID3D12CommandQueue> commandQueue_;
-    ComPtr<ID3D12GraphicsCommandList> commandList_;
-    ComPtr<ID3D12CommandAllocator> commandAllocators_[bufferCount_];
     ComPtr<ID3D12Resource> renderTargets_[bufferCount_];
     ComPtr<IDXGISwapChain3> swapChain_;
     ComPtr<ID3D12DescriptorHeap> rtvHeap_;
+    dx::Commands cmdManager_;
     u32 rtvDescriptorSize_;
     //ComPtr<ID3D12RootSignature> rootSignature_;
     //ComPtr<ID3D12PipelineState> pipelineState_;
@@ -71,11 +65,6 @@ private:
     //ComPtr<ID3D12Resource> vertexBuffer_;
     //D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 
-    // Synchronization objects.
-    u8 frameIndex_;
-    HANDLE fenceEvent_;
-    ComPtr<ID3D12Fence> fence_;
-    u64 fenceValues_[bufferCount_];
     /********************************************************/
 
     window::Resolution res;
@@ -84,4 +73,4 @@ private:
 
 }
 
-using reveal3d::graphics::Dx::Graphics;
+using reveal3d::graphics::dx::Graphics;

@@ -110,7 +110,7 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-template class Win32<graphics::Dx::Graphics>;
+template class Win32<graphics::dx::Graphics>;
 //template class Win32<graphics::Vk::Graphics>;
 
 }

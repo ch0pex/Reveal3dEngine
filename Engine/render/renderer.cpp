@@ -32,7 +32,7 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
     log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
     time = timer_.TotalTime();
     graphics_.LoadAssets();
-    log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
+    log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
@@ -46,12 +46,11 @@ template<graphics::HRI Gfx>
 void Renderer<Gfx>::Render() {
     graphics_.PopulateCommands();
     graphics_.Draw();
-    graphics_.MoveToNextFrame();
 }
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Destroy() {
-    log(logDEBUG) << "Initializing Pipeline...[" << timer_.TotalTime()  <<"]";
+    log(logDEBUG) << "Cleaning pipeline...[" << timer_.TotalTime()  <<"]";
     graphics_.Terminate();
 }
 
@@ -61,6 +60,6 @@ void Renderer<Gfx>::Resize(u32 width, u32 height) {
     //graphics.Resize();
 }
 
-template class Renderer<graphics::Dx::Graphics>;
+template class Renderer<graphics::dx::Graphics>;
 
 } // namespace reveal3d::render

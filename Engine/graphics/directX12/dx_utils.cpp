@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace reveal3d::graphics::Dx::utl {
+namespace reveal3d::graphics::dx::utl {
 
 Checker DxCheck;
 ID3D12DebugDevice2* reporter;
@@ -103,7 +103,7 @@ void QueueInfo(ID3D12Device *device, BOOL enable) {
     ComPtr<ID3D12InfoQueue> infoQueue;
     device->QueryInterface(IID_PPV_ARGS(&infoQueue));
     infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
-    //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
+    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
     infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
 }
 

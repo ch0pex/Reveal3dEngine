@@ -17,11 +17,10 @@
 #include "window/window.hpp"
 #include <iostream>
 
-namespace reveal3d::graphics::Dx {
+namespace reveal3d::graphics::dx {
 
 Graphics::Graphics(const window::Resolution &res) :
     rtvDescriptorSize_(0),
-    fenceValues_{},
     res(res)
 {
 }
@@ -29,85 +28,10 @@ Graphics::Graphics(const window::Resolution &res) :
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
-    CreateCommandQueue();
+    cmdManager_.Init(device_.Get());
     CreateSwapChain();
     InitFrameResources();
 }
-
-void Graphics::LoadAssets(){
-    device_->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators_[frameIndex_].Get(),
-                                nullptr, IID_PPV_ARGS(&commandList_)) >> utl::DxCheck;
-    commandList_->Close();
-
-    InitFence();
-    WaitForGPU();
-}
-
-void Graphics::Update(render::Camera &camera) {
-
-}
-
-//TODO: Functions to simplify barrier creation
-void Graphics::PopulateCommands() {
-    auto &currentBuffer = renderTargets_[frameIndex_];
-    commandAllocators_[frameIndex_]->Reset() >> utl::DxCheck;
-    commandList_->Reset(commandAllocators_[frameIndex_].Get(), nullptr) >> utl::DxCheck; //TODO: Add Pipeline state
-
-    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.Get(),
-            D3D12_RESOURCE_STATE_PRESENT,
-            D3D12_RESOURCE_STATE_RENDER_TARGET );
-    commandList_->ResourceBarrier(1, &targetBarrier);
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart(), frameIndex_, rtvDescriptorSize_);
-
-    const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    commandList_->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-
-    auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.Get(),
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PRESENT
-    );
-    commandList_->ResourceBarrier(1, &presentBarrier);
-
-    commandList_->Close() >> utl::DxCheck;
-}
-
-void Graphics::Draw() {
-    ID3D12CommandList* ppCommandLists[] = { commandList_.Get() };
-
-    commandQueue_->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-    swapChain_->Present(0, 0) >> utl::DxCheck;
-}
-
-void Graphics::MoveToNextFrame() {
-    const u64 currentFenceVal = fenceValues_[frameIndex_];
-
-    commandQueue_->Signal(fence_.Get(), currentFenceVal) >> utl::DxCheck;
-
-    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
-
-    if (fence_->GetCompletedValue() < fenceValues_[frameIndex_])
-    {
-        fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
-        if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
-            GetLastError() >> utl::DxCheck;
-        }
-    }
-
-    fenceValues_[frameIndex_] = currentFenceVal + 1;
-}
-
-void Graphics::WaitForGPU() {
-    commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
-    fence_->SetEventOnCompletion(fenceValues_[frameIndex_]++, fenceEvent_) >> utl::DxCheck;
-    if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
-        GetLastError() >> utl::DxCheck;
-    }
-}
-
-
 
 //TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
 //TODO: check for features
@@ -122,18 +46,8 @@ void Graphics::InitDXGIAdapter() {
     CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory_)) >> utl::DxCheck;
     D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
 #ifdef _DEBUG
-   utl::QueueInfo(device_.Get(), TRUE);
+    utl::QueueInfo(device_.Get(), TRUE);
 #endif
-}
-
-void Graphics::CreateCommandQueue() {
-    const D3D12_COMMAND_QUEUE_DESC queueDesc {
-        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-        .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-        .NodeMask = 0
-    };
-    device_->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)) >> utl::DxCheck;
 }
 
 void Graphics::CreateSwapChain() {
@@ -152,15 +66,14 @@ void Graphics::CreateSwapChain() {
             .Flags = 0, //TODO: Check feature DXGI_SWWAP_CHAIN_FLAG_ALLOW_TEARING
     };
     factory_->CreateSwapChainForHwnd(
-            commandQueue_.Get(),
+            cmdManager_.GetQueue(),
             window_,
             &swapChainDesc,
             nullptr,
             nullptr,
             &swapChain1
-            );
+    );
     swapChain1.As(&swapChain_) >> utl::DxCheck;
-    frameIndex_ = swapChain_->GetCurrentBackBufferIndex();
 }
 
 void Graphics::InitFrameResources() {
@@ -174,27 +87,63 @@ void Graphics::InitFrameResources() {
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart());
     for(u32 i = 0; i < bufferCount_; ++i) {
-       swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> utl::DxCheck;
-       device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
-       rtvHandle.Offset(rtvDescriptorSize_);
-       device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators_[i])) >> utl::DxCheck;
+        swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> utl::DxCheck;
+        device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
+        rtvHandle.Offset(rtvDescriptorSize_);
     }
 }
 
-void Graphics::InitFence() {
-    device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
-    fenceEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-    if (!fenceEvent_) {
-        GetLastError() >> utl::DxCheck;
-        throw std::runtime_error("Failed to create fence event");
-    }
+
+void Graphics::LoadAssets(){
+
 }
+
+void Graphics::Update(render::Camera &camera) {
+
+}
+
+//TODO: Functions to simplify barrier creation
+void Graphics::PopulateCommands() {
+    auto &currentBuffer = renderTargets_[cmdManager_.FrameIndex()];
+    ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
+
+    cmdManager_.Reset();
+
+    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            currentBuffer.Get(),
+            D3D12_RESOURCE_STATE_PRESENT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET );
+    commandList->ResourceBarrier(1, &targetBarrier);
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart(), cmdManager_.FrameIndex(), rtvDescriptorSize_);
+
+    const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+
+    auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            currentBuffer.Get(),
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PRESENT
+    );
+    commandList->ResourceBarrier(1, &presentBarrier);
+
+    commandList->Close() >> utl::DxCheck;
+}
+
+void Graphics::Draw() {
+    cmdManager_.Execute();
+    swapChain_->Present(0, 0) >> utl::DxCheck;
+    cmdManager_.MoveToNextFrame();
+}
+
+
+
 void Graphics::Terminate() {
 #ifdef _DEBUG
+    utl::QueueInfo(device_.Get(), FALSE);
     utl::SetReporter(device_.Get());
 #endif
-    WaitForGPU();
-    CloseHandle(fenceEvent_);
+    cmdManager_.Terminate();
 }
 
 
