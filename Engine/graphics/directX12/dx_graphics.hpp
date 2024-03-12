@@ -56,8 +56,10 @@ private:
     ComPtr<ID3D12Resource> renderTargets_[bufferCount_];
     ComPtr<IDXGISwapChain3> swapChain_;
     ComPtr<ID3D12DescriptorHeap> rtvHeap_;
-    dx::Commands cmdManager_;
     u32 rtvDescriptorSize_;
+
+    Commands cmdManager_; // Command queue, list and sync objects
+
     //ComPtr<ID3D12RootSignature> rootSignature_;
     //ComPtr<ID3D12PipelineState> pipelineState_;
 
