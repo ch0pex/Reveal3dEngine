@@ -20,7 +20,7 @@ include_directories(PUBLIC .)
 
 if (WIN32)
     message("-- WINDOWS")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /arch:AVX512")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
     set(PLAT win32)
     #add_compile_options(/Wall /external:anglebrakets /external:W0)
 elseif (UNIX)

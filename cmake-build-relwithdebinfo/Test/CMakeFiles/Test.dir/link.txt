@@ -1,0 +1,1 @@
+/usr/bin/c++ -O2 -g -DNDEBUG CMakeFiles/Test.dir/math.cpp.o -o Test  ../Engine/libEngine.a ../lib/libgtest_main.a ../lib/libgtest.a 

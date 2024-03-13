@@ -31,7 +31,7 @@ public:
     void WaitForGPU();
     void MoveToNextFrame();
 
-    void Terminate();
+    void Flush();
 
 private:
     //This is right now the same render target buffers on the swap chain, but could be more

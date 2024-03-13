@@ -103,7 +103,7 @@ void QueueInfo(ID3D12Device *device, BOOL enable) {
     ComPtr<ID3D12InfoQueue> infoQueue;
     device->QueryInterface(IID_PPV_ARGS(&infoQueue));
     infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
-    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
+    //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
     infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
 }
 
@@ -127,6 +127,7 @@ void operator>>(Error grabber, Checker checker) {
                                    grabber.loc.column(),
                                    grabber.hr
                                    );
+       MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2 );
        throw std::runtime_error(error);
    }
 }

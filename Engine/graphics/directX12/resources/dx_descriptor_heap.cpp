@@ -13,9 +13,11 @@
 
 #include "dx_descriptor_heap.hpp"
 #include "../dx_commands.hpp"
-#include "dx_resources.hpp"
 
 namespace reveal3d::graphics::dx {
+
+std::vector<IUnknown*> Heaps::deferredReleases[frameBufferCount] {};
+u32 Heaps::deferredReleasesFlags[frameBufferCount] {};
 
 bool DescriptorHeap::Initialize(ID3D12Device * const device, u32 capacity, bool isShaderVisible) {
 
@@ -95,7 +97,6 @@ void DescriptorHeap::free(DescriptorHandle &handle) {
 }
 
 void DescriptorHeap::CleanDeferreds() {
-
     std::vector<u32>& indices{ deferredIndices_[Commands::FrameIndex()] };
     if (!indices.empty())
     {
@@ -108,7 +109,56 @@ void DescriptorHeap::CleanDeferreds() {
 }
 
 void DescriptorHeap::Release() {
-
+    Heaps::DeferredRelease(heap_);
 }
 
+
+
+Heaps::Heaps() :
+        rtvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV),
+        dsvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)
+{
+}
+
+
+void Heaps::SetDeferredFlag() {
+    deferredReleasesFlags[Commands::FrameIndex()] = 1;
+}
+
+void Heaps::DeferredRelease(ID3D12DescriptorHeap* heap) {
+    if (heap != nullptr) {
+        deferredReleases[Commands::FrameIndex()].push_back(heap);
+        deferredReleasesFlags[Commands::FrameIndex()] = 1;
+        heap = nullptr;
+    }
+}
+
+void Heaps::CleanDeferreds() {
+    // Will need mutex __declspec(noinline)
+    const u8 frameIndex = Commands::FrameIndex();
+
+    if (deferredReleasesFlags[frameIndex]) {
+
+        deferredReleasesFlags[frameIndex] = 0;
+
+        rtvHeap.CleanDeferreds();
+        dsvHeap.CleanDeferreds();
+        // uavHeap.CleanDeferreds();
+        // uavHeap.CleanDeferreds();
+
+        if (!deferredReleases[Commands::FrameIndex()].empty()) {
+            for (auto* resource : deferredReleases[Commands::FrameIndex()]) {
+                utl::release(resource);
+            }
+        }
+    }
+}
+
+Heaps::~Heaps() {
+    rtvHeap.Release();
+    dsvHeap.Release();
+    Heaps::CleanDeferreds();
+//    srvHeap.Release();
+//    uavHeap.Release();
+}
 }

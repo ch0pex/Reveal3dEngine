@@ -12,14 +12,10 @@
  */
 
 #include "dx_graphics.hpp"
-#include "dx_utils.hpp"
-
-#include "window/window.hpp"
-#include <iostream>
 
 namespace reveal3d::graphics::dx {
 
-Graphics::Graphics(const window::Resolution &res) : resolution_(res) {}
+Graphics::Graphics(const window::Resolution &res) : resolution_(res), presentInfo_(0), allowTearing_(0) {}
 
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
@@ -29,11 +25,11 @@ void Graphics::LoadPipeline() {
     heapsManager_.dsvHeap.Initialize(device_.Get(), 512, false);
     CreateSwapChain();
     InitFrameResources();
+    SetViewport();
 }
 
 // TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
-// TODO: check for features
-// TODO: add Info Queue severity
+// TODO: check for more features
 void Graphics::InitDXGIAdapter() {
     u32 factoryFlags = 0;
 
@@ -43,6 +39,12 @@ void Graphics::InitDXGIAdapter() {
 #endif
     CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory_)) >> utl::DxCheck;
     D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
+
+    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing_, sizeof(u32))) &&
+        allowTearing_) {
+        presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
+    }
+
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), TRUE);
 #endif
@@ -61,7 +63,7 @@ void Graphics::CreateSwapChain() {
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = 0, // TODO: Check feature DXGI_SWWAP_CHAIN_FLAG_ALLOW_TEARING
+            .Flags = allowTearing_ ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0U
     };
     factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
     factory_->MakeWindowAssociation(window_, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
@@ -97,20 +99,20 @@ void Graphics::LoadAssets() {}
 void Graphics::Update(render::Camera &camera) {}
 
 // TODO: Functions to simplify barrier creation
-void Graphics::PopulateCommands() {
+void Graphics::PrepareRender() {
 
     auto &currentBuffer = backBuffers_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
 
-    cmdManager_.Reset();
+    cmdManager_.Reset(); //Resets commands list and current frame allocator
+
+    heapsManager_.CleanDeferreds(); // Clean deferreds resources
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currentBuffer.resource.Get(),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
-
-
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     commandList->ClearRenderTargetView(currentBuffer.handle.cpu, clearColor, 0, nullptr);
@@ -127,17 +129,16 @@ void Graphics::PopulateCommands() {
 
 void Graphics::Draw() {
     cmdManager_.Execute();
-    swapChain_->Present(0, 0) >> utl::DxCheck;
+    swapChain_->Present(0, presentInfo_) >> utl::DxCheck;
     cmdManager_.MoveToNextFrame();
 }
-
 
 void Graphics::Terminate() {
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), FALSE);
     utl::SetReporter(device_.Get());
 #endif
-    cmdManager_.Terminate();
+    cmdManager_.Flush();
 }
 
 }

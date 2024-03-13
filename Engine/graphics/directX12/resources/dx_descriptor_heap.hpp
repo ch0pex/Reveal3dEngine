@@ -60,7 +60,7 @@ public:
     void Release();
 
 private:
-    ComPtr<ID3D12DescriptorHeap> heap_;
+    ID3D12DescriptorHeap *heap_ { nullptr };
     D3D12_CPU_DESCRIPTOR_HANDLE cpuStart_ {};
     D3D12_GPU_DESCRIPTOR_HANDLE gpuStart_ {};
     std::unique_ptr<u32[]> freeHandles_ {};
@@ -71,6 +71,28 @@ private:
     D3D12_DESCRIPTOR_HEAP_TYPE type_;
 
     //std::mutexmutex in future
+};
+
+
+struct Heaps {
+
+public:
+    Heaps();
+    ~Heaps();
+    static void SetDeferredFlag();
+    static void DeferredRelease(ID3D12DescriptorHeap* heap);
+    void CleanDeferreds();
+
+    /******************** Descriptor Heaps *************************/
+    DescriptorHeap rtvHeap;
+    DescriptorHeap dsvHeap;
+    //DescriptorHeap srvHeap_;
+    //DescriptorHeap uavHeap_;
+
+    /******************  Deferred Release system ********************/
+private:
+    static std::vector<IUnknown*>          deferredReleases[frameBufferCount];
+    static u32                             deferredReleasesFlags[frameBufferCount];
 };
 
 }

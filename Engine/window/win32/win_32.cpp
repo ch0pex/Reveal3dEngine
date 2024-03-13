@@ -106,6 +106,11 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                 PostQuitMessage(0);
             }
             return 0;
+        case WM_KEYDOWN:
+            if (wParam == VK_ESCAPE) {
+                PostMessage(hwnd, WM_CLOSE, 0, 0);
+                return 0;
+            }
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
 }

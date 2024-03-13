@@ -26,6 +26,7 @@ public:
 
     [[nodiscard]] f32 TotalTime() const;
     [[nodiscard]] INLINE f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
+    [[nodiscard]] INLINE f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
 
     void Reset();
     void Start();

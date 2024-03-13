@@ -19,10 +19,11 @@
 
 
 #include "dx_common.hpp"
-#include "dx_commands.hpp"
-#include "resources/dx_resources.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
+
+#include "dx_commands.hpp"
+#include "resources/dx_descriptor_heap.hpp"
 
 #include <array>
 
@@ -34,7 +35,7 @@ public:
     void LoadPipeline();
     void LoadAssets();
     void Update(render::Camera &camera);
-    void PopulateCommands();
+    void PrepareRender();
     void Draw();
     void Terminate();
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
@@ -53,6 +54,10 @@ private:
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
     ComPtr<IDXGISwapChain3> swapChain_;
+
+    /***** Command Queue, List and Allocator manager ******/
+
+    Commands cmdManager_;
 
     /***************** Resources **********************/
     struct FrameResource {
@@ -73,14 +78,15 @@ private:
     /************ Commands and heaps managers **********/
 
     Heaps heapsManager_;
-    Commands cmdManager_;
 
-    /***************** Window Info **********************/
+    /***************** Surface Info **********************/
 
-    D3D12_VIEWPORT viewport_;
-    D3D12_RECT scissorRect_;
     window::Resolution resolution_;
-    HWND window_;
+    D3D12_VIEWPORT viewport_ {};
+    D3D12_RECT scissorRect_ {};
+    HWND window_ {};
+    BOOL allowTearing_;
+    u32 presentInfo_;
 };
 
 }
