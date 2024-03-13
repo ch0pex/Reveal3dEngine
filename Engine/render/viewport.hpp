@@ -23,21 +23,10 @@ namespace reveal3d::render {
 
 template<graphics::HRI Gfx, template<typename> class Window>
 // requires,
-class Viewport {
-public:
-    explicit Viewport(window::InitInfo &info) : renderer_(info.res), window_(info) {}
-    INLINE void Run() { window_.Run(renderer_); }
-    void Pause() {
-        //renderer_.Pause();
-    }
-    void Destroy() {
-        renderer_.Destroy();
-        //window_.Close();
-    }
-private:
-    Renderer<Gfx> renderer_;
-    Window<Gfx> window_;
-    //Scene &scene_
+struct Viewport {
+    explicit Viewport(window::InitInfo &info) : renderer(info.res), window(info) {}
+    Renderer<Gfx> renderer;
+    Window<Gfx> window;
 };
 
 } // reveal3d

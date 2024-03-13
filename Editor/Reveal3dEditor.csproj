@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <ApplicationIcon>Resources\EngineIconNoBackground.ico</ApplicationIcon>
+        <ApplicationIcon>Heaps\EngineIconNoBackground.ico</ApplicationIcon>
         <RootNamespace>Reveal3d</RootNamespace>
     </PropertyGroup>
 
@@ -20,22 +20,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Resources\" />
+      <Folder Include="Heaps\" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\CrimeScene-2-0016.jpg" />
-      <Resource Include="Resources\CrimeScene-2-0016.jpg" />
-      <None Remove="Resources\habitacion.jpg" />
-      <Resource Include="Resources\habitacion.jpg" />
-      <None Remove="Resources\EngineIconNoBackground.png" />
-      <Resource Include="Resources\EngineIconNoBackground.png" />
-      <None Remove="Resources\Console.png" />
-      <Resource Include="Resources\Console.png" />
-      <None Remove="Resources\folder.png" />
-      <Resource Include="Resources\folder.png" />
-      <None Remove="Resources\folder-icon.png" />
-      <Resource Include="Resources\folder-icon.png" />
+      <None Remove="Heaps\CrimeScene-2-0016.jpg" />
+      <Resource Include="Heaps\CrimeScene-2-0016.jpg" />
+      <None Remove="Heaps\habitacion.jpg" />
+      <Resource Include="Heaps\habitacion.jpg" />
+      <None Remove="Heaps\EngineIconNoBackground.png" />
+      <Resource Include="Heaps\EngineIconNoBackground.png" />
+      <None Remove="Heaps\Console.png" />
+      <Resource Include="Heaps\Console.png" />
+      <None Remove="Heaps\folder.png" />
+      <Resource Include="Heaps\folder.png" />
+      <None Remove="Heaps\folder-icon.png" />
+      <Resource Include="Heaps\folder-icon.png" />
     </ItemGroup>
 
     <ItemGroup>

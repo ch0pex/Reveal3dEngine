@@ -18,7 +18,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <WrapPanel Name="Container">
-            <Image Source="../../Resources/CrimeScene-2-0016.jpg" VerticalAlignment="Center" HorizontalAlignment="Center"
+            <Image Source="../../Heaps/CrimeScene-2-0016.jpg" VerticalAlignment="Center" HorizontalAlignment="Center"
                    Stretch="UniformToFill" />
             <WrapPanel.OpacityMask>
                 <VisualBrush>

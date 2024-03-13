@@ -10,7 +10,7 @@
              d:DesignHeight="25" d:DesignWidth="1920">
     <Grid>
     <StackPanel Margin="10 0 0  0" Orientation="Horizontal" HorizontalAlignment="Left">
-        <Image Source="../../Resources/EngineIconNoBackground.png" Width="20" Height="20"></Image>
+        <Image Source="../../Heaps/EngineIconNoBackground.png" Width="20" Height="20"></Image>
         <Menu Margin="20 0 0 0">
             <MenuItem Height="25" Header="_File">
                 <MenuItem Header="New" Command="New"></MenuItem>

@@ -46,19 +46,22 @@ private:
     void InitDXGIAdapter();
     void CreateSwapChain();
     void InitFrameResources();
+    void SetViewport();
 
-    /****************** Device Resources ******************/
+    /****************** Factory and Device *****************/
 
-    //D3D12_VIEWPORT viewport_;
-    //D3D12_RECT scissorRect_;
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
     ComPtr<IDXGISwapChain3> swapChain_;
 
-    /************ Command queue, list and sync objects **********/
+    /***************** Resources **********************/
+    struct FrameResource {
+        ComPtr<ID3D12Resource> resource;
+        DescriptorHandle handle;
+    };
 
-    Resources resources_;
-    Commands cmdManager_;
+    FrameResource backBuffers_[frameBufferCount];
+    //FrameResource depthStencilBuffer;
 
     //ComPtr<ID3D12RootSignature> rootSignature_;
     //ComPtr<ID3D12PipelineState> pipelineState_;
@@ -67,8 +70,15 @@ private:
     //ComPtr<ID3D12Resource> vertexBuffer_;
     //D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 
-    /********************************************************/
+    /************ Commands and heaps managers **********/
 
+    Heaps heapsManager_;
+    Commands cmdManager_;
+
+    /***************** Window Info **********************/
+
+    D3D12_VIEWPORT viewport_;
+    D3D12_RECT scissorRect_;
     window::Resolution resolution_;
     HWND window_;
 };

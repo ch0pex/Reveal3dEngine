@@ -28,8 +28,7 @@ _Use_decl_annotations_ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevI
         //scene.addEntity(BOX)
         //scene.addEntity(OBJ, path)
         Viewport<Gfx, Win32> viewport(windowInitInfo);
-
-        viewport.Run();
+        viewport.window.Run(viewport.renderer);
     }
 #ifdef _DEBUG
     dx::utl::ReportLiveDeviceObjs();

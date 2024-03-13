@@ -90,7 +90,7 @@ void DescriptorHeap::free(DescriptorHandle &handle) {
 
     const u32 frame_idx = Commands::FrameIndex();
     deferredIndices_[frame_idx].push_back(index);
-    Resources::SetDeferredFlag();
+    Heaps::SetDeferredFlag();
     handle = {};
 }
 

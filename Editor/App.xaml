@@ -3,12 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Reveal3d"
              StartupUri="MainWindow.xaml">
-    <Application.Resources>
+    <Application.Heaps>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Dictionaries/ColorPalette.xaml" />
                 <ResourceDictionary Source="Dictionaries/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </Application.Resources>
+    </Application.Heaps>
 </Application>

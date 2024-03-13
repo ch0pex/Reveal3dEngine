@@ -17,21 +17,21 @@
 
 namespace reveal3d::graphics::dx {
 
-std::vector<IUnknown*>          Resources::deferredReleases[frameBufferCount] {};
-u32                             Resources::deferredReleasesFlags[frameBufferCount] {};
+std::vector<IUnknown*> Heaps::deferredReleases[frameBufferCount] {};
+u32 Heaps::deferredReleasesFlags[frameBufferCount] {};
 
-Resources::Resources() :
+Heaps::Heaps() :
     rtvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV),
     dsvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)
 {
 }
 
 
-void Resources::SetDeferredFlag() {
+void Heaps::SetDeferredFlag() {
     deferredReleasesFlags[Commands::FrameIndex()] = 1;
 }
 
-void Resources::CleanDeferreds() {
+void Heaps::CleanDeferreds() {
     // Will need mutex __declspec(noinline)
     deferredReleasesFlags[Commands::FrameIndex()] = 0;
 

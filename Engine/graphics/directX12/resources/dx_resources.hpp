@@ -19,19 +19,14 @@
 namespace reveal3d::graphics::dx {
 
 
-struct Resources {
+struct Heaps {
 
 public:
-    Resources();
+    Heaps();
 
     static void SetDeferredFlag();
     static void DeferredRelease();
     void CleanDeferreds();
-
-
-
-    ComPtr<ID3D12Resource> renderTargets[frameBufferCount];
-    //ComPtr<ID3D12Resource> depthStencilBuffer;
 
     /******************** Descriptor Heaps *************************/
     DescriptorHeap rtvHeap;

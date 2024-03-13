@@ -25,8 +25,8 @@ void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
-    resources_.rtvHeap.Initialize(device_.Get(), frameBufferCount, false);
-    resources_.dsvHeap.Initialize(device_.Get(), 1, false);
+    heapsManager_.rtvHeap.Initialize(device_.Get(), 512, false);
+    heapsManager_.dsvHeap.Initialize(device_.Get(), 512, false);
     CreateSwapChain();
     InitFrameResources();
 }
@@ -63,29 +63,34 @@ void Graphics::CreateSwapChain() {
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
             .Flags = 0, // TODO: Check feature DXGI_SWWAP_CHAIN_FLAG_ALLOW_TEARING
     };
-    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1);
+    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
+    factory_->MakeWindowAssociation(window_, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 
 void Graphics::InitFrameResources() {
-    /*
-     const D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
-             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-             .NumDescriptors = frameBufferCount,
-     };
-
-     device_->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&rtvHeap_)) >> utl::DxCheck;
-     rtvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart());
-     for(u32 i = 0; i < frameBufferCount; ++i) {
-         swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> utl::DxCheck;
-         device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
-         rtvHandle.Offset(rtvDescriptorSize_);
-     }
-     */
+    for(u32 i = 0; i < frameBufferCount; ++i) {
+        D3D12_RENDER_TARGET_VIEW_DESC desc = {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
+        };
+        backBuffers_[i].handle = heapsManager_.rtvHeap.alloc();
+        swapChain_->GetBuffer(i, IID_PPV_ARGS(&backBuffers_[i].resource)) >> utl::DxCheck;
+        device_->CreateRenderTargetView(backBuffers_[i].resource.Get() ,&desc, backBuffers_[i].handle.cpu);
+    }
 }
 
+void Graphics::SetViewport() {
+    DXGI_SWAP_CHAIN_DESC desc {};
+
+    swapChain_->GetDesc(&desc)  >> utl::DxCheck;
+    viewport_.TopLeftX = 0.0f;
+    viewport_.TopLeftY = 0.0f;
+    viewport_.Height = (f32) desc.BufferDesc.Height;
+    viewport_.Width = (f32) desc.BufferDesc.Width;
+    viewport_.MaxDepth = 1.0f;
+    viewport_.MinDepth = 0.0f;
+}
 
 void Graphics::LoadAssets() {}
 
@@ -94,33 +99,29 @@ void Graphics::Update(render::Camera &camera) {}
 // TODO: Functions to simplify barrier creation
 void Graphics::PopulateCommands() {
 
-    auto &currentBuffer = resources_.renderTargets[Commands::FrameIndex()];
+    auto &currentBuffer = backBuffers_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
 
     cmdManager_.Reset();
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.Get(),
+            currentBuffer.resource.Get(),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
 
-    /*
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(resources_.rtvHeap->GetCPUDescriptorHandleForHeapStart(),
-    cmdManager_.FrameIndex(), rtvDescriptorSize_);
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+    commandList->ClearRenderTargetView(currentBuffer.handle.cpu, clearColor, 0, nullptr);
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.Get(),
+            currentBuffer.resource.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
             D3D12_RESOURCE_STATE_PRESENT
     );
     commandList->ResourceBarrier(1, &presentBarrier);
 
-*/
     commandList->Close() >> utl::DxCheck;
 }
 
