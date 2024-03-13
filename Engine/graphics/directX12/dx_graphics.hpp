@@ -18,8 +18,9 @@
 #endif
 
 
-#include "dx_commands.hpp"
 #include "dx_common.hpp"
+#include "dx_commands.hpp"
+#include "resources/dx_resources.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
 
@@ -37,8 +38,8 @@ public:
     void Draw();
     void Terminate();
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
-    [[nodiscard]] INLINE u32 GetWidth() const { return res.width; }
-    [[nodiscard]] INLINE u32 GetHeight() const { return res.height; }
+    [[nodiscard]] INLINE u32 GetWidth() const { return resolution_.width; }
+    [[nodiscard]] INLINE u32 GetHeight() const { return resolution_.height; }
 
 
 private:
@@ -48,17 +49,16 @@ private:
 
     /****************** Device Resources ******************/
 
-    static const u32 bufferCount_ = 3;
     //D3D12_VIEWPORT viewport_;
     //D3D12_RECT scissorRect_;
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
-    ComPtr<ID3D12Resource> renderTargets_[bufferCount_];
     ComPtr<IDXGISwapChain3> swapChain_;
-    ComPtr<ID3D12DescriptorHeap> rtvHeap_;
-    u32 rtvDescriptorSize_;
 
-    Commands cmdManager_; // Command queue, list and sync objects
+    /************ Command queue, list and sync objects **********/
+
+    Resources resources_;
+    Commands cmdManager_;
 
     //ComPtr<ID3D12RootSignature> rootSignature_;
     //ComPtr<ID3D12PipelineState> pipelineState_;
@@ -69,7 +69,7 @@ private:
 
     /********************************************************/
 
-    window::Resolution res;
+    window::Resolution resolution_;
     HWND window_;
 };
 

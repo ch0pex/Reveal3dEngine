@@ -19,23 +19,21 @@
 
 namespace reveal3d::graphics::dx {
 
-Graphics::Graphics(const window::Resolution &res) :
-    rtvDescriptorSize_(0),
-    res(res)
-{
-}
+Graphics::Graphics(const window::Resolution &res) : resolution_(res) {}
 
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
+    resources_.rtvHeap.Initialize(device_.Get(), frameBufferCount, false);
+    resources_.dsvHeap.Initialize(device_.Get(), 1, false);
     CreateSwapChain();
     InitFrameResources();
 }
 
-//TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
-//TODO: check for features
-//TODO: add Info Queue severity
+// TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
+// TODO: check for features
+// TODO: add Info Queue severity
 void Graphics::InitDXGIAdapter() {
     u32 factoryFlags = 0;
 
@@ -52,59 +50,51 @@ void Graphics::InitDXGIAdapter() {
 
 void Graphics::CreateSwapChain() {
     ComPtr<IDXGISwapChain1> swapChain1;
-    const DXGI_SWAP_CHAIN_DESC1 swapChainDesc {
-            .Width = res.width,
-            .Height = res.height,
+    const DXGI_SWAP_CHAIN_DESC1 swapChainDesc{
+            .Width = resolution_.width,
+            .Height = resolution_.height,
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .Stereo = FALSE,
-            .SampleDesc = { 1, 0 },
+            .SampleDesc = {1, 0},
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = bufferCount_,
+            .BufferCount = frameBufferCount,
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = 0, //TODO: Check feature DXGI_SWWAP_CHAIN_FLAG_ALLOW_TEARING
+            .Flags = 0, // TODO: Check feature DXGI_SWWAP_CHAIN_FLAG_ALLOW_TEARING
     };
-    factory_->CreateSwapChainForHwnd(
-            cmdManager_.GetQueue(),
-            window_,
-            &swapChainDesc,
-            nullptr,
-            nullptr,
-            &swapChain1
-    );
+    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1);
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 
 void Graphics::InitFrameResources() {
-    const D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = bufferCount_,
-    };
+    /*
+     const D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {
+             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+             .NumDescriptors = frameBufferCount,
+     };
 
-    device_->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&rtvHeap_)) >> utl::DxCheck;
-    rtvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+     device_->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&rtvHeap_)) >> utl::DxCheck;
+     rtvDescriptorSize_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart());
-    for(u32 i = 0; i < bufferCount_; ++i) {
-        swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> utl::DxCheck;
-        device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
-        rtvHandle.Offset(rtvDescriptorSize_);
-    }
+     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart());
+     for(u32 i = 0; i < frameBufferCount; ++i) {
+         swapChain_->GetBuffer(i, IID_PPV_ARGS(&renderTargets_[i])) >> utl::DxCheck;
+         device_->CreateRenderTargetView(renderTargets_[i].Get(), nullptr, rtvHandle);
+         rtvHandle.Offset(rtvDescriptorSize_);
+     }
+     */
 }
 
 
-void Graphics::LoadAssets(){
+void Graphics::LoadAssets() {}
 
-}
+void Graphics::Update(render::Camera &camera) {}
 
-void Graphics::Update(render::Camera &camera) {
-
-}
-
-//TODO: Functions to simplify barrier creation
+// TODO: Functions to simplify barrier creation
 void Graphics::PopulateCommands() {
-    auto &currentBuffer = renderTargets_[cmdManager_.FrameIndex()];
+
+    auto &currentBuffer = resources_.renderTargets[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
 
     cmdManager_.Reset();
@@ -115,7 +105,10 @@ void Graphics::PopulateCommands() {
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap_->GetCPUDescriptorHandleForHeapStart(), cmdManager_.FrameIndex(), rtvDescriptorSize_);
+
+    /*
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(resources_.rtvHeap->GetCPUDescriptorHandleForHeapStart(),
+    cmdManager_.FrameIndex(), rtvDescriptorSize_);
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
@@ -127,6 +120,7 @@ void Graphics::PopulateCommands() {
     );
     commandList->ResourceBarrier(1, &presentBarrier);
 
+*/
     commandList->Close() >> utl::DxCheck;
 }
 
@@ -137,7 +131,6 @@ void Graphics::Draw() {
 }
 
 
-
 void Graphics::Terminate() {
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), FALSE);
@@ -146,5 +139,4 @@ void Graphics::Terminate() {
     cmdManager_.Terminate();
 }
 
-
-} // namespace reveal3d::graphics
+}

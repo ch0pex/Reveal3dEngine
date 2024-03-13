@@ -11,6 +11,7 @@ set(SOURCES
 message("Renderer: ${GFX}")
 message("Window: ${PLAT}")
 aux_source_directory(graphics/${GFX} GRAPHICS)
+aux_source_directory(graphics/${GFX}/resources GRAPHICS)
 aux_source_directory(window/${PLAT} PLATFORM)
 #message(Graphics Sources: ${GRAPHICS})
 #message(Platform Sources: ${PLATFORM})

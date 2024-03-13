@@ -22,3 +22,9 @@
 
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
+
+namespace reveal3d::graphics::dx {
+
+constexpr u32 frameBufferCount = 3;
+
+}

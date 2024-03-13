@@ -11,7 +11,10 @@
  * Longer description
  */
 
+#pragma once
+
 #include "dx_common.hpp"
+
 
 namespace reveal3d::graphics::dx {
 
@@ -21,7 +24,7 @@ public:
     void Init(ID3D12Device* device);
     [[nodiscard]] inline ID3D12CommandQueue * GetQueue() const { return commandQueue_.Get(); }
     [[nodiscard]] inline ID3D12GraphicsCommandList * const GetList() const { return commandList_.Get(); }
-    [[nodiscard]] inline u8 const FrameIndex() const { return frameIndex_; }
+    [[nodiscard]] static inline u8 const FrameIndex() { return frameIndex_; }
     void Reset();
     void Execute();
 
@@ -41,7 +44,7 @@ private:
     ComPtr<ID3D12CommandAllocator> commandAllocators_[bufferCount_];
 
     // Synchronization objects.
-    u8 frameIndex_ = 0;
+    static u8 frameIndex_;
     HANDLE fenceEvent_;
     ComPtr<ID3D12Fence> fence_;
     u64 fenceValues_[bufferCount_] {0};

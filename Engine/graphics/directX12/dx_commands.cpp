@@ -17,6 +17,8 @@
 
 namespace reveal3d::graphics::dx {
 
+u8 Commands::frameIndex_ = 0;
+
 void Commands::Init(ID3D12Device *device) {
     const D3D12_COMMAND_QUEUE_DESC queueDesc {
             .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -25,7 +27,6 @@ void Commands::Init(ID3D12Device *device) {
             .NodeMask = 0
     };
     device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)) >> utl::DxCheck;
-
 
     device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
     fenceEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
