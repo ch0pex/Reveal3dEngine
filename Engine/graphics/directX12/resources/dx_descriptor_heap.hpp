@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "../dx_common.hpp"
+#include "dx_resources.hpp"
 
 namespace reveal3d::graphics::dx {
 
@@ -79,20 +79,12 @@ struct Heaps {
 public:
     Heaps();
     ~Heaps();
-    static void SetDeferredFlag();
-    static void DeferredRelease(ID3D12DescriptorHeap* heap);
-    void CleanDeferreds();
 
     /******************** Descriptor Heaps *************************/
     DescriptorHeap rtvHeap;
     DescriptorHeap dsvHeap;
-    //DescriptorHeap srvHeap_;
-    //DescriptorHeap uavHeap_;
-
-    /******************  Deferred Release system ********************/
-private:
-    static std::vector<IUnknown*>          deferredReleases[frameBufferCount];
-    static u32                             deferredReleasesFlags[frameBufferCount];
+//    DescriptorHeap srvHeap; //TODO
+//    DescriptorHeap uavHeap; //TODO
 };
 
 }

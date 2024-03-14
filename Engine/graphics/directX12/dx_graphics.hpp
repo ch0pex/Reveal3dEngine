@@ -23,7 +23,7 @@
 #include "window/window_info.hpp"
 
 #include "dx_commands.hpp"
-#include "resources/dx_descriptor_heap.hpp"
+#include "resources/dx_resources.hpp"
 
 #include <array>
 
@@ -55,10 +55,6 @@ private:
     ComPtr<ID3D12Device> device_;
     ComPtr<IDXGISwapChain3> swapChain_;
 
-    /***** Command Queue, List and Allocator manager ******/
-
-    Commands cmdManager_;
-
     /***************** Resources **********************/
     struct FrameResource {
         ComPtr<ID3D12Resource> resource;
@@ -74,10 +70,12 @@ private:
     // App resources.
     //ComPtr<ID3D12Resource> vertexBuffer_;
     //D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
+    Buffer<D3D12_VERTEX_BUFFER_VIEW> vertexBuffer_;
 
     /************ Commands and heaps managers **********/
 
     Heaps heapsManager_;
+    Commands cmdManager_;
 
     /***************** Surface Info **********************/
 

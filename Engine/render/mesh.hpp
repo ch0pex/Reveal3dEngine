@@ -20,10 +20,7 @@ namespace reveal3d::render {
 
 struct Vertex {
     math::vec3 pos;
-    math::vec3 normal;
-    math::vec3 color;
-    math::vec2 tex1;
-    math::vec2 tex2;
+    math::vec4 color;
 };
 
 class Mesh {

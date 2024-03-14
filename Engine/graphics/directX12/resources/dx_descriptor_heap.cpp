@@ -16,9 +16,6 @@
 
 namespace reveal3d::graphics::dx {
 
-std::vector<IUnknown*> Heaps::deferredReleases[frameBufferCount] {};
-u32 Heaps::deferredReleasesFlags[frameBufferCount] {};
-
 bool DescriptorHeap::Initialize(ID3D12Device * const device, u32 capacity, bool isShaderVisible) {
 
     assert(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2);
@@ -92,7 +89,7 @@ void DescriptorHeap::free(DescriptorHandle &handle) {
 
     const u32 frame_idx = Commands::FrameIndex();
     deferredIndices_[frame_idx].push_back(index);
-    Heaps::SetDeferredFlag();
+    SetDeferredFlag();
     handle = {};
 }
 
@@ -109,7 +106,7 @@ void DescriptorHeap::CleanDeferreds() {
 }
 
 void DescriptorHeap::Release() {
-    Heaps::DeferredRelease(heap_);
+    DeferredRelease(heap_);
 }
 
 
@@ -117,48 +114,16 @@ void DescriptorHeap::Release() {
 Heaps::Heaps() :
         rtvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV),
         dsvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)
+//        srvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
+//        uavHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 {
-}
-
-
-void Heaps::SetDeferredFlag() {
-    deferredReleasesFlags[Commands::FrameIndex()] = 1;
-}
-
-void Heaps::DeferredRelease(ID3D12DescriptorHeap* heap) {
-    if (heap != nullptr) {
-        deferredReleases[Commands::FrameIndex()].push_back(heap);
-        deferredReleasesFlags[Commands::FrameIndex()] = 1;
-        heap = nullptr;
-    }
-}
-
-void Heaps::CleanDeferreds() {
-    // Will need mutex __declspec(noinline)
-    const u8 frameIndex = Commands::FrameIndex();
-
-    if (deferredReleasesFlags[frameIndex]) {
-
-        deferredReleasesFlags[frameIndex] = 0;
-
-        rtvHeap.CleanDeferreds();
-        dsvHeap.CleanDeferreds();
-        // uavHeap.CleanDeferreds();
-        // uavHeap.CleanDeferreds();
-
-        if (!deferredReleases[Commands::FrameIndex()].empty()) {
-            for (auto* resource : deferredReleases[Commands::FrameIndex()]) {
-                utl::release(resource);
-            }
-        }
-    }
 }
 
 Heaps::~Heaps() {
     rtvHeap.Release();
     dsvHeap.Release();
-    Heaps::CleanDeferreds();
 //    srvHeap.Release();
 //    uavHeap.Release();
+    CleanDeferredResources(*this);
 }
 }

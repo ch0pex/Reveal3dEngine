@@ -12,10 +12,16 @@
  */
 
 #include "dx_graphics.hpp"
+#include "render/mesh.hpp"
 
 namespace reveal3d::graphics::dx {
 
-Graphics::Graphics(const window::Resolution &res) : resolution_(res), presentInfo_(0), allowTearing_(0) {}
+using namespace render;
+
+Graphics::Graphics(const window::Resolution &res) :
+    resolution_(res), presentInfo_(0), allowTearing_(0)
+
+{}
 
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
@@ -94,7 +100,29 @@ void Graphics::SetViewport() {
     viewport_.MinDepth = 0.0f;
 }
 
-void Graphics::LoadAssets() {}
+void Graphics::LoadAssets() {
+    Vertex vertices[] = {
+            { math::vec3(-1.0f, -1.0f, -1.0f), math::vec4(1.0f, 1.0f, 1.0f, 0.0f) },
+            { math::vec3(-1.0f, +1.0f, -1.0f), math::vec4(0.0f, 0.0f, 0.0f, 0.0f) },
+            { math::vec3(+1.0f, +1.0f, -1.0f), math::vec4(1.0f, 0.0f, 0.0f, 0.0f) },
+            { math::vec3(+1.0f, -1.0f, -1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
+            { math::vec3(-1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
+            { math::vec3(-1.0f, +1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
+            { math::vec3(+1.0f, +1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
+            { math::vec3(+1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) }
+    };
+
+    BufferInfo buffInfo = {
+            .device = device_.Get(),
+            .cmdList = cmdManager_.GetList(),
+            .data = &vertices,
+            .byteSize = sizeof(Vertex) * 8,
+            .byteStride = sizeof(Vertex)
+    };
+
+    vertexBuffer_.Upload(buffInfo);
+
+}
 
 void Graphics::Update(render::Camera &camera) {}
 
@@ -105,8 +133,9 @@ void Graphics::PrepareRender() {
     ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
 
     cmdManager_.Reset(); //Resets commands list and current frame allocator
+    CleanDeferredResources(heapsManager_); // Clean deferreds resources
 
-    heapsManager_.CleanDeferreds(); // Clean deferreds resources
+
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currentBuffer.resource.Get(),
