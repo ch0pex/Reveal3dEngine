@@ -51,11 +51,12 @@ void Commands::Reset() {
 
 void Commands::WaitForGPU() {
     commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
-    fence_->SetEventOnCompletion(fenceValues_[frameIndex_]++, fenceEvent_) >> utl::DxCheck;
+
+    fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
     if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
         GetLastError() >> utl::DxCheck;
     }
-
+    fenceValues_[frameIndex_]++;
 }
 
 void Commands::MoveToNextFrame() {

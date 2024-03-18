@@ -23,7 +23,7 @@ public:
     //explicit Commands(bufferCount);
     void Init(ID3D12Device* device);
     [[nodiscard]] inline ID3D12CommandQueue * GetQueue() const { return commandQueue_.Get(); }
-    [[nodiscard]] inline ID3D12GraphicsCommandList * GetList() const { return commandList_.Get(); }
+    [[nodiscard]] inline ID3D12GraphicsCommandList *List() const { return commandList_.Get(); }
     [[nodiscard]] static inline u8 const FrameIndex() { return frameIndex_; }
     void Reset();
     void Execute();

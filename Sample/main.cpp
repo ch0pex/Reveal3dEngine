@@ -21,12 +21,13 @@ using Gfx = Vk::Graphics;
 LogLevel loglevel = logDEBUG;
 
 #if defined(_WIN32)
-_Use_decl_annotations_ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+_Use_decl_annotations_
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    //Scene myScene;
+    //scene.addEntity(BOX)
+    //scene.addEntity(OBJ, path)
     {
         InitInfo windowInitInfo = { };
-        //Scene myScene;
-        //scene.addEntity(BOX)
-        //scene.addEntity(OBJ, path)
         Viewport<Gfx, Win32> viewport(windowInitInfo);
         viewport.window.Run(viewport.renderer);
     }

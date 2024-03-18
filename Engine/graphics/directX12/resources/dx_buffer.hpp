@@ -23,7 +23,7 @@ struct BufferInfo {
     void *data{};
     u64 byteSize {0};
     u32 byteStride {0};
-
+    DXGI_FORMAT format{};
 };
 
 
@@ -32,7 +32,7 @@ class Buffer {
 public:
     Buffer() = default;
     void Upload(BufferInfo &info);
-    ~Buffer() { DeferredRelease(buff_); }
+    void Release() { DeferredRelease(buff_); }
 
     explicit Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
@@ -44,6 +44,8 @@ public:
     [[nodiscard]]inline u32 Size() const { return size_; };
 
 private:
+    void SetView(BufferInfo &info);
+
     ID3D12Resource *buff_;
     BUFFER_VIEW_TYPE view_;
     u32 size_ { 0 };
@@ -90,9 +92,29 @@ void Buffer<BUFFER_VIEW_TYPE>::Upload(BufferInfo &info)
     info.cmdList->ResourceBarrier(1, &barrier);
 
     DeferredRelease(uploadBuffer);
-    view_.BufferLocation = buff_->GetGPUVirtualAddress();
-    view_.StrideInBytes = info.byteStride;
-    view_.SizeInBytes = size_;
+    SetView(info);
 }
+
+
+template<>
+inline void Buffer<D3D12_VERTEX_BUFFER_VIEW>::SetView(BufferInfo &info) {
+    view_.BufferLocation = buff_->GetGPUVirtualAddress();
+    view_.SizeInBytes = size_;
+    view_.StrideInBytes = info.byteStride;
+
+}
+
+template<>
+inline void Buffer<D3D12_INDEX_BUFFER_VIEW>::SetView(BufferInfo &info) {
+    view_.BufferLocation = buff_->GetGPUVirtualAddress();
+    view_.SizeInBytes = size_;
+    view_.Format= info.format;
+}
+
+class ConstantBuffer {
+public:
+
+private:
+};
 
 }

@@ -27,8 +27,8 @@ void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
-    heapsManager_.rtvHeap.Initialize(device_.Get(), 512, false);
-    heapsManager_.dsvHeap.Initialize(device_.Get(), 512, false);
+    heaps_.rtv.Initialize(device_.Get(), 512, false);
+    heaps_.dsv.Initialize(device_.Get(), 512, false);
     CreateSwapChain();
     InitFrameResources();
     SetViewport();
@@ -82,7 +82,7 @@ void Graphics::InitFrameResources() {
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
         };
-        backBuffers_[i].handle = heapsManager_.rtvHeap.alloc();
+        backBuffers_[i].handle = heaps_.rtv.alloc();
         swapChain_->GetBuffer(i, IID_PPV_ARGS(&backBuffers_[i].resource)) >> utl::DxCheck;
         device_->CreateRenderTargetView(backBuffers_[i].resource.Get() ,&desc, backBuffers_[i].handle.cpu);
     }
@@ -101,6 +101,7 @@ void Graphics::SetViewport() {
 }
 
 void Graphics::LoadAssets() {
+    cmdManager_.Reset();
     Vertex vertices[] = {
             { math::vec3(-1.0f, -1.0f, -1.0f), math::vec4(1.0f, 1.0f, 1.0f, 0.0f) },
             { math::vec3(-1.0f, +1.0f, -1.0f), math::vec4(0.0f, 0.0f, 0.0f, 0.0f) },
@@ -111,16 +112,50 @@ void Graphics::LoadAssets() {
             { math::vec3(+1.0f, +1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
             { math::vec3(+1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) }
     };
+    u16 indices[] = {
+            // front face
+            0, 1, 2,
+            0, 2, 3,
+            // back face
+            4, 6, 5,
+            4, 7, 6,
+            // left face
+            4, 5, 1,
+            4, 1, 0,
+            // right face
+            3, 2, 6,
+            3, 6, 7,
+            // top face
+            1, 5, 6,
+            1, 6, 2,
 
-    BufferInfo buffInfo = {
+            // bottom face
+            4, 0, 3,
+            4, 3, 7
+    };
+
+    BufferInfo vertexBufferInfo = {
             .device = device_.Get(),
-            .cmdList = cmdManager_.GetList(),
+            .cmdList = cmdManager_.List(),
             .data = &vertices,
             .byteSize = sizeof(Vertex) * 8,
             .byteStride = sizeof(Vertex)
     };
 
-    vertexBuffer_.Upload(buffInfo);
+    BufferInfo indexBufferInfo = {
+            .device = device_.Get(),
+            .cmdList = cmdManager_.List(),
+            .data = &vertices,
+            .byteSize = sizeof(u16) * 36,
+            .format = DXGI_FORMAT_R16_UINT
+    };
+
+    vertexBuffer_.Upload(vertexBufferInfo);
+    indexBuffer_.Upload(indexBufferInfo);
+
+    cmdManager_.List()->Close();
+    cmdManager_.Execute();
+    cmdManager_.WaitForGPU();
 
 }
 
@@ -130,10 +165,10 @@ void Graphics::Update(render::Camera &camera) {}
 void Graphics::PrepareRender() {
 
     auto &currentBuffer = backBuffers_[Commands::FrameIndex()];
-    ID3D12GraphicsCommandList* commandList = cmdManager_.GetList();
+    ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
     cmdManager_.Reset(); //Resets commands list and current frame allocator
-    CleanDeferredResources(heapsManager_); // Clean deferreds resources
+    CleanDeferredResources(heaps_); // Clean deferreds resources
 
 
 
@@ -152,7 +187,6 @@ void Graphics::PrepareRender() {
             D3D12_RESOURCE_STATE_PRESENT
     );
     commandList->ResourceBarrier(1, &presentBarrier);
-
     commandList->Close() >> utl::DxCheck;
 }
 
@@ -168,6 +202,11 @@ void Graphics::Terminate() {
     utl::SetReporter(device_.Get());
 #endif
     cmdManager_.Flush();
+    heaps_.Release();
+    vertexBuffer_.Release();
+    indexBuffer_.Release();
+    CleanDeferredResources(heaps_);
 }
+
 
 }

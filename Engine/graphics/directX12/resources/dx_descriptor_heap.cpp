@@ -112,18 +112,18 @@ void DescriptorHeap::Release() {
 
 
 Heaps::Heaps() :
-        rtvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV),
-        dsvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)
-//        srvHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
+    rtv(D3D12_DESCRIPTOR_HEAP_TYPE_RTV), dsv(D3D12_DESCRIPTOR_HEAP_TYPE_DSV),
+    cbv(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 //        uavHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 {
 }
+void Heaps::Release() {
 
-Heaps::~Heaps() {
-    rtvHeap.Release();
-    dsvHeap.Release();
-//    srvHeap.Release();
-//    uavHeap.Release();
-    CleanDeferredResources(*this);
+    rtv.Release();
+    dsv.Release();
+    cbv.Release();
+    //    srvHeap.Release();
+    //    uavHeap.Release();
 }
+
 }

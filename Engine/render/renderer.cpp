@@ -38,7 +38,7 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Update() {
     timer_.Tick();
-    log(logDEBUG) << timer_.Fps();
+//    log(logDEBUG) << timer_.Fps();
     camera_.Update(timer_.DeltaTime());
     graphics_.Update(camera_);
 }

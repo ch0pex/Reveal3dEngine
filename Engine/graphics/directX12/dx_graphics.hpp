@@ -53,9 +53,8 @@ private:
 
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
-    ComPtr<IDXGISwapChain3> swapChain_;
 
-    /***************** Resources **********************/
+    /****************** Frame resources and swapchain *****************/
     struct FrameResource {
         ComPtr<ID3D12Resource> resource;
         DescriptorHandle handle;
@@ -63,18 +62,19 @@ private:
 
     FrameResource backBuffers_[frameBufferCount];
     //FrameResource depthStencilBuffer;
+    ComPtr<IDXGISwapChain3> swapChain_;
+
+    /***************** Heaps and Resources **********************/
+
+    Heaps heaps_;
+    Buffer<D3D12_VERTEX_BUFFER_VIEW> vertexBuffer_;
+    Buffer<D3D12_INDEX_BUFFER_VIEW> indexBuffer_;
+
+
+    /************ Pipeline state and commands manager **********/
 
     //ComPtr<ID3D12RootSignature> rootSignature_;
     //ComPtr<ID3D12PipelineState> pipelineState_;
-
-    // App resources.
-    //ComPtr<ID3D12Resource> vertexBuffer_;
-    //D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
-    Buffer<D3D12_VERTEX_BUFFER_VIEW> vertexBuffer_;
-
-    /************ Commands and heaps managers **********/
-
-    Heaps heapsManager_;
     Commands cmdManager_;
 
     /***************** Surface Info **********************/

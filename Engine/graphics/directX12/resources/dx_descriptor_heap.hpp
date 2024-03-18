@@ -78,11 +78,12 @@ struct Heaps {
 
 public:
     Heaps();
-    ~Heaps();
+    void Release();
 
     /******************** Descriptor Heaps *************************/
-    DescriptorHeap rtvHeap;
-    DescriptorHeap dsvHeap;
+    DescriptorHeap rtv;
+    DescriptorHeap dsv;
+    DescriptorHeap cbv;
 //    DescriptorHeap srvHeap; //TODO
 //    DescriptorHeap uavHeap; //TODO
 };

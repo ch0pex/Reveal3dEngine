@@ -41,8 +41,8 @@ void CleanDeferredResources(Heaps& heaps) {
 
         deferredReleasesFlags[frameIndex] = 0;
 
-        heaps.rtvHeap.CleanDeferreds();
-        heaps.dsvHeap.CleanDeferreds();
+        heaps.rtv.CleanDeferreds();
+        heaps.dsv.CleanDeferreds();
         // uavHeap.CleanDeferreds();
         // uavHeap.CleanDeferreds();
 
