@@ -111,8 +111,10 @@ inline void Buffer<D3D12_INDEX_BUFFER_VIEW>::SetView(BufferInfo &info) {
     view_.Format= info.format;
 }
 
+
 class ConstantBuffer {
 public:
+    ConstantBuffer(ID3D12Device *device, u32 nInstances, bool );
 
 private:
 };

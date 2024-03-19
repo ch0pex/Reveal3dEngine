@@ -27,8 +27,9 @@ void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
-    heaps_.rtv.Initialize(device_.Get(), 512, false);
-    heaps_.dsv.Initialize(device_.Get(), 512, false);
+    heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
+    heaps_.dsv.Initialize(device_.Get(), 1U, false);
+    heaps_.cbv.Initialize(device_.Get(), 1U, true);
     CreateSwapChain();
     InitFrameResources();
     SetViewport();
@@ -40,6 +41,7 @@ void Graphics::InitDXGIAdapter() {
     u32 factoryFlags = 0;
 
 #ifdef _DEBUG
+    utl::LogAdapters();
     utl::EnableCpuLayer(factoryFlags);
     utl::EnableGpuLayer();
 #endif

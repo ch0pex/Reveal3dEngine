@@ -43,13 +43,15 @@ void CleanDeferredResources(Heaps& heaps) {
 
         heaps.rtv.CleanDeferreds();
         heaps.dsv.CleanDeferreds();
+        //heaps.cbv.CleanDeferreds();
         // uavHeap.CleanDeferreds();
         // uavHeap.CleanDeferreds();
 
-        if (!deferredReleases[Commands::FrameIndex()].empty()) {
+        if (!deferredReleases[frameIndex].empty()) {
             for (auto* resource : deferredReleases[Commands::FrameIndex()]) {
                 utl::release(resource);
             }
+            deferredReleases[frameIndex].clear();
         }
     }
 }

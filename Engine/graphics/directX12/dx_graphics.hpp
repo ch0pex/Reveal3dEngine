@@ -70,7 +70,6 @@ private:
     Buffer<D3D12_VERTEX_BUFFER_VIEW> vertexBuffer_;
     Buffer<D3D12_INDEX_BUFFER_VIEW> indexBuffer_;
 
-
     /************ Pipeline state and commands manager **********/
 
     //ComPtr<ID3D12RootSignature> rootSignature_;
