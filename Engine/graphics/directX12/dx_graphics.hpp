@@ -49,6 +49,8 @@ private:
     void CreateSwapChain();
     void InitFrameResources();
     void SetViewport();
+    void CreateRootSignature();
+    void CratePipelineState();
 
     /****************** Factory and Device *****************/
 
@@ -57,24 +59,22 @@ private:
 
     /****************** Frame resources and swapchain *****************/
     struct FrameResource {
-        ComPtr<ID3D12Resource> resource;
+        ConstantBuffer constantBuffer_;
+        ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle handle;
     };
 
-    FrameResource backBuffers_[frameBufferCount];
+    FrameResource frameResources_[frameBufferCount];
     //FrameResource depthStencilBuffer;
     ComPtr<IDXGISwapChain3> swapChain_;
 
-    /***************** Heaps and Resources **********************/
+    /***************** Heaps and buffers **********************/
 
     Heaps heaps_;
     Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex> vertexBuffer_;
     Buffer<D3D12_INDEX_BUFFER_VIEW, u16> indexBuffer_;
-    ConstantBuffer constantBuffer_;
-    //ObjectConstant objConstant_;
 
     /************ Pipeline state and commands manager **********/
-
     ComPtr<ID3D12RootSignature> rootSignature_;
     ComPtr<ID3D12PipelineState> pipelineState_;
     Commands cmdManager_;

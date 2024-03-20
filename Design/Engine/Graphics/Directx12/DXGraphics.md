@@ -37,7 +37,7 @@ English:
 12. `rtvDescriptorSize_`: The size of the render target view descriptor.
 
 App resources:
-13. `vertexBuffer_`: A pointer to the vertex buffer resource used for storing vertex data.
+13. `vertexBuffer_`: A pointer to the vertex buffer backBuffer used for storing vertex data.
 14. `vertexBufferView_`: Represents the view of the vertex buffer used for rendering.
 
 Synchronization objects:

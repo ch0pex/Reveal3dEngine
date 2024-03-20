@@ -27,6 +27,7 @@ union AlignedObjCosntant {
     uint8_t alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT];
 };
 
+//TODO: Improve Upload buffer and buffer to dynamic like heaps
 template<typename T>
 class UploadBuffer {
 public:
@@ -38,20 +39,27 @@ public:
 
     void Init(ID3D12Device *device, u32 count);
     inline ID3D12Resource *Get() { return buff_; };
+    inline u32 Size() { return capacity_; };
+    inline D3D12_GPU_VIRTUAL_ADDRESS GpuAddress() { return buff_->GetGPUVirtualAddress(); }
 
+
+    //bool Add(const T* data, u32 count); TODO
     void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
     void Release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr); DeferredRelease(buff_); }
 private:
     ID3D12Resource *buff_;
     T* mappedData_ { nullptr };
+    u32 capacity_{ 0 };
+    //T* offset { nullptr };
 };
 
 
 
 template<typename T>
 void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
+    capacity_ = sizeof(T) * count;
     auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(T) * count);
+    auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
 
     device->CreateCommittedResource(
             &heapProperties,
@@ -61,6 +69,7 @@ void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
             nullptr,
             IID_PPV_ARGS(&buff_)) >> utl::DxCheck;
 
+    // TODO: add option to hide this to cpu with range(0,0)
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&mappedData_));
 }
 

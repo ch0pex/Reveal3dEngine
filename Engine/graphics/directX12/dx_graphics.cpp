@@ -29,8 +29,8 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
+    heaps_.cbv.Initialize(device_.Get(), frameBufferCount, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
-    heaps_.cbv.Initialize(device_.Get(), 1U, true);
     CreateSwapChain();
     InitFrameResources();
     SetViewport();
@@ -85,9 +85,10 @@ void Graphics::InitFrameResources() {
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
         };
-        backBuffers_[i].handle = heaps_.rtv.alloc();
-        swapChain_->GetBuffer(i, IID_PPV_ARGS(&backBuffers_[i].resource)) >> utl::DxCheck;
-        device_->CreateRenderTargetView(backBuffers_[i].resource.Get() ,&desc, backBuffers_[i].handle.cpu);
+        frameResources_[i].handle = heaps_.rtv.alloc();
+        swapChain_->GetBuffer(i, IID_PPV_ARGS(&frameResources_[i].backBuffer)) >> utl::DxCheck;
+        device_->CreateRenderTargetView(frameResources_[i].backBuffer.Get() ,&desc, frameResources_[i].handle.cpu);
+        frameResources_[i].constantBuffer_.Init(device_.Get(), 1U);
     }
 }
 
@@ -116,45 +117,39 @@ void Graphics::LoadAssets() {
             { math::vec3(+1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) }
     };
     u16 indices[] = {
-            // front face
-            0, 1, 2,
-            0, 2, 3,
-            // back face
-            4, 6, 5,
-            4, 7, 6,
-            // left face
-            4, 5, 1,
-            4, 1, 0,
-            // right face
-            3, 2, 6,
-            3, 6, 7,
-            // top face
-            1, 5, 6,
-            1, 6, 2,
-
-            // bottom face
-            4, 0, 3,
-            4, 3, 7
+            /* front face  */ 0, 1, 2, 0, 2, 3,
+            /* back face   */ 4, 6, 5, 4, 7, 6,
+            /* left face   */ 4, 5, 1, 4, 1, 0,
+            /* right face  */ 3, 2, 6, 3, 6, 7,
+            /* top face    */ 1, 5, 6, 1, 6, 2,
+            /* bottom face */ 4, 0, 3, 4, 3, 7
     };
 
     BufferInitInfo vertexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &vertices,
-            .count = 8,
+            .count = sizeof(vertices) / sizeof(Vertex),
     };
 
     BufferInitInfo indexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
-            .data = &vertices,
-            .count = 36,
+            .data = &indices,
+            .count = sizeof(indices) / sizeof(u16),
             .format = DXGI_FORMAT_R16_UINT
     };
 
     vertexBuffer_.Init(vertexBufferInfo);
     indexBuffer_.Init(indexBufferInfo);
-    constantBuffer_.Init(device_.Get(), 1U);
+
+    for (auto& frameResource : frameResources_) { // TODO: Create constant buffer view for each scene object
+        const D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDes = {
+            .BufferLocation = frameResource.constantBuffer_.GpuAddress(),
+            .SizeInBytes = frameResource.constantBuffer_.Size()
+        };
+        device_->CreateConstantBufferView(&cbvDes, heaps_.cbv.CpuStart());
+    }
 
     cmdManager_.List()->Close();
     cmdManager_.Execute();
@@ -162,12 +157,84 @@ void Graphics::LoadAssets() {
 
 }
 
+void Graphics::CreateRootSignature() {
+    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+    CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {
+            .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1
+    };
+
+    if (FAILED(device_->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
+        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+    }
+
+    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+    rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+
+    // Allow input layout and deny uneccessary access to certain pipeline stages.
+    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+    rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+
+    ComPtr<ID3DBlob> signature;
+    ComPtr<ID3DBlob> error;
+    D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error) >> utl::DxCheck;
+    device_->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature_)) >> utl::DxCheck;
+
+}
+
+void Graphics::CratePipelineState() {
+    ComPtr<ID3DBlob> vertexShader;
+    ComPtr<ID3DBlob> pixelShader;
+
+#if defined(_DEBUG)
+    // Enable better shader debugging with the graphics debugging tools.
+    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+    UINT compileFlags = 0;
+#endif
+
+    D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr) >> utl::DxCheck;
+    D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr) >> utl::DxCheck;
+
+    // Define the vertex input layout.
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+            {
+                    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+                    { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            };
+
+    // Describe and create the graphics pipeline state object (PSO).
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+    psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+    psoDesc.pRootSignature = rootSignature_.Get();
+    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+    psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psoDesc.DepthStencilState.DepthEnable = FALSE;
+    psoDesc.DepthStencilState.StencilEnable = FALSE;
+    psoDesc.SampleMask = UINT_MAX;
+    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.SampleDesc.Count = 1;
+
+    device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
+}
+
 void Graphics::Update(render::Camera &camera) {}
 
 // TODO: Functions to simplify barrier creation
 void Graphics::PrepareRender() {
 
-    auto &currentBuffer = backBuffers_[Commands::FrameIndex()];
+    auto &currentBuffer = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
     cmdManager_.Reset(); //Resets commands list and current frame allocator
@@ -176,7 +243,7 @@ void Graphics::PrepareRender() {
 
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.resource.Get(),
+            currentBuffer.backBuffer.Get(),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
@@ -185,7 +252,7 @@ void Graphics::PrepareRender() {
     commandList->ClearRenderTargetView(currentBuffer.handle.cpu, clearColor, 0, nullptr);
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.resource.Get(),
+            currentBuffer.backBuffer.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
             D3D12_RESOURCE_STATE_PRESENT
     );
@@ -208,7 +275,9 @@ void Graphics::Terminate() {
     heaps_.Release();
     vertexBuffer_.Release();
     indexBuffer_.Release();
-    constantBuffer_.Release();
+    for (auto& frameResource : frameResources_) {
+        frameResource.constantBuffer_.Release();
+    }
     CleanDeferredResources(heaps_);
 }
 

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libEngine.a CMakeFiles/Engine.dir/render/renderer.cpp.o CMakeFiles/Engine.dir/render/camera.cpp.o CMakeFiles/Engine.dir/common/timer.cpp.o CMakeFiles/Engine.dir/core/scene.cpp.o CMakeFiles/Engine.dir/core/geometry.cpp.o CMakeFiles/Engine.dir/core/transform.cpp.o CMakeFiles/Engine.dir/render/light.cpp.o CMakeFiles/Engine.dir/window/unix/glfw.cpp.o
-/usr/bin/ranlib libEngine.a

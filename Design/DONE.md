@@ -1,0 +1,6 @@
+- [x] Descriptors heaps
+- [x] Frame buffering
+- [x] Diseño multiplataforma mediante programacion generica
+- [x] Libreria math
+- [x] Deferred release 
+- [x] Timer
