@@ -19,16 +19,17 @@
 
 
 #include "dx_common.hpp"
+#include "dx_commands.hpp"
+#include "resources/dx_resources.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
 
-#include "dx_commands.hpp"
-#include "resources/dx_resources.hpp"
 
 #include <array>
 
 namespace reveal3d::graphics::dx {
 
+__declspec(align(16))
 class Graphics {
 public:
     explicit Graphics(const window::Resolution &res);
@@ -67,13 +68,15 @@ private:
     /***************** Heaps and Resources **********************/
 
     Heaps heaps_;
-    Buffer<D3D12_VERTEX_BUFFER_VIEW> vertexBuffer_;
-    Buffer<D3D12_INDEX_BUFFER_VIEW> indexBuffer_;
+    Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex> vertexBuffer_;
+    Buffer<D3D12_INDEX_BUFFER_VIEW, u16> indexBuffer_;
+    ConstantBuffer constantBuffer_;
+    //ObjectConstant objConstant_;
 
     /************ Pipeline state and commands manager **********/
 
-    //ComPtr<ID3D12RootSignature> rootSignature_;
-    //ComPtr<ID3D12PipelineState> pipelineState_;
+    ComPtr<ID3D12RootSignature> rootSignature_;
+    ComPtr<ID3D12PipelineState> pipelineState_;
     Commands cmdManager_;
 
     /***************** Surface Info **********************/

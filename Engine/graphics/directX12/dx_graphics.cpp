@@ -20,8 +20,9 @@ using namespace render;
 
 Graphics::Graphics(const window::Resolution &res) :
     resolution_(res), presentInfo_(0), allowTearing_(0)
+{
 
-{}
+}
 
 void Graphics::LoadPipeline() {
     // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
@@ -136,24 +137,24 @@ void Graphics::LoadAssets() {
             4, 3, 7
     };
 
-    BufferInfo vertexBufferInfo = {
+    BufferInitInfo vertexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &vertices,
-            .byteSize = sizeof(Vertex) * 8,
-            .byteStride = sizeof(Vertex)
+            .count = 8,
     };
 
-    BufferInfo indexBufferInfo = {
+    BufferInitInfo indexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &vertices,
-            .byteSize = sizeof(u16) * 36,
+            .count = 36,
             .format = DXGI_FORMAT_R16_UINT
     };
 
-    vertexBuffer_.Upload(vertexBufferInfo);
-    indexBuffer_.Upload(indexBufferInfo);
+    vertexBuffer_.Init(vertexBufferInfo);
+    indexBuffer_.Init(indexBufferInfo);
+    constantBuffer_.Init(device_.Get(), 1U);
 
     cmdManager_.List()->Close();
     cmdManager_.Execute();
@@ -207,6 +208,7 @@ void Graphics::Terminate() {
     heaps_.Release();
     vertexBuffer_.Release();
     indexBuffer_.Release();
+    constantBuffer_.Release();
     CleanDeferredResources(heaps_);
 }
 

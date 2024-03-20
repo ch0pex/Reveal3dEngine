@@ -53,9 +53,9 @@ i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
         bool isRunning = true;
 
         InitWindow(renderer);
+        renderer.Init(info_.windowHandle);
         ShowWindow(info_.windowHandle, SW_SHOW);
 
-        renderer.Init(info_.windowHandle);
         while(isRunning) {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&msg);

@@ -27,3 +27,4 @@ void CleanDeferredResources(Heaps& heaps);
 
 #include "dx_buffer.hpp"
 #include "dx_descriptor_heap.hpp"
+#include "dx_upload_buffer.hpp"

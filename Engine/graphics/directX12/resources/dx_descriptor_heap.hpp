@@ -18,8 +18,8 @@
 namespace reveal3d::graphics::dx {
 
 struct DescriptorHandle {
-    CD3DX12_CPU_DESCRIPTOR_HANDLE  cpu {};
-    CD3DX12_GPU_DESCRIPTOR_HANDLE  gpu {};
+    D3D12_CPU_DESCRIPTOR_HANDLE  cpu {};
+    D3D12_GPU_DESCRIPTOR_HANDLE  gpu {};
     u32 index {};
 
 

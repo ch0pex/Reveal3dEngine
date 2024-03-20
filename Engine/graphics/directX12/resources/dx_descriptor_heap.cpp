@@ -68,8 +68,7 @@ DescriptorHandle DescriptorHeap::alloc() {
 
     DescriptorHandle handle;
     handle.cpu.ptr = cpuStart_.ptr + offset;
-    if (IsShaderVisible())
-    {
+    if (IsShaderVisible()) {
         handle.gpu.ptr = gpuStart_.ptr + offset;
     }
 

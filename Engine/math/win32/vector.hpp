@@ -103,6 +103,10 @@ protected:
     XMVECTOR m_vec;
 };
 
+using vecf2 = XMFLOAT2;
+using vecf3 = XMFLOAT3;
+using vecf4 = XMFLOAT4;
+
 }
 
 
