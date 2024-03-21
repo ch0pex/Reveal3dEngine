@@ -60,6 +60,7 @@ private:
     /****************** Frame resources and swapchain *****************/
     struct FrameResource {
         ConstantBuffer constantBuffer_;
+        AlignedObjCosntant objCosntant;
         ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle handle;
     };

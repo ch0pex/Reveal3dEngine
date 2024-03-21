@@ -230,6 +230,7 @@ void Graphics::BuildPSO() {
 }
 
 void Graphics::Update(render::Camera &camera) {
+    /*
     f32 x = 0.5f * sinf(XM_PIDIV4) * cosf(1.5f * XM_PI);
     f32 z = 0.5f * sinf(XM_PIDIV4) * sinf(1.5f * XM_PI);
     f32 y = 0.5f * cosf(XM_PIDIV4);
@@ -248,6 +249,15 @@ void Graphics::Update(render::Camera &camera) {
     // Update the constant buffer with the latest worldViewProj matrix.
     AlignedObjCosntant objConstants = {.constants = {worldViewProj}};
     frameResources_[Commands::FrameIndex()].constantBuffer_.CopyData(0, &objConstants, 1);
+     */
+    const math::xvec4 translationSpeed = {0.005f, 0.0f, 0.0f, 0.0f };
+    const float offsetBounds = 1.25f;
+    frameResources_[Commands::FrameIndex()].objCosntant.constant.offset += translationSpeed;
+    if (frameResources_[Commands::FrameIndex()].objCosntant.constant.offset.GetX() > offsetBounds)
+    {
+        frameResources_[Commands::FrameIndex()].objCosntant.constant.offset.SetX(-offsetBounds);
+    }
+    frameResources_[Commands::FrameIndex()].constantBuffer_.CopyData(0, &frameResources_[Commands::FrameIndex()].objCosntant);
 }
 
 // TODO: Functions to simplify barrier creation

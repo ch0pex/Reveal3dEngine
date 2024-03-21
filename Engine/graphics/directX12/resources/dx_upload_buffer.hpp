@@ -19,11 +19,13 @@
 namespace reveal3d::graphics::dx {
 
 struct ObjConstant {
-    math::mat4 worldViewProj;
+    ObjConstant(f32 scalar ) : offset(scalar) {}
+    math::xvec4 offset;
 };
 
 union AlignedObjCosntant {
-    ObjConstant constants;
+    AlignedObjCosntant() : constant(0.0f) {}
+    ObjConstant constant;
     uint8_t alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT];
 };
 

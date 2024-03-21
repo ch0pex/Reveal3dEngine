@@ -76,12 +76,16 @@ public:
     [[nodiscard]] INLINE scalar GetW() const { return XMVectorGetW(vec_); }
 
     INLINE xvec4 operator-() const { return XMVectorNegate(vec_); }
-    INLINE xvec4 operator+(xvec4 v2) const { return XMVectorAdd(vec_, v2); }
-    INLINE xvec4 operator-(xvec4 v2) const { return XMVectorSubtract(vec_, v2); }
-    INLINE xvec4 operator*(xvec4 v2) const { return XMVectorMultiply(vec_, v2); }
-    INLINE xvec4 operator/(xvec4 v2) const { return XMVectorDivide(vec_, v2); }
-    INLINE xvec4 operator*(scalar s) const { return *this * xvec4(s); }
-    INLINE xvec4 operator/(scalar s) const { return *this / xvec4(s); }
+    INLINE xvec4 operator+(const xvec4 v2) const { return XMVectorAdd(vec_, v2); }
+    INLINE xvec4 operator-(const xvec4 v2) const { return XMVectorSubtract(vec_, v2); }
+    INLINE xvec4 operator*(const xvec4 v2) const { return XMVectorMultiply(vec_, v2); }
+    INLINE xvec4 operator/(const xvec4 v2) const { return XMVectorDivide(vec_, v2); }
+    INLINE xvec4 operator*(const scalar s) const { return *this * xvec4(s); }
+    INLINE xvec4 operator/(const scalar s) const { return *this / xvec4(s); }
+    INLINE void operator+=(const xvec4 v2) { *this = XMVectorAdd(vec_, v2); }
+    INLINE void operator-=(const xvec4 v2) { *this = XMVectorSubtract(vec_, v2); }
+    INLINE void operator+=(const scalar s) { *this = *this + xvec4(s); }
+    INLINE void operator-=(const scalar s) { *this = *this - xvec4(s); }
     INLINE void operator*=(const scalar s) { *this = *this * xvec4(s); }
     INLINE void operator/=(const scalar s) { *this = *this / xvec4(s); }
     INLINE operator DirectX::XMVECTOR() const { return vec_; }
