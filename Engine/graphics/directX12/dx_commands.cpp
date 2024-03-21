@@ -44,9 +44,9 @@ void Commands::Init(ID3D12Device *device) {
     commandList_->Close();
 }
 
-void Commands::Reset() {
+void Commands::Reset(ID3D12PipelineState *pso) {
     commandAllocators_[frameIndex_]->Reset() >> utl::DxCheck;
-    commandList_->Reset(commandAllocators_[frameIndex_].Get(), nullptr) >> utl::DxCheck; //TODO: Add Pipeline state
+    commandList_->Reset(commandAllocators_[frameIndex_].Get(), pso) >> utl::DxCheck; //TODO: Add Pipeline state
 }
 
 void Commands::WaitForGPU() {

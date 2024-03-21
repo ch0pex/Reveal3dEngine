@@ -49,8 +49,8 @@ private:
     void CreateSwapChain();
     void InitFrameResources();
     void SetViewport();
-    void CreateRootSignature();
-    void CratePipelineState();
+    void BuildRootSignature();
+    void BuildPSO();
 
     /****************** Factory and Device *****************/
 

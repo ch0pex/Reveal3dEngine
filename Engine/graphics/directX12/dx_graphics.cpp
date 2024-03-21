@@ -102,10 +102,13 @@ void Graphics::SetViewport() {
     viewport_.Width = (f32) desc.BufferDesc.Width;
     viewport_.MaxDepth = 1.0f;
     viewport_.MinDepth = 0.0f;
+    scissorRect_ = { 0, 0, (i32) desc.BufferDesc.Width, (i32) desc.BufferDesc.Height };
 }
 
 void Graphics::LoadAssets() {
-    cmdManager_.Reset();
+    BuildRootSignature();
+    BuildPSO();
+    cmdManager_.Reset(nullptr);
     Vertex vertices[] = {
             { math::vec3(-1.0f, -1.0f, -1.0f), math::vec4(1.0f, 1.0f, 1.0f, 0.0f) },
             { math::vec3(-1.0f, +1.0f, -1.0f), math::vec4(0.0f, 0.0f, 0.0f, 0.0f) },
@@ -124,14 +127,12 @@ void Graphics::LoadAssets() {
             /* top face    */ 1, 5, 6, 1, 6, 2,
             /* bottom face */ 4, 0, 3, 4, 3, 7
     };
-
     BufferInitInfo vertexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &vertices,
             .count = sizeof(vertices) / sizeof(Vertex),
     };
-
     BufferInitInfo indexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
@@ -139,7 +140,6 @@ void Graphics::LoadAssets() {
             .count = sizeof(indices) / sizeof(u16),
             .format = DXGI_FORMAT_R16_UINT
     };
-
     vertexBuffer_.Init(vertexBufferInfo);
     indexBuffer_.Init(indexBufferInfo);
 
@@ -157,7 +157,7 @@ void Graphics::LoadAssets() {
 
 }
 
-void Graphics::CreateRootSignature() {
+void Graphics::BuildRootSignature() {
     CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
     CD3DX12_ROOT_PARAMETER1 rootParameters[1];
     D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {
@@ -189,9 +189,10 @@ void Graphics::CreateRootSignature() {
 
 }
 
-void Graphics::CratePipelineState() {
+void Graphics::BuildPSO() {
     ComPtr<ID3DBlob> vertexShader;
     ComPtr<ID3DBlob> pixelShader;
+    ComPtr<ID3DBlob> errors;
 
 #if defined(_DEBUG)
     // Enable better shader debugging with the graphics debugging tools.
@@ -199,16 +200,20 @@ void Graphics::CratePipelineState() {
 #else
     UINT compileFlags = 0;
 #endif
+    HRESULT hr = S_OK;
 
-    D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr) >> utl::DxCheck;
-    D3DCompileFromFile(L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr) >> utl::DxCheck;
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    hr >> utl::DxCheck;
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    hr >> utl::DxCheck;
 
     // Define the vertex input layout.
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-            {
-                    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-                    { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-            };
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+    };
 
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -229,33 +234,63 @@ void Graphics::CratePipelineState() {
     device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
 }
 
-void Graphics::Update(render::Camera &camera) {}
+void Graphics::Update(render::Camera &camera) {
+    f32 x = 0.5f * sinf(XM_PIDIV4) * cosf(1.5f * XM_PI);
+    f32 z = 0.5f * sinf(XM_PIDIV4) * sinf(1.5f * XM_PI);
+    f32 y = 0.5f * cosf(XM_PIDIV4);
+
+    // Build the view matrix.
+    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+    XMVECTOR target = XMVectorZero();
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+
+    XMMATRIX world = XMMatrixIdentity();
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * 3.141516, resolution_.aspectRatio, 1.0f, 1000.0f);
+    XMMATRIX worldViewProj = XMMatrixTranspose(world * view * proj);
+
+    // Update the constant buffer with the latest worldViewProj matrix.
+    AlignedObjCosntant objConstants = {.constants = {worldViewProj}};
+    frameResources_[Commands::FrameIndex()].constantBuffer_.CopyData(0, &objConstants, 1);
+}
 
 // TODO: Functions to simplify barrier creation
 void Graphics::PrepareRender() {
 
-    auto &currentBuffer = frameResources_[Commands::FrameIndex()];
+    auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
-    cmdManager_.Reset(); //Resets commands list and current frame allocator
+    cmdManager_.Reset(pipelineState_.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
-
+    commandList->RSSetViewports(1, &viewport_);
+    commandList->RSSetScissorRects(1, &scissorRect_);
 
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.backBuffer.Get(),
-            D3D12_RESOURCE_STATE_PRESENT,
+            currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    commandList->ClearRenderTargetView(currentBuffer.handle.cpu, clearColor, 0, nullptr);
+    commandList->ClearRenderTargetView(currFrameRes.handle.cpu, clearColor, 0, nullptr);
+    commandList->OMSetRenderTargets(1, &currFrameRes.handle.cpu, FALSE, nullptr);
+
+    ID3D12DescriptorHeap* descHeaps[] = { heaps_.cbv.Get() };
+    commandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
+
+    commandList->SetGraphicsRootSignature(rootSignature_.Get());
+    commandList->IASetVertexBuffers(0, 1, vertexBuffer_.View());
+    commandList->IASetIndexBuffer(indexBuffer_.View());
+    commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    commandList->SetGraphicsRootDescriptorTable(0, heaps_.cbv.GpuStart());
+
+    commandList->DrawIndexedInstanced(36, 1, 0 ,0 ,0); // Hardcoded TODO
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currentBuffer.backBuffer.Get(),
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PRESENT
-    );
+            currFrameRes.backBuffer.Get(),
+            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT );
     commandList->ResourceBarrier(1, &presentBarrier);
     commandList->Close() >> utl::DxCheck;
 }

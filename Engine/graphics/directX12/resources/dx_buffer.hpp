@@ -39,9 +39,9 @@ public:
     explicit Buffer(Buffer&&) = delete;
     Buffer& operator=(Buffer&&) = delete;
 
-    [[nodiscard]]inline ID3D12Resource* Get() const { return buff_; };
-    [[nodiscard]]inline BUFFER_VIEW_TYPE* View() const { return &view_; };
-    [[nodiscard]]inline u32 Size() const { return size_; };
+    [[nodiscard]]INLINE ID3D12Resource* Get() const { return buff_; };
+    [[nodiscard]]INLINE BUFFER_VIEW_TYPE* View() { return &view_; };
+    [[nodiscard]]INLINE u32 Size() const { return size_; };
 
 private:
     void SetView(BufferInitInfo &info);

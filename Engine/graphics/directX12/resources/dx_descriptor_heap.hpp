@@ -46,6 +46,7 @@ public:
     ~DescriptorHeap() = default;
 
     //INLINE D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
+    INLINE ID3D12DescriptorHeap* Get() { return heap_; };
     INLINE D3D12_CPU_DESCRIPTOR_HANDLE CpuStart() { return cpuStart_; }
     INLINE D3D12_GPU_DESCRIPTOR_HANDLE GpuStart() { return gpuStart_; }
     INLINE u32 Capacity() { return capacity_; }

@@ -127,6 +127,7 @@ void operator>>(Error grabber, Checker checker) {
                                    grabber.loc.column(),
                                    grabber.hr
                                    );
+       log(logDEBUG) << error.c_str();
        MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2 );
        throw std::runtime_error(error);
    }
