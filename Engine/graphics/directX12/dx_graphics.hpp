@@ -35,7 +35,7 @@ public:
     explicit Graphics(const window::Resolution &res);
     void LoadPipeline();
     void LoadAssets();
-    void Update(render::Camera &camera);
+    void Update(render::Camera &camera, const Timer& timer);
     void PrepareRender();
     void Draw();
     void Terminate();
@@ -60,7 +60,6 @@ private:
     /****************** Frame resources and swapchain *****************/
     struct FrameResource {
         ConstantBuffer constantBuffer_;
-        AlignedObjCosntant objCosntant;
         ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle handle;
     };

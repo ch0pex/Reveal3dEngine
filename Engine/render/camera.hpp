@@ -22,7 +22,8 @@ class Camera {
 public:
     explicit Camera(const window::Resolution &res);
 
-    void Update(f32 deltaTime);
+    void Update(const Timer& timer);
+    void OnResize();
 
     [[nodiscard]] INLINE math::mat4 GetProjectionMatrix() const { return projectionMatrix_; }
     [[nodiscard]] INLINE math::mat4 GetViewMatrix() const { return viewMatrix_; }

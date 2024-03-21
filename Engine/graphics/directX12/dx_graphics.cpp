@@ -110,14 +110,24 @@ void Graphics::LoadAssets() {
     BuildPSO();
     cmdManager_.Reset(nullptr);
 
-    Vertex vertices[] = {
-            { { 0.0f, 0.25f * resolution_.aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-            { { 0.25f, -0.25f * resolution_.aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-            { { -0.25f, -0.25f * resolution_.aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+    const Vertex vertices[] = {
+            { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
+            { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
+            { {1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 0.0f} }, // 2
+            { {1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} }, // 3
+            { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, 1.0f, 0.0f} }, // 4
+            { {-1.0f,  1.0f,  1.0f}, {0.0f, 1.0f, 1.0f, 0.0f} }, // 5
+            { {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 1.0f, 0.0f} }, // 6
+            { {1.0f, -1.0f,  1.0f}, {1.0f, 0.0f, 1.0f, 0.0f} }  // 7
     };
 
-    u16 indices[] = {
-            0, 1, 2,
+    const u16 indices[] = {
+            0, 1, 2, 0, 2, 3,
+            4, 6, 5, 4, 7, 6,
+            4, 5, 1, 4, 1, 0,
+            3, 2, 6, 3, 6, 7,
+            1, 5, 6, 1, 6, 2,
+            4, 0, 3, 4, 3, 7
     };
 
     BufferInitInfo vertexBufferInfo = {
@@ -229,35 +239,31 @@ void Graphics::BuildPSO() {
     device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
 }
 
-void Graphics::Update(render::Camera &camera) {
-    /*
-    f32 x = 0.5f * sinf(XM_PIDIV4) * cosf(1.5f * XM_PI);
-    f32 z = 0.5f * sinf(XM_PIDIV4) * sinf(1.5f * XM_PI);
-    f32 y = 0.5f * cosf(XM_PIDIV4);
+void Graphics::Update(render::Camera &camera, const Timer& timer) {
+    auto &currFrameRes = frameResources_[Commands::FrameIndex()];
+    AlignedObjCosntant objConstant;
 
-    // Build the view matrix.
-    XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-
-    XMMATRIX world = XMMatrixIdentity();
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * 3.141516, resolution_.aspectRatio, 1.0f, 1000.0f);
-    XMMATRIX worldViewProj = XMMatrixTranspose(world * view * proj);
-
-    // Update the constant buffer with the latest worldViewProj matrix.
-    AlignedObjCosntant objConstants = {.constants = {worldViewProj}};
-    frameResources_[Commands::FrameIndex()].constantBuffer_.CopyData(0, &objConstants, 1);
-     */
-    const math::xvec4 translationSpeed = {0.005f, 0.0f, 0.0f, 0.0f };
-    const float offsetBounds = 1.25f;
-    frameResources_[Commands::FrameIndex()].objCosntant.constant.offset += translationSpeed;
-    if (frameResources_[Commands::FrameIndex()].objCosntant.constant.offset.GetX() > offsetBounds)
+    XMMATRIX viewProjection;
     {
-        frameResources_[Commands::FrameIndex()].objCosntant.constant.offset.SetX(-offsetBounds);
+        // setup view (camera) matrix
+        const auto eyePosition = XMVectorSet(0, 0, -6, 1);
+        const auto focusPoint = XMVectorSet(0, 0, 0, 1);
+        const auto upDirection = XMVectorSet(0, 1, 0, 0);
+        const auto view = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
+        // setup perspective projection matrix
+        const auto aspectRatio = resolution_.aspectRatio;
+        const auto projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), aspectRatio, 0.1f, 100.0f);
+        // combine matrices
+        viewProjection = view * projection;
     }
-    frameResources_[Commands::FrameIndex()].constantBuffer_.CopyData(0, &frameResources_[Commands::FrameIndex()].objCosntant);
+    objConstant.data.worlViewProj = XMMatrixTranspose(
+            XMMatrixRotationX(1.0f * timer.DeltaTime() + 1.f) *
+            XMMatrixRotationY(1.2f * timer.DeltaTime() + 2.f) *
+            XMMatrixRotationZ(1.1f * timer.DeltaTime() + 0.f) *
+            viewProjection
+    );
+    // Update the constant buffer with the latest worldViewProj matrix.
+    currFrameRes.constantBuffer_.CopyData(0, &objConstant, 1);
 }
 
 // TODO: Functions to simplify barrier creation
@@ -291,7 +297,7 @@ void Graphics::PrepareRender() {
 
     commandList->SetGraphicsRootDescriptorTable(0, heaps_.cbv.GpuStart());
 
-    commandList->DrawIndexedInstanced(3, 1, 0, 0 ,0); // Hardcoded TODO
+    commandList->DrawIndexedInstanced(36, 1, 0, 0 ,0); // Hardcoded TODO
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
