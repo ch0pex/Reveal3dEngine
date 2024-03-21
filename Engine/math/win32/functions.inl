@@ -13,7 +13,7 @@
 
 namespace reveal3d::math {
 
-//Concept for T, it must be XMVector wrapper class (scalar, vec3, vec4)
+//Concept for T, it must be XMVector wrapper class (scalar, xvec3, xvec4)
 
 template<typename T> INLINE T Sqrt(T s) { return T(XMVectorSqrt(s)); }
 template<typename T> INLINE T Recip(T s) { return T(XMVectorReciprocal(s)); }
@@ -66,25 +66,25 @@ INLINE f32 Max(f32 a, f32 b) { return a > b ? a : b; }
 INLINE f32 Min(f32 a, f32 b) { return a < b ? a : b; }
 INLINE f32 Clamp(f32 v, f32 a, f32 b) { return Min(Max(v, a), b); }
 
-INLINE scalar Length(vec3 v) { return scalar(XMVector3Length(v)); }
-INLINE scalar LengthSquare(vec3 v) { return scalar(XMVector3LengthSq(v)); }
-INLINE scalar LengthRecip(vec3 v) { return scalar(XMVector3ReciprocalLength(v)); }
-INLINE scalar Dot(vec3 v1, vec3 v2) { return scalar(XMVector3Dot(v1, v2)); }
-INLINE scalar Dot(vec4 v1, vec4 v2) { return scalar(XMVector4Dot(v1, v2)); }
-INLINE vec3 Cross(vec3 v1, vec3 v2) { return vec3(XMVector3Cross(v1, v2)); }
-INLINE vec3 Normalize(vec3 v) { return vec3(XMVector3Normalize(v)); }
-INLINE vec4 Normalize(vec4 v) { return vec4(XMVector4Normalize(v)); }
+INLINE scalar Length(xvec3 v) { return scalar(XMVector3Length(v)); }
+INLINE scalar LengthSquare(xvec3 v) { return scalar(XMVector3LengthSq(v)); }
+INLINE scalar LengthRecip(xvec3 v) { return scalar(XMVector3ReciprocalLength(v)); }
+INLINE scalar Dot(xvec3 v1, xvec3 v2) { return scalar(XMVector3Dot(v1, v2)); }
+INLINE scalar Dot(xvec4 v1, xvec4 v2) { return scalar(XMVector4Dot(v1, v2)); }
+INLINE xvec3 Cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
+INLINE xvec3 Normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
+INLINE xvec4 Normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
 INLINE mat3 Transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
 
 INLINE mat3 InverseTranspose(const mat3 & mat)
 {
-    const vec3 x = mat.GetX();
-    const vec3 y = mat.GetY();
-    const vec3 z = mat.GetZ();
+    const xvec3 x = mat.GetX();
+    const xvec3 y = mat.GetY();
+    const xvec3 z = mat.GetZ();
 
-    const vec3 inv0 = Cross(y, z);
-    const vec3 inv1 = Cross(z, x);
-    const vec3 inv2 = Cross(x, y);
+    const xvec3 inv0 = Cross(y, z);
+    const xvec3 inv1 = Cross(z, x);
+    const xvec3 inv2 = Cross(x, y);
     const scalar rDet = Recip(Dot(z, inv2));
 
     // Return the adjoint / determinant
@@ -94,7 +94,7 @@ INLINE mat3 InverseTranspose(const mat3 & mat)
 INLINE mat4 OrthoInvert(const mat4 & xform)
 {
     mat3 basis = Transpose(xform.Get3x3());
-    vec3 translate = basis * -vec3(xform.GetW());
+    xvec3 translate = basis * -xvec3(xform.GetW());
     return mat4(basis, translate);
 }
 

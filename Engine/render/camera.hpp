@@ -28,7 +28,7 @@ public:
     [[nodiscard]] INLINE math::mat4 GetViewMatrix() const { return viewMatrix_; }
 
 private:
-    math::vec3 position_;
+    math::xvec3 position_;
     math::mat4 projectionMatrix_;
     math::mat4 viewMatrix_;
     math::mat4 viewProjectionMatrix_;

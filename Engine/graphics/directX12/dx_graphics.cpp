@@ -109,37 +109,32 @@ void Graphics::LoadAssets() {
     BuildRootSignature();
     BuildPSO();
     cmdManager_.Reset(nullptr);
+
     Vertex vertices[] = {
-            { math::vec3(-1.0f, -1.0f, -1.0f), math::vec4(1.0f, 1.0f, 1.0f, 0.0f) },
-            { math::vec3(-1.0f, +1.0f, -1.0f), math::vec4(0.0f, 0.0f, 0.0f, 0.0f) },
-            { math::vec3(+1.0f, +1.0f, -1.0f), math::vec4(1.0f, 0.0f, 0.0f, 0.0f) },
-            { math::vec3(+1.0f, -1.0f, -1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
-            { math::vec3(-1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
-            { math::vec3(-1.0f, +1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
-            { math::vec3(+1.0f, +1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) },
-            { math::vec3(+1.0f, -1.0f, +1.0f), math::vec4(0.0f, 1.0f, 0.0f, 0.0f) }
+            { { 0.0f, 0.25f * resolution_.aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+            { { 0.25f, -0.25f * resolution_.aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+            { { -0.25f, -0.25f * resolution_.aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
     };
+
     u16 indices[] = {
-            /* front face  */ 0, 1, 2, 0, 2, 3,
-            /* back face   */ 4, 6, 5, 4, 7, 6,
-            /* left face   */ 4, 5, 1, 4, 1, 0,
-            /* right face  */ 3, 2, 6, 3, 6, 7,
-            /* top face    */ 1, 5, 6, 1, 6, 2,
-            /* bottom face */ 4, 0, 3, 4, 3, 7
+            0, 1, 2,
     };
+
     BufferInitInfo vertexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &vertices,
-            .count = sizeof(vertices) / sizeof(Vertex),
+            .count = _countof(vertices),
     };
+
     BufferInitInfo indexBufferInfo = {
             .device = device_.Get(),
             .cmdList = cmdManager_.List(),
             .data = &indices,
-            .count = sizeof(indices) / sizeof(u16),
+            .count = _countof(indices),
             .format = DXGI_FORMAT_R16_UINT
     };
+
     vertexBuffer_.Init(vertexBufferInfo);
     indexBuffer_.Init(indexBufferInfo);
 
@@ -211,7 +206,7 @@ void Graphics::BuildPSO() {
 
     // Define the vertex input layout.
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
@@ -286,7 +281,7 @@ void Graphics::PrepareRender() {
 
     commandList->SetGraphicsRootDescriptorTable(0, heaps_.cbv.GpuStart());
 
-    commandList->DrawIndexedInstanced(36, 1, 0 ,0 ,0); // Hardcoded TODO
+    commandList->DrawIndexedInstanced(3, 1, 0, 0 ,0); // Hardcoded TODO
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
