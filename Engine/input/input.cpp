@@ -19,6 +19,9 @@ namespace reveal3d::input  {
 std::vector<BaseSystem *> inputSystems;
 std::unordered_map<u8, action> bindings = {
         {code::key_escape, action::window_close},
+        {code::mouse_middle, action::camera_look},
+        {code::mouse_move, action::camera_look},
+        {code::key_shift, action::camera_look},
         {code::key_s, action::camera_backwd},
         {code::key_w, action::camera_fwd},
         {code::key_a, action::camera_left},
@@ -37,7 +40,7 @@ void KeyDown(u8 keycode) {
     }
 }
 
-void KeyDown(u8 keycode, math::xvec3 pos) {
+void KeyDown(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
         for(auto *inputSys : inputSystems) {
@@ -56,7 +59,7 @@ void KeyUp(u8 keycode) {
     }
 }
 
-void KeyUp(u8 keycode, math::xvec3 pos) {
+void KeyUp(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
         for (auto *inputSys: inputSystems) {
@@ -65,9 +68,7 @@ void KeyUp(u8 keycode, math::xvec3 pos) {
     }
 }
 
-void MouseMove(u8 keycode, math::xvec3 pos) {
-    log(logDEBUG) << "Mouse Move code: " << keycode << "\n";
-//    log(logDEBUG) << "Mouse pos: " << (f32) pos.GetX() << ", " << (f32) pos.GetY() << "\n";
+void MouseMove(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
         for (auto *inputSys: inputSystems) {

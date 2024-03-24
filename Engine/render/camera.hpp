@@ -31,17 +31,20 @@ public:
     [[nodiscard]] INLINE math::mat4 GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
     [[nodiscard]] INLINE math::mat4 GetViewMatrix() const { return viewMatrix_; }
 
-    //Input handlers
-    void Move(input::action dir, input::type inputType);
-    void LookAt(input::action dir, math::xvec3 mousePos);
-    void SetLooking(input::action act, input::type inputType);
+    /********* Input handling ************/
+    void Move(input::action dir, input::type value);
+    void SetLooking(input::action action, input::type value);
+    void SetNewMousePos(input::action action, math::vec2 mousePos);
 
 private:
     void UpdatePos(math::scalar dt);
+    void UpdateFront(math::scalar dt);
 
     math::xvec3 position_;
-    math::xvec3 lookDir_;
-    math::xvec3 upDirection_;
+    math::xvec3 front_;
+    math::xvec3 up_;
+    math::xvec3 right_;
+    math::xvec3 worldUp_;
     math::mat4 projectionMatrix_;
     math::mat4 viewMatrix_;
     math::mat4 viewProjectionMatrix_;
@@ -49,19 +52,15 @@ private:
     math::scalar moveSpeed_;
     input::System<Camera> inputSys_;
 
-    enum dir {
-        fwd,
-        bckwd,
-        up,
-        down,
-        left,
-        right,
-
-        count
-    };
-
+    /********* Input handling ************/ //NOTE: Maybe move this to some mouse class?
+    enum dir { fwd, bckwd, up, down, right, left, count };
     bool isMoving[dir::count] { false }; // Is moving to certain direction
-    bool isLooking { false }; // Middle mouse button is pressed for looking at
+    bool isLooking { false };
+    bool firstMouse_ { true };
+    math::vec2 lastPos_;
+    math::vec2 newPos_;
+    f32 yaw_ { 0.0f };
+    f32 pitch_ { 0.0f };
 };
 
 }
