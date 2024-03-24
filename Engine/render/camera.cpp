@@ -35,6 +35,9 @@ Camera::Camera(const window::Resolution &res) :
     inputSys_.AddHandlerUp(input::action::camera_left, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerUp(input::action::camera_right, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerUp(input::action::camera_backwd, {&Camera::Move, nullptr, this});
+
+    inputSys_.AddHandlerDown(input::action::camera_look, {&Camera::SetLooking, nullptr, this});
+    inputSys_.AddMouseHandler(input::action::camera_look, {nullptr, &Camera::LookAt, this});
 }
 
 
@@ -59,6 +62,14 @@ void Camera::UpdatePos(math::scalar dt) {
     if(isMoving[dir::down])     position_ += dt * moveSpeed_ * math::direction[dir::down];
     if(isMoving[dir::left])     position_ += dt * moveSpeed_ * math::direction[dir::left];
     if(isMoving[dir::right])    position_ += dt * moveSpeed_ * math::direction[dir::right];
+}
+
+void Camera::LookAt(input::action dir, math::xvec3 mousePos) {
+
+}
+
+void Camera::SetLooking(input::action act, input::type inputType) {
+
 }
 
 

@@ -99,6 +99,7 @@ private:
     XMVECTOR vec_;
 };
 
+
 class BoolVector
 {
 public:

@@ -20,6 +20,7 @@
 namespace reveal3d::input {
 
 enum code : u8 {
+    mouse_move = 0x00U,
     mouse_left = 0x01U,
     mouse_right = 0x02U,
     control_cancel = 0x03U,
@@ -173,16 +174,16 @@ enum type {
 template<typename T>
 struct Binding {
     void (T::*callback) (input::action, input::type);
-    void (T::*mouseCallback) (input::action, math::vec3);
+    void (T::*mouseCallback) (input::action, math::xvec3);
     T* instance;
 };
 
 
 void KeyDown(u8 keycode);
-void KeyDown(u8 keycode, math::vec2 pos);
+void KeyDown(u8 keycode, math::xvec3 pos);
 void KeyUp(u8 keycode);
-void KeyUp(u8 keycode, math::vec2 pos);
-void MouseMove(math::vec2 pos);
+void KeyUp(u8 keycode, math::xvec3 pos);
+void MouseMove(u8 keycode, math::xvec3 pos);
 void BindKey(code keycode, action action);
 void Unbind(code keycode);
 
@@ -190,9 +191,9 @@ class BaseSystem {
 public:
     virtual void OnEventDown(action act, input::type type) = 0;
     virtual void OnEventUp(action act, input::type type) = 0;
-    virtual void OnMouseMove(action act, math::vec3 value) = 0;
-    virtual void OnMouseDown(action act, math::vec3 value) = 0;
-    virtual void OnMouseUp(action act, math::vec3 value) = 0;
+    virtual void OnMouseMove(action act, math::xvec3 value) = 0;
+    virtual void OnMouseDown(action act, math::xvec3 value) = 0;
+    virtual void OnMouseUp(action act, math::xvec3 value) = 0;
 protected:
     BaseSystem();
     ~BaseSystem();
@@ -210,6 +211,10 @@ public:
         handlersDown[action] = binding;
     }
 
+    void AddMouseHandler(action action, Binding<T> binding) {
+       mouseHandler[action] = binding;
+    }
+
     void OnEventUp(action act, input::type type) override {
         if (handlersUp.find(act) != handlersUp.end()) {
             (handlersUp[act].instance->*handlersUp[act].callback)(act, type);
@@ -222,19 +227,19 @@ public:
         }
     }
 
-    void OnMouseDown(action act, math::vec3 value) {
+    void OnMouseDown(action act, math::xvec3 value) override {
         if (handlersDown.find(act) != handlersDown.end()) {
             (handlersDown[act].instance->*handlersDown[act].mouseCallback)(act, value);
         }
     }
 
-    void OnMouseUp(action act, math::vec3 value) {
+    void OnMouseUp(action act, math::xvec3 value) override {
         if (handlersUp.find(act) != handlersUp.end()) {
             (handlersUp[act].instance->*handlersUp[act].mouseCallback)(act, value);
         }
     }
 
-    void OnMouseMove(action act, math::vec3 value) {
+    void OnMouseMove(action act, math::xvec3 value) override{
         if (mouseHandler.find(act) != mouseHandler.end()) {
             (mouseHandler[act].instance->*mouseHandler[act].mouseCallback)(act, value);
         }

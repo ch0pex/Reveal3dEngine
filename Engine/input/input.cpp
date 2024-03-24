@@ -37,7 +37,7 @@ void KeyDown(u8 keycode) {
     }
 }
 
-void KeyDown(u8 keycode, math::vec3 pos) {
+void KeyDown(u8 keycode, math::xvec3 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
         for(auto *inputSys : inputSystems) {
@@ -56,11 +56,22 @@ void KeyUp(u8 keycode) {
     }
 }
 
-void KeyUp(u8 keycode, math::vec3 pos) {
+void KeyUp(u8 keycode, math::xvec3 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
         for (auto *inputSys: inputSystems) {
             inputSys->OnMouseUp(act, pos);
+        }
+    }
+}
+
+void MouseMove(u8 keycode, math::xvec3 pos) {
+    log(logDEBUG) << "Mouse Move code: " << keycode << "\n";
+//    log(logDEBUG) << "Mouse pos: " << (f32) pos.GetX() << ", " << (f32) pos.GetY() << "\n";
+    if (bindings.find(keycode) != bindings.end()) {
+        const action act = bindings[keycode];
+        for (auto *inputSys: inputSystems) {
+            inputSys->OnMouseMove(act, pos);
         }
     }
 }

@@ -15,6 +15,7 @@
 #include "window/window.hpp"
 #include "input/input.hpp"
 
+#include <WindowsX.h>
 
 namespace reveal3d::window {
 
@@ -111,14 +112,22 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             }
             return 0;
         case WM_KEYDOWN:
-        {
             input::KeyDown(wParam);
             return 0;
-        }
         case WM_KEYUP:
             input::KeyUp(wParam);
             return 0;
-
+        case WM_MOUSEMOVE:
+            input::MouseMove(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam), 0.0f});
+            return 0;
+        case WM_RBUTTONDOWN:
+        case WM_LBUTTONDOWN:
+            input::KeyDown(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam), 0.0f});
+            return 0;
+        case WM_RBUTTONUP:
+        case WM_LBUTTONUP:
+            input::KeyUp(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam), 0.0f});
+            return 0;
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
