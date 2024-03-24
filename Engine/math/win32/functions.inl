@@ -75,6 +75,8 @@ INLINE xvec3 Cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
 INLINE xvec3 Normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
 INLINE xvec4 Normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
 INLINE mat3 Transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
+INLINE mat4 LookAt(xvec3 position, xvec3 focusPoint, xvec3 upDir) { return XMMatrixLookAtLH(position, focusPoint, upDir); }
+INLINE mat4 PerspectiveFov(f32 fov, f32 aspectRatio, f32 nearPlane, f32 farPlane) {return XMMatrixPerspectiveFovLH(XMConvertToRadians(fov), aspectRatio, nearPlane, farPlane);}
 
 INLINE mat3 InverseTranspose(const mat3 & mat)
 {

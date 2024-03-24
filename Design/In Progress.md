@@ -1,6 +1,4 @@
-- [x] RootSignature 
-- [x] PSO
-- [x] Shader Compiling
-- [x] Vs and Ps
 - [ ] Update camera
-- [ ] Offline shader compiling
+- [ ] Input system
+- [ ] Fix shader paths
+- [ ] Load models

@@ -6,6 +6,8 @@ set(SOURCES
         core/geometry.cpp
         core/transform.cpp
         render/light.cpp
+        config/config.cpp
+        input/input.cpp
 )
 
 message("Renderer: ${GFX}")

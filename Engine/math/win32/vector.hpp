@@ -45,6 +45,8 @@ public:
     INLINE xvec3 operator*(const f32 v2) const { return *this * xvec3(v2); }
     INLINE xvec3 operator/(const f32 v2) const { return *this / xvec3(v2); }
 
+    INLINE void operator+=(const xvec3 v2) { *this = XMVectorAdd(vec_, v2); }
+    INLINE void operator-=(const xvec3 v2) { *this = XMVectorSubtract(vec_, v2); }
     INLINE void operator*=(const f32 v2) { *this = *this * xvec3(v2); }
     INLINE void operator/=(const f32 v2) { *this = *this / xvec3(v2); }
 
@@ -105,6 +107,7 @@ public:
 protected:
     XMVECTOR m_vec;
 };
+
 
 using vec2 = XMFLOAT2;
 using vec3 = XMFLOAT3;

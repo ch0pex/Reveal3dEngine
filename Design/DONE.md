@@ -4,3 +4,7 @@
 - [x] Libreria math
 - [x] Deferred release 
 - [x] Timer
+- [x]  RootSignature 
+- [x] PSO
+- [x] Shader Compiling
+- [x] Vs and Ps

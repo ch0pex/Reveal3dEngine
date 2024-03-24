@@ -42,6 +42,6 @@ App resources:
 
 Synchronization objects:
 15. `frameIndex_`: The index of the current frame being rendered.
-16. `fenceEvent_`: A handle to the event used for synchronization.
+16. `fenceEvent_`: A backBufferHandle to the event used for synchronization.
 17. `fence_`: A pointer to the fence object used for synchronization.
 18. `fenceValue_`: The current value of the fence used for synchronization.

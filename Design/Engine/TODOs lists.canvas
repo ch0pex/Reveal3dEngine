@@ -1,8 +1,8 @@
 {
 	"nodes":[
-		{"id":"3f92d8370b2e0234","type":"file","file":"TODO.md","x":-880,"y":-620,"width":400,"height":400},
-		{"id":"56bf8936805ab9a3","x":-280,"y":-620,"width":400,"height":400,"type":"file","file":"In Progress.md"},
-		{"id":"a111ae6bec6276bc","x":-1460,"y":-620,"width":400,"height":400,"type":"file","file":"DONE.md"}
+		{"id":"3f92d8370b2e0234","type":"file","file":"TODO.md","x":-1920,"y":-1000,"width":400,"height":400},
+		{"id":"a111ae6bec6276bc","type":"file","file":"DONE.md","x":-1300,"y":-1000,"width":400,"height":400},
+		{"id":"56bf8936805ab9a3","type":"file","file":"In Progress.md","x":-780,"y":-1000,"width":400,"height":400}
 	],
 	"edges":[]
 }

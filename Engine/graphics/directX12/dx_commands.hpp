@@ -26,6 +26,7 @@ public:
     [[nodiscard]] inline ID3D12GraphicsCommandList *List() const { return commandList_.Get(); }
     [[nodiscard]] static inline u8 const FrameIndex() { return frameIndex_; }
     void Reset(ID3D12PipelineState* pso);
+    void ResetFences();
     void Execute();
 
     void WaitForGPU();

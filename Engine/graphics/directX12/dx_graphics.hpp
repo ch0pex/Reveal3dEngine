@@ -39,6 +39,7 @@ public:
     void PrepareRender();
     void Draw();
     void Terminate();
+    void Resize(const window::Resolution &res);
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
     [[nodiscard]] INLINE u32 GetWidth() const { return resolution_.width; }
     [[nodiscard]] INLINE u32 GetHeight() const { return resolution_.height; }
@@ -48,6 +49,7 @@ private:
     void InitDXGIAdapter();
     void CreateSwapChain();
     void InitFrameResources();
+    void InitConstantBuffers();
     void SetViewport();
     void BuildRootSignature();
     void BuildPSO();
@@ -61,7 +63,7 @@ private:
     struct FrameResource {
         ConstantBuffer constantBuffer_;
         ComPtr<ID3D12Resource> backBuffer;
-        DescriptorHandle handle;
+        DescriptorHandle backBufferHandle;
     };
 
     FrameResource frameResources_[frameBufferCount];
@@ -85,7 +87,7 @@ private:
     D3D12_VIEWPORT viewport_ {};
     D3D12_RECT scissorRect_ {};
     HWND window_ {};
-    BOOL allowTearing_;
+    u32 swapChainFlags_;
     u32 presentInfo_;
 };
 

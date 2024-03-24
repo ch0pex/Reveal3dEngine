@@ -21,6 +21,8 @@ Timer::Timer() :
 {
     QueryFrequency(countsPerSecond_);
     secondPerCount_ = 1.0 / (f64)countsPerSecond_;
+
+    inputSystem_.AddHandlerUp(input::action::scene_pause, {&Timer::Pause, nullptr, this});
 }
 
 
@@ -84,6 +86,14 @@ f32 Timer::TotalTime() const {
 
 f32 Timer::Diff(f32 time) const {
     return TotalTime() - time;
+}
+
+void Timer::Pause(input::action act, input::type type) {
+    if(stopped_) {
+        Start();
+    } else {
+       Stop();
+    }
 }
 
 }

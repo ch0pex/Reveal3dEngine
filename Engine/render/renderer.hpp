@@ -26,11 +26,13 @@ public:
     void Update();
     void Render();
     void Destroy();
-    void Resize(u32 width, u32 height);
+    void Resize(const window::Resolution &res);
     [[nodiscard]] INLINE u32 GetWidth() const { return graphics_.GetWidth(); }
     [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
     //~Renderer();
 private:
+    void HandleInput();
+
     Timer timer_;
     Gfx graphics_;
     Camera camera_;

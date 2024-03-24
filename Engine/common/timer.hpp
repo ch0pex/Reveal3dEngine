@@ -17,6 +17,8 @@
 
 #include "primitive_types.hpp"
 #include "platform.hpp"
+#include "input/input.hpp"
+
 
 namespace reveal3d {
 
@@ -27,14 +29,17 @@ public:
     [[nodiscard]] f32 TotalTime() const;
     [[nodiscard]] INLINE f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
     [[nodiscard]] INLINE f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
+    [[nodiscard]] bool INLINE IsRunning() { return !stopped_; };
 
     void Reset();
     void Start();
     void Stop();
     void Tick();
+    void Pause(input::action act, input::type type);
     f32 Diff(f32 time) const;
 
 private:
+    input::System<Timer> inputSystem_;
 
 #ifdef _WIN32
     static INLINE void QueryFrequency(i64 &time) { QueryPerformanceFrequency((LARGE_INTEGER *) &time); }
@@ -54,6 +59,7 @@ private:
     i64 currTime_;
 
     bool stopped_;
+
 };
 
 

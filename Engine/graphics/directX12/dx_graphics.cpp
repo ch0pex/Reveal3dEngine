@@ -19,7 +19,8 @@ namespace reveal3d::graphics::dx {
 using namespace render;
 
 Graphics::Graphics(const window::Resolution &res) :
-    resolution_(res), presentInfo_(0), allowTearing_(0)
+    resolution_(res), presentInfo_(0),
+    swapChainFlags_(DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)
 {
 
 }
@@ -29,10 +30,11 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
-    heaps_.cbv.Initialize(device_.Get(), frameBufferCount, true);
-    heaps_.dsv.Initialize(device_.Get(), 1U, false);
+    heaps_.cbv.Initialize(device_.Get(), 512, true);
+    heaps_.dsv.Initialize(device_.Get(), 1, false);
     CreateSwapChain();
     InitFrameResources();
+    InitConstantBuffers();
     SetViewport();
 }
 
@@ -40,6 +42,7 @@ void Graphics::LoadPipeline() {
 // TODO: check for more features
 void Graphics::InitDXGIAdapter() {
     u32 factoryFlags = 0;
+    BOOL allowTearing = FALSE;
 
 #ifdef _DEBUG
     utl::LogAdapters();
@@ -49,9 +52,10 @@ void Graphics::InitDXGIAdapter() {
     CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory_)) >> utl::DxCheck;
     D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
 
-    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing_, sizeof(u32))) &&
-        allowTearing_) {
+    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
+        allowTearing) {
         presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
+        swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
 
 #ifdef _DEBUG
@@ -61,6 +65,7 @@ void Graphics::InitDXGIAdapter() {
 
 void Graphics::CreateSwapChain() {
     ComPtr<IDXGISwapChain1> swapChain1;
+
     const DXGI_SWAP_CHAIN_DESC1 swapChainDesc{
             .Width = resolution_.width,
             .Height = resolution_.height,
@@ -72,7 +77,7 @@ void Graphics::CreateSwapChain() {
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = allowTearing_ ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0U
+            .Flags = swapChainFlags_
     };
     factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
     factory_->MakeWindowAssociation(window_, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
@@ -85,10 +90,15 @@ void Graphics::InitFrameResources() {
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
         };
-        frameResources_[i].handle = heaps_.rtv.alloc();
+        frameResources_[i].backBufferHandle = heaps_.rtv.alloc();
         swapChain_->GetBuffer(i, IID_PPV_ARGS(&frameResources_[i].backBuffer)) >> utl::DxCheck;
-        device_->CreateRenderTargetView(frameResources_[i].backBuffer.Get() ,&desc, frameResources_[i].handle.cpu);
-        frameResources_[i].constantBuffer_.Init(device_.Get(), 1U);
+        device_->CreateRenderTargetView(frameResources_[i].backBuffer.Get() ,&desc, frameResources_[i].backBufferHandle.cpu);
+    }
+}
+
+void Graphics::InitConstantBuffers() {
+    for(auto& frameResource : frameResources_) {
+        frameResource.constantBuffer_.Init(device_.Get(), 1U);
     }
 }
 
@@ -207,6 +217,7 @@ void Graphics::BuildPSO() {
 #endif
     HRESULT hr = S_OK;
 
+    //TODO Config file for assets path
     hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
@@ -243,24 +254,11 @@ void Graphics::Update(render::Camera &camera, const Timer& timer) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     AlignedObjCosntant objConstant;
 
-    XMMATRIX viewProjection;
-    {
-        // setup view (camera) matrix
-        const auto eyePosition = XMVectorSet(0, 0, -6, 1);
-        const auto focusPoint = XMVectorSet(0, 0, 0, 1);
-        const auto upDirection = XMVectorSet(0, 1, 0, 0);
-        const auto view = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
-        // setup perspective projection matrix
-        const auto aspectRatio = resolution_.aspectRatio;
-        const auto projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), aspectRatio, 0.1f, 100.0f);
-        // combine matrices
-        viewProjection = view * projection;
-    }
     objConstant.data.worlViewProj = XMMatrixTranspose(
-            XMMatrixRotationX(1.0f * timer.DeltaTime() + 1.f) *
-            XMMatrixRotationY(1.2f * timer.DeltaTime() + 2.f) *
-            XMMatrixRotationZ(1.1f * timer.DeltaTime() + 0.f) *
-            viewProjection
+//            XMMatrixRotationX(1.0f * timer.TotalTime() + 1.f) *
+//            XMMatrixRotationY(1.2f * timer.TotalTime() + 2.f) *
+//            XMMatrixRotationZ(1.1f * timer.TotalTime() + 0.f) *
+            camera.GetViewProjectionMatrix()
     );
     // Update the constant buffer with the latest worldViewProj matrix.
     currFrameRes.constantBuffer_.CopyData(0, &objConstant, 1);
@@ -284,8 +282,8 @@ void Graphics::PrepareRender() {
     commandList->ResourceBarrier(1, &targetBarrier);
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    commandList->ClearRenderTargetView(currFrameRes.handle.cpu, clearColor, 0, nullptr);
-    commandList->OMSetRenderTargets(1, &currFrameRes.handle.cpu, FALSE, nullptr);
+    commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
+    commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, FALSE, nullptr);
 
     ID3D12DescriptorHeap* descHeaps[] = { heaps_.cbv.Get() };
     commandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
@@ -327,5 +325,44 @@ void Graphics::Terminate() {
     CleanDeferredResources(heaps_);
 }
 
+void Graphics::Resize(const window::Resolution &res) {
+    if (res.aspectRatio == resolution_.aspectRatio) {
+        return;
+    }
+
+    resolution_ = res;
+    cmdManager_.WaitForGPU();
+
+    cmdManager_.Reset(nullptr);
+
+    for(auto &frameResource : frameResources_){
+        frameResource.backBuffer.Reset();
+    }
+
+    //depthStencilbuffer.reset()
+    //heaps_.dsv.free(depthbufferHandle);
+    //BuildDepthBuffer
+
+    swapChain_->ResizeBuffers(frameBufferCount, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
+            swapChainFlags_) >> utl::DxCheck;
+
+    cmdManager_.ResetFences();
+
+    for (u32 i = 0; i < frameBufferCount; ++i) {
+        D3D12_RENDER_TARGET_VIEW_DESC desc = {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
+        };
+        swapChain_->GetBuffer(i, IID_PPV_ARGS(&frameResources_[i].backBuffer));
+        device_->CreateRenderTargetView(frameResources_[i].backBuffer.Get() ,&desc, frameResources_[i].backBufferHandle.cpu);
+    }
+
+    cmdManager_.List()->Close();
+    cmdManager_.Execute();
+
+    cmdManager_.WaitForGPU();
+
+    SetViewport();
+}
 
 }

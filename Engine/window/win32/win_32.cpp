@@ -13,10 +13,10 @@
 
 #include "win_32.hpp"
 #include "window/window.hpp"
+#include "input/input.hpp"
 
 
 namespace reveal3d::window {
-
 
 template<typename Gfx>
 void Win32<Gfx>::InitWindow(Renderer<Gfx> &renderer) {
@@ -33,7 +33,7 @@ void Win32<Gfx>::InitWindow(Renderer<Gfx> &renderer) {
     RECT windowRect = {0, 0, static_cast<LONG>(info_.res.width), static_cast<LONG>(info_.res.height)};
     AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    // Create the window_ and store a handle to it.
+    // Create the window_ and store a backBufferHandle to it.
     info_.windowHandle = CreateWindow(
             windowClass.lpszClassName,
             info_.name,
@@ -44,6 +44,7 @@ void Win32<Gfx>::InitWindow(Renderer<Gfx> &renderer) {
             nullptr,
             GetModuleHandle(NULL),
             &renderer);
+
 }
 
 template<typename Gfx>
@@ -55,6 +56,7 @@ i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
         InitWindow(renderer);
         renderer.Init(info_.windowHandle);
         ShowWindow(info_.windowHandle, SW_SHOW);
+
 
         while(isRunning) {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -74,11 +76,6 @@ i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
 }
 
 template<typename Gfx>
-WHandle Win32<Gfx>::GetHwnd() const {
-    return info_.windowHandle;
-}
-
-template<typename Gfx>
 LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     auto* renderer = reinterpret_cast<Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -88,11 +85,18 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         {
             LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+            return 0;
         }
-            return 0;
+        case WM_ENTERSIZEMOVE:
+        case WM_EXITSIZEMOVE:
         case WM_SIZE:
-            InvalidateRect(hwnd, NULL, TRUE);
+        {
+            RECT clientRect;
+            GetClientRect(hwnd, &clientRect);
+            const Resolution res(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+            renderer->Resize(res);
             return 0;
+        }
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
@@ -107,12 +111,21 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             }
             return 0;
         case WM_KEYDOWN:
-            if (wParam == VK_ESCAPE) {
-                PostMessage(hwnd, WM_CLOSE, 0, 0);
-                return 0;
-            }
+        {
+            input::KeyDown(wParam);
+            return 0;
+        }
+        case WM_KEYUP:
+            input::KeyUp(wParam);
+            return 0;
+
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+template<typename Gfx>
+void Win32<Gfx>::CloseWindow(input::action act, input::type type) {
+    PostMessage(GetHwnd(), WM_CLOSE, 0, 0);
 }
 
 template class Win32<graphics::dx::Graphics>;

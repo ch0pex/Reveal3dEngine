@@ -26,7 +26,6 @@ Renderer<Gfx>::Renderer(const window::Resolution &res) :
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Init(WHandle wHandle) {
     f32 time = timer_.TotalTime();
-
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();
     log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
@@ -38,7 +37,7 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Update() {
     timer_.Tick();
-//    log(logDEBUG) << timer_.Fps();
+    HandleInput();
     camera_.Update(timer_);
     graphics_.Update(camera_, timer_);
 }
@@ -56,9 +55,14 @@ void Renderer<Gfx>::Destroy() {
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Resize(u32 width, u32 height) {
-    //camera.Resize();
-    //graphics.Resize();
+void Renderer<Gfx>::Resize(const window::Resolution &res) {
+    camera_.Resize(res);
+    graphics_.Resize(res);
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::HandleInput() {
+
 }
 
 template class Renderer<graphics::dx::Graphics>;

@@ -26,6 +26,7 @@ struct Resolution {
     f32 aspectRatio;
 };
 
+
 struct InitInfo {
     WHandle windowHandle { nullptr };
     WCallback callback { nullptr }; // Unused for now, usefull in a future

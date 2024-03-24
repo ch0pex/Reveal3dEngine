@@ -85,7 +85,7 @@ public:
     INLINE operator XMMATRIX() const { return mat4_; }
     INLINE xvec4 operator*(xvec3 vec) const { return XMVector3Transform(vec, mat4_); }
     INLINE xvec4 operator*(xvec4 vec) const { return XMVector4Transform(vec, mat4_); }
-    INLINE mat4 operator*(const mat4 &mat) const { return XMMatrixMultiply(mat, mat4_); }
+    INLINE mat4 operator*(const mat4 &mat) const { return XMMatrixMultiply(mat4_, mat); }
     INLINE mat4 MakeScale(float scale) { return XMMatrixScaling(scale, scale, scale); }
     INLINE mat4 MakeScale(xvec3 scale) { return XMMatrixScalingFromVector(scale); }
 private:

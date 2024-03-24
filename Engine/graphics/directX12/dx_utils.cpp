@@ -13,6 +13,7 @@
 
 #include "dx_utils.hpp"
 
+#include <windows.h>
 #include <format>
 #include <stdexcept>
 #include <string>
@@ -132,5 +133,6 @@ void operator>>(Error grabber, Checker checker) {
        throw std::runtime_error(error);
    }
 }
+
 
 }

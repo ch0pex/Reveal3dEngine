@@ -17,3 +17,16 @@
 #include "matrix.hpp"
 #include "scalar.hpp"
 #include "functions.inl"
+
+namespace reveal3d::math {
+
+const xvec3 direction[6] = {
+        {1.0f, 0.0f, 0.0f}, // Forward
+        {-1.0f, 0.0f, 0.0f}, // Backward
+        {0.0f, 0.0f, 1.0f}, // Up
+        {0.0f, 0.0f, -1.0f}, // Down
+        {0.0f, -1.0f, 0.0f}, // Left
+        {0.0f, 1.0f, 0.0f}, // right
+};
+
+}

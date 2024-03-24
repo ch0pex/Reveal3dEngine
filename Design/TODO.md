@@ -5,3 +5,4 @@
 - [ ] Implementar conceptos
 - [ ] Barrier creation class
 - [ ] Frustum culling
+- [ ] Offline shader compiling

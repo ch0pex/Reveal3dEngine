@@ -50,13 +50,19 @@ void Commands::Reset(ID3D12PipelineState *pso) {
 }
 
 void Commands::WaitForGPU() {
-    commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
 
-    fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
-    if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
-        GetLastError() >> utl::DxCheck;
-    }
     fenceValues_[frameIndex_]++;
+    commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
+    auto lastCompleted = fence_->GetCompletedValue();
+    if ( lastCompleted < fenceValues_[frameIndex_])
+    {
+        fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
+        if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
+            GetLastError() >> utl::DxCheck;
+        }
+    }
+
+
 }
 
 void Commands::MoveToNextFrame() {
@@ -84,5 +90,13 @@ void Commands::Flush() {
     WaitForGPU();
     CloseHandle(fenceEvent_);
 }
+
+void Commands::ResetFences() {
+    frameIndex_ = 0;
+    fenceValues_[1] = 0;
+    fenceValues_[2] = 0;
+}
+
+
 
 }

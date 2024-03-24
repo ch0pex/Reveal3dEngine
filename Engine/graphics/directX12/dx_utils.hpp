@@ -43,5 +43,6 @@ void QueueInfo(ID3D12Device *device, BOOL enable);
 void LogAdapters();
 void SetReporter(ID3D12Device *device);
 void ReportLiveDeviceObjs();
+void DisplayFps();
 
 }
