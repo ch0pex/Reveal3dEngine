@@ -18,10 +18,11 @@
 #endif
 
 
-#include "dx_common.hpp"
+#include "core/scene.hpp"
 #include "dx_commands.hpp"
-#include "resources/dx_resources.hpp"
+#include "dx_common.hpp"
 #include "render/camera.hpp"
+#include "resources/dx_resources.hpp"
 #include "window/window_info.hpp"
 
 
@@ -71,7 +72,6 @@ private:
     ComPtr<IDXGISwapChain3> swapChain_;
 
     /***************** Heaps and buffers **********************/
-
     Heaps heaps_;
     Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex> vertexBuffer_;
     Buffer<D3D12_INDEX_BUFFER_VIEW, u16> indexBuffer_;
@@ -82,7 +82,6 @@ private:
     Commands cmdManager_;
 
     /***************** Surface Info **********************/
-
     window::Resolution resolution_;
     D3D12_VIEWPORT viewport_ {};
     D3D12_RECT scissorRect_ {};

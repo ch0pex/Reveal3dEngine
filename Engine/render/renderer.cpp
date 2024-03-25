@@ -37,7 +37,6 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Update() {
     timer_.Tick();
-    HandleInput();
     camera_.Update(timer_);
     graphics_.Update(camera_, timer_);
 }
@@ -58,11 +57,6 @@ template<graphics::HRI Gfx>
 void Renderer<Gfx>::Resize(const window::Resolution &res) {
     camera_.Resize(res);
     graphics_.Resize(res);
-}
-
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::HandleInput() {
-
 }
 
 template class Renderer<graphics::dx::Graphics>;

@@ -14,6 +14,7 @@
 #pragma once
 
 #include "graphics/gfx.hpp"
+#include "core/scene.hpp"
 #include "camera.hpp"
 
 namespace reveal3d::render {
@@ -30,12 +31,14 @@ public:
     [[nodiscard]] INLINE u32 GetWidth() const { return graphics_.GetWidth(); }
     [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
     //~Renderer();
-private:
-    void HandleInput();
 
+    INLINE  void CameraResetMouse() { camera_.ResetMouse(); }
+
+private:
     Timer timer_;
     Gfx graphics_;
     Camera camera_;
+//    core::Scene& scene_;
 };
 
 }

@@ -1,8 +1,9 @@
 - [ ] Mejorar buffers y constant buffers para que soporten multiples entidades 
 - [ ] DXGI buscar disopistivo de mayor rendimiento y buscar compatibilidades
 - [ ] Archivo de configuración
-- [ ] Resize del viewport 
+- [x] Resize del viewport 
 - [ ] Implementar conceptos
 - [ ] Barrier creation class
 - [ ] Frustum culling
 - [ ] Offline shader compiling
+- [ ] Improve camera smoothness maybe with quaternions

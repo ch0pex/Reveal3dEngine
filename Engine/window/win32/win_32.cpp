@@ -19,6 +19,9 @@
 
 namespace reveal3d::window {
 
+bool clipMouse_ { false };
+math::vec2 cursorPos_;
+
 template<typename Gfx>
 void Win32<Gfx>::InitWindow(Renderer<Gfx> &renderer) {
     WNDCLASSEX windowClass = {
@@ -61,6 +64,7 @@ i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
 
         while(isRunning) {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+                ClipMouse(renderer);
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
                 isRunning &= (msg.message != WM_QUIT);
@@ -111,27 +115,46 @@ LRESULT Win32<Gfx>::WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                 PostQuitMessage(0);
             }
             return 0;
-        case WM_MBUTTONDOWN:
-            SetCapture(hwnd);
         case WM_KEYDOWN:
             input::KeyDown(wParam);
             return 0;
-        case WM_MBUTTONUP:
-            ReleaseCapture();
         case WM_KEYUP:
             input::KeyUp(wParam);
             return 0;
-        case WM_MOUSEMOVE:
-            input::MouseMove(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+        case WM_MBUTTONDOWN:
+        {
+            clipMouse_ = true;
+            SetCapture(hwnd);
+            input::KeyDown(input::code::mouse_middle);
             return 0;
+        }
+        case WM_MBUTTONUP:
+        {
+            clipMouse_ = false;
+            SetCapture(hwnd);
+            input::KeyUp(input::code::mouse_middle);
+            ReleaseCapture();
+            return 0;
+        }
+        case WM_MOUSEMOVE:
+        {
+            cursorPos_ = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
+            input::MouseMove(wParam, cursorPos_);
+            return 0;
+        }
         case WM_RBUTTONDOWN:
-        case WM_LBUTTONDOWN:
-            input::KeyDown(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::KeyDown(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
             return 0;
         case WM_RBUTTONUP:
-        case WM_LBUTTONUP:
-            input::KeyUp(wParam, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::KeyUp(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
             return 0;
+        case WM_LBUTTONDOWN:
+            input::KeyDown(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+        case WM_LBUTTONUP:
+            input::KeyUp(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
@@ -141,6 +164,30 @@ void Win32<Gfx>::CloseWindow(input::action act, input::type type) {
     PostMessage(GetHwnd(), WM_CLOSE, 0, 0);
 }
 
+template<typename Gfx>
+void Win32<Gfx>::ClipMouse(Renderer<Gfx> &renderer) {
+    if (!clipMouse_) return;
+    if (cursorPos_.x < 2) {
+        cursorPos_.x = info_.res.width - 3;
+        renderer.CameraResetMouse();
+    }
+    else if (cursorPos_.x >= info_.res.width - 2) {
+        cursorPos_.x = 3;
+        renderer.CameraResetMouse();
+    }
+    if (cursorPos_.y < 2) {
+        cursorPos_.y = info_.res.height - 3;
+        renderer.CameraResetMouse();
+    }
+    else if (cursorPos_.y >= info_.res.height - 2) {
+        cursorPos_.y = 3;
+        renderer.CameraResetMouse();
+    }
+
+    POINT pt = {static_cast<LONG>(cursorPos_.x), static_cast<LONG>(cursorPos_.y)};
+    ClientToScreen(info_.windowHandle, &pt);
+    SetCursorPos(pt.x, pt.y);
+}
 template class Win32<graphics::dx::Graphics>;
 //template class Win32<graphics::Vk::Graphics>;
 

@@ -20,7 +20,7 @@ Camera::Camera(const window::Resolution &res) :
         projectionMatrix_(XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), res.aspectRatio, 0.1f, 100.0f)),
         position_(-6.0f, 0.0f, 0.0f),
         moveSpeed_(15.0f), front_(1,0,0),
-        worldUp_(0,0,1), up_(0,0,1), right_(0,1,0)
+        worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
 {
     inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});
@@ -53,41 +53,48 @@ void Camera::Resize(const window::Resolution &res) {
     projectionMatrix_ = math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f);
 }
 
-void Camera::Move(const input::action dir, const input::type value) {
-    isMoving[dir] = value;
+void Camera::Move(const input::action dir, const input::type value) { isMoving_[dir] = value;
 }
 
 void Camera::SetLooking(const input::action action, const input::type value) {
-    isLooking = value;
+    isLooking_ = value;
     if (value == input::type::up) firstMouse_ = true;
 }
 
 void Camera::SetNewMousePos(const input::action action, const math::vec2 mousePos) {
-    if (!isLooking) return;
+    if (!isLooking_) return;
     if (firstMouse_) {
         lastPos_ = mousePos;
         firstMouse_ = false;
     }
-
     newPos_ = mousePos;
 
 }
 
 void Camera::UpdatePos(math::scalar dt) {
-    if(isMoving[dir::fwd])      position_ += dt * moveSpeed_ * front_;
-    if(isMoving[dir::bckwd])    position_ += dt * moveSpeed_ * -front_;
-    if(isMoving[dir::up])       position_ += dt * moveSpeed_ * worldUp_;
-    if(isMoving[dir::down])     position_ += dt * moveSpeed_ * -worldUp_;
-    if(isMoving[dir::right])     position_ += dt * moveSpeed_ * right_;
-    if(isMoving[dir::left])    position_ += dt * moveSpeed_ * -right_;
+    u32 dirs = 0;
+    math::scalar speedFactor = dt * moveSpeed_;
+
+    for(auto& dir : isMoving_) {
+        if (dir)  ++dirs;
+    }
+
+    speedFactor = (dirs > 1) ? speedFactor * 0.79f : speedFactor;
+
+    if(isMoving_[dir::fwd])      position_ += speedFactor * front_;
+    if(isMoving_[dir::bckwd])    position_ += speedFactor * -front_;
+    if(isMoving_[dir::up])       position_ += speedFactor * worldUp_;
+    if(isMoving_[dir::down])     position_ += speedFactor * -worldUp_;
+    if(isMoving_[dir::right])    position_ += speedFactor * right_;
+    if(isMoving_[dir::left])     position_ += speedFactor * -right_;
 }
 
 void Camera::UpdateFront(math::scalar dt) {
-    if (!isLooking) return;
+    if (!isLooking_) return;
     math::xvec3 newFront;
     f32 xOffset =  newPos_.x - lastPos_.x;
     f32 yOffset = lastPos_.y - newPos_.y;
-    f32 sensitivity = 200.0f; //TODO: Move this to config
+    f32 sensitivity = 100.0f; //TODO: Move this to config
 
     xOffset *= sensitivity * dt;
     yOffset *= sensitivity * dt;
@@ -108,7 +115,7 @@ void Camera::UpdateFront(math::scalar dt) {
     front_ = math::Normalize(newFront);
     right_ = math::Normalize(math::Cross(front_, worldUp_));
     up_ = math::Normalize(math::Cross(right_, front_));
-
+    //log(logDEBUG) << front_.GetX() << ", " << front_.GetY() << ", " << front_.GetZ();
     lastPos_ = newPos_;
 }
 

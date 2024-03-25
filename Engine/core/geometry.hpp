@@ -20,8 +20,6 @@
 namespace reveal3d::core {
 
 class Geometry {
-
-    std::vector<render::Mesh> meshes_;
 };
 
 }

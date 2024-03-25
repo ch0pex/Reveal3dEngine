@@ -35,10 +35,13 @@ protected:
 private:
     void InitWindow(Renderer<Gfx> &renderer);
     void CloseWindow(input::action act, input::type type);
+    void ClipMouse(Renderer<Gfx> &renderer);
 
     input::System<Win32> inputSystem_;
     InitInfo info_;
+
 };
+
 
 template<typename Gfx>
 Win32<Gfx>::Win32(InitInfo &info) :

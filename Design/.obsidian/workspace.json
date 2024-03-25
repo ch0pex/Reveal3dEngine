@@ -42,8 +42,8 @@
               "state": {
                 "file": "Engine/TODOs lists.canvas",
                 "viewState": {
-                  "x": -670,
-                  "y": -420,
+                  "x": -692,
+                  "y": -660,
                   "zoom": 0
                 }
               }
@@ -181,6 +181,7 @@
   },
   "active": "342de44848f753e9",
   "lastOpenFiles": [
+    "BUGS.md",
     "DONE.md",
     "In Progress.md",
     "Engine/Esquema.md",

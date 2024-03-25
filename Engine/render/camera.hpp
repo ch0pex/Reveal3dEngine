@@ -36,6 +36,8 @@ public:
     void SetLooking(input::action action, input::type value);
     void SetNewMousePos(input::action action, math::vec2 mousePos);
 
+    INLINE void ResetMouse() { firstMouse_ = true; }
+
 private:
     void UpdatePos(math::scalar dt);
     void UpdateFront(math::scalar dt);
@@ -54,8 +56,8 @@ private:
 
     /********* Input handling ************/ //NOTE: Maybe move this to some mouse class?
     enum dir { fwd, bckwd, up, down, right, left, count };
-    bool isMoving[dir::count] { false }; // Is moving to certain direction
-    bool isLooking { false };
+    bool isMoving_[dir::count] { false };
+    bool isLooking_{ false };
     bool firstMouse_ { true };
     math::vec2 lastPos_;
     math::vec2 newPos_;
