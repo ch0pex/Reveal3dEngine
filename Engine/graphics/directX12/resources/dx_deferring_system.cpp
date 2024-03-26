@@ -11,8 +11,9 @@
  * Longer description
  */
 
-#include "dx_resources.hpp"
+#include "dx_deferring_system.hpp"
 #include "../dx_commands.hpp"
+#include "dx_descriptor_heap.hpp"
 
 
 

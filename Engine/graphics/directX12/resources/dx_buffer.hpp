@@ -14,7 +14,7 @@
 #pragma once
 
 #include "../dx_common.hpp"
-#include "dx_resources.hpp"
+#include "dx_deferring_system.hpp"
 #include "render/mesh.hpp"
 
 namespace reveal3d::graphics::dx {
@@ -51,6 +51,8 @@ private:
     u32 size_ { 0 };
 };
 
+using VertexBuffer = Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>;
+using IndexBuffer = Buffer<D3D12_INDEX_BUFFER_VIEW, u16>;
 
 template<typename BUFFER_VIEW_TYPE, typename T>
 void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)

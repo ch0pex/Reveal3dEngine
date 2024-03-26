@@ -15,18 +15,36 @@
 
 #include  "../dx_common.hpp"
 #include "math/math.hpp"
+#include "dx_descriptor_heap.hpp"
 
 namespace reveal3d::graphics::dx {
 
-struct ObjConstant {
-    ObjConstant() : worlViewProj(XMMatrixIdentity()) {}
-    math::mat4 worlViewProj;
+struct PassConstant {
+    math::mat4 view;
+    math::mat4 invView;
+    math::mat4 proj;
+    math::mat4 invProj;
+    math::mat4 viewProj;
+    math::mat4 invViewProj;
+    math::vec2 cbPerObjectPad1;
+    math::vec2 renderTargetSize;
+    f32 nearZ;
+    f32 farZ;
+    f32 totalTime;
+    f32 deltaTime;
 };
 
-union AlignedObjCosntant {
-    AlignedObjCosntant() : data() {}
-    ObjConstant data;
-    uint8_t alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT];
+struct ObjConstant {
+    ObjConstant() : world(XMMatrixIdentity()) {}
+    math::mat4 world;
+};
+
+// S denotes the necesary amount of 256 bytes for alignment
+template<typename T, u32 S>
+union AlignedConstant {
+    AlignedConstant() : data() {}
+    T data;
+    uint8_t alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT][S];
 };
 
 //TODO: Improve Upload buffer and buffer to dynamic like heaps
@@ -40,21 +58,21 @@ public:
     UploadBuffer& operator=(UploadBuffer&&) = delete;
 
     void Init(ID3D12Device *device, u32 count);
-    inline ID3D12Resource *Get() { return buff_; };
-    inline u32 Size() { return capacity_; };
-    inline D3D12_GPU_VIRTUAL_ADDRESS GpuAddress() { return buff_->GetGPUVirtualAddress(); }
-
+    void CreateView(ID3D12Device *device, DescriptorHeap &heap);
+    INLINE ID3D12Resource *Get() { return buff_; };
+    INLINE u32 Size() { return capacity_; };
+    INLINE D3D12_GPU_VIRTUAL_ADDRESS GpuAddress() { return buff_->GetGPUVirtualAddress(); }
+    INLINE D3D12_GPU_DESCRIPTOR_HANDLE GpuDesc() { return handle_.gpu; }
 
     //bool Add(const T* data, u32 count); TODO
     void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
     void Release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr); DeferredRelease(buff_); }
 private:
+    DescriptorHandle handle_;
     ID3D12Resource *buff_;
     T* mappedData_ { nullptr };
     u32 capacity_{ 0 };
-    //T* offset { nullptr };
 };
-
 
 
 template<typename T>
@@ -73,8 +91,23 @@ void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
 
     // TODO: add option to hide this to cpu with range(0,0)
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&mappedData_));
+
+
 }
 
-using ConstantBuffer = UploadBuffer<AlignedObjCosntant>;
+template<typename T>
+void UploadBuffer<T>::CreateView(ID3D12Device *device,DescriptorHeap &heap) {
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {
+            .BufferLocation = GpuAddress(),
+            .SizeInBytes = Size()
+    };
+
+    handle_ = heap.alloc();
+    device->CreateConstantBufferView(&desc, handle_.cpu);
+}
+
+
+using ConstantBuffer = UploadBuffer<AlignedConstant<ObjConstant, 1>>;
+using PassCB = UploadBuffer<AlignedConstant<PassConstant, 2>>;
 
 }

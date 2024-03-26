@@ -44,7 +44,7 @@ Camera::Camera(const window::Resolution &res) :
 
 void Camera::Update(const Timer& timer) {
     UpdatePos(timer.DeltaTime());
-    UpdateFront(timer.DeltaTime());
+    UpdateFront();
     viewMatrix_ = math::LookAt(position_, position_ + front_, up_);
     viewProjectionMatrix_ = viewMatrix_ * projectionMatrix_;
 }
@@ -89,16 +89,15 @@ void Camera::UpdatePos(math::scalar dt) {
     if(isMoving_[dir::left])     position_ += speedFactor * -right_;
 }
 
-void Camera::UpdateFront(math::scalar dt) {
+void Camera::UpdateFront() {
     if (!isLooking_) return;
     math::xvec3 newFront;
     f32 xOffset =  newPos_.x - lastPos_.x;
     f32 yOffset = lastPos_.y - newPos_.y;
-    f32 sensitivity = 100.0f; //TODO: Move this to config
+    constexpr f32 sensitivity = 50.0f * 0.001f; //TODO: Move this to config
 
-    xOffset *= sensitivity * dt;
-    yOffset *= sensitivity * dt;
-
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
     yaw_ += xOffset;
     pitch_ += yOffset;
 
@@ -115,7 +114,6 @@ void Camera::UpdateFront(math::scalar dt) {
     front_ = math::Normalize(newFront);
     right_ = math::Normalize(math::Cross(front_, worldUp_));
     up_ = math::Normalize(math::Cross(right_, front_));
-    //log(logDEBUG) << front_.GetX() << ", " << front_.GetY() << ", " << front_.GetZ();
     lastPos_ = newPos_;
 }
 

@@ -31,6 +31,10 @@ std::unordered_map<u8, action> bindings = {
         {code::key_p, action::scene_pause}
 };
 
+bool cursor::shouldClip = false;
+math::vec2 cursor::pos = {};
+
+
 void KeyDown(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];

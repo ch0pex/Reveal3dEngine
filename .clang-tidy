@@ -26,7 +26,7 @@ CheckOptions:
   modernize-deprecated-headers.CheckHeaderFile: true
   readability-function-cognitive-complexity.Threshold: 50
   readability-function-cognitive-complexity.Threshold.DescribeBasicIncrements: true
-  readability-function-size.LineThreshold: 25
+  readability-function-size.LineThreshold: 75
   readability-function-size.ParameterThreshold: 4
   readability-identifier-length.MinimumParameterNameLength: 1
 

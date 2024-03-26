@@ -76,9 +76,11 @@ INLINE xvec3 Cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
 INLINE xvec3 Normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
 INLINE xvec4 Normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
 INLINE mat3 Transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
+INLINE mat4 Transpose(const mat4 & mat) { return mat4(XMMatrixTranspose(mat)); }
 INLINE mat4 LookAt(xvec3 position, xvec3 focusPoint, xvec3 upDir) { return XMMatrixLookAtLH(position, focusPoint, upDir); }
 INLINE mat4 PerspectiveFov(f32 fov, f32 aspectRatio, f32 nearPlane, f32 farPlane) {return XMMatrixPerspectiveFovLH(Radians(fov), aspectRatio, nearPlane, farPlane);}
-
+//INLINE mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixAffineTransformation(scale, {0.0f, 0.0f, 0.0f}, XMQuaternionRotationRollPitchYawFromVector(rotation), position);}
+INLINE mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation) * XMMatrixTranslationFromVector(position); }
 INLINE mat3 InverseTranspose(const mat3 & mat)
 {
     const xvec3 x = mat.GetX();

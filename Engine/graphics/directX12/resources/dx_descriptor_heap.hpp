@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "dx_resources.hpp"
+#include "dx_deferring_system.hpp"
 
 namespace reveal3d::graphics::dx {
 

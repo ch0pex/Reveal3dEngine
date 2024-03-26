@@ -8,7 +8,8 @@
  * @date 25/02/2024
  * @brief Short description
  *
- * Longer description
+ * Main graphics include file, it has the concept for a grahpics render interface
+ *
  */
 
 #pragma once

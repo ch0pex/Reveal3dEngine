@@ -3,9 +3,9 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file geometry.hpp
+ * @file dx_resources.hpp
  * @version 1.0
- * @date 11/03/2024
+ * @date 13/03/2024
  * @brief Short description
  *
  * Longer description
@@ -13,18 +13,15 @@
 
 #pragma once
 
-#include "render/mesh.hpp"
+#include "../dx_common.hpp"
 
-#include <vector>
+namespace reveal3d::graphics::dx {
 
-namespace reveal3d::core {
+struct Heaps;
 
-class Geometry {
-public:
-    INLINE u32 IndexCount() {return indexBuffer_.size(); }
-private:
-    std::vector<render::Vertex> vertexBuffer_;
-    std::vector<u32> indexBuffer_;
-};
+void SetDeferredFlag();
+void DeferredRelease(IUnknown* resource);
+void CleanDeferredResources(Heaps& heaps);
 
 }
+

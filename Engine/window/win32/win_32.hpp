@@ -16,6 +16,7 @@
 #include "render/renderer.hpp"
 #include "window/window_info.hpp"
 #include "input/input.hpp"
+#include <WindowsX.h>
 
 using namespace reveal3d::render;
 
@@ -26,26 +27,22 @@ class Win32 {
 public:
     Win32(InitInfo &info);
 
-    i32 Run(Renderer<Gfx> &renderer);
+    void Create(Renderer<Gfx> &renderer);
+//    i32 Run(Renderer<Gfx> &renderer);
+
+    void ClipMouse(Renderer<Gfx> &renderer);
+    [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
 
-protected:
-    static LRESULT CALLBACK WindowProc(WHandle hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 private:
-    void InitWindow(Renderer<Gfx> &renderer);
     void CloseWindow(input::action act, input::type type);
-    void ClipMouse(Renderer<Gfx> &renderer);
-
     input::System<Win32> inputSystem_;
     InitInfo info_;
 
 };
 
-
 template<typename Gfx>
-Win32<Gfx>::Win32(InitInfo &info) :
-    info_(info)
+Win32<Gfx>::Win32(InitInfo &info) : info_(info)
 {
    inputSystem_.AddHandlerDown(input::action::window_close, {&Win32::CloseWindow, nullptr, this});
 }

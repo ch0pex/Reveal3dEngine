@@ -33,7 +33,7 @@ namespace reveal3d::graphics::dx {
 __declspec(align(16))
 class Graphics {
 public:
-    explicit Graphics(const window::Resolution &res);
+    explicit Graphics(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
     void Update(render::Camera &camera, const Timer& timer);
@@ -42,8 +42,8 @@ public:
     void Terminate();
     void Resize(const window::Resolution &res);
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
-    [[nodiscard]] INLINE u32 GetWidth() const { return resolution_.width; }
-    [[nodiscard]] INLINE u32 GetHeight() const { return resolution_.height; }
+    [[nodiscard]] INLINE u32 GetWidth() const { return resolution_->width; }
+    [[nodiscard]] INLINE u32 GetHeight() const { return resolution_->height; }
 
 
 private:
@@ -63,6 +63,7 @@ private:
     /****************** Frame resources and swapchain *****************/
     struct FrameResource {
         ConstantBuffer constantBuffer_;
+        PassCB passBuffer_;
         ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle backBufferHandle;
     };
@@ -82,7 +83,7 @@ private:
     Commands cmdManager_;
 
     /***************** Surface Info **********************/
-    window::Resolution resolution_;
+    window::Resolution *resolution_;
     D3D12_VIEWPORT viewport_ {};
     D3D12_RECT scissorRect_ {};
     HWND window_ {};

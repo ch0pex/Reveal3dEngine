@@ -18,19 +18,33 @@
 #include "render/light.hpp"
 
 #include <vector>
+#include "transform.hpp"
 
 namespace reveal3d::core {
 
+class Scene;
 
-class Entity {
-
+struct Entity {
+    Transform *transform { nullptr };
+    Geometry *geometry { nullptr };
 };
 
-struct Scene {
-    //std::vector<Light> lights;
-    std::vector<Transform> transforms;
-    std::vector<Geometry> geometries;
+class Scene {
+public:
+    Scene() = default;
 
+    Entity CreateEntity();
+    Entity GetEntity();
+    void AddEntity(Entity &entity);
+
+    INLINE std::vector<u32>& Transforms();
+    INLINE std::vector<u32>& Geometries();
+
+private:
+    std::vector<Transform> transforms_;
+    std::vector<Geometry> geometries_;
+    //std::vector<Script> scripts_;
+//    std::vector<Light> lights;
 };
 
 }

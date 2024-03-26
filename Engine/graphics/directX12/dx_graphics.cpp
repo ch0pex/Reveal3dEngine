@@ -18,7 +18,7 @@ namespace reveal3d::graphics::dx {
 
 using namespace render;
 
-Graphics::Graphics(const window::Resolution &res) :
+Graphics::Graphics(window::Resolution *res) :
     resolution_(res), presentInfo_(0),
     swapChainFlags_(DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)
 {
@@ -67,8 +67,8 @@ void Graphics::CreateSwapChain() {
     ComPtr<IDXGISwapChain1> swapChain1;
 
     const DXGI_SWAP_CHAIN_DESC1 swapChainDesc{
-            .Width = resolution_.width,
-            .Height = resolution_.height,
+            .Width = resolution_->width,
+            .Height = resolution_->height,
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .Stereo = FALSE,
             .SampleDesc = {1, 0},
@@ -99,6 +99,9 @@ void Graphics::InitFrameResources() {
 void Graphics::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
         frameResource.constantBuffer_.Init(device_.Get(), 1U);
+        frameResource.passBuffer_.Init(device_.Get(),  1U);
+        frameResource.constantBuffer_.CreateView(device_.Get(), heaps_.cbv);
+        frameResource.passBuffer_.CreateView(device_.Get(), heaps_.cbv);
     }
 }
 
@@ -158,13 +161,6 @@ void Graphics::LoadAssets() {
     vertexBuffer_.Init(vertexBufferInfo);
     indexBuffer_.Init(indexBufferInfo);
 
-    for (auto& frameResource : frameResources_) { // TODO: Create constant buffer view for each scene object
-        const D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDes = {
-            .BufferLocation = frameResource.constantBuffer_.GpuAddress(),
-            .SizeInBytes = frameResource.constantBuffer_.Size()
-        };
-        device_->CreateConstantBufferView(&cbvDes, heaps_.cbv.CpuStart());
-    }
 
     cmdManager_.List()->Close();
     cmdManager_.Execute();
@@ -173,34 +169,37 @@ void Graphics::LoadAssets() {
 }
 
 void Graphics::BuildRootSignature() {
-    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-    CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {
-            .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1
-    };
+    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
+    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 
-    if (FAILED(device_->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
-        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+    CD3DX12_DESCRIPTOR_RANGE cbvTable1;
+    cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+
+    // Create root CBVs.
+    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
+    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
+                                            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+                                             serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+    if(errorBlob != nullptr)
+    {
+        OutputDebugStringA((char*)errorBlob->GetBufferPointer());
     }
+    hr >> utl::DxCheck;
 
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-    rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
-
-    // Allow input layout and deny uneccessary access to certain pipeline stages.
-    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-            D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
-
-    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-    rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
-
-    ComPtr<ID3DBlob> signature;
-    ComPtr<ID3DBlob> error;
-    D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error) >> utl::DxCheck;
-    device_->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature_)) >> utl::DxCheck;
+    device_->CreateRootSignature( 0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(),
+            IID_PPV_ARGS(rootSignature_.GetAddressOf())) >> utl::DxCheck;
 
 }
 
@@ -252,16 +251,15 @@ void Graphics::BuildPSO() {
 
 void Graphics::Update(render::Camera &camera, const Timer& timer) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
-    AlignedObjCosntant objConstant;
+    AlignedConstant<ObjConstant, 1> objConstant;
+    AlignedConstant<PassConstant, 2> passConstant;
 
-    objConstant.data.worlViewProj = XMMatrixTranspose(
-//            XMMatrixRotationX(1.0f * timer.TotalTime() + 1.f) *
-//            XMMatrixRotationY(1.2f * timer.TotalTime() + 2.f) *
-//            XMMatrixRotationZ(1.1f * timer.TotalTime() + 0.f) *
-            camera.GetViewProjectionMatrix()
-    );
+    core::Transform transform;
+    objConstant.data.world = math::Transpose(transform.World());
+    passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     // Update the constant buffer with the latest worldViewProj matrix.
     currFrameRes.constantBuffer_.CopyData(0, &objConstant, 1);
+    currFrameRes.passBuffer_.CopyData(0, &passConstant, 1);
 }
 
 // TODO: Functions to simplify barrier creation
@@ -289,11 +287,13 @@ void Graphics::PrepareRender() {
     commandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
 
     commandList->SetGraphicsRootSignature(rootSignature_.Get());
+
+    commandList->SetGraphicsRootDescriptorTable(0, currFrameRes.constantBuffer_.GpuDesc());
+    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passBuffer_.GpuDesc());
+
     commandList->IASetVertexBuffers(0, 1, vertexBuffer_.View());
     commandList->IASetIndexBuffer(indexBuffer_.View());
     commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    commandList->SetGraphicsRootDescriptorTable(0, heaps_.cbv.GpuStart());
 
     commandList->DrawIndexedInstanced(36, 1, 0, 0 ,0); // Hardcoded TODO
 
@@ -310,27 +310,12 @@ void Graphics::Draw() {
     cmdManager_.MoveToNextFrame();
 }
 
-void Graphics::Terminate() {
-#ifdef _DEBUG
-    utl::QueueInfo(device_.Get(), FALSE);
-    utl::SetReporter(device_.Get());
-#endif
-    cmdManager_.Flush();
-    heaps_.Release();
-    vertexBuffer_.Release();
-    indexBuffer_.Release();
-    for (auto& frameResource : frameResources_) {
-        frameResource.constantBuffer_.Release();
-    }
-    CleanDeferredResources(heaps_);
-}
-
 void Graphics::Resize(const window::Resolution &res) {
-    if (res.aspectRatio == resolution_.aspectRatio) {
+    if (res.aspectRatio == resolution_->aspectRatio) {
         return;
     }
 
-    resolution_ = res;
+    *resolution_ = res;
     cmdManager_.WaitForGPU();
 
     cmdManager_.Reset(nullptr);
@@ -340,10 +325,9 @@ void Graphics::Resize(const window::Resolution &res) {
     }
 
     //depthStencilbuffer.reset()
-    //heaps_.dsv.free(depthbufferHandle);
     //BuildDepthBuffer
 
-    swapChain_->ResizeBuffers(frameBufferCount, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
+    swapChain_->ResizeBuffers(frameBufferCount, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
             swapChainFlags_) >> utl::DxCheck;
 
     cmdManager_.ResetFences();
@@ -359,10 +343,24 @@ void Graphics::Resize(const window::Resolution &res) {
 
     cmdManager_.List()->Close();
     cmdManager_.Execute();
-
     cmdManager_.WaitForGPU();
 
     SetViewport();
 }
 
+void Graphics::Terminate() {
+#ifdef _DEBUG
+    utl::QueueInfo(device_.Get(), FALSE);
+    utl::SetReporter(device_.Get());
+#endif
+    cmdManager_.Flush();
+    heaps_.Release();
+    vertexBuffer_.Release();
+    indexBuffer_.Release();
+    for (auto& frameResource : frameResources_) {
+        frameResource.constantBuffer_.Release();
+        frameResource.passBuffer_.Release();
+    }
+    CleanDeferredResources(heaps_);
+}
 }

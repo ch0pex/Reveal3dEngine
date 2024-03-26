@@ -22,14 +22,18 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-    Renderer(const window::Resolution &res);
+    Renderer(window::Resolution *res, core::Scene &scene);
     void Init(WHandle wHandle);
     void Update();
     void Render();
     void Destroy();
     void Resize(const window::Resolution &res);
-    [[nodiscard]] INLINE u32 GetWidth() const { return graphics_.GetWidth(); }
-    [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
+
+    INLINE void SetScene(core::Scene& scene) { scene_ = scene; }
+
+
+//    [[nodiscard]] INLINE u32 GetWidth() const { return graphics_.GetWidth(); }
+//    [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
     //~Renderer();
 
     INLINE  void CameraResetMouse() { camera_.ResetMouse(); }
@@ -38,7 +42,7 @@ private:
     Timer timer_;
     Gfx graphics_;
     Camera camera_;
-//    core::Scene& scene_;
+    core::Scene& scene_;
 };
 
 }

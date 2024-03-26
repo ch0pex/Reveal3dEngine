@@ -3,17 +3,17 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_resources.hpp
+ * @file obj_parser.hpp
  * @version 1.0
- * @date 25/03/2024
- * @brief Short description
+ * @date 26/03/2024
+ * @brief OBJ and FBX functions
  *
- * Longer description
+ * Methods to parse OBJ and FBX functions
+ *
  */
 
 #pragma once
 
-#include "dx_buffer.hpp"
-#include "dx_descriptor_heap.hpp"
-#include "dx_upload_buffer.hpp"
-#include "dx_deferring_system.hpp"
+namespace reveal3d::content {
+
+}

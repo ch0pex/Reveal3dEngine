@@ -50,7 +50,6 @@ void Commands::Reset(ID3D12PipelineState *pso) {
 }
 
 void Commands::WaitForGPU() {
-
     fenceValues_[frameIndex_]++;
     commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
     auto lastCompleted = fence_->GetCompletedValue();
@@ -61,8 +60,6 @@ void Commands::WaitForGPU() {
             GetLastError() >> utl::DxCheck;
         }
     }
-
-
 }
 
 void Commands::MoveToNextFrame() {

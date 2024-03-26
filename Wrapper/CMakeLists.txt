@@ -1,5 +1,7 @@
 
 add_library(Wrapper SHARED
+        dllmain.cpp
         wrapper.cpp
 )
-include_directories(PUBLIC ../Engine)
+target_link_libraries(Wrapper Engine)
+target_include_directories(Wrapper PUBLIC ../Engine)

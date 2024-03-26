@@ -17,6 +17,7 @@
                     CornerRadius="8 8 8 8">
                 <Canvas ClipToBounds="True">
                     <userControls:FloatingWindowView Canvas.Bottom="80"></userControls:FloatingWindowView>     
+                    <userControls:RendererHostView></userControls:RendererHostView>
                 </Canvas>
             </Border>
         </Grid>

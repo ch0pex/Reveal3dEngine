@@ -3,4 +3,4 @@
 - [ ] Fix shader paths
 - [ ] Load models
 - [ ] Scene, transform, and geometry
-- [ ] CPass
+- [x] CPass

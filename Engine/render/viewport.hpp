@@ -24,9 +24,10 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx, template<typename> class Window>
 // requires,
 struct Viewport {
-    explicit Viewport(window::InitInfo &info) : renderer(info.res), window(info) {}
-    Renderer<Gfx> renderer;
+    explicit Viewport(window::InitInfo &windowInfo, core::Scene &scene) : window(windowInfo), renderer(&window.GetRes(), scene) { }
+    void Init() { window.Create(renderer); }
     Window<Gfx> window;
+    Renderer<Gfx> renderer;
 };
 
 } // reveal3d

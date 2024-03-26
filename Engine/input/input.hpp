@@ -251,4 +251,10 @@ private:
     std::unordered_map<action, Binding<T>> mouseHandler;
 };
 
+struct cursor {
+    static math::vec2 pos;
+    static bool shouldClip;
+    //    static bool isLooking;
+    //    static bool fistMouse;
+};
 }

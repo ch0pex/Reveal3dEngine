@@ -28,7 +28,7 @@ public:
     // TODO: Frustum
 
     [[nodiscard]] INLINE math::mat4 GetProjectionMatrix() const { return projectionMatrix_; }
-    [[nodiscard]] INLINE math::mat4 GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
+    [[nodiscard]] INLINE math::mat4 const GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
     [[nodiscard]] INLINE math::mat4 GetViewMatrix() const { return viewMatrix_; }
 
     /********* Input handling ************/
@@ -40,7 +40,7 @@ public:
 
 private:
     void UpdatePos(math::scalar dt);
-    void UpdateFront(math::scalar dt);
+    void UpdateFront();
 
     math::xvec3 position_;
     math::xvec3 front_;
@@ -55,7 +55,7 @@ private:
     input::System<Camera> inputSys_;
 
     /********* Input handling ************/ //NOTE: Maybe move this to some mouse class?
-    enum dir { fwd, bckwd, up, down, right, left, count };
+    enum dir : u8 { fwd, bckwd, up, down, right, left, count };
     bool isMoving_[dir::count] { false };
     bool isLooking_{ false };
     bool firstMouse_ { true };

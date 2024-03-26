@@ -16,9 +16,10 @@
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx>
-Renderer<Gfx>::Renderer(const window::Resolution &res) :
-        camera_(res),
-        graphics_(res)
+Renderer<Gfx>::Renderer(window::Resolution *res, core::Scene &scene) :
+        camera_(*res),
+        graphics_(res),
+        scene_(scene)
 {
 
 }
