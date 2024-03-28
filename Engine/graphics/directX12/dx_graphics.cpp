@@ -295,10 +295,10 @@ void Graphics::BuildPSO() {
     HRESULT hr = S_OK;
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 

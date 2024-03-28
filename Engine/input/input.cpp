@@ -8,7 +8,7 @@
  * @date 22/03/2024
  * @brief Short description
  *
- * Longer description
+ * Longer descriptio    n
  */
 
 #include "input.hpp"
@@ -51,7 +51,6 @@ void KeyDown(u8 keycode, math::vec2 pos) {
             inputSys->OnMouseDown(act, pos);
         }
     }
-
 }
 
 void KeyUp(u8 keycode) {

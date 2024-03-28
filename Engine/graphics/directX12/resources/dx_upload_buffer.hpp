@@ -69,7 +69,8 @@ public:
     T* mappedData_ { nullptr };
 private:
     ID3D12Resource *buff_;
-    u32 capacity_{ 0 };
+    u32 capacity_ { 0 };
+    u32 size_ { 0 };
 };
 
 
@@ -95,9 +96,10 @@ void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
 
 template<typename T>
 DescriptorHandle UploadBuffer<T>::CreateView(ID3D12Device *device, DescriptorHeap &heap) {
+    const u64 buffAddress = GpuStart() + (sizeof(T) * size_++);
     const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {
-            .BufferLocation = GpuStart(),
-            .SizeInBytes = Size()
+            .BufferLocation = buffAddress,
+            .SizeInBytes = sizeof(T)
     };
 
     DescriptorHandle handle = heap.alloc();
