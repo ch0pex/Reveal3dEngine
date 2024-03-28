@@ -51,6 +51,7 @@ private:
     void InitDXGIAdapter();
     void CreateSwapChain();
     void InitFrameResources();
+    void InitDsBuffer();
     void InitConstantBuffers();
     void SetViewport();
     void BuildRootSignature();
@@ -61,7 +62,7 @@ private:
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
 
-    /****************** Frame resources and swapchain *****************/
+    /****************** Frame resources, depth stencil and swapchain *****************/
     struct FrameResource {
         ConstantBuffer constantBuffer;
         ComPtr<ID3D12Resource> backBuffer;
@@ -71,9 +72,10 @@ private:
     };
 
     FrameResource frameResources_[frameBufferCount];
-    //FrameResource depthStencilBuffer;
     ComPtr<IDXGISwapChain3> swapChain_;
 
+    ComPtr<ID3D12Resource> depthStencilBuffer_;
+    DescriptorHandle dsHandle_;
     /***************** Heaps and buffers **********************/
     Heaps heaps_;
     std::vector<RenderInfo> renderElements_;

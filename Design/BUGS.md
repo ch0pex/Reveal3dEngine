@@ -1,3 +1,1 @@
 - [ ] Input system mouse and middle click bug, solved with mayus bind
-- [x] Clipping mouse bug, maybe change to set to the center?
-- [x] After resize the limits for clip remain in the same window position

@@ -1,4 +1,4 @@
-- [ ] Mejorar buffers y constant buffers para que soporten multiples entidades 
+- [x] Mejorar buffers y constant buffers para que soporten multiples entidades (Se puede mejorar)
 - [ ] DXGI buscar disopistivo de mayor rendimiento y buscar compatibilidades
 - [ ] Archivo de configuración
 - [x] Resize del viewport 

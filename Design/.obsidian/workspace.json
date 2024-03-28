@@ -27,9 +27,9 @@
               "state": {
                 "file": "Engine/TODOs lists.canvas",
                 "viewState": {
-                  "x": -647,
-                  "y": -338,
-                  "zoom": 0
+                  "x": -1211.475931320896,
+                  "y": -399.69743388451803,
+                  "zoom": 0.06478180754184724
                 }
               }
             }
@@ -38,19 +38,16 @@
             "id": "342de44848f753e9",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Engine/TODOs lists.canvas",
-                "viewState": {
-                  "x": -1008,
-                  "y": -567,
-                  "zoom": 0
-                }
+                "file": "TODO.md",
+                "mode": "source",
+                "source": false
               }
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -116,7 +113,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "TODO.md",
+                "file": "Engine/TODOs lists.canvas",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +130,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "TODO.md",
+                "file": "Engine/TODOs lists.canvas",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -156,7 +153,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "TODO.md"
+                "file": "Engine/TODOs lists.canvas"
               }
             }
           }
@@ -169,24 +166,24 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "copilot:Copilot Chat": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
+      "copilot:Copilot Chat": false,
       "obsidian-excalidraw-plugin:Create new drawing": false
     }
   },
-  "active": "342de44848f753e9",
+  "active": "98f1299f4edf2329",
   "lastOpenFiles": [
+    "TODO.md",
     "BUGS.md",
+    "Engine/TODOs lists.canvas",
     "DONE.md",
     "In Progress.md",
     "Engine/Esquema.md",
-    "Engine/TODOs lists.canvas",
-    "TODO.md",
     "Engine/Graphics/Directx12/DXGraphics.md",
     "Excalidraw/Drawing 2024-02-27 18.37.44.excalidraw.md",
     "Excalidraw/Drawing 2024-02-27 18.38.30.excalidraw.md",

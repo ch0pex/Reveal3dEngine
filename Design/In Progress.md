@@ -4,3 +4,4 @@
 - [ ] Load models
 - [ ] Scene, transform, and geometry
 - [x] CPass
+- [ ] Depth buffer
