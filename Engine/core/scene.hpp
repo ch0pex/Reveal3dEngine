@@ -25,8 +25,8 @@ namespace reveal3d::core {
 class Scene;
 
 struct Entity {
-    Transform *transform { nullptr };
-    Geometry *geometry { nullptr };
+    Transform *transform;
+    Geometry *geometry;
 };
 
 class Scene {
@@ -34,15 +34,16 @@ public:
     Scene() = default;
 
     Entity CreateEntity();
-    Entity GetEntity();
     void AddEntity(Entity &entity);
 
-    INLINE std::vector<u32>& Transforms();
-    INLINE std::vector<u32>& Geometries();
+    INLINE std::vector<Transform>& Transforms() { return transforms_; }
+    INLINE std::vector<Geometry>& Geometries() { return geometries_; }
+    INLINE u32 NumEntities() { return entities_; }
 
 private:
     std::vector<Transform> transforms_;
     std::vector<Geometry> geometries_;
+    u32 entities_ { 0 };
     //std::vector<Script> scripts_;
 //    std::vector<Light> lights;
 };

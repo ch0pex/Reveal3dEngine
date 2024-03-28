@@ -30,8 +30,9 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
-    heaps_.cbv.Initialize(device_.Get(), 512, true);
-    heaps_.dsv.Initialize(device_.Get(), 1, false);
+    heaps_.cbv.Initialize(device_.Get(), 4092, true);
+    heaps_.dsv.Initialize(device_.Get(), 1U, false);
+    renderElements_.reserve(512U);
     CreateSwapChain();
     InitFrameResources();
     InitConstantBuffers();
@@ -98,11 +99,11 @@ void Graphics::InitFrameResources() {
 
 void Graphics::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
-        frameResource.constantBuffer_.Init(device_.Get(), 1U);
-        frameResource.passBuffer_.Init(device_.Get(),  1U);
-        frameResource.constantBuffer_.CreateView(device_.Get(), heaps_.cbv);
-        frameResource.passBuffer_.CreateView(device_.Get(), heaps_.cbv);
+        frameResource.constantBuffer.Init(device_.Get(), 256U); //TODO: hardcoded capacity 256 maximum?
+        frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
+        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }
+
 }
 
 void Graphics::SetViewport() {
@@ -118,7 +119,7 @@ void Graphics::SetViewport() {
     scissorRect_ = { 0, 0, (i32) desc.BufferDesc.Width, (i32) desc.BufferDesc.Height };
 }
 
-void Graphics::LoadAssets() {
+void Graphics::LoadAssets(core::Scene &scene) {
     BuildRootSignature();
     BuildPSO();
     cmdManager_.Reset(nullptr);
@@ -158,10 +159,87 @@ void Graphics::LoadAssets() {
             .format = DXGI_FORMAT_R16_UINT
     };
 
+    renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+    AlignedConstant<ObjConstant, 1> objConstant;
+    core::Transform transform;
+    transform.SetRotation({45});
+    for (u32 j = 0; j < frameBufferCount; ++j) {
+        renderElements_[0].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
+        objConstant.data.world = math::Transpose(transform.World());
+        frameResources_[j].constantBuffer.CopyData(0, &objConstant);
+    }
+
+
+    std::vector<Vertex> vertices2 = {
+            { { -1.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0, 0.0f} },
+            { { -1.0f, 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0, 0.0f} },
+            { { 1.0f, 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0, 0.0f} },
+            { { 1.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0, 0.0f} }
+    };
+
+
+    std::vector<u16> indices2 = {
+            0, 1, 2,
+            0, 2, 3
+    };
+
+    BufferInitInfo conevertinfo = {
+            .device = device_.Get(),
+            .cmdList = cmdManager_.List(),
+            .data = &vertices2[0],
+            .count = vertices2.size()
+    };
+
+    BufferInitInfo coneindinfo = {
+            .device = device_.Get(),
+            .cmdList = cmdManager_.List(),
+            .data = &indices2[0],
+            .count = indices2.size(),
+            .format = DXGI_FORMAT_R16_UINT
+    };
+
+    renderElements_.emplace_back(conevertinfo, coneindinfo);
+    AlignedConstant<ObjConstant, 1> objConstant2;
+    core::Transform transform2;
+    for (u32 j = 0; j < frameBufferCount; ++j) {
+        renderElements_[1].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
+        objConstant2.data.world = math::Transpose(transform2.World());
+        frameResources_[j].constantBuffer.CopyData(1, &objConstant2);
+    }
+
+    /*
     vertexBuffer_.Init(vertexBufferInfo);
     indexBuffer_.Init(indexBufferInfo);
+    std::vector<core::Transform> &transforms = scene.Transforms();
+    std::vector<core::Geometry> &geometries = scene.Geometries();
 
+    for(u32 i = 0; i < scene.NumEntities(); ++i) {
+        BufferInitInfo vertexBufferInfo = {
+                .device = device_.Get(),
+                .cmdList = cmdManager_.List(),
+                .data = geometries[i].GetVertices(),
+                .count = geometries[i].VertexCount()
+        };
 
+        BufferInitInfo indexBufferInfo = {
+                .device = device_.Get(),
+                .cmdList = cmdManager_.List(),
+                .data = geometries[i].GetIndices(),
+                .count = geometries[i].IndexCount(),
+                .format = DXGI_FORMAT_R16_UINT
+        };
+
+        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+
+        AlignedConstant<ObjConstant, 1> objConstant;
+        for (u32 j = 0; j < frameBufferCount; ++j) {
+            renderElements_[i].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
+            objConstant.data.world = math::Transpose(transforms[i].World());
+            frameResources_[j].constantBuffer.CopyData(0, &objConstant, 1);
+        }
+    }
+
+    */
     cmdManager_.List()->Close();
     cmdManager_.Execute();
     cmdManager_.WaitForGPU();
@@ -251,15 +329,11 @@ void Graphics::BuildPSO() {
 
 void Graphics::Update(render::Camera &camera, const Timer& timer) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
-    AlignedConstant<ObjConstant, 1> objConstant;
     AlignedConstant<PassConstant, 2> passConstant;
 
-    core::Transform transform;
-    objConstant.data.world = math::Transpose(transform.World());
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     // Update the constant buffer with the latest worldViewProj matrix.
-    currFrameRes.constantBuffer_.CopyData(0, &objConstant, 1);
-    currFrameRes.passBuffer_.CopyData(0, &passConstant, 1);
+    currFrameRes.passBuffer.CopyData(0, &passConstant);
 }
 
 // TODO: Functions to simplify barrier creation
@@ -288,14 +362,17 @@ void Graphics::PrepareRender() {
 
     commandList->SetGraphicsRootSignature(rootSignature_.Get());
 
-    commandList->SetGraphicsRootDescriptorTable(0, currFrameRes.constantBuffer_.GpuDesc());
-    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passBuffer_.GpuDesc());
+    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passHandle.gpu);
 
-    commandList->IASetVertexBuffers(0, 1, vertexBuffer_.View());
-    commandList->IASetIndexBuffer(indexBuffer_.View());
-    commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    for (auto &element : renderElements_) {
+        commandList->SetGraphicsRootDescriptorTable(0, element.handles[Commands::FrameIndex()].gpu);
+        commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
+        commandList->IASetIndexBuffer(element.indexBuffer.View());
+        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    commandList->DrawIndexedInstanced(36, 1, 0, 0 ,0); // Hardcoded TODO
+        commandList->DrawIndexedInstanced(element.indexBuffer.Count(), 1, 0, 0 ,0); // Hardcoded TODO
+    }
+
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
@@ -355,11 +432,15 @@ void Graphics::Terminate() {
 #endif
     cmdManager_.Flush();
     heaps_.Release();
-    vertexBuffer_.Release();
-    indexBuffer_.Release();
+
+    for (auto &elem : renderElements_) {
+        elem.vertexBuffer.Release();
+        elem.indexBuffer.Release();
+    }
+
     for (auto& frameResource : frameResources_) {
-        frameResource.constantBuffer_.Release();
-        frameResource.passBuffer_.Release();
+        frameResource.constantBuffer.Release();
+        frameResource.passBuffer.Release();
     }
     CleanDeferredResources(heaps_);
 }

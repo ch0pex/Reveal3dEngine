@@ -3,24 +3,22 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file mesh.hpp
+ * @file dx_render_info.cpp
  * @version 1.0
- * @date 10/03/2024
+ * @date 27/03/2024
  * @brief Short description
  *
  * Longer description
  */
 
-#pragma once
+#include "dx_render_info.hpp"
 
-#include "math/math.hpp"
+namespace reveal3d::graphics::dx {
 
-
-namespace reveal3d::render {
-
-struct Vertex {
-    math::vec3 pos;
-    math::vec4 color;
-};
+RenderInfo::RenderInfo(BufferInitInfo &vertexInfo, BufferInitInfo &indexInfo)
+        : vertexBuffer(vertexInfo),
+          indexBuffer(indexInfo)
+{
+}
 
 }

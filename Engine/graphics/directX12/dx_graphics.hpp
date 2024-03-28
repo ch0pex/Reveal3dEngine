@@ -21,6 +21,7 @@
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
+#include "dx_render_info.hpp"
 #include "render/camera.hpp"
 #include "resources/dx_resources.hpp"
 #include "window/window_info.hpp"
@@ -35,7 +36,7 @@ class Graphics {
 public:
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
-    void LoadAssets();
+    void LoadAssets(core::Scene &scene);
     void Update(render::Camera &camera, const Timer& timer);
     void PrepareRender();
     void Draw();
@@ -62,10 +63,11 @@ private:
 
     /****************** Frame resources and swapchain *****************/
     struct FrameResource {
-        ConstantBuffer constantBuffer_;
-        PassCB passBuffer_;
+        ConstantBuffer constantBuffer;
         ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle backBufferHandle;
+        PassCB passBuffer;
+        DescriptorHandle passHandle;
     };
 
     FrameResource frameResources_[frameBufferCount];
@@ -74,8 +76,7 @@ private:
 
     /***************** Heaps and buffers **********************/
     Heaps heaps_;
-    Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex> vertexBuffer_;
-    Buffer<D3D12_INDEX_BUFFER_VIEW, u16> indexBuffer_;
+    std::vector<RenderInfo> renderElements_;
 
     /************ Pipeline state and commands manager **********/
     ComPtr<ID3D12RootSignature> rootSignature_;

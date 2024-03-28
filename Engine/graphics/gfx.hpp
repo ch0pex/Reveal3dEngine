@@ -25,7 +25,7 @@ namespace reveal3d::graphics {
 template<typename Gfx>
 concept HRI = requires(Gfx graphics) {
     {graphics.LoadPipeline()} ->  std::same_as<void>;
-    {graphics.LoadAssets()} ->  std::same_as<void>;
+//    {graphics.LoadAssets(core::Scene&)} ->  std::same_as<void>;
 };
 }
 

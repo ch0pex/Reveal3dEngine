@@ -31,24 +31,28 @@ template<typename BUFFER_VIEW_TYPE, typename T>
 class Buffer {
 public:
     Buffer() = default;
+    explicit Buffer(BufferInitInfo &info) { Init(info); }
     void Init(BufferInitInfo &info);
     void Release() { DeferredRelease(buff_); }
 
+    /* NOTE: we will need a custom vector in a future
     explicit Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
     explicit Buffer(Buffer&&) = delete;
     Buffer& operator=(Buffer&&) = delete;
+    */
 
     [[nodiscard]]INLINE ID3D12Resource* Get() const { return buff_; };
     [[nodiscard]]INLINE BUFFER_VIEW_TYPE* View() { return &view_; };
-    [[nodiscard]]INLINE u32 Size() const { return size_; };
+    [[nodiscard]]INLINE u32 Count() const { return count_; };
+    [[nodiscard]]INLINE u32 SizeInBytes() const { return size_; };
 
 private:
     void SetView(BufferInitInfo &info);
-
     ID3D12Resource *buff_;
     BUFFER_VIEW_TYPE view_;
     u32 size_ { 0 };
+    u32 count_ { 0 };
 };
 
 using VertexBuffer = Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>;
@@ -57,6 +61,7 @@ using IndexBuffer = Buffer<D3D12_INDEX_BUFFER_VIEW, u16>;
 template<typename BUFFER_VIEW_TYPE, typename T>
 void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
 {
+    count_ = info.count;
     size_ = sizeof(T) * info.count;
     auto uploadBuffer = UploadBuffer<T>();
     auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);

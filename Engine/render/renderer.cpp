@@ -31,7 +31,7 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
     graphics_.LoadPipeline();
     log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
     time = timer_.TotalTime();
-    graphics_.LoadAssets();
+    graphics_.LoadAssets(scene_);
     log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
