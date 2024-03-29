@@ -26,13 +26,13 @@ Graphics::Graphics(window::Resolution *res) :
 }
 
 void Graphics::LoadPipeline() {
-    // Factory -> LookForAdapter -> CreateDevice -> CommandQueue -> SwapChain
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
     heaps_.cbv.Initialize(device_.Get(), 4092U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
     renderElements_.reserve(512U);
+    dsHandle_ = heaps_.dsv.alloc();
     CreateSwapChain();
     InitFrameResources();
     InitDsBuffer();
@@ -104,107 +104,52 @@ void Graphics::InitConstantBuffers() {
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
         frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }
-
 }
 
 void Graphics::InitDsBuffer() {
-    /*
-    // Create the depth/stencil buffer and view.
-    D3D12_RESOURCE_DESC depthStencilDesc;
-    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Alignment = 0;
-    depthStencilDesc.Width = resolution_->width;
-    depthStencilDesc.Height = resolution_->height;
-    depthStencilDesc.DepthOrArraySize = 1;
-    depthStencilDesc.MipLevels = 1;
+    D3D12_RESOURCE_DESC depthStencilDesc = {
+            .Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+            .Alignment = 0,
+            .Width = resolution_->width,
+            .Height = resolution_->height,
+            .DepthOrArraySize = 1,
+            .MipLevels = 1,
+            .Format = DXGI_FORMAT_R24G8_TYPELESS,
+            .SampleDesc = {
+                    .Count =  1,
+                    .Quality =  0,
+            },
+            .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+            .Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
+    };
 
-    // Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from
-    // the depth buffer.  Therefore, because we need to create two views to the same resource:
-    //   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-    //   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-    // we need to create the depth buffer resource with a typeless format.
-    depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-    depthStencilDesc.SampleDesc.Count =  1;
-    depthStencilDesc.SampleDesc.Quality =  0;
-    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-    // Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from
-    // the depth buffer.  Therefore, because we need to create two views to the same resource:
-    //   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-    //   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-    // we need to create the depth buffer resource with a typeless format.
-    depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-
-    D3D12_CLEAR_VALUE optClear;
-    optClear.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    optClear.DepthStencil.Depth = 1.0f;
-    optClear.DepthStencil.Stencil = 0;
+    D3D12_CLEAR_VALUE optClear = {
+            .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+            .DepthStencil = {
+                .Depth = 1.0f,
+                .Stencil = 0,
+            }
+    };
 
     auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     device_->CreateCommittedResource(
             &heapProp,
             D3D12_HEAP_FLAG_NONE,
             &depthStencilDesc,
-            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &optClear,
             IID_PPV_ARGS(depthStencilBuffer_.GetAddressOf())) >> utl::DxCheck;
 
-    // Create descriptor to mip level 0 of entire resource using the format of the resource.
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-    dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    dsvDesc.Texture2D.MipSlice = 0;
-*/
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-    D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-    depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-    depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-    depthOptimizedClearValue.DepthStencil.Stencil = 0;
-
-    const CD3DX12_HEAP_PROPERTIES depthStencilHeapProps(D3D12_HEAP_TYPE_DEFAULT);
-    const CD3DX12_RESOURCE_DESC depthStencilTextureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, resolution_->width, resolution_->height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-
-    device_->CreateCommittedResource(
-            &depthStencilHeapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &depthStencilTextureDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depthOptimizedClearValue,
-            IID_PPV_ARGS(depthStencilBuffer_.GetAddressOf())
-                    ) >> utl::DxCheck;
-    dsHandle_ = heaps_.dsv.alloc();
-    device_->CreateDepthStencilView(depthStencilBuffer_.Get(), &depthStencilDesc, dsHandle_.cpu);
-    /*
-    const CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-    const CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_D32_FLOAT,
-            resolution_->width, resolution_->height,
-            1, 0, 1, 0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-    const D3D12_CLEAR_VALUE clearValue = {
-            .Format = DXGI_FORMAT_D32_FLOAT,
-            .DepthStencil = { 1.0f, 0 },
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {
+            .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+            .Flags = D3D12_DSV_FLAG_NONE,
+            .Texture2D = {
+                    .MipSlice = 0
+            }
     };
-    device_->CreateCommittedResource(
-            &heapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &desc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clearValue,
-            IID_PPV_ARGS(&depthStencilBuffer_)) >> utl::DxCheck;
-    dsHandle_ = heaps_.dsv.alloc();
-    device_->CreateDepthStencilView(depthStencilBuffer_.Get(), nullptr, dsHandle_.cpu);
-*/
 
+    device_->CreateDepthStencilView(depthStencilBuffer_.Get(), &dsvDesc, dsHandle_.cpu);
 }
 
 void Graphics::SetViewport() {
@@ -428,7 +373,7 @@ void Graphics::BuildPSO() {
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     psoDesc.SampleDesc.Count = 1; //TODO: Msaa support
-    psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+    psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
 }
@@ -460,7 +405,7 @@ void Graphics::PrepareRender() {
 
     const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
-    commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     ID3D12DescriptorHeap* descHeaps[] = { heaps_.cbv.Get() };
     commandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
@@ -508,7 +453,8 @@ void Graphics::Resize(const window::Resolution &res) {
         frameResource.backBuffer.Reset();
     }
 
-//    depthStencilBuffer_.Reset();
+    depthStencilBuffer_.Reset();
+    InitDsBuffer();
 
 
     swapChain_->ResizeBuffers(frameBufferCount, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
