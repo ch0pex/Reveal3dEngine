@@ -8,6 +8,8 @@ set(SOURCES
         render/light.cpp
         config/config.cpp
         input/input.cpp
+        content/primitives.cpp
+        content/obj_parser.cpp
 )
 
 message("Renderer: ${GFX}")

@@ -7,6 +7,7 @@
 #include "input/input.hpp"
 
 using namespace reveal3d;
+using namespace reveal3d::core;
 #if defined(D3D12)
 #include "graphics/directX12/dx_utils.hpp"
 using Gfx = graphics::dx::Graphics;
@@ -16,7 +17,6 @@ using Gfx = Vk::Graphics;
 
 LogLevel loglevel = logDEBUG;
 
-
 #if defined(_WIN32)
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -24,9 +24,12 @@ LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
-        core::Scene scene;
+        Scene scene;
         window::InitInfo windowInitInfo(L"Reveal3d", 1020, 1020, &WindowProc);
         Viewport<Gfx, window::Win32> viewport(windowInitInfo, scene);
+
+        scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\Reveal3d\\Assets\\asset2.obj");
+
 
         try {
             MSG msg = {};

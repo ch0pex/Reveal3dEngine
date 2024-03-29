@@ -170,96 +170,6 @@ void Graphics::LoadAssets(core::Scene &scene) {
     BuildPSO();
     cmdManager_.Reset(nullptr);
 
-    const Vertex vertices[] = {
-            { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
-            { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
-            { {1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 0.0f} }, // 2
-            { {1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} }, // 3
-            { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, 1.0f, 0.0f} }, // 4
-            { {-1.0f,  1.0f,  1.0f}, {0.0f, 1.0f, 1.0f, 0.0f} }, // 5
-            { {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 1.0f, 0.0f} }, // 6
-            { {1.0f, -1.0f,  1.0f}, {1.0f, 0.0f, 1.0f, 0.0f} }  // 7
-    };
-
-    const u16 indices[] = {
-            0, 1, 2, 0, 2, 3,
-            4, 6, 5, 4, 7, 6,
-            4, 5, 1, 4, 1, 0,
-            3, 2, 6, 3, 6, 7,
-            1, 5, 6, 1, 6, 2,
-            4, 0, 3, 4, 3, 7
-    };
-
-    BufferInitInfo vertexBufferInfo = {
-            .device = device_.Get(),
-            .cmdList = cmdManager_.List(),
-            .data = &vertices,
-            .count = _countof(vertices),
-    };
-
-    BufferInitInfo indexBufferInfo = {
-            .device = device_.Get(),
-            .cmdList = cmdManager_.List(),
-            .data = &indices,
-            .count = _countof(indices),
-            .format = DXGI_FORMAT_R16_UINT
-    };
-
-    renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-    AlignedConstant<ObjConstant, 1> objConstant;
-    core::Transform transform;
-    transform.SetRotation({45});
-    for (u32 j = 0; j < frameBufferCount; ++j) {
-        renderElements_[0].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
-        objConstant.data.world = math::Transpose(transform.World());
-        frameResources_[j].constantBuffer.CopyData(0, &objConstant);
-    }
-
-
-    const Vertex vertices2[] = {
-            { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
-            { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
-            { {1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 0.0f} }, // 2
-            { {1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} }, // 3
-            { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, 1.0f, 0.0f} }, // 4
-            { {-1.0f,  1.0f,  1.0f}, {0.0f, 1.0f, 1.0f, 0.0f} }, // 5
-            { {1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 1.0f, 0.0f} }, // 6
-            { {1.0f, -1.0f,  1.0f}, {1.0f, 0.0f, 1.0f, 0.0f} }  // 7
-    };
-
-    const u16 indices2[] = {
-            0, 1, 2, 0, 2, 3,
-            4, 6, 5, 4, 7, 6,
-            4, 5, 1, 4, 1, 0,
-            3, 2, 6, 3, 6, 7,
-            1, 5, 6, 1, 6, 2,
-            4, 0, 3, 4, 3, 7
-    };
-
-    BufferInitInfo conevertinfo = {.device = device_.Get(),
-            .cmdList = cmdManager_.List(),
-            .data = &vertices2[0],
-            .count = _countof(vertices2)};
-    BufferInitInfo coneindinfo = {
-            .device = device_.Get(),
-            .cmdList = cmdManager_.List(),
-            .data = &indices2[0],
-            .count = _countof(indices2),
-            .format = DXGI_FORMAT_R16_UINT
-    };
-
-    renderElements_.emplace_back(conevertinfo, coneindinfo);
-    AlignedConstant<ObjConstant, 1> objConstant2;
-    core::Transform transform2;
-    for (u32 j = 0; j < frameBufferCount; ++j) {
-        renderElements_[1].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
-        objConstant2.data.world = math::Transpose(transform2.World());
-        frameResources_[j].constantBuffer.CopyData(1, &objConstant2);
-    }
-
-    /*
-    vertexBuffer_.Init(vertexBufferInfo);
-    indexBuffer_.Init(indexBufferInfo);
     std::vector<core::Transform> &transforms = scene.Transforms();
     std::vector<core::Geometry> &geometries = scene.Geometries();
 
@@ -267,14 +177,14 @@ void Graphics::LoadAssets(core::Scene &scene) {
         BufferInitInfo vertexBufferInfo = {
                 .device = device_.Get(),
                 .cmdList = cmdManager_.List(),
-                .data = geometries[i].GetVertices(),
+                .data = geometries[i].GetVerticesStart(),
                 .count = geometries[i].VertexCount()
         };
 
         BufferInitInfo indexBufferInfo = {
                 .device = device_.Get(),
                 .cmdList = cmdManager_.List(),
-                .data = geometries[i].GetIndices(),
+                .data = geometries[i].GetIndicesStart(),
                 .count = geometries[i].IndexCount(),
                 .format = DXGI_FORMAT_R16_UINT
         };
@@ -285,11 +195,9 @@ void Graphics::LoadAssets(core::Scene &scene) {
         for (u32 j = 0; j < frameBufferCount; ++j) {
             renderElements_[i].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
             objConstant.data.world = math::Transpose(transforms[i].World());
-            frameResources_[j].constantBuffer.CopyData(0, &objConstant, 1);
+            frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
-
-    */
     cmdManager_.List()->Close();
     cmdManager_.Execute();
     cmdManager_.WaitForGPU();

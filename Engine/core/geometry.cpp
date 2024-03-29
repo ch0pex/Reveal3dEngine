@@ -12,3 +12,31 @@
  */
 
 #include "geometry.hpp"
+#include "content/primitives.hpp"
+#include "content/obj_parser.hpp"
+
+namespace reveal3d::core {
+
+Geometry::Geometry(const wchar_t *path) {
+    content::GetDataFromObj(path, vertices_, indices_);
+}
+
+Geometry::Geometry(Geometry::primitive type) {
+    switch (type) {
+        case cube:      content::GetCubeData(vertices_, indices_); break;
+        case plane:     content::GetPlaneData(vertices_, indices_); break;
+        case cylinder:  content::GetCylinderData(vertices_, indices_); break;
+        case sphere:    content::GetSphereData(vertices_, indices_); break;
+        case cone:      content::GetConeData(vertices_, indices_); break;
+        case torus:     content::GetTorusData(vertices_, indices_); break;
+    }
+}
+
+Geometry::Geometry(std::vector<render::Vertex> &&vertices, std::vector<u16> &&indices)
+        : vertices_(vertices),
+          indices_(indices)
+{
+
+}
+
+}
