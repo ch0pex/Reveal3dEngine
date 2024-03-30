@@ -42,13 +42,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             viewport.renderer.Init(viewport.window.GetHwnd());
 
             ShowWindow(viewport.window.GetHwnd(), SW_SHOW);
-
+            f32 r = 0.0f;
             while(isRunning) {
                 while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
                     viewport.window.ClipMouse(viewport.renderer);
                     TranslateMessage(&msg);
                     DispatchMessage(&msg);
                     isRunning &= (msg.message != WM_QUIT);
+                    obj.SetRotation(0.0f, 0.0f, r);
+                    r += 0.01f;
                 }
             }
             viewport.renderer.Destroy();

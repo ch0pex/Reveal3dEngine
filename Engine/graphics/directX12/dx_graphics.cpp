@@ -194,7 +194,7 @@ void Graphics::LoadAssets(core::Scene &scene) {
 
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
-            objConstant.data.world = math::Transpose(transforms[i].World());
+            objConstant.data.world = transforms[i].World();
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
@@ -282,13 +282,23 @@ void Graphics::BuildPSO() {
     device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
 }
 
-void Graphics::Update(render::Camera &camera, const Timer& timer) {
+void Graphics::Update(core::Scene &scene, render::Camera &camera, const Timer& timer) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     AlignedConstant<PassConstant, 2> passConstant;
 
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
-    // Update the constant buffer with the latest worldViewProj matrix.
     currFrameRes.passBuffer.CopyData(0, &passConstant);
+
+    auto &transforms = scene.Transforms();
+
+    AlignedConstant<ObjConstant, 1> objConstant;
+    for (u32 i = 0; i < scene.NumEntities(); ++i) {
+        if (transforms[i].IsDirty() > 0) {
+            objConstant.data.world = transforms[i].World();
+            transforms[i].UpdateDirty();
+            currFrameRes.constantBuffer.CopyData(i, &objConstant);
+        }
+    }
 }
 
 void Graphics::PrepareRender() {
@@ -324,8 +334,6 @@ void Graphics::PrepareRender() {
         commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
         commandList->IASetIndexBuffer(element.indexBuffer.View());
         commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
         commandList->DrawIndexedInstanced(element.indexBuffer.Count(), 1, 0, 0 ,0); // Hardcoded TODO
     }
 

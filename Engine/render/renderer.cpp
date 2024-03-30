@@ -39,7 +39,7 @@ template<graphics::HRI Gfx>
 void Renderer<Gfx>::Update() {
     timer_.Tick();
     camera_.Update(timer_);
-    graphics_.Update(camera_, timer_);
+    graphics_.Update(scene_, camera_, timer_);
 }
 
 template<graphics::HRI Gfx>

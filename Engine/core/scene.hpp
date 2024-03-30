@@ -41,7 +41,7 @@ public:
 
     INLINE Transform &GetTransform(u32 id) { return transforms_.at(id); }
     INLINE Geometry &GetGeometry(u32 id) { return geometries_.at(id); }
-    INLINE u32 NumEntities() { return entities_; }
+    INLINE u32 NumEntities() const { return entities_; }
     INLINE std::vector<Transform>& Transforms() { return transforms_; }
     INLINE std::vector<Geometry>& Geometries() { return geometries_; }
 

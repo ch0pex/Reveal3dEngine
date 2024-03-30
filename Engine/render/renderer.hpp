@@ -30,12 +30,6 @@ public:
     void Resize(const window::Resolution &res);
 
     INLINE void SetScene(core::Scene& scene) { scene_ = scene; }
-
-
-//    [[nodiscard]] INLINE u32 GetWidth() const { return graphics_.GetWidth(); }
-//    [[nodiscard]] INLINE u32 GetHeight() const { return graphics_.GetHeight(); }
-    //~Renderer();
-
     INLINE  void CameraResetMouse() { camera_.ResetMouse(); }
 
 private:

@@ -37,7 +37,7 @@ public:
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets(core::Scene &scene);
-    void Update(render::Camera &camera, const Timer& timer);
+    void Update(core::Scene &scene, render::Camera &camera, const Timer& timer);
     void PrepareRender();
     void Draw();
     void Terminate();
