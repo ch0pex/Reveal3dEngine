@@ -12,25 +12,30 @@
  */
 
 #include "scene.hpp"
+#include "entity.hpp"
 
 namespace reveal3d::core {
 
 
-void Scene::AddPrimitive(Geometry::primitive primitiveType) {
+Entity Scene::AddPrimitive(Geometry::primitive primitiveType) {
     transforms_.emplace_back();
     geometries_.emplace_back(primitiveType);
-    ++entities_;
+    return Entity(entities_++, *this);
+
 }
 
-void Scene::AddEntity(EntityInfo &entity) {
+Entity Scene::AddEntity(EntityInfo &entity) {
     transforms_.push_back(entity.transform);
     geometries_.push_back(entity.geometry);
+    return Entity(entities_++, *this);
+
 }
 
-void Scene::AddEntityFromObj(const wchar_t *path) {
+Entity Scene::AddEntityFromObj(const wchar_t *path) {
     transforms_.emplace_back();
     geometries_.emplace_back(path);
-    ++entities_;
+    return Entity(entities_++, *this);
+
 }
 
 }

@@ -10,6 +10,7 @@ set(SOURCES
         input/input.cpp
         content/primitives.cpp
         content/obj_parser.cpp
+        core/entity.hpp
 )
 
 message("Renderer: ${GFX}")

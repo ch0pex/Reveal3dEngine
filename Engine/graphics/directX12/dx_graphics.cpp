@@ -29,7 +29,7 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
-    heaps_.cbv.Initialize(device_.Get(), 4092U, true);
+//    heaps_.cbv.Initialize(device_.Get(), 4092U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
     renderElements_.reserve(512U);
     dsHandle_ = heaps_.dsv.alloc();
@@ -102,7 +102,7 @@ void Graphics::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
         frameResource.constantBuffer.Init(device_.Get(), 256U); //TODO: hardcoded capacity 256 maximum?
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
-        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
+//        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }
 }
 
@@ -190,10 +190,10 @@ void Graphics::LoadAssets(core::Scene &scene) {
         };
 
         renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+        renderElements_[i].index = i;
 
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
-            renderElements_[i].handles[j] = frameResources_[j].constantBuffer.CreateView(device_.Get(), heaps_.cbv);
             objConstant.data.world = math::Transpose(transforms[i].World());
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
@@ -205,18 +205,14 @@ void Graphics::LoadAssets(core::Scene &scene) {
 }
 
 void Graphics::BuildRootSignature() {
-    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-
-    CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-    cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-
-    // Root parameter can be a table, root descriptor or root constants.
+//    CD3DX12_DESCRIPTOR_RANGE cbvTables[2];
     CD3DX12_ROOT_PARAMETER slotRootParameter[2];
 
-    // Create root CBVs.
-    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
-    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+//    cbvTables[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+//    cbvTables[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
+
+    slotRootParameter[0].InitAsConstantBufferView(0);
+    slotRootParameter[1].InitAsConstantBufferView(1);
 
     // A root signature is an array of root parameters.
     CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
@@ -315,16 +311,16 @@ void Graphics::PrepareRender() {
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-    ID3D12DescriptorHeap* descHeaps[] = { heaps_.cbv.Get() };
-    commandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
 
     commandList->SetPipelineState(pipelineState_.Get());
     commandList->SetGraphicsRootSignature(rootSignature_.Get());
 
-    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passHandle.gpu);
+//    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passHandle.gpu);
+    commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
     for (auto &element : renderElements_) {
-        commandList->SetGraphicsRootDescriptorTable(0, element.handles[Commands::FrameIndex()].gpu);
+//        commandList->SetGraphicsRootDescriptorTable(0, element.handles[Commands::FrameIndex()].gpu);
+        commandList->SetGraphicsRootConstantBufferView(0, currFrameRes.constantBuffer.GpuPos(element.index));
         commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
         commandList->IASetIndexBuffer(element.indexBuffer.View());
         commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -62,6 +62,7 @@ public:
     INLINE ID3D12Resource *Get() { return buff_; };
     INLINE u32 Size() { return capacity_; };
     INLINE D3D12_GPU_VIRTUAL_ADDRESS GpuStart() { return buff_->GetGPUVirtualAddress(); }
+    INLINE D3D12_GPU_VIRTUAL_ADDRESS GpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
 
     //bool Add(const T* data, u32 count); TODO
     void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }

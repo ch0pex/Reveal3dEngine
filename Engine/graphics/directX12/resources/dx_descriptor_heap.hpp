@@ -84,7 +84,7 @@ public:
     /******************** Descriptor Heaps *************************/
     DescriptorHeap rtv;
     DescriptorHeap dsv;
-    DescriptorHeap cbv;
+//    DescriptorHeap cbv;
 //    DescriptorHeap srvHeap; //TODO
 //    DescriptorHeap uavHeap; //TODO
 };

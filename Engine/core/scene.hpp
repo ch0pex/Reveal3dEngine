@@ -16,14 +16,14 @@
 #include "geometry.hpp"
 #include "transform.hpp"
 #include "render/light.hpp"
-
-#include <vector>
 #include "content/primitives.hpp"
 #include "transform.hpp"
 
+#include <vector>
+
 namespace reveal3d::core {
 
-class Scene;
+class Entity;
 
 struct EntityInfo {
     Transform transform;
@@ -35,9 +35,9 @@ class Scene {
 public:
     Scene() = default;
 
-    void AddEntity(EntityInfo &entity);
-    void AddPrimitive(Geometry::primitive type);
-    void AddEntityFromObj(const wchar_t *path);
+    Entity AddEntity(EntityInfo &entity);
+    Entity AddPrimitive(Geometry::primitive type);
+    Entity AddEntityFromObj(const wchar_t *path);
 
     INLINE Transform &GetTransform(u32 id) { return transforms_.at(id); }
     INLINE Geometry &GetGeometry(u32 id) { return geometries_.at(id); }

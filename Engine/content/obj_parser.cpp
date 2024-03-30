@@ -27,7 +27,6 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
     }
 
     std::string line;
-
     u32 i = 0;
     //Header
     while (std::getline(file, line)) {

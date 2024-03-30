@@ -9,6 +9,7 @@
 using namespace reveal3d;
 using namespace reveal3d::core;
 #if defined(D3D12)
+#include "core/entity.hpp"
 #include "graphics/directX12/dx_utils.hpp"
 using Gfx = graphics::dx::Graphics;
 #elif defined(VULKAN)
@@ -28,7 +29,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         window::InitInfo windowInitInfo(L"Reveal3d", 1020, 1020, &WindowProc);
         Viewport<Gfx, window::Win32> viewport(windowInitInfo, scene);
 
-        scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\Reveal3d\\Assets\\asset2.obj");
+        Entity obj = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\Reveal3d\\Assets\\asset2.obj");
+        Entity primitive = scene.AddPrimitive(Geometry::primitive::cube);
+
+        obj.SetPosition(0,0,3);
 
         try {
             MSG msg = {};

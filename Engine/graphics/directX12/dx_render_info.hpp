@@ -21,7 +21,7 @@ struct RenderInfo {
     RenderInfo(BufferInitInfo &vertexInfo, BufferInitInfo &indexInfo);
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
-    DescriptorHandle handles[frameBufferCount];
+    u32 index;
     u8 frameDirty { 0 };
 };
 
