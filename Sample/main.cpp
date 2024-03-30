@@ -30,7 +30,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\Reveal3d\\Assets\\asset2.obj");
 
-
         try {
             MSG msg = {};
             bool isRunning = true;
