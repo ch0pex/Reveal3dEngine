@@ -64,11 +64,10 @@ private:
 
     /****************** Frame resources, depth stencil and swapchain *****************/
     struct FrameResource {
-        ConstantBuffer constantBuffer;
         ComPtr<ID3D12Resource> backBuffer;
         DescriptorHandle backBufferHandle;
+        ConstantBuffer constantBuffer;
         PassCB passBuffer;
-        DescriptorHandle passHandle;
     };
 
     FrameResource frameResources_[frameBufferCount];

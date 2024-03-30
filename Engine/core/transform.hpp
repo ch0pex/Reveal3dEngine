@@ -21,12 +21,12 @@ class Transform {
 public:
     Transform() : pos_(0), scale_(1), rot_(0)  {}
     Transform(math::xvec3 pos, math::xvec3 size, math::xvec3 rotation) : pos_(pos), scale_(size), rot_(rotation) {}
-    INLINE math::mat4 World() { return math::Transpose(math::AffineTransformation(pos_, scale_, rot_)); }
-    INLINE math::xvec3 Position() const { return pos_; }
-    INLINE math::xvec3 Scale() { return scale_; }
-    INLINE math::xvec3 Rotation() const { return rot_; }
-    INLINE u8 IsDirty() { return dirty_; }
 
+    [[nodiscard]] INLINE math::mat4 World() const { return math::Transpose(math::AffineTransformation(pos_, scale_, rot_)); }
+    [[nodiscard]] INLINE math::xvec3 Position() const { return pos_; }
+    [[nodiscard]] INLINE math::xvec3 Scale() const { return scale_; }
+    [[nodiscard]] INLINE math::xvec3 Rotation() const { return rot_; }
+    [[nodiscard]] INLINE u8 IsDirty() const { return dirty_; }
 
     INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = 3; } //TODO: don't hardcode dirty, put framebuffer count
     INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = 3; }

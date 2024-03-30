@@ -8,6 +8,7 @@
 
 using namespace reveal3d;
 using namespace reveal3d::core;
+
 #if defined(D3D12)
 #include "core/entity.hpp"
 #include "graphics/directX12/dx_utils.hpp"
