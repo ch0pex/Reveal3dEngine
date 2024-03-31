@@ -27,13 +27,24 @@ _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
         Scene scene;
-        window::InitInfo windowInitInfo(L"Reveal3d", 1020, 1020, &WindowProc);
+        window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080, &WindowProc);
         Viewport<Gfx, window::Win32> viewport(windowInitInfo, scene);
 
-        Entity obj = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\Reveal3d\\Assets\\asset2.obj");
-        Entity primitive = scene.AddPrimitive(Geometry::primitive::cube);
+//        Entity obj3 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
+//        Entity obj = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
+//        Entity obj1 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\building.obj");
+//        Entity obj2 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\greybox.obj");
+        Entity obj2 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\asset3.obj");
+        Entity obj5 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\concept.obj");
+//        Entity primitive = scene.AddPrimitive(Geometry::primitive::cube);
 
-        obj.SetPosition(0,0,3);
+          obj2.SetPosition(10,0,0);
+
+//        obj3.SetScale(-1,1,1);
+//        obj1.SetScale(-1,1,1);
+//        obj2.SetScale(-1,1,1);
+//        obj3.SetScale(-1,1,1);
+//        primitive.SetScale(-1,1,1);
 
         try {
             MSG msg = {};
@@ -50,8 +61,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
                     TranslateMessage(&msg);
                     DispatchMessage(&msg);
                     isRunning &= (msg.message != WM_QUIT);
-                    obj.SetRotation(0.0f, 0.0f, r);
-                    r += 0.01f;
+                    obj5.SetRotation(0.0f, 0.0f, r);
+                    r += 0.001f;
                 }
             }
             viewport.renderer.Destroy();

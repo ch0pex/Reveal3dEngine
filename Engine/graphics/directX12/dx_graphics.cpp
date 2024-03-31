@@ -250,17 +250,18 @@ void Graphics::BuildPSO() {
     HRESULT hr = S_OK;
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/ColorDirLight.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/Reveal3d/Engine/graphics/cshaders/FlatShader.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/ColorDirLight.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
     // Define the vertex input layout.
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
     // Describe and create the graphics pipeline state object (PSO).
@@ -270,6 +271,7 @@ void Graphics::BuildPSO() {
     psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
     psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+//    psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psoDesc.SampleMask = UINT_MAX;
@@ -317,7 +319,7 @@ void Graphics::PrepareRender() {
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
-    const f32 clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    const f32 clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 

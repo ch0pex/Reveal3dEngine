@@ -17,10 +17,10 @@
 namespace reveal3d::render{
 
 Camera::Camera(const window::Resolution &res) :
-        projectionMatrix_(XMMatrixPerspectiveFovLH(XMConvertToRadians(65.f), res.aspectRatio, 0.1f, 100.0f)),
+        projectionMatrix_(math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f)),
         position_(-6.0f, 0.0f, 0.0f),
         moveSpeed_(15.0f), front_(1,0,0),
-        worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
+        worldUp_(0,0,1), up_(0,0,1), right_(0,1,0)
 {
     inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});
@@ -81,12 +81,12 @@ void Camera::UpdatePos(math::scalar dt) {
 
     speedFactor = (dirs > 1) ? speedFactor * 0.79f : speedFactor;
 
-    if(isMoving_[dir::fwd])      position_ += speedFactor * front_;
-    if(isMoving_[dir::bckwd])    position_ += speedFactor * -front_;
-    if(isMoving_[dir::up])       position_ += speedFactor * worldUp_;
-    if(isMoving_[dir::down])     position_ += speedFactor * -worldUp_;
-    if(isMoving_[dir::right])    position_ += speedFactor * right_;
-    if(isMoving_[dir::left])     position_ += speedFactor * -right_;
+    if (isMoving_[dir::fwd])      position_ += speedFactor * front_;
+    if (isMoving_[dir::bckwd])    position_ += speedFactor * -front_;
+    if (isMoving_[dir::up])       position_ += speedFactor * worldUp_;
+    if (isMoving_[dir::down])     position_ += speedFactor * -worldUp_;
+    if (isMoving_[dir::right])    position_ += speedFactor * right_;
+    if (isMoving_[dir::left])     position_ += speedFactor * -right_;
 }
 
 void Camera::UpdateFront() {
@@ -116,6 +116,5 @@ void Camera::UpdateFront() {
     up_ = math::Normalize(math::Cross(right_, front_));
     lastPos_ = newPos_;
 }
-
 
 }
