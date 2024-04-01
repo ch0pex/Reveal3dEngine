@@ -23,11 +23,12 @@ LogLevel loglevel = logDEBUG;
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+// Sample scripts for Movement and rotation
 class RotationScript : public Script {
 public:
     void Update(f32 dt) override {
-        math::vec3 rot = {0.0f,0.0f,5.0f * dt};
-        entity_->SetRotation(entity_->Rotation() + rot);
+        math::xvec3 rot = {0.0f, 180.0f, 0.0f};
+        entity_->SetRotation(entity_->Rotation() + rot * dt);
     }
 };
 
@@ -52,13 +53,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         Entity human = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
         Entity room = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
-        Entity cube = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\cube.obj");
+        Entity cube = scene.AddPrimitive(Geometry::primitive::cube);
 
         RotationScript rotationScript;
         MovementScript movementScript;
 
-//        human.AddScript(rotationScript);
-        human.SetRotation({0.0f, 0.0f, 90.0f});
+        human.AddScript(rotationScript);
         human.AddScript(movementScript);
         room.SetScale(3);
 
@@ -82,7 +82,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             MessageBoxA(viewport.window.GetHwnd(), e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
             return EXIT_FAILURE;
         }
-
     }
 #ifdef _DEBUG
     graphics::dx::utl::ReportLiveDeviceObjs();
@@ -167,8 +166,6 @@ LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     }
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
-
-
 
 #else
 

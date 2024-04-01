@@ -65,7 +65,7 @@ INLINE f32 Lerp(f32 a, f32 b, f32 t) { return a + (b - a) * t; }
 INLINE f32 Max(f32 a, f32 b) { return a > b ? a : b; }
 INLINE f32 Min(f32 a, f32 b) { return a < b ? a : b; }
 INLINE f32 Clamp(f32 v, f32 a, f32 b) { return Min(Max(v, a), b); }
-INLINE f32 Radians(f32 s) { return XMConvertToRadians(s); }
+INLINE f32 Radians(f32 s) { return  XMConvertToRadians(s); }
 
 INLINE scalar Length(xvec3 v) { return scalar(XMVector3Length(v)); }
 INLINE scalar LengthSquare(xvec3 v) { return scalar(XMVector3LengthSq(v)); }
@@ -75,6 +75,7 @@ INLINE scalar Dot(xvec4 v1, xvec4 v2) { return scalar(XMVector4Dot(v1, v2)); }
 INLINE xvec3 Cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
 INLINE xvec3 Normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
 INLINE xvec4 Normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
+INLINE xvec3 VecToRadians(xvec3 v) { return { XMConvertToRadians(v.GetX()), XMConvertToRadians(v.GetY()), XMConvertToRadians(v.GetZ()) }; }
 INLINE mat3 Transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
 INLINE mat4 Transpose(const mat4 & mat) { return mat4(XMMatrixTranspose(mat)); }
 INLINE mat4 LookAt(xvec3 position, xvec3 focusPoint, xvec3 upDir) { return XMMatrixLookAtLH(position, focusPoint, upDir); }

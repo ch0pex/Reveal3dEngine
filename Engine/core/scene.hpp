@@ -54,7 +54,6 @@ private:
     std::vector<Geometry> geometries_;
     std::vector<Script *> scripts_;
     u32 entities_ { 0 };
-//    std::vector<Script> scripts_;
 //    std::vector<Light> lights;
 };
 
