@@ -22,10 +22,11 @@ class Entity {
 public:
     Entity(u32 id, Scene& scene) : id_(id), scene_(scene) {}
     INLINE void SetPosition(f32 x, f32 y, f32 z) { scene_.GetTransform(id_).SetPosition({x, y, z}); }
-    INLINE void SetPosition(math::vec3& pos) { scene_.GetTransform(id_).SetPosition(pos); }
+    INLINE void SetPosition(math::xvec3 pos) { scene_.GetTransform(id_).SetPosition(pos); }
 
     INLINE void SetRotation(f32 x, f32 y, f32 z) { scene_.GetTransform(id_).SetRotation({x, y, z}); }
     INLINE void SetRotation(math::vec3& rot) { scene_.GetTransform(id_).SetRotation(rot); }
+    INLINE void SetRotation(math::xvec3 rot) { scene_.GetTransform(id_).SetRotation(rot); }
 
     INLINE void SetScale(f32 s) { scene_.GetTransform(id_).SetScale({s}); }
     INLINE void SetScale(f32 x, f32 y, f32 z) { scene_.GetTransform(id_).SetScale({x, y, z}); }
@@ -33,6 +34,11 @@ public:
 
     INLINE void SetTransform(Transform& transform);
     INLINE void SetGeometry(Geometry& geometry);
+    INLINE void AddScript(Script& script) { script.AssignEntity(*this); scene_.AddScript(script); }
+
+    [[nodiscard]] INLINE math::xvec3 Position() const { return scene_.GetTransform(id_).Position(); }
+    [[nodiscard]] INLINE math::xvec3 Rotation() const { return scene_.GetTransform(id_).Rotation(); }
+    [[nodiscard]] INLINE math::xvec3 Scale() const { return scene_.GetTransform(id_).Scale(); }
 
 private:
     Scene &scene_;

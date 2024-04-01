@@ -29,15 +29,19 @@ public:
 
     void Create(Renderer<Gfx> &renderer);
 //    i32 Run(Renderer<Gfx> &renderer);
+    void Show();
+    void Update();
     void CloseWindow(input::action act, input::type type);
     void ClipMouse(Renderer<Gfx> &renderer);
+    bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
 private:
     input::System<Win32> inputSystem_;
     InitInfo info_;
-
+    MSG msg_ {};
+    bool isRunning_ { false };
 };
 
 template<typename Gfx>

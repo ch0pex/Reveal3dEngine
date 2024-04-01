@@ -13,17 +13,16 @@
 
 #pragma once
 
+#include "transform.hpp"
 #include "geometry.hpp"
-#include "transform.hpp"
-#include "render/light.hpp"
+#include "script.hpp"
+#include "common/timer.hpp"
 #include "content/primitives.hpp"
-#include "transform.hpp"
 
 #include <vector>
 
 namespace reveal3d::core {
 
-class Entity;
 
 struct EntityInfo {
     Transform transform;
@@ -45,12 +44,16 @@ public:
     INLINE std::vector<Transform>& Transforms() { return transforms_; }
     INLINE std::vector<Geometry>& Geometries() { return geometries_; }
 
+    void Update(f32 dt);
+
+    void AddScript(Script &script);
+
 private:
 //    std::vector<u8> generationId_;
     std::vector<Transform> transforms_;
     std::vector<Geometry> geometries_;
+    std::vector<Script *> scripts_;
     u32 entities_ { 0 };
-
 //    std::vector<Script> scripts_;
 //    std::vector<Light> lights;
 };

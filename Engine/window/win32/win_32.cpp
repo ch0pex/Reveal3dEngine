@@ -46,6 +46,25 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
             &renderer);
 }
 
+template<typename Gfx>
+void Win32<Gfx>::Show() {
+    ShowWindow(info_.windowHandle, SW_SHOW);
+    isRunning_ = true;
+}
+
+template<typename Gfx>
+bool Win32<Gfx>::ShouldClose() {
+    PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE);
+    return !(isRunning_ );
+}
+
+template<typename Gfx>
+void Win32<Gfx>::Update() {
+    TranslateMessage(&msg_);
+    DispatchMessage(&msg_);
+    isRunning_ &= (msg_.message != WM_QUIT);
+}
+
 /*
 template<typename Gfx>
 i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
@@ -54,8 +73,6 @@ i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
         bool isRunning = true;
 
         ShowWindow(info_.windowHandle, SW_SHOW);
-
-
         while(isRunning) {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
                 ClipMouse(renderer);

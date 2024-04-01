@@ -1,16 +1,16 @@
 set(SOURCES
-        render/renderer.cpp
-        render/camera.cpp
-        common/timer.cpp
         core/scene.cpp
         core/geometry.cpp
         core/transform.cpp
+        core/script.cpp
+        render/renderer.cpp
+        render/camera.cpp
         render/light.cpp
+        common/timer.cpp
         config/config.cpp
         input/input.cpp
         content/primitives.cpp
         content/obj_parser.cpp
-        core/entity.hpp
 )
 
 message("Renderer: ${GFX}")

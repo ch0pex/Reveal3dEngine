@@ -84,6 +84,7 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
             if (line[1] == 'n') {
                 math::vec3 normal;
                 std::stringstream(line) >> c[0] >> c[1] >> normal.x >> normal.y >> normal.z;
+                normal.y = -normal.y;
                 normals.push_back(normal);
             } else if (line[1] == 't') {
                 math::vec2 uv;
@@ -92,6 +93,7 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
             } else {
                 math::vec3 pos;
                 std::stringstream(line) >> c[0] >> pos.x >> pos.y >> pos.z;
+                pos.y = -pos.y;
                 positions.push_back(pos);
             }
         } else if (line[0] == 'f'){

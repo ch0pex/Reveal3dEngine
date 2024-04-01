@@ -37,7 +37,7 @@ public:
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets(core::Scene &scene);
-    void Update(core::Scene &scene, render::Camera &camera, const Timer& timer);
+    void Update(core::Scene &scene, render::Camera &camera);
     void PrepareRender();
     void Draw();
     void Terminate();
@@ -56,6 +56,7 @@ private:
     void SetViewport();
     void BuildRootSignature();
     void BuildPSO();
+//    void BuildInfinitGridPSO();
 
     /****************** Factory and Device *****************/
 

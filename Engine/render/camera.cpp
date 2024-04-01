@@ -19,8 +19,8 @@ namespace reveal3d::render{
 Camera::Camera(const window::Resolution &res) :
         projectionMatrix_(math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f)),
         position_(-6.0f, 0.0f, 0.0f),
-        moveSpeed_(15.0f), front_(1,0,0),
-        worldUp_(0,0,1), up_(0,0,1), right_(0,1,0)
+        moveSpeed_(5.0f), front_(1,0,0),
+        worldUp_(0,0,1), up_(0,0,1), right_(-1,0,0)
 {
     inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});

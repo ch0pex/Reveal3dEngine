@@ -28,14 +28,24 @@ Entity Scene::AddEntity(EntityInfo &entity) {
     transforms_.push_back(entity.transform);
     geometries_.push_back(entity.geometry);
     return Entity(entities_++, *this);
-
 }
 
 Entity Scene::AddEntityFromObj(const wchar_t *path) {
     transforms_.emplace_back();
     geometries_.emplace_back(path);
     return Entity(entities_++, *this);
-
 }
+
+void Scene::AddScript(Script &script) {
+    scripts_.push_back(&script);
+}
+
+//Runs scripts
+void Scene::Update(f32 dt) {
+    for (auto& script : scripts_) {
+        script->Update(dt);
+    }
+}
+
 
 }

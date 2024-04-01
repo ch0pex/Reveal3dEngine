@@ -23,47 +23,52 @@ LogLevel loglevel = logDEBUG;
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+class RotationScript : public Script {
+public:
+    void Update(f32 dt) override {
+        math::vec3 rot = {0.0f,0.0f,5.0f * dt};
+        entity_->SetRotation(entity_->Rotation() + rot);
+    }
+};
+
+class MovementScript : public Script {
+public:
+    void Update(f32 dt) override {
+        const math::xvec3 pos = {0.0f, 0.0f, 0.01f * dt};
+        entity_->SetPosition(entity_->Position() + pos);
+    }
+};
+
 _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
         Scene scene;
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080, &WindowProc);
-        Viewport<Gfx, window::Win32> viewport(windowInitInfo, scene);
+        Viewport<Gfx, window::Win32> viewport(windowInitInfo);
 
-        Entity obj = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
-//        Entity obj3 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
-//        Entity obj1 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\building.obj");
-//        Entity obj2 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\greybox.obj");
-//        Entity obj2 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\asset3.obj");
-//        Entity obj5 = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\concept.obj");
-//        Entity primitive = scene.AddPrimitive(Geometry::primitive::cube);
+        Entity human = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
+        Entity room = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
+        Entity cube = scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\cube.obj");
 
-//          obj2.SetPosition(10,0,0);
+        RotationScript rotationScript;
+        MovementScript movementScript;
 
-//        obj3.SetScale(-1,1,1);
-//        obj1.SetScale(-1,1,1);
-//        obj2.SetScale(-1,1,1);
-//        obj3.SetScale(-1,1,1);
-//        primitive.SetScale(-1,1,1);
+//        human.AddScript(rotationScript);
+        human.AddScript(movementScript);
+        room.SetScale(3);
 
         try {
-            MSG msg = {};
-            bool isRunning = true;
-
             viewport.window.Create(viewport.renderer);
-            viewport.renderer.Init(viewport.window.GetHwnd());
+            viewport.renderer.Init(viewport.window.GetHwnd(), scene);
+            viewport.window.Show();
 
-            ShowWindow(viewport.window.GetHwnd(), SW_SHOW);
-            f32 r = 0.0f;
-            while(isRunning) {
-                while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-                    viewport.window.ClipMouse(viewport.renderer);
-                    TranslateMessage(&msg);
-                    DispatchMessage(&msg);
-                    isRunning &= (msg.message != WM_QUIT);
-                    obj.SetRotation(0.0f, 0.0f, r);
-                    r += 0.0001f;
-                }
+            viewport.timer_.Start();
+            while(!viewport.window.ShouldClose()) {
+                viewport.timer_.Tick();
+                viewport.window.ClipMouse(viewport.renderer);
+                viewport.renderer.Update(scene);
+                scene.Update(viewport.timer_.DeltaTime());
+                viewport.window.Update();
             }
             viewport.renderer.Destroy();
         } catch(std::exception &e) {
@@ -107,7 +112,6 @@ LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
             return 0;
         case WM_PAINT:
             try {
-                renderer->Update();
                 renderer->Render();
             } catch (std::exception &e) {
                 log(logERROR) << e.what();

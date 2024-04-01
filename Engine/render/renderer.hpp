@@ -22,21 +22,20 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-    Renderer(window::Resolution *res, core::Scene &scene);
-    void Init(WHandle wHandle);
-    void Update();
+    Renderer(window::Resolution *res, Timer &timer);
+    void Init(WHandle wHandle, core::Scene &scene);
+    void Update(core::Scene &scene);
     void Render();
     void Destroy();
     void Resize(const window::Resolution &res);
 
-    INLINE void SetScene(core::Scene& scene) { scene_ = scene; }
+    INLINE f32 DeltaTime() const { return timer_.DeltaTime(); }
     INLINE  void CameraResetMouse() { camera_.ResetMouse(); }
 
 private:
-    Timer timer_;
     Gfx graphics_;
     Camera camera_;
-    core::Scene& scene_;
+    Timer& timer_;
 };
 
 }

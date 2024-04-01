@@ -16,30 +16,30 @@
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx>
-Renderer<Gfx>::Renderer(window::Resolution *res, core::Scene &scene) :
-        camera_(*res),
-        graphics_(res),
-        scene_(scene)
+Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
+        : camera_(*res),
+          graphics_(res),
+          timer_(timer)
 {
 
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Init(WHandle wHandle) {
+void Renderer<Gfx>::Init(WHandle wHandle, core::Scene& scene) {
+
     f32 time = timer_.TotalTime();
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();
     log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
     time = timer_.TotalTime();
-    graphics_.LoadAssets(scene_);
+    graphics_.LoadAssets(scene);
     log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Update() {
-    timer_.Tick();
+void Renderer<Gfx>::Update(core::Scene &scene) {
     camera_.Update(timer_);
-    graphics_.Update(scene_, camera_, timer_);
+    graphics_.Update(scene, camera_);
 }
 
 template<graphics::HRI Gfx>
