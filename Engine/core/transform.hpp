@@ -30,7 +30,7 @@ public:
 
     INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = 3; } //TODO: don't hardcode dirty, put framebuffer count
     INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = 3; }
-    INLINE void SetRotation(math::xvec3 rot) { rot_ = rot; dirty_ = 3; }
+    INLINE void SetRotation(math::xvec3 rot) { rot_ = {math::Radians(rot.GetX()), math::Radians(rot.GetY()), math::Radians(rot.GetZ())}; dirty_ = 3; }
     INLINE void UpdateDirty() { assert(dirty_ > 0); --dirty_; }
 private:
     u8 dirty_ { 0 }; // If dirty should update in render buffers

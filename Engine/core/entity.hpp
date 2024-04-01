@@ -25,7 +25,6 @@ public:
     INLINE void SetPosition(math::xvec3 pos) { scene_.GetTransform(id_).SetPosition(pos); }
 
     INLINE void SetRotation(f32 x, f32 y, f32 z) { scene_.GetTransform(id_).SetRotation({x, y, z}); }
-    INLINE void SetRotation(math::vec3& rot) { scene_.GetTransform(id_).SetRotation(rot); }
     INLINE void SetRotation(math::xvec3 rot) { scene_.GetTransform(id_).SetRotation(rot); }
 
     INLINE void SetScale(f32 s) { scene_.GetTransform(id_).SetScale({s}); }

@@ -34,9 +34,13 @@ public:
 class MovementScript : public Script {
 public:
     void Update(f32 dt) override {
-        const math::xvec3 pos = {0.0f, 0.0f, 0.01f * dt};
-        entity_->SetPosition(entity_->Position() + pos);
+        if (entity_->Position().GetZ() > 5.0f || entity_->Position().GetZ() < -5.0f) {
+           pos_ = -pos_;
+        }
+        entity_->SetPosition(entity_->Position() + pos_ * dt);
     }
+private:
+    math::xvec3 pos_ = {0.0f, 0.0f, 1.0f};
 };
 
 _Use_decl_annotations_
@@ -54,6 +58,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         MovementScript movementScript;
 
 //        human.AddScript(rotationScript);
+        human.SetRotation({0.0f, 0.0f, 90.0f});
         human.AddScript(movementScript);
         room.SetScale(3);
 
@@ -62,7 +67,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             viewport.renderer.Init(viewport.window.GetHwnd(), scene);
             viewport.window.Show();
 
-            viewport.timer_.Start();
+            viewport.timer_.Reset();
             while(!viewport.window.ShouldClose()) {
                 viewport.timer_.Tick();
                 viewport.window.ClipMouse(viewport.renderer);
