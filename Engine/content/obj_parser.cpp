@@ -108,6 +108,7 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
             vert.pos = positions[primitives[i].posIndex - 1U];
             vert.normal = normals[primitives[i].normalIndex - 1U];
             vert.uv = uvs[primitives[i].uvIndex - 1U];
+//            vert.color = { 0.8f, 0.0f, 0.0f, 0.0f };
             vertices.push_back(vert);
             indices.push_back(index);
             cache[primitives[i]] = index++;

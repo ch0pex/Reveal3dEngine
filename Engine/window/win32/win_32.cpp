@@ -45,6 +45,7 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
             GetModuleHandle(NULL),
             &renderer);
 }
+
 /*
 template<typename Gfx>
 i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {

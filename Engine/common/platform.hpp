@@ -8,7 +8,7 @@
  * @date 09/03/2024
  * @brief Short description
  *
- * Platform especific inlcudes, defines and using;
+ * Platform especific stuff
  */
 
 #pragma once

@@ -18,8 +18,3 @@
 #include "platform.hpp"
 
 
-#ifdef _DEBUG
-#define DEBUG_ACTION(x) x
-#else
-#define DEBUG_ACTION(x)
-#endif

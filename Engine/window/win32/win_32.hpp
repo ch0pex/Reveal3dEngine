@@ -29,13 +29,12 @@ public:
 
     void Create(Renderer<Gfx> &renderer);
 //    i32 Run(Renderer<Gfx> &renderer);
-
+    void CloseWindow(input::action act, input::type type);
     void ClipMouse(Renderer<Gfx> &renderer);
+
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
-
 private:
-    void CloseWindow(input::action act, input::type type);
     input::System<Win32> inputSystem_;
     InitInfo info_;
 

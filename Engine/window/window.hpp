@@ -21,10 +21,6 @@
 
 namespace reveal3d::window {
 
-/*
-template<typename T>
-concept Window = requires(T manager) {
-};
-*/
+
 
 }
