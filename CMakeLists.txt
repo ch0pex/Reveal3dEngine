@@ -42,8 +42,8 @@ endif()
 #set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
 #set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(Sample)
 add_subdirectory(Engine)
+add_subdirectory(Sample)
 add_subdirectory(Wrapper)
 add_subdirectory(Test)
 

@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file dx_graphics.hpp
@@ -18,18 +18,23 @@
 #endif
 
 
-#include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
-#include "dx_render_info.hpp"
-#include "render/camera.hpp"
+#include "dx_render_layers.hpp"
+#include "render_info.hpp"
 #include "resources/dx_resources.hpp"
+
+#include "core/scene.hpp"
+#include "render/camera.hpp"
 #include "window/window_info.hpp"
 
 
 #include <array>
 
+//using reveal3d::graphics::dx::RenderInfo;
+
 namespace reveal3d::graphics::dx {
+
 
 __declspec(align(16))
 class Graphics {
@@ -74,16 +79,16 @@ private:
     FrameResource frameResources_[frameBufferCount];
     ComPtr<IDXGISwapChain3> swapChain_;
 
+    /***************** Depth stencil buffer**********************/
     ComPtr<ID3D12Resource> depthStencilBuffer_;
     DescriptorHandle dsHandle_;
-    /***************** Heaps and buffers **********************/
-    Heaps heaps_;
-    std::vector<RenderInfo> renderElements_;
 
-    /************ Pipeline state and commands manager **********/
-    ComPtr<ID3D12RootSignature> rootSignature_;
-    ComPtr<ID3D12PipelineState> pipelineState_;
+    Heaps heaps_;
     Commands cmdManager_;
+
+    /************ Render elements and layers**********/
+    std::vector<RenderInfo> renderElements_;
+    RenderLayers renderLayers_;
 
     /***************** Surface Info **********************/
     window::Resolution *resolution_;

@@ -15,8 +15,19 @@
 
 #include "math/math.hpp"
 
+#include <vector>
+
+class RenderInfo;
 
 namespace reveal3d::render {
+
+enum shader : u8 {
+    opaque,
+    flat, // Not affected by lighting
+    transparent,
+
+    count
+};
 
 struct Vertex {
     math::vec3 pos { 0.0f, 0.0f, 0.0f};
@@ -25,4 +36,14 @@ struct Vertex {
     math::vec2 uv { 0.0f, 0.0f};
 };
 
+struct Mesh {
+    RenderInfo* renderInfo { nullptr};
+    shader shader { opaque };
+    bool visible { true };
+    u32 index;
+    u32 size;
+};
+
+
 }
+

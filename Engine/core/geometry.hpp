@@ -8,7 +8,7 @@
  * @date 11/03/2024
  * @brief Short description
  *
- * Longer description
+ * Geometry entity component
  */
 
 #pragma once
@@ -41,6 +41,7 @@ public:
     INLINE render::Vertex* GetVerticesStart() { return vertices_.data(); }
     INLINE u16* GetIndicesStart() { return indices_.data(); }
 private:
+    std::vector<render::Mesh> meshes_;
     std::vector<render::Vertex> vertices_;
     std::vector<u16> indices_;
 };

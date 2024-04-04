@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_render_info.hpp
+ * @file dx_render_info.cpp
  * @version 1.0
  * @date 27/03/2024
  * @brief Short description
@@ -11,18 +11,14 @@
  * Longer description
  */
 
-#pragma once
-
-#include "resources/dx_resources.hpp"
+#include "render_info.hpp"
 
 namespace reveal3d::graphics::dx {
 
-struct RenderInfo {
-    RenderInfo(BufferInitInfo &vertexInfo, BufferInitInfo &indexInfo);
-    VertexBuffer vertexBuffer;
-    IndexBuffer indexBuffer;
-    u32 index;
-    u8 frameDirty { 0 };
-};
+RenderInfo::RenderInfo(BufferInitInfo &vertexInfo, BufferInitInfo &indexInfo)
+        : vertexBuffer(vertexInfo),
+          indexBuffer(indexInfo)
+{
+}
 
 }

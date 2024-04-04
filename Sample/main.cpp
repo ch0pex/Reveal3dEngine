@@ -60,6 +60,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         human.AddScript(rotationScript);
         human.AddScript(movementScript);
+//        cube.AddScript(rotationScript);
         room.SetScale(3);
 
         try {
@@ -164,7 +165,7 @@ LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
             return 0;
 
     }
-    return DefWindowProc(hwnd, message, wParam, lParam);
+    return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 
 #else

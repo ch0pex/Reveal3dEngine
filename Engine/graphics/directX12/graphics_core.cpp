@@ -11,7 +11,7 @@
  * Longer description
  */
 
-#include "dx_graphics.hpp"
+#include "graphics_core.hpp"
 #include "render/mesh.hpp"
 
 namespace reveal3d::graphics::dx {
@@ -189,7 +189,7 @@ void Graphics::LoadAssets(core::Scene &scene) {
                 .format = DXGI_FORMAT_R16_UINT
         };
 
-        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+        renderElements_[render::shader::opaque].emplace_back(vertexBufferInfo, indexBufferInfo);
         renderElements_[i].index = i;
 
         AlignedConstant<ObjConstant, 1> objConstant;
@@ -323,22 +323,24 @@ void Graphics::PrepareRender() {
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-
-    commandList->SetPipelineState(pipelineState_.Get());
-    commandList->SetGraphicsRootSignature(rootSignature_.Get());
-
-//    commandList->SetGraphicsRootDescriptorTable(1, currFrameRes.passHandle.gpu);
-    commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
-    for (auto &element : renderElements_) {
-//        commandList->SetGraphicsRootDescriptorTable(0, element.handles[Commands::FrameIndex()].gpu);
-        commandList->SetGraphicsRootConstantBufferView(0, currFrameRes.constantBuffer.GpuPos(element.index));
-        commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
-        commandList->IASetIndexBuffer(element.indexBuffer.View());
-        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        commandList->DrawIndexedInstanced(element.indexBuffer.Count(), 1, 0, 0 ,0); // Hardcoded TODO
-    }
+    for (u32 i = 0; i < RenderLayers::count; ++i) {
+        RenderLayers &currentLayer = renderLayers_[i];
+        currentLayer.SetPsoAndRoot(commnadList);
+//        commandList->SetPipelineState(pipelineState_.Get());
+//        commandList->SetGraphicsRootSignature(rootSignature_.Get());
 
+        currentLayer.SetPerFrameRoots();
+//        commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
+        for (auto &element : renderElements_[i]) {
+            currentLayer.SetPerElementRoot(element);
+//            commandList->SetGraphicsRootConstantBufferView(0, currFrameRes.constantBuffer.GpuPos(element.index));
+            commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
+            commandList->IASetIndexBuffer(element.indexBuffer.View());
+            commandList->IASetPrimitiveTopology(element.topology);
+            commandList->DrawIndexedInstanced(element.indexBuffer.Count(), 1, 0, 0 ,0);
+        }
+    }
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
@@ -369,7 +371,6 @@ void Graphics::Resize(const window::Resolution &res) {
 
     depthStencilBuffer_.Reset();
     InitDsBuffer();
-
 
     swapChain_->ResizeBuffers(frameBufferCount, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
             swapChainFlags_) >> utl::DxCheck;

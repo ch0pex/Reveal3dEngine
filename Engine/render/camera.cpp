@@ -53,7 +53,9 @@ void Camera::Resize(const window::Resolution &res) {
     projectionMatrix_ = math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f);
 }
 
-void Camera::Move(const input::action dir, const input::type value) { isMoving_[dir] = value;
+void Camera::Move(const input::action dir, const input::type value) {
+    isMoving_[dir] = value;
+    log(logDEBUG) << "EyePos: " << position_.GetX() << ", " << position_.GetY() << ", " << position_.GetZ();
 }
 
 void Camera::SetLooking(const input::action action, const input::type value) {

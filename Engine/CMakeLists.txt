@@ -21,10 +21,11 @@ aux_source_directory(window/${PLAT} PLATFORM)
 #message(Graphics Sources: ${GRAPHICS})
 #message(Platform Sources: ${PLATFORM})
 
-include_directories(PUBLIC .)
-include_directories(PUBLIC math/${PLAT})
+
 add_library(Engine STATIC ${SOURCES} ${GRAPHICS} ${PLATFORM})
+target_include_directories(Engine PUBLIC .)
 target_include_directories(Engine PUBLIC math/${PLAT})
+target_include_directories(Engine PUBLIC graphics/${GFX})
 
 
 if(D3D12)

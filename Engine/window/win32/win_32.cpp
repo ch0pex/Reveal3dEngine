@@ -21,7 +21,7 @@ namespace reveal3d::window {
 
 template<typename Gfx>
 void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
-    WNDCLASSEX windowClass = {
+    WNDCLASSEXW windowClass = {
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_HREDRAW | CS_VREDRAW,
             .lpfnWndProc = info_.callback,
@@ -29,12 +29,13 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
             .hCursor = LoadCursor(NULL, IDC_ARROW),
             .lpszClassName = L"Reveal3dClass"
     };
-    RegisterClassEx(&windowClass);
+    RegisterClassExW(&windowClass);
 
     RECT windowRect = {0, 0, static_cast<LONG>(info_.res.width), static_cast<LONG>(info_.res.height)};
     AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    info_.windowHandle = CreateWindow(
+    info_.windowHandle = CreateWindowExW(
+            0,
             windowClass.lpszClassName,
             info_.name,
             WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -42,7 +43,7 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
             windowRect.bottom - windowRect.top,
             nullptr,
             nullptr,
-            GetModuleHandle(NULL),
+            GetModuleHandle(nullptr),
             &renderer);
 }
 

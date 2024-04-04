@@ -14,8 +14,7 @@
 
 #pragma once
 
-#include "directX12/dx_graphics.hpp"
-#include "vulkan/vk_graphics.hpp"
+#include "graphics_core.hpp"
 
 #include <concepts>
 
@@ -27,5 +26,6 @@ concept HRI = requires(Gfx graphics) {
     {graphics.LoadPipeline()} ->  std::same_as<void>;
 //    {graphics.LoadAssets(core::Scene&)} ->  std::same_as<void>;
 };
+
 }
 
