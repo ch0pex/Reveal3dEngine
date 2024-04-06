@@ -28,7 +28,10 @@ public:
     void Update(f32 dt) override {
         math::xvec3 rot = {0.0f, 180.0f, 0.0f};
         entity_->SetRotation(entity_->Rotation() + rot * dt);
+//        entity_.HideMesh(1);
     }
+//private:
+
 };
 
 class MovementScript : public core::Script {
@@ -52,15 +55,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         core::Entity human = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
         core::Entity room = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
-        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
+//        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
 
         RotationScript rotationScript;
         MovementScript movementScript;
 
         human.AddScript(rotationScript);
         human.AddScript(movementScript);
+        human.AddMesh(core::Geometry::cube);
 //        cube.AddScript(rotationScript);
         room.SetScale(3);
+        room.SetPosition(0.0f, 5.0f,0.0f);
 
         try {
             viewport.window.Create(viewport.renderer);

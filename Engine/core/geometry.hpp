@@ -44,11 +44,12 @@ public:
     INLINE std::vector<render::Mesh>& Meshes() { return meshes_; };
 
     void AddMesh(const wchar_t *path);
+    void AddMesh(primitive type);
 private:
     std::vector<render::Mesh> meshes_;
     std::vector<render::Vertex> vertices_;
     std::vector<u16> indices_;
-    u16 lastIndex { 0 };
+    u16 lastIndex_ { 0 };
 };
 
 

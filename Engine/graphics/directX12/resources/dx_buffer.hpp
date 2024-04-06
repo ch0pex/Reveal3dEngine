@@ -63,8 +63,8 @@ void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
 {
     count_ = info.count;
     size_ = sizeof(T) * info.count;
-    auto uploadBuffer = UploadBuffer<T>();
-    auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+//    auto uploadBuffer = UploadBuffer<T>();
+//    auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(size_);
 
     uploadBuffer.Init(info.device, info.count);

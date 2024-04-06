@@ -30,7 +30,7 @@ void Graphics::LoadPipeline() {
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
 //    heaps_.cbv.Initialize(device_.Get(), 4092U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
-    renderElements_.reserve(512U);
+    renderElements_.reserve(4092U);
     dsHandle_ = heaps_.dsv.alloc();
     CreateSwapChain();
     InitFrameResources();

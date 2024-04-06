@@ -115,7 +115,7 @@ void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &
         cmdList->IASetVertexBuffers(0, 1, mesh->renderInfo->vertexBuffer.View());
         cmdList->IASetIndexBuffer(mesh->renderInfo->indexBuffer.View());
         cmdList->IASetPrimitiveTopology(mesh->renderInfo->topology);
-        cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos ,0);
+        cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos, 0);
     }
 
 }

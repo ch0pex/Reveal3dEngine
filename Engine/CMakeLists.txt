@@ -3,6 +3,7 @@ set(SOURCES
         core/geometry.cpp
         core/transform.cpp
         core/script.cpp
+        core/entity.cpp
         render/renderer.cpp
         render/camera.cpp
         render/light.cpp
