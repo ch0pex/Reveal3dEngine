@@ -48,7 +48,7 @@ void Geometry::AddMesh(const wchar_t *path) {
     lastIndex = content::GetDataFromObj(path, vertices_, indices_, lastIndex);
     assert(lastIndex != 0);
 
-    mesh.indexCount = lastIndex - mesh.indexCount;
+    mesh.indexCount = IndexCount() - mesh.indexCount;
     meshes_.push_back(mesh);
 }
 
