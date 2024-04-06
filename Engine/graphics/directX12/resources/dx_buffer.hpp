@@ -15,7 +15,7 @@
 
 #include "../dx_common.hpp"
 #include "dx_deferring_system.hpp"
-#include "render/mesh.hpp"
+#include "render/vertex.hpp"
 
 namespace reveal3d::graphics::dx {
 

@@ -18,7 +18,7 @@
 namespace reveal3d::core {
 
 Geometry::Geometry(const wchar_t *path) {
-    content::GetDataFromObj(path, vertices_, indices_);
+    AddMesh(path);
 }
 
 Geometry::Geometry(Geometry::primitive type) {
@@ -37,6 +37,19 @@ Geometry::Geometry(std::vector<render::Vertex> &&vertices, std::vector<u16> &&in
           indices_(indices)
 {
 
+}
+void Geometry::AddMesh(const wchar_t *path) {
+    render::Mesh mesh;
+
+    mesh.vertexPos = VertexCount();
+    mesh.indexPos = IndexCount();
+    mesh.indexCount = IndexCount();
+
+    lastIndex = content::GetDataFromObj(path, vertices_, indices_, lastIndex);
+    assert(lastIndex != 0);
+
+    mesh.indexCount = lastIndex - mesh.indexCount;
+    meshes_.push_back(mesh);
 }
 
 }

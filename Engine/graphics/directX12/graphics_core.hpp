@@ -41,8 +41,9 @@ class Graphics {
 public:
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
-    void LoadAssets(core::Scene &scene);
-    void Update(core::Scene &scene, render::Camera &camera);
+    void LoadAssets();
+    void LoadAsset();
+    void Update(render::Camera &camera);
     void PrepareRender();
     void Draw();
     void Terminate();
@@ -59,8 +60,6 @@ private:
     void InitDsBuffer();
     void InitConstantBuffers();
     void SetViewport();
-    void BuildRootSignature();
-    void BuildPSO();
 //    void BuildInfinitGridPSO();
 
     /****************** Factory and Device *****************/
@@ -69,12 +68,6 @@ private:
     ComPtr<ID3D12Device> device_;
 
     /****************** Frame resources, depth stencil and swapchain *****************/
-    struct FrameResource {
-        ComPtr<ID3D12Resource> backBuffer;
-        DescriptorHandle backBufferHandle;
-        ConstantBuffer constantBuffer;
-        PassCB passBuffer;
-    };
 
     FrameResource frameResources_[frameBufferCount];
     ComPtr<IDXGISwapChain3> swapChain_;

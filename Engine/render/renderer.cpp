@@ -25,21 +25,21 @@ Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Init(WHandle wHandle, core::Scene& scene) {
+void Renderer<Gfx>::Init(WHandle wHandle) {
 
     f32 time = timer_.TotalTime();
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();
     log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
     time = timer_.TotalTime();
-    graphics_.LoadAssets(scene);
+    graphics_.LoadAssets();
     log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Update(core::Scene &scene) {
+void Renderer<Gfx>::Update() {
     camera_.Update(timer_);
-    graphics_.Update(scene, camera_);
+    graphics_.Update(camera_);
 }
 
 template<graphics::HRI Gfx>

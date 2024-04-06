@@ -3,22 +3,17 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_render_info.cpp
+ * @file graphics_core.hpp
  * @version 1.0
- * @date 27/03/2024
+ * @date 05/04/2024
  * @brief Short description
  *
  * Longer description
  */
 
-#include "render_info.hpp"
+#pragma once
 
-namespace reveal3d::graphics {
 
-RenderInfo::RenderInfo(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo)
-        : vertexBuffer(vertexInfo),
-          indexBuffer(indexInfo)
-{
-}
+class Graphics {
 
-}
+};

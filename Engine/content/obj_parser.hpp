@@ -21,7 +21,7 @@
 
 namespace reveal3d::content {
 
-void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
+u16 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 index);
 
 
 }

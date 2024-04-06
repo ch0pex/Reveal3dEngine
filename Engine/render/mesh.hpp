@@ -14,34 +14,29 @@
 #pragma once
 
 #include "math/math.hpp"
+#include "render_info.hpp"
 
 #include <vector>
 
-class RenderInfo;
+
 
 namespace reveal3d::render {
 
 enum shader : u8 {
-    opaque,
+    opaque = 0,
     flat, // Not affected by lighting
-    transparent,
+//    transparent,
 
     count
 };
 
-struct Vertex {
-    math::vec3 pos { 0.0f, 0.0f, 0.0f};
-    math::vec4 color { 0.4f, 0.4f, 0.4f, 0.0f};
-    math::vec3 normal { 0.0f, 0.0f, 0.0f};
-    math::vec2 uv { 0.0f, 0.0f};
-};
-
 struct Mesh {
-    RenderInfo* renderInfo { nullptr};
+    graphics::RenderInfo* renderInfo { nullptr }; // Vertex buffer where mesh is
     shader shader { opaque };
     bool visible { true };
-    u32 index;
-    u32 size;
+    u32 vertexPos;
+    u32 indexPos;
+    u32 indexCount;
 };
 
 

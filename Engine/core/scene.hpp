@@ -57,4 +57,6 @@ private:
 //    std::vector<Light> lights;
 };
 
+extern Scene scene;
+
 }

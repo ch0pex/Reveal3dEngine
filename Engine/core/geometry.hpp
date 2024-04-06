@@ -32,6 +32,7 @@ public:
         torus,
     };
 
+    Geometry() = default;
     Geometry(const wchar_t *path);
     Geometry(primitive type);
     Geometry(std::vector<render::Vertex> && vertices, std::vector<u16> && indices);
@@ -40,10 +41,14 @@ public:
 
     INLINE render::Vertex* GetVerticesStart() { return vertices_.data(); }
     INLINE u16* GetIndicesStart() { return indices_.data(); }
+    INLINE std::vector<render::Mesh>& Meshes() { return meshes_; };
+
+    void AddMesh(const wchar_t *path);
 private:
     std::vector<render::Mesh> meshes_;
     std::vector<render::Vertex> vertices_;
     std::vector<u16> indices_;
+    u16 lastIndex { 0 };
 };
 
 

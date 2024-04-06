@@ -45,14 +45,16 @@ private:
 
 class RootSignature {
 public:
-    RootSignature(u32 numRootParams = 0);
-    void Build(ID3D12Device *device);
+    RootSignature(u32 numParams = 0);
     void Reset(u32 numRootParams);
+    void Finalize(ID3D12Device *device);
+    INLINE ID3D12RootSignature* Get() { return signature_.Get(); }
 
     CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex );
     const CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex ) const;
+
 private:
-    u32 numParameters_;
+    u32 numParameters_ { 0 };
     std::unique_ptr<CD3DX12_ROOT_PARAMETER[]> parameters_;
     ComPtr<ID3D12RootSignature> signature_;
 };

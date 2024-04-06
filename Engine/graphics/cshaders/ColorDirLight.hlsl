@@ -46,6 +46,7 @@ VertexOut VS(VertexIn vin)
 	VertexOut vout;
 	float4 posW = mul(float4(vin.PosL, 1.0f), objWorld);
 
+    vout.PosW = posW.xyz;
 	vout.PosH = mul(posW, viewProj);
     vout.NormalW = mul(vin.NormalL, (float3x3)objWorld);
     vout.Color = vin.Color;

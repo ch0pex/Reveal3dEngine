@@ -65,7 +65,7 @@ static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 
-void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
+u16 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 index) {
     std::ifstream file(path);
     std::vector<math::vec3> positions;
     std::vector<math::vec3> normals;
@@ -76,7 +76,7 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
 
     if (!file.is_open()) {
         std::cerr << "No se pudo abrir el archivo" << std::endl;
-        return;
+        return 0;
     }
 
     while (std::getline(file, line)) {
@@ -103,7 +103,6 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
     }
 
     render::Vertex vert;
-    u16 index = 0;
     std::unordered_map<FaceElem, u16, FaceElem::Hash> cache;
     for(u32 i = 0; i < primitives.size(); ++i) {
         if (cache.find(primitives[i]) == cache.end()) {
@@ -120,6 +119,7 @@ void GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, 
     }
 
     file.close();
+    return index;
 }
 
 

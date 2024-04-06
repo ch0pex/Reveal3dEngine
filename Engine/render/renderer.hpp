@@ -23,8 +23,8 @@ template<graphics::HRI Gfx>
 class Renderer {
 public:
     Renderer(window::Resolution *res, Timer &timer);
-    void Init(WHandle wHandle, core::Scene &scene);
-    void Update(core::Scene &scene);
+    void Init(WHandle wHandle);
+    void Update();
     void Render();
     void Destroy();
     void Resize(const window::Resolution &res);

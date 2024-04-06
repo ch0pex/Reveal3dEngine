@@ -12,7 +12,6 @@
  */
 
 #include "graphics_core.hpp"
-#include "render/mesh.hpp"
 
 namespace reveal3d::graphics::dx {
 
@@ -165,15 +164,16 @@ void Graphics::SetViewport() {
     scissorRect_ = { 0, 0, (i32) desc.BufferDesc.Width, (i32) desc.BufferDesc.Height };
 }
 
-void Graphics::LoadAssets(core::Scene &scene) {
-    BuildRootSignature();
-    BuildPSO();
+void Graphics::LoadAssets() {
+    renderLayers_.BuildRoots(device_.Get());
+    renderLayers_.BuildPSOs(device_.Get());
+
     cmdManager_.Reset(nullptr);
 
-    std::vector<core::Transform> &transforms = scene.Transforms();
-    std::vector<core::Geometry> &geometries = scene.Geometries();
+    std::vector<core::Transform> &transforms = core::scene.Transforms();
+    std::vector<core::Geometry> &geometries = core::scene.Geometries();
 
-    for(u32 i = 0; i < scene.NumEntities(); ++i) {
+    for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
         BufferInitInfo vertexBufferInfo = {
                 .device = device_.Get(),
                 .cmdList = cmdManager_.List(),
@@ -189,8 +189,13 @@ void Graphics::LoadAssets(core::Scene &scene) {
                 .format = DXGI_FORMAT_R16_UINT
         };
 
-        renderElements_[render::shader::opaque].emplace_back(vertexBufferInfo, indexBufferInfo);
-        renderElements_[i].index = i;
+        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+        renderElements_[i].constantIndex = i;
+
+        for (auto &mesh : geometries[i].Meshes()) {
+            mesh.renderInfo = &renderElements_[i];
+            renderLayers_.AddMesh(mesh);
+        }
 
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
@@ -204,97 +209,17 @@ void Graphics::LoadAssets(core::Scene &scene) {
 
 }
 
-void Graphics::BuildRootSignature() {
-//    CD3DX12_DESCRIPTOR_RANGE cbvTables[2];
-    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
-
-//    cbvTables[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-//    cbvTables[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-
-    slotRootParameter[0].InitAsConstantBufferView(0);
-    slotRootParameter[1].InitAsConstantBufferView(1);
-
-    // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
-                                            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-    ComPtr<ID3DBlob> serializedRootSig = nullptr;
-    ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                             serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-    if(errorBlob != nullptr)
-    {
-        OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-    }
-    hr >> utl::DxCheck;
-
-    device_->CreateRootSignature( 0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(),
-            IID_PPV_ARGS(rootSignature_.GetAddressOf())) >> utl::DxCheck;
-
-}
-
-//TODO: PSO class
-void Graphics::BuildPSO() {
-    ComPtr<ID3DBlob> vertexShader;
-    ComPtr<ID3DBlob> pixelShader;
-    ComPtr<ID3DBlob> errors;
-
-#if defined(_DEBUG)
-    // Enable better shader debugging with the graphics debugging tools.
-    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-    UINT compileFlags = 0;
-#endif
-    HRESULT hr = S_OK;
-
-    //TODO Config file for assets path
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/ColorDirLight.hlsl", nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
-    hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(L"D:/Universidad/tfg/engine/Reveal3d/Engine/graphics/cshaders/ColorDirLight.hlsl", nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
-    hr >> utl::DxCheck;
-
-    // Define the vertex input layout.
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-    };
-
-    // Describe and create the graphics pipeline state object (PSO).
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
-    psoDesc.pRootSignature = rootSignature_.Get();
-    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-    psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-    psoDesc.SampleDesc.Count = 1; //TODO: Msaa support
-    psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-
-    device_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
-}
-
-void Graphics::Update(core::Scene &scene, render::Camera &camera) {
+void Graphics::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     AlignedConstant<PassConstant, 2> passConstant;
 
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
-    auto &transforms = scene.Transforms();
+    auto &transforms = core::scene.Transforms();
 
     AlignedConstant<ObjConstant, 1> objConstant;
-    for (u32 i = 0; i < scene.NumEntities(); ++i) {
+    for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (transforms[i].IsDirty() > 0) {
             objConstant.data.world = transforms[i].World();
             transforms[i].UpdateDirty();
@@ -308,14 +233,13 @@ void Graphics::PrepareRender() {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
-    cmdManager_.Reset(pipelineState_.Get()); //Resets commands list and current frame allocator
+    cmdManager_.Reset(renderLayers_[render::shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
     commandList->RSSetViewports(1, &viewport_);
     commandList->RSSetScissorRects(1, &scissorRect_);
 
-    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
+    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition( currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
@@ -324,22 +248,15 @@ void Graphics::PrepareRender() {
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
-    for (u32 i = 0; i < RenderLayers::count; ++i) {
-        RenderLayers &currentLayer = renderLayers_[i];
-        currentLayer.SetPsoAndRoot(commnadList);
-//        commandList->SetPipelineState(pipelineState_.Get());
-//        commandList->SetGraphicsRootSignature(rootSignature_.Get());
 
-        currentLayer.SetPerFrameRoots();
-//        commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
-        for (auto &element : renderElements_[i]) {
-            currentLayer.SetPerElementRoot(element);
-//            commandList->SetGraphicsRootConstantBufferView(0, currFrameRes.constantBuffer.GpuPos(element.index));
-            commandList->IASetVertexBuffers(0, 1, element.vertexBuffer.View());
-            commandList->IASetIndexBuffer(element.indexBuffer.View());
-            commandList->IASetPrimitiveTopology(element.topology);
-            commandList->DrawIndexedInstanced(element.indexBuffer.Count(), 1, 0, 0 ,0);
-        }
+    commandList->SetGraphicsRootSignature(renderLayers_[render::shader::opaque].rootSignature.Get());
+    commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
+
+    renderLayers_.DrawLayer(commandList, currFrameRes, render::shader::opaque);
+
+    for (u32 i = 1; i < render::shader::count; ++i) {
+        renderLayers_[i].Set(commandList);
+        renderLayers_.DrawLayer(commandList, currFrameRes, i);
     }
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -348,6 +265,7 @@ void Graphics::PrepareRender() {
     commandList->ResourceBarrier(1, &presentBarrier);
     commandList->Close() >> utl::DxCheck;
 }
+
 
 void Graphics::Draw() {
     cmdManager_.Execute();
