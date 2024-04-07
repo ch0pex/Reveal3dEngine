@@ -1,9 +1,10 @@
 {
 	"nodes":[
-		{"id":"a111ae6bec6276bc","type":"file","file":"DONE.md","x":-1300,"y":-1000,"width":400,"height":400},
-		{"id":"3f92d8370b2e0234","type":"file","file":"TODO.md","x":-1920,"y":-1000,"width":400,"height":400},
 		{"id":"34426f9b6798d67d","type":"file","file":"BUGS.md","x":-1920,"y":-480,"width":400,"height":400},
-		{"id":"56bf8936805ab9a3","type":"file","file":"In Progress.md","x":-1300,"y":-480,"width":400,"height":400}
+		{"id":"56bf8936805ab9a3","type":"file","file":"In Progress.md","x":-1300,"y":-480,"width":400,"height":400},
+		{"id":"3f92d8370b2e0234","type":"file","file":"TODO.md","x":-1900,"y":-1140,"width":400,"height":500},
+		{"id":"a111ae6bec6276bc","type":"file","file":"DONE.md","x":-1320,"y":-1140,"width":400,"height":500},
+		{"id":"283d844082e65a31","x":-720,"y":-1140,"width":400,"height":400,"type":"file","file":"PRIO.md"}
 	],
 	"edges":[]
 }

@@ -144,7 +144,6 @@ LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_MBUTTONUP:
         {
             input::cursor::shouldClip = false;
-            SetCapture(hwnd);
             input::KeyUp(input::code::mouse_middle);
             ReleaseCapture();
             return 0;

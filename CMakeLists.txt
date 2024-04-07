@@ -44,6 +44,6 @@ endif()
 
 add_subdirectory(Engine)
 add_subdirectory(Sample)
-add_subdirectory(Wrapper)
-add_subdirectory(Test)
+#add_subdirectory(Wrapper)
+#add_subdirectory(Test)
 
