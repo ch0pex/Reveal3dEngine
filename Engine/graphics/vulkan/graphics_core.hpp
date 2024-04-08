@@ -14,6 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "window/window.hpp"
 
 namespace reveal3d::graphics::Vk {
 

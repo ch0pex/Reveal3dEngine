@@ -13,8 +13,11 @@
  */
 
 #pragma once
-
-#include "graphics_core.hpp"
+#ifdef WIN32
+#include "directX12/graphics_core.hpp"
+#endif
+#include "opengl/graphics_core.hpp"
+#include "vulkan/graphics_core.hpp"
 
 #include <concepts>
 

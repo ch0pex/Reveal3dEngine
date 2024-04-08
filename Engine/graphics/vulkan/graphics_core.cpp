@@ -16,12 +16,5 @@
 
 namespace reveal3d::graphics::Vk {
 
-void Graphics::LoadAssets() {
-
-}
-
-void Graphics::LoadPipeline() {
-
-}
 
 }

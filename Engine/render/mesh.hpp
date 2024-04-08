@@ -14,7 +14,7 @@
 #pragma once
 
 #include "math/math.hpp"
-#include "render_info.hpp"
+#include "graphics/directX12/render_info.hpp"
 
 #include <vector>
 
@@ -34,11 +34,10 @@ struct Mesh {
     graphics::RenderInfo* renderInfo { nullptr }; // Vertex buffer where mesh is
     shader shader { opaque };
     bool visible { true };
-    u32 vertexPos;
-    u32 indexPos;
-    u32 indexCount;
+    u32 vertexPos { 0 };
+    u32 indexPos { 0 };
+    u32 indexCount { 0 };
 };
-
 
 }
 

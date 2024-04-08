@@ -13,14 +13,14 @@
 
 #pragma once
 
-
+#ifdef WIN32
 #include "win32/win_32.hpp"
-#include "unix/glfw.hpp"
+#endif
+#include "glfw/glfw.hpp"
+
 #include "window_info.hpp"
 #include <concepts>
 
 namespace reveal3d::window {
-
-
 
 }

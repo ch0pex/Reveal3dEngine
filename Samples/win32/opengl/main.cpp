@@ -1,3 +1,15 @@
+/************************************************************************
+ * Copyright (c) 2024 Alvaro Cabrera Barrio
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ ************************************************************************/
+/**
+ * @file win32OpenGL.cpp
+ * @version 1.0
+ * @date 07/04/2024
+ * @brief Short description
+ *
+ * Longer description
+ */
 
 
 #include "core/scene.hpp"
@@ -6,15 +18,12 @@
 #include "math/math.hpp"
 #include "input/input.hpp"
 
-using namespace reveal3d;
-
-#if defined(D3D12)
 #include "core/entity.hpp"
 #include "graphics/directX12/dx_utils.hpp"
-using Gfx = graphics::dx::Graphics;
-#elif defined(VULKAN)
-using Gfx = Vk::Graphics;
-#endif
+
+using namespace reveal3d;
+using namespace reveal3d::graphics;
+
 
 LogLevel loglevel = logDEBUG;
 
@@ -22,48 +31,33 @@ LogLevel loglevel = logDEBUG;
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-// Sample scripts for Movement and rotation
-class RotationScript : public core::Script {
-public:
-    void Update(f32 dt) override {
-        math::xvec3 rot = {0.0f, 180.0f, 0.0f};
-        entity_->SetRotation(entity_->Rotation() + rot * dt);
-//        entity_.HideMesh(1);
-    }
-//private:
 
-};
-
-class MovementScript : public core::Script {
-public:
-    void Update(f32 dt) override {
-        if (entity_->Position().GetZ() > 5.0f || entity_->Position().GetZ() < -5.0f) {
-           pos_ = -pos_;
-        }
-        entity_->SetPosition(entity_->Position() + pos_ * dt);
-    }
-private:
-    math::xvec3 pos_ = {0.0f, 0.0f, 1.0f};
-};
 
 _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
 
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080, &WindowProc);
-        Viewport<Gfx, window::Win32> viewport(windowInitInfo);
+        Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
+        //        Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
+
+        //        Viewport<opengl::Graphics, window::Glfw> viewport(windowInitInfo);
+        //        Viewport<dx::Graphics, window::Glfw> viewport(windowInitInfo);
+
+
+
 
         core::Entity human = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
         core::Entity room = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
-//        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
+        //        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
 
-        RotationScript rotationScript;
-        MovementScript movementScript;
+        //        RotationScript rotationScript;
+        //        MovementScript movementScript;
 
-        human.AddScript(rotationScript);
-        human.AddScript(movementScript);
+        //        human.AddScript(rotationScript);
+        //        human.AddScript(movementScript);
         human.AddMesh(core::Geometry::cube);
-//        cube.AddScript(rotationScript);
+        //        cube.AddScript(rotationScript);
         room.SetScale(3);
         room.SetPosition(0.0f, 5.0f,0.0f);
 
@@ -97,7 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-    auto* renderer = reinterpret_cast<Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    auto* renderer = reinterpret_cast<Renderer<dx::Graphics>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     switch (message) {
         case WM_CREATE:
