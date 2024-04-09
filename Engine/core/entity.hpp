@@ -33,6 +33,7 @@ public:
     INLINE void SetScale(f32 s) { scene.GetTransform(id_).SetScale({s}); }
     INLINE void SetScale(f32 x, f32 y, f32 z) { scene.GetTransform(id_).SetScale({x, y, z}); }
     INLINE void SetScale(math::vec3& scale) { scene.GetTransform(id_).SetScale(scale); }
+    INLINE void SetScale(math::xvec3 scale) { scene.GetTransform(id_).SetScale(scale); }
 
     INLINE void SetTransform(Transform& transform);
     INLINE void SetGeometry(Geometry& geometry);

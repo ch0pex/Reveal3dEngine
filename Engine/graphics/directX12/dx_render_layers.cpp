@@ -104,17 +104,17 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     layers_[render::shader::flat].pso.Finalize(device);
 }
 
-void RenderLayers::AddMesh(render::Mesh &mesh) {
+void RenderLayers::AddMesh(render::SubMesh &mesh) {
     meshes_[mesh.shader].push_back(&mesh);
 }
 
-void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &frame, u32 layer) {
+void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &frame, std::vector<RenderInfo>& elements, u32 layer) {
     for (auto &mesh : meshes_[layer]) {
         if (!mesh->visible) continue;
-        cmdList->SetGraphicsRootConstantBufferView(0, frame.constantBuffer.GpuPos(mesh->renderInfo->constantIndex));
-        cmdList->IASetVertexBuffers(0, 1, mesh->renderInfo->vertexBuffer.View());
-        cmdList->IASetIndexBuffer(mesh->renderInfo->indexBuffer.View());
-        cmdList->IASetPrimitiveTopology(mesh->renderInfo->topology);
+        cmdList->SetGraphicsRootConstantBufferView(0, frame.constantBuffer.GpuPos(elements[mesh->renderInfo].constantIndex));
+        cmdList->IASetVertexBuffers(0, 1, elements[mesh->renderInfo].vertexBuffer.View());
+        cmdList->IASetIndexBuffer(elements[mesh->renderInfo].indexBuffer.View());
+        cmdList->IASetPrimitiveTopology(elements[mesh->renderInfo].topology);
         cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos, 0);
     }
 

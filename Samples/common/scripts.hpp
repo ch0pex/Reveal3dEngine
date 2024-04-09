@@ -24,11 +24,11 @@ public:
     using Script::Script;
 
     void Begin(core::Entity &entity) override {
-        startXPos_ = entity.Position().GetZ();
+
     }
 
     void Update(core::Entity &entity, f32 dt) override {
-        math::xvec3 rot = {0.0f, 0.0f, 90.0f};
+        const math::xvec3 rot = {0.0f, 0.0f, 90.0f};
         entity.SetRotation(entity.Rotation() + rot * dt);
         if (entity.Position().GetX() >= 20.0f || entity.Position().GetX() < -20.0f) {
             dir_ = -dir_;
@@ -37,5 +37,4 @@ public:
     }
     private:
         math::xvec3 dir_ = {1.0f, 0.0f, 0.0f};
-        f32 startXPos_;
 };

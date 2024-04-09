@@ -61,6 +61,7 @@ void Scene::Update(f32 dt) {
         }
     }
 }
+
 Entity Scene::AddEntity(math::vec3 pos) {
     transforms_.push_back(Transform(pos));
     geometries_.push_back(Geometry());
@@ -70,8 +71,6 @@ Entity Scene::AddEntity(math::vec3 pos) {
 Entity Scene::GetEntity(u32 id) {
     return Entity(id);
 }
-
-
 
 Scene::~Scene() {
     for(auto *script : scripts_) {

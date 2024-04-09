@@ -19,8 +19,7 @@
 
 namespace reveal3d::core {
 
-
-/*TODO: move this to Mesh and have multiple meshes in an entity geometry? */
+/*TODO: move this to SubMesh and have multiple meshes in an entity geometry? */
 class Geometry {
 public:
     enum primitive : u8 {
@@ -33,25 +32,24 @@ public:
     };
 
     Geometry() = default;
+//    ~Geometry();
     Geometry(const wchar_t *path);
     Geometry(primitive type);
     Geometry(std::vector<render::Vertex> && vertices, std::vector<u16> && indices);
     Geometry(const Geometry &geo);
-    INLINE u32 VertexCount() { return vertices_.size(); }
-    INLINE u32 IndexCount() {return indices_.size(); }
+    INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
+    INLINE u32 IndexCount() {return mesh_->indices_.size(); }
 
-    INLINE render::Vertex* GetVerticesStart() { return vertices_.data(); }
-    INLINE u16* GetIndicesStart() { return indices_.data(); }
-    INLINE std::vector<render::Mesh>& Meshes() { return meshes_; };
+    INLINE render::Vertex* GetVerticesStart() { return mesh_->vertices_.data(); }
+    INLINE u16* GetIndicesStart() { return mesh_->indices_.data(); }
+    INLINE std::vector<render::SubMesh>& Meshes() { return meshes_; }
+    INLINE u32 RenderInfo() { return mesh_->renderInfo; }
 
     void AddMesh(const wchar_t *path);
     void AddMesh(primitive type);
 private:
-    std::vector<render::Mesh> meshes_;
-    std::vector<render::Vertex> vertices_;
-    std::vector<u16> indices_;
-    u16 lastIndex_ { 0 };
+    std::vector<render::SubMesh> meshes_;
+    std::shared_ptr<render::Mesh> mesh_;
 };
-
 
 }

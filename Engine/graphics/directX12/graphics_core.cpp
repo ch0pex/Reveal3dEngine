@@ -174,27 +174,34 @@ void Graphics::LoadAssets() {
     std::vector<core::Geometry> &geometries = core::scene.Geometries();
 
     for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
-        BufferInitInfo vertexBufferInfo = {
-                .device = device_.Get(),
-                .cmdList = cmdManager_.List(),
-                .data = geometries[i].GetVerticesStart(),
-                .count = geometries[i].VertexCount()
-        };
+        if (geometries[i].RenderInfo() == UINT_MAX) {
+            BufferInitInfo vertexBufferInfo = {
+                    .device = device_.Get(),
+                    .cmdList = cmdManager_.List(),
+                    .data = geometries[i].GetVerticesStart(),
+                    .count = geometries[i].VertexCount()
+            };
 
-        BufferInitInfo indexBufferInfo = {
-                .device = device_.Get(),
-                .cmdList = cmdManager_.List(),
-                .data = geometries[i].GetIndicesStart(),
-                .count = geometries[i].IndexCount(),
-                .format = DXGI_FORMAT_R16_UINT
-        };
+            BufferInitInfo indexBufferInfo = {
+                    .device = device_.Get(),
+                    .cmdList = cmdManager_.List(),
+                    .data = geometries[i].GetIndicesStart(),
+                    .count = geometries[i].IndexCount(),
+                    .format = DXGI_FORMAT_R16_UINT
+            };
 
-        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-        renderElements_[i].constantIndex = i;
+            renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+            renderElements_[i].constantIndex = i;
 
-        for (auto &mesh : geometries[i].Meshes()) {
-            mesh.renderInfo = &renderElements_[i];
-            renderLayers_.AddMesh(mesh);
+            for (auto &mesh : geometries[i].Meshes()) {
+                mesh.renderInfo = i;
+                renderLayers_.AddMesh(mesh);
+            }
+        } else {
+            for (auto &mesh : geometries[i].Meshes()) {
+                mesh.renderInfo = geometries[i].RenderInfo();
+                renderLayers_.AddMesh(mesh);
+            }
         }
 
         AlignedConstant<ObjConstant, 1> objConstant;
@@ -252,11 +259,11 @@ void Graphics::PrepareRender() {
     commandList->SetGraphicsRootSignature(renderLayers_[render::shader::opaque].rootSignature.Get());
     commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
 
-    renderLayers_.DrawLayer(commandList, currFrameRes, render::shader::opaque);
+    renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::shader::opaque);
 
     for (u32 i = 1; i < render::shader::count; ++i) {
         renderLayers_[i].Set(commandList);
-        renderLayers_.DrawLayer(commandList, currFrameRes, i);
+        renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
     }
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(

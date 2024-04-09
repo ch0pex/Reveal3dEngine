@@ -30,13 +30,19 @@ enum shader : u8 {
     count
 };
 
-struct Mesh {
-    graphics::RenderInfo* renderInfo { nullptr }; // Vertex buffer where mesh is
+struct SubMesh {
+    u32 renderInfo { UINT_MAX };
     shader shader { opaque };
     bool visible { true };
     u32 vertexPos { 0 };
     u32 indexPos { 0 };
     u32 indexCount { 0 };
+};
+
+struct Mesh {
+    std::vector<render::Vertex> vertices_;
+    std::vector<u16> indices_;
+    u32 renderInfo { UINT_MAX }; // Vertex buffer where mesh is
 };
 
 }
