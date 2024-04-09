@@ -17,4 +17,14 @@
 #include "logger.hpp"
 #include "platform.hpp"
 
+namespace reveal3d {
+
+constexpr wchar_t PROJECT_DIR[] = L"" PROJECT_ROOT_DIR;
+INLINE std::wstring relative(const wchar_t* wstring) {
+    const std::wstring p = PROJECT_DIR;
+    const std::wstring s = wstring;
+    return (p + L"/" + s);
+}
+
+}
 

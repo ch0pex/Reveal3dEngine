@@ -12,8 +12,9 @@
  */
 
 #pragma once
+#include "GL/glew.h"
 
-namespace reveal3d::graphcis::opengl {
+namespace reveal3d::graphics::opengl {
 
 class Graphics {
 

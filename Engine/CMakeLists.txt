@@ -28,6 +28,7 @@ set(HEADERS
         content/primitives.hpp
         content/obj_parser.hpp
 )
+set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
 add_library(Engine STATIC ${SOURCES} ${HEADERS})
 
@@ -53,14 +54,15 @@ elseif (UNIX)
     set(EXTERN ${PROJECT_SOURCE_DIR}/Engine/extern/lib/${PLAT})
 #    add_compile_options(-Werror -Wall -Wextra  -pedantic -pedantic-errors)
     #add glew, glfw and glm for linux
-#    target_link_libraries(Engine PRIVATE ${EXTERN}/glew.a ${EXTERN}/glfw3.lib)
+#    target_link_libraries(Engine PRIVATE ${EXTERN}/glew.t a ${EXTERN}/glfw3.lib)
 endif()
 
 aux_source_directory(graphics/opengl GRAPHICS)
 aux_source_directory(graphics/vulkan GRAPHICS)
 target_sources(Engine PUBLIC ${GRAPHICS})
-target_link_libraries(Engine PRIVATE )
+#target_link_libraries(Engine PRIVATE )
 
 target_include_directories(Engine PUBLIC .)
 target_include_directories(Engine PUBLIC math/${PLAT})
-target_include_directories(Engine PRIVATE extern/include)
+target_include_directories(Engine PUBLIC extern/include)
+target_compile_definitions(Engine PUBLIC PROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")

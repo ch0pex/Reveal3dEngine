@@ -55,8 +55,8 @@ void Geometry::AddMesh(Geometry::primitive type) {
     switch (type) {
         case cube:      lastIndex_ = content::GetCubeData(vertices_, indices_, lastIndex_); break;
         case plane:     lastIndex_ = content::GetPlaneData(vertices_, indices_, lastIndex_); break;
-        case cylinder: lastIndex_ = content::GetCylinderData(vertices_, indices_, lastIndex_); break;
-        case sphere:   lastIndex_ = content::GetSphereData(vertices_, indices_, lastIndex_); break;
+        case cylinder:  lastIndex_ = content::GetCylinderData(vertices_, indices_, lastIndex_); break;
+        case sphere:    lastIndex_ = content::GetSphereData(vertices_, indices_, lastIndex_); break;
         case cone:      lastIndex_ = content::GetConeData(vertices_, indices_, lastIndex_); break;
         case torus:     lastIndex_ = content::GetTorusData(vertices_, indices_, lastIndex_); break;
     }

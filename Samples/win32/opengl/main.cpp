@@ -20,6 +20,7 @@
 
 #include "core/entity.hpp"
 #include "graphics/directX12/dx_utils.hpp"
+#include "Samples/common/Scripts.hpp"
 
 using namespace reveal3d;
 using namespace reveal3d::graphics;
@@ -49,13 +50,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         core::Entity human = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
         core::Entity room = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
-        //        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
+        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
 
-        //        RotationScript rotationScript;
-        //        MovementScript movementScript;
 
-        //        human.AddScript(rotationScript);
-        //        human.AddScript(movementScript);
+        RotationScript rotationScript;
+        MovementScript movementScript;
+
+        human.AddScript(rotationScript);
+        human.AddScript(movementScript);
         human.AddMesh(core::Geometry::cube);
         //        cube.AddScript(rotationScript);
         room.SetScale(3);

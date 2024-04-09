@@ -35,9 +35,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 
 
-        core::Entity human = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\human.obj");
-        core::Entity room = core::scene.AddEntityFromObj(L"D:\\Universidad\\tfg\\engine\\Reveal3d\\Assets\\habitacion.obj");
+        core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
+        core::Entity room = core::scene.AddEntityFromObj(relative(L"Assets/habitacion.obj").c_str());
 //        core::Entity cube = core::scene.AddPrimitive(core::Geometry::primitive::cube);
+
+//        log(logDEBUG) << PROJECT_ROOT_DIR;
 
 //        RotationScript rotationScript;
 //        MovementScript movementScript;
