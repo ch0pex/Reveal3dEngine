@@ -11,6 +11,8 @@
 * Longer description
 */
 
+#pragma once
+
 #include "common/common.hpp"
 #include "math/math.hpp"
 #include "scene.hpp"
@@ -37,7 +39,8 @@ public:
     INLINE Transform& GetTransform() { return scene.GetTransform(id_); }
     INLINE Geometry& GetGeometry() { return scene.GetGeometry(id_); }
 
-    INLINE void AddScript(Script& script) { script.AssignEntity(*this); scene.AddScript(script); }
+    template<typename T> void AddScript();
+
     void AddMesh(const wchar_t *path);
     void AddMesh(Geometry::primitive type);
 
@@ -49,5 +52,10 @@ private:
     u32 id_;
 };
 
+template<typename T>
+void Entity::AddScript() {
+    T* script = new T();
+    scene.AddScript(script, id_);
+}
 
 }

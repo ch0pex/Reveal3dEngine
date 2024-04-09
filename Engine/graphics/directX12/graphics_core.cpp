@@ -99,7 +99,7 @@ void Graphics::InitFrameResources() {
 
 void Graphics::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
-        frameResource.constantBuffer.Init(device_.Get(), 256U); //TODO: hardcoded capacity 256 maximum?
+        frameResource.constantBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
 //        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }

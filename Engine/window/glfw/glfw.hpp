@@ -18,6 +18,7 @@
 namespace reveal3d::window {
 
 template<graphics::HRI Gfx>
+
 class Glfw {
 
 };

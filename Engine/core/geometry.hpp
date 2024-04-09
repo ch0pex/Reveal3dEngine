@@ -36,6 +36,7 @@ public:
     Geometry(const wchar_t *path);
     Geometry(primitive type);
     Geometry(std::vector<render::Vertex> && vertices, std::vector<u16> && indices);
+    Geometry(const Geometry &geo);
     INLINE u32 VertexCount() { return vertices_.size(); }
     INLINE u32 IndexCount() {return indices_.size(); }
 

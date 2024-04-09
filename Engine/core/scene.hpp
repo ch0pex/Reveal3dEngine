@@ -23,7 +23,6 @@
 
 namespace reveal3d::core {
 
-
 struct EntityInfo {
     Transform transform;
     Geometry geometry;
@@ -33,7 +32,9 @@ struct EntityInfo {
 class Scene {
 public:
     Scene() = default;
+    ~Scene();
 
+    Entity AddEntity(math::vec3 pos);
     Entity AddEntity(EntityInfo &entity);
     Entity AddPrimitive(Geometry::primitive type);
     Entity AddEntityFromObj(const wchar_t *path);
@@ -43,10 +44,11 @@ public:
     INLINE u32 NumEntities() const { return entities_; }
     INLINE std::vector<Transform>& Transforms() { return transforms_; }
     INLINE std::vector<Geometry>& Geometries() { return geometries_; }
+    INLINE Entity GetEntity(u32 id);
 
+    void Init();
     void Update(f32 dt);
-
-    void AddScript(Script &script);
+    void AddScript(Script *script, u32 id);
 
 private:
 //    std::vector<u8> generationId_;

@@ -21,11 +21,9 @@ class Entity;
 
 class Script {
 public:
-    void AssignEntity(Entity &entity) { entity_ = &entity; };
-    virtual void Begin() {}
-    virtual void Update(f32 dt) { log(logDEBUG) << "Updating"; }
-protected:
-    Entity *entity_;
+//    Script(Entity &entity)  : entity_(entity) {}
+    virtual void Begin(Entity &entity) {}
+    virtual void Update(Entity &entity, f32 dt) { log(logDEBUG) << "Updating"; }
 };
 
 }

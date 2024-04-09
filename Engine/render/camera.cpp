@@ -103,10 +103,6 @@ void Camera::UpdateFront() {
     yaw_ += xOffset;
     pitch_ += yOffset;
 
-    log(logDEBUG) << "xOffset: " << xOffset;
-    log(logDEBUG) << "yOffset: " << yOffset;
-    log(logDEBUG) << "Yaw: " << yaw_;
-
     if (pitch_ > 89.0f) pitch_ = 89.0f;
     if (pitch_ < -89.0f) pitch_ = -89.0f;
 

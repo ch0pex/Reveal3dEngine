@@ -15,17 +15,19 @@
 
 namespace reveal3d::core {
 
-Entity::Entity() : id_(-1) { }
+Entity::Entity() : id_(-1) {}
 
-Entity::Entity(u32 id)  : id_(id) { }
+Entity::Entity(u32 id) : id_(id) {}
 
 void Entity::AddMesh(const wchar_t *path) {
-   //TODO: Check if has geometry, for now all have geometries
-   scene.GetGeometry(id_).AddMesh(path);
+    // TODO: Check if has geometry, for now all have geometries
+    scene.GetGeometry(id_).AddMesh(path);
 }
 
 void Entity::AddMesh(Geometry::primitive type) {
     scene.GetGeometry(id_).AddMesh(type);
 }
+
+
 
 }

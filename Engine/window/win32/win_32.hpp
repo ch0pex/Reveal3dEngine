@@ -38,11 +38,90 @@ public:
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
 private:
+    static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
     input::System<Win32> inputSystem_;
     InitInfo info_;
     MSG msg_ {};
     bool isRunning_ { false };
 };
+
+template<typename Gfx>
+LRESULT Win32<Gfx>::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+    auto* renderer = reinterpret_cast<Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+    switch (message) {
+        case WM_CREATE:
+        {
+            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+            return 0;
+        }
+        case WM_ENTERSIZEMOVE:
+        case WM_EXITSIZEMOVE:
+        case WM_SIZE:
+        {
+            RECT clientRect;
+            GetClientRect(hwnd, &clientRect);
+            const window::Resolution res(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+            renderer->Resize(res);
+            return 0;
+        }
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+        case WM_PAINT:
+            try {
+                renderer->Render();
+            } catch (std::exception &e) {
+                log(logERROR) << e.what();
+                renderer->Destroy();
+                PostQuitMessage(0);
+            }
+            return 0;
+        case WM_KEYDOWN:
+            input::KeyDown(wParam);
+            return 0;
+        case WM_KEYUP:
+            input::KeyUp(wParam);
+            return 0;
+        case WM_MBUTTONDOWN:
+        {
+            input::cursor::shouldClip = true;
+            SetCapture(hwnd);
+            input::KeyDown(input::code::mouse_middle);
+            return 0;
+        }
+        case WM_MBUTTONUP:
+        {
+            input::cursor::shouldClip = false;
+            input::KeyUp(input::code::mouse_middle);
+            ReleaseCapture();
+            return 0;
+        }
+        case WM_MOUSEMOVE:
+        {
+            input::cursor::pos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
+            input::MouseMove(wParam, input::cursor::pos);
+            return 0;
+        }
+        case WM_RBUTTONDOWN:
+            input::KeyDown(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+        case WM_RBUTTONUP:
+            input::KeyUp(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+        case WM_LBUTTONDOWN:
+            input::KeyDown(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+        case WM_LBUTTONUP:
+            input::KeyUp(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            return 0;
+
+    }
+    return DefWindowProcW(hwnd, message, wParam, lParam);
+}
 
 template<typename Gfx>
 Win32<Gfx>::Win32(InitInfo &info) : info_(info)
@@ -55,7 +134,7 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
     WNDCLASSEXW windowClass = {
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_HREDRAW | CS_VREDRAW,
-            .lpfnWndProc = info_.callback,
+            .lpfnWndProc = info_.callback ? info_.callback : DefaultProc,
             .hInstance = GetModuleHandle(NULL),
             .hCursor = LoadCursor(NULL, IDC_ARROW),
             .lpszClassName = L"Reveal3dClass"
@@ -97,34 +176,6 @@ void Win32<Gfx>::Update() {
     isRunning_ &= (msg_.message != WM_QUIT);
 }
 
-/*
-template<typename Gfx>
-i32 Win32<Gfx>::Run(Renderer<Gfx> &renderer) {
-    try {
-        MSG msg = {};
-        bool isRunning = true;
-
-        ShowWindow(info_.windowHandle, SW_SHOW);
-        while(isRunning) {
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-                ClipMouse(renderer);
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-                isRunning &= (msg.message != WM_QUIT);
-            }
-        }
-        renderer.Destroy();
-        return static_cast<char>(msg.wParam);
-    } catch(std::exception &e) {
-        renderer.Destroy();
-        log(logERROR) << e.what();
-        MessageBoxA(info_.windowHandle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
-        return EXIT_FAILURE;
-    }
-}
-*/
-
-
 template<typename Gfx>
 void Win32<Gfx>::CloseWindow(input::action act, input::type type) {
     PostMessage(GetHwnd(), WM_CLOSE, 0, 0);
@@ -155,4 +206,6 @@ void Win32<Gfx>::ClipMouse(Renderer<Gfx> &renderer) {
     ClientToScreen(info_.windowHandle, &pt);
     SetCursorPos(pt.x, pt.y);
 }
+
+
 }

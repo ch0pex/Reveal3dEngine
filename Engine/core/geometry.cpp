@@ -67,5 +67,13 @@ void Geometry::AddMesh(Geometry::primitive type) {
     meshes_.push_back(mesh);
 
 }
+Geometry::Geometry(const Geometry &geo) {
+    lastIndex_ = geo.lastIndex_;
+    vertices_ = geo.vertices_;
+    indices_ = geo.indices_;
+    for (auto& mesh : geo.meshes_) {
+       meshes_.push_back(mesh);
+    }
+}
 
 }
