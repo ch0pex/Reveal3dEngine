@@ -59,8 +59,8 @@ private:
     bool isMoving_[dir::count] { false };
     bool isLooking_{ false };
     bool firstMouse_ { true };
-    math::vec2 lastPos_;
-    math::vec2 newPos_;
+    math::vec2 lastPos_ {0.0f, 0.0f};
+    math::vec2 newPos_ {0.0f, 0.0f};
     f32 yaw_ { 0.0f };
     f32 pitch_ { 0.0f };
 };

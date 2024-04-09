@@ -20,7 +20,7 @@ Camera::Camera(const window::Resolution &res) :
         projectionMatrix_(math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f)),
         position_(-6.0f, 0.0f, 0.0f),
         moveSpeed_(5.0f), front_(1,0,0),
-        worldUp_(0,0,1), up_(0,0,1), right_(-1,0,0)
+        worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
 {
     inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});
@@ -103,6 +103,10 @@ void Camera::UpdateFront() {
     yaw_ += xOffset;
     pitch_ += yOffset;
 
+    log(logDEBUG) << "xOffset: " << xOffset;
+    log(logDEBUG) << "yOffset: " << yOffset;
+    log(logDEBUG) << "Yaw: " << yaw_;
+
     if (pitch_ > 89.0f) pitch_ = 89.0f;
     if (pitch_ < -89.0f) pitch_ = -89.0f;
 
@@ -113,10 +117,12 @@ void Camera::UpdateFront() {
             math::Sin(math::Radians(pitch_))
     };
 
+//    log(logDEBUG) << newFront.GetX() << ", " << newFront.GetY() << ", " << newFront.GetZ();
     front_ = math::Normalize(newFront);
     right_ = math::Normalize(math::Cross(front_, worldUp_));
     up_ = math::Normalize(math::Cross(right_, front_));
     lastPos_ = newPos_;
+//    log(logDEBUG) << front_.GetX() << ", " << front_.GetY() << ", " << front_.GetZ();
 }
 
 }
