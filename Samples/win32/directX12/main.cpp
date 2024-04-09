@@ -26,6 +26,8 @@ _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
 
+        Timer timer;
+        f32 time = timer.TotalTime();
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
         Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
         //        Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
@@ -62,6 +64,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             viewport.window.Create(viewport.renderer);
             viewport.renderer.Init(viewport.window.GetHwnd());
             viewport.window.Show();
+
+            log(logDEBUG) << "Total Init time: " << timer.Diff(time);
 
             viewport.timer_.Reset();
             while(!viewport.window.ShouldClose()) {
