@@ -13,12 +13,11 @@
 
 #pragma once
 
-#include "render/renderer.hpp"
+#include "graphics/gfx.hpp"
 
 namespace reveal3d::window {
 
 template<graphics::HRI Gfx>
-
 class Glfw {
 
 };

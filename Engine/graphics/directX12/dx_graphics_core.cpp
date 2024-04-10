@@ -11,7 +11,7 @@
  * Longer description
  */
 
-#include "graphics_core.hpp"
+#include "dx_graphics_core.hpp"
 
 namespace reveal3d::graphics::dx {
 

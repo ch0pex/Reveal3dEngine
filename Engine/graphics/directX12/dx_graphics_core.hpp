@@ -20,8 +20,8 @@
 
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
+#include "dx_render_info.hpp"
 #include "dx_render_layers.hpp"
-#include "render_info.hpp"
 #include "resources/dx_resources.hpp"
 
 #include "core/scene.hpp"
@@ -49,9 +49,6 @@ public:
     void Terminate();
     void Resize(const window::Resolution &res);
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
-    [[nodiscard]] INLINE u32 GetWidth() const { return resolution_->width; }
-    [[nodiscard]] INLINE u32 GetHeight() const { return resolution_->height; }
-
 
 private:
     void InitDXGIAdapter();

@@ -23,4 +23,9 @@
 
 namespace reveal3d::window {
 
+template<typename T>
+concept Mng = requires(T window) {
+    {window.Show()} ->  std::same_as<void>;
+};
+
 }

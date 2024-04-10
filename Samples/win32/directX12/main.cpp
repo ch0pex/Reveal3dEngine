@@ -2,11 +2,7 @@
 
 #include "core/scene.hpp"
 #include "render/viewport.hpp"
-#include "window/window.hpp"
 #include "math/math.hpp"
-#include "input/input.hpp"
-
-#include "graphics/directX12/dx_utils.hpp"
 
 #include "Samples/common/scripts.hpp"
 
@@ -16,7 +12,6 @@ using namespace reveal3d::graphics;
 
 LogLevel loglevel = logDEBUG;
 
-#if defined(_WIN32)
 
 LRESULT WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -88,13 +83,3 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 #endif
     return 0;
 }
-
-
-
-#else
-
-int main() {
-    Viewport<VkGraphics, Glfw> viewport;
-}
-
-#endif

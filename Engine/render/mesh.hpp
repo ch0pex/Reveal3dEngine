@@ -13,8 +13,8 @@
 
 #pragma once
 
+#include "graphics/directX12/dx_render_info.hpp"
 #include "math/math.hpp"
-#include "graphics/directX12/render_info.hpp"
 
 #include <vector>
 

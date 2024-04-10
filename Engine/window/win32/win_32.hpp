@@ -22,23 +22,22 @@ using namespace reveal3d::render;
 
 namespace reveal3d::window {
 
-template<typename Gfx>
 class Win32 {
 public:
     Win32(InitInfo &info);
 
-    void Create(Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void Create(Renderer<Gfx> &renderer);
 //    i32 Run(Renderer<Gfx> &renderer);
     void Show();
     void Update();
     void CloseWindow(input::action act, input::type type);
-    void ClipMouse(Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void ClipMouse(Renderer<Gfx> &renderer);
     bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
 private:
-    static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+    template<graphics::HRI Gfx> static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
     input::System<Win32> inputSystem_;
     InitInfo info_;
@@ -46,8 +45,8 @@ private:
     bool isRunning_ { false };
 };
 
-template<typename Gfx>
-LRESULT Win32<Gfx>::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+template<graphics::HRI Gfx>
+LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     auto* renderer = reinterpret_cast<Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
@@ -123,18 +122,17 @@ LRESULT Win32<Gfx>::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
     return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 
-template<typename Gfx>
-Win32<Gfx>::Win32(InitInfo &info) : info_(info)
+Win32::Win32(InitInfo &info) : info_(info)
 {
    inputSystem_.AddHandlerDown(input::action::window_close, {&Win32::CloseWindow, nullptr, this});
 }
 
-template<typename Gfx>
-void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
+template<graphics::HRI Gfx>
+void Win32::Create(Renderer<Gfx> &renderer) {
     WNDCLASSEXW windowClass = {
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_HREDRAW | CS_VREDRAW,
-            .lpfnWndProc = info_.callback ? info_.callback : DefaultProc,
+            .lpfnWndProc = info_.callback ? info_.callback : DefaultProc<Gfx>,
             .hInstance = GetModuleHandle(NULL),
             .hCursor = LoadCursor(NULL, IDC_ARROW),
             .lpszClassName = L"Reveal3dClass"
@@ -157,32 +155,28 @@ void Win32<Gfx>::Create(Renderer<Gfx> &renderer) {
             &renderer);
 }
 
-template<typename Gfx>
-void Win32<Gfx>::Show() {
+void Win32::Show() {
     ShowWindow(info_.windowHandle, SW_SHOW);
     isRunning_ = true;
 }
 
-template<typename Gfx>
-bool Win32<Gfx>::ShouldClose() {
+bool Win32::ShouldClose() {
     PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE);
     return !(isRunning_ );
 }
 
-template<typename Gfx>
-void Win32<Gfx>::Update() {
+void Win32::Update() {
     TranslateMessage(&msg_);
     DispatchMessage(&msg_);
     isRunning_ &= (msg_.message != WM_QUIT);
 }
 
-template<typename Gfx>
-void Win32<Gfx>::CloseWindow(input::action act, input::type type) {
+void Win32::CloseWindow(input::action act, input::type type) {
     PostMessage(GetHwnd(), WM_CLOSE, 0, 0);
 }
 
-template<typename Gfx>
-void Win32<Gfx>::ClipMouse(Renderer<Gfx> &renderer) {
+template<graphics::HRI Gfx>
+void Win32::ClipMouse(Renderer<Gfx> &renderer) {
     if (!input::cursor::shouldClip) return;
 
     if (input::cursor::pos.x < 2) {

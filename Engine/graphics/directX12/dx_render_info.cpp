@@ -3,22 +3,22 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file graphics_core.hpp
+ * @file dx_render_info.cpp
  * @version 1.0
- * @date 05/04/2024
+ * @date 27/03/2024
  * @brief Short description
  *
  * Longer description
  */
 
-#pragma once
-#include "GL/glew.h"
+#include "dx_render_info.hpp"
 
-namespace reveal3d::graphics::opengl {
+namespace reveal3d::graphics {
 
-class Graphics {
-
-};
-
+RenderInfo::RenderInfo(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo)
+        : vertexBuffer(vertexInfo),
+          indexBuffer(indexInfo)
+{
 }
 
+}
