@@ -30,13 +30,15 @@ public:
     void PrepareRender();
     void Draw();
     void Terminate();
-    void Resize(window::Resolution &res);
+    void Resize(const window::Resolution &res);
 
-//    template<typename T> void SetWindow(WHandle wHanlde);
+    INLINE void SetWindow(WHandle wHandle) { window_ = wHandle; }
 
 private:
+    math::mat4 passConstant_;
     std::vector<RenderInfo> renderElements_;
     RenderLayers renderLayers_;
+    WHandle window_ {};
 };
 
 }

@@ -84,7 +84,7 @@ private:
     window::Resolution *resolution_;
     D3D12_VIEWPORT viewport_ {};
     D3D12_RECT scissorRect_ {};
-    HWND window_ {};
+    WHandle window_ {};
     u32 swapChainFlags_;
     u32 presentInfo_;
 };

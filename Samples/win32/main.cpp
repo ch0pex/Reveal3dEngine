@@ -1,26 +1,10 @@
-/************************************************************************
- * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details)
- ************************************************************************/
-/**
- * @file win32OpenGL.cpp
- * @version 1.0
- * @date 07/04/2024
- * @brief Short description
- *
- * Longer description
- */
 
 
 #include "core/scene.hpp"
 #include "render/viewport.hpp"
-#include "window/window.hpp"
 #include "math/math.hpp"
-#include "input/input.hpp"
 
 #include "Samples/common/scripts.hpp"
-#include "core/entity.hpp"
-#include "graphics/gfx.hpp"
 
 using namespace reveal3d;
 using namespace reveal3d::graphics;
@@ -36,7 +20,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         Timer timer;
         f32 time = timer.TotalTime();
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
-        Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
+        render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
+//        render::Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
 
         core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
         core::Entity room = core::scene.AddEntityFromObj(relative(L"Assets/habitacion.obj").c_str());
@@ -59,6 +44,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             viewport.renderer.Init(viewport.window.GetHwnd());
             viewport.window.Show();
 
+            log(logDEBUG) << "Total Init time: " << timer.Diff(time);
+
             viewport.timer_.Reset();
             while(!viewport.window.ShouldClose()) {
                 viewport.timer_.Tick();
@@ -71,7 +58,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         } catch(std::exception &e) {
             viewport.renderer.Destroy();
             log(logERROR) << e.what();
-            MessageBoxA(viewport.window.GetHwnd(), e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+            MessageBoxA(viewport.window.GetHwnd().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
             return EXIT_FAILURE;
         }
     }
@@ -80,8 +67,3 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 #endif
     return 0;
 }
-
-
-
-
-

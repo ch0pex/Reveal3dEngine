@@ -12,6 +12,7 @@
  */
 
 #include "dx_graphics_core.hpp"
+#include "config/config.hpp"
 
 namespace reveal3d::graphics::dx {
 
@@ -28,7 +29,6 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
-//    heaps_.cbv.Initialize(device_.Get(), 4092U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
     renderElements_.reserve(4092U);
     dsHandle_ = heaps_.dsv.alloc();
@@ -80,8 +80,8 @@ void Graphics::CreateSwapChain() {
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
             .Flags = swapChainFlags_
     };
-    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
-    factory_->MakeWindowAssociation(window_, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
+    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_.handle, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
+    factory_->MakeWindowAssociation(window_.handle, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 
@@ -106,7 +106,7 @@ void Graphics::InitConstantBuffers() {
 }
 
 void Graphics::InitDsBuffer() {
-    D3D12_RESOURCE_DESC depthStencilDesc = {
+    const D3D12_RESOURCE_DESC depthStencilDesc = {
             .Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
             .Alignment = 0,
             .Width = resolution_->width,
@@ -122,7 +122,7 @@ void Graphics::InitDsBuffer() {
             .Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
     };
 
-    D3D12_CLEAR_VALUE optClear = {
+    const D3D12_CLEAR_VALUE optClear = {
             .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
             .DepthStencil = {
                 .Depth = 1.0f,
@@ -139,7 +139,7 @@ void Graphics::InitDsBuffer() {
             &optClear,
             IID_PPV_ARGS(depthStencilBuffer_.GetAddressOf())) >> utl::DxCheck;
 
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {
+    const D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {
             .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
             .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
             .Flags = D3D12_DSV_FLAG_NONE,
@@ -250,7 +250,7 @@ void Graphics::PrepareRender() {
             D3D12_RESOURCE_STATE_RENDER_TARGET );
     commandList->ResourceBarrier(1, &targetBarrier);
 
-    const f32 clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+    const f32 clearColor[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 

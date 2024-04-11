@@ -13,12 +13,24 @@
 
 #pragma once
 
-#include "graphics/gfx.hpp"
+#include "render/renderer.hpp"
+#include "window/window_info.hpp"
+#include "input/input.hpp"
 
 namespace reveal3d::window {
 
-template<graphics::HRI Gfx>
+
 class Glfw {
+public:
+    Glfw(InitInfo &info);
+
+    template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
+    //    i32 Run(Renderer<Gfx> &renderer);
+    void Show();
+    void Update();
+    void CloseWindow(input::action act, input::type type);
+    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
+    bool ShouldClose();
 
 };
 

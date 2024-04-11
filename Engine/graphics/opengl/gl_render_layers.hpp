@@ -25,6 +25,12 @@ struct Layer {
 class RenderLayers  {
 public:
     void Init();
+    void AddMesh(render::SubMesh &mesh);
+    void Draw(std::vector<RenderInfo>& renderElments, u32 layer);
+
+    INLINE Layer& operator[] (u32 index) { return layers_[index]; }
+    INLINE const Layer& operator[] (u32 index) const { return layers_[index]; }
+
 private:
     static std::string ReadShader(const char* fileName);
     static u32 CreateShader(GLenum shaderType, std::string &source, const char* shaderName);

@@ -18,7 +18,6 @@
 #include "input/input.hpp"
 #include <WindowsX.h>
 
-using namespace reveal3d::render;
 
 namespace reveal3d::window {
 
@@ -26,12 +25,12 @@ class Win32 {
 public:
     Win32(InitInfo &info);
 
-    template<graphics::HRI Gfx> void Create(Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
 //    i32 Run(Renderer<Gfx> &renderer);
     void Show();
     void Update();
     void CloseWindow(input::action act, input::type type);
-    template<graphics::HRI Gfx> void ClipMouse(Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
     bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
@@ -48,7 +47,7 @@ private:
 template<graphics::HRI Gfx>
 LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-    auto* renderer = reinterpret_cast<Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    auto* renderer = reinterpret_cast<render::Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     switch (message) {
         case WM_CREATE:
@@ -128,7 +127,7 @@ Win32::Win32(InitInfo &info) : info_(info)
 }
 
 template<graphics::HRI Gfx>
-void Win32::Create(Renderer<Gfx> &renderer) {
+void Win32::Create(render::Renderer<Gfx> &renderer) {
     WNDCLASSEXW windowClass = {
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_HREDRAW | CS_VREDRAW,
@@ -142,7 +141,7 @@ void Win32::Create(Renderer<Gfx> &renderer) {
     RECT windowRect = {0, 0, static_cast<LONG>(info_.res.width), static_cast<LONG>(info_.res.height)};
     AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    info_.windowHandle = CreateWindowExW(
+    info_.windowHandle.handle = CreateWindowExW(
             0,
             windowClass.lpszClassName,
             info_.name,
@@ -153,10 +152,11 @@ void Win32::Create(Renderer<Gfx> &renderer) {
             nullptr,
             GetModuleHandle(nullptr),
             &renderer);
+
 }
 
 void Win32::Show() {
-    ShowWindow(info_.windowHandle, SW_SHOW);
+    ShowWindow(info_.windowHandle.handle, SW_SHOW);
     isRunning_ = true;
 }
 
@@ -172,11 +172,11 @@ void Win32::Update() {
 }
 
 void Win32::CloseWindow(input::action act, input::type type) {
-    PostMessage(GetHwnd(), WM_CLOSE, 0, 0);
+    PostMessage(GetHwnd().handle, WM_CLOSE, 0, 0);
 }
 
 template<graphics::HRI Gfx>
-void Win32::ClipMouse(Renderer<Gfx> &renderer) {
+void Win32::ClipMouse(render::Renderer<Gfx> &renderer) {
     if (!input::cursor::shouldClip) return;
 
     if (input::cursor::pos.x < 2) {
@@ -197,7 +197,7 @@ void Win32::ClipMouse(Renderer<Gfx> &renderer) {
     }
 
     POINT pt = {static_cast<LONG>(input::cursor::pos.x), static_cast<LONG>(input::cursor::pos.y)};
-    ClientToScreen(info_.windowHandle, &pt);
+    ClientToScreen(info_.windowHandle.handle, &pt);
     SetCursorPos(pt.x, pt.y);
 }
 

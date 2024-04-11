@@ -14,14 +14,16 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "math/math.hpp"
 
 namespace reveal3d::graphics::opengl {
 
 struct RenderInfo {
    u32 vao;
-   u32 faces;
    u32 vbo;
    u32 ebo;
+   u32 faces;
+   math::mat4 world;
 };
 
 }

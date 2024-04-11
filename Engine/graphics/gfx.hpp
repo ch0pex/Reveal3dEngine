@@ -17,7 +17,7 @@
 #include "directX12/dx_graphics_core.hpp"
 #endif
 #include "opengl/gl_graphics_core.hpp"
-#include "vulkan/graphics_core.hpp"
+#include "vulkan/vk_graphics_core.hpp"
 
 #include <concepts>
 
