@@ -53,13 +53,13 @@ void Graphics::InitDXGIAdapter() {
     ComPtr<IDXGIAdapter1> hardwareAdapter;
     CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory_)) >> utl::DxCheck;
     GetHardwareAdapter(factory_.Get(), &hardwareAdapter);
-    D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
+    D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
 
-    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
-        allowTearing) {
-        presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
-        swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-    }
+//    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
+//        allowTearing) {
+//        presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
+//        swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+//    }
 
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), TRUE);
@@ -341,8 +341,7 @@ void Graphics::Terminate() {
     CleanDeferredResources(heaps_);
 }
 
-void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter,
-                                  bool requestHighPerformanceAdapter)
+void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter)
 {
     *ppAdapter = nullptr;
 
@@ -350,14 +349,7 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
     ComPtr<IDXGIFactory6> factory6;
     if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
     {
-        for (
-                UINT adapterIndex = 0;
-                SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-                        adapterIndex,
-                        requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-                        IID_PPV_ARGS(&adapter)));
-                ++adapterIndex)
-        {
+        for ( u32 adapterIndex = 0; SUCCEEDED(factory6->EnumAdapterByGpuPreference( adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter))); ++adapterIndex) {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
 
@@ -370,7 +362,7 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
 
             // Check to see whether the adapter supports Direct3D 12, but don't create the
             // actual device yet.
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
             {
                 break;
             }
@@ -393,7 +385,7 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
 
             // Check to see whether the adapter supports Direct3D 12, but don't create the
             // actual device yet.
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
             {
                 break;
             }

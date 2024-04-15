@@ -26,6 +26,7 @@ void Commands::Init(ID3D12Device *device) {
             .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0
     };
+    ResetFences();
     device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)) >> utl::DxCheck;
 
     device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
