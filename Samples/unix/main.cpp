@@ -51,7 +51,7 @@ int  main() {
 
     try {
         viewport.window.Create(viewport.renderer);
-        viewport.renderer.Init(viewport.window.GetHwnd());
+        viewport.renderer.Init(viewport.window.GetHandle());
         viewport.window.Show();
 
         log(logDEBUG) << "Total Init time: " << timer.Diff(time);
@@ -68,7 +68,7 @@ int  main() {
     } catch(std::exception &e) {
         viewport.renderer.Destroy();
         log(logERROR) << e.what();
-        MessageBoxA(viewport.window.GetHwnd().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+        MessageBoxA(viewport.window.GetHandle().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
         return EXIT_FAILURE;
     }
 

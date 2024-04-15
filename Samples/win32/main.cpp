@@ -12,11 +12,9 @@ using namespace reveal3d::graphics;
 
 LogLevel loglevel = logDEBUG;
 
-
 _Use_decl_annotations_
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     {
-
         Timer timer;
         f32 time = timer.TotalTime();
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
@@ -27,8 +25,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         core::Entity room = core::scene.AddEntityFromObj(relative(L"Assets/habitacion.obj").c_str());
         core::Scene *myScene = &core::scene;
 
-        //        MovementScript movementScript;
-        for (u32 i = 0; i < 10; ++i)
+        for (u32 i = 0; i < 10; ++i) {
             for (u32 j = 0; j < 10; ++j) {
                 for (u32 k = 0; k < 20; ++k) {
                     core::EntityInfo info = {
@@ -38,10 +35,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
                     entity.AddScript<HumanScript>();
                 }
             }
+        }
 
         try {
             viewport.window.Create(viewport.renderer);
-            viewport.renderer.Init(viewport.window.GetHwnd());
+            viewport.renderer.Init(viewport.window.GetHandle());
             viewport.window.Show();
 
             log(logDEBUG) << "Total Init time: " << timer.Diff(time);
@@ -58,7 +56,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         } catch(std::exception &e) {
             viewport.renderer.Destroy();
             log(logERROR) << e.what();
-            MessageBoxA(viewport.window.GetHwnd().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+            MessageBoxA(viewport.window.GetHandle().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
             return EXIT_FAILURE;
         }
     }

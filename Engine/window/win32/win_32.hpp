@@ -34,7 +34,7 @@ public:
     bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
-    [[nodiscard]] INLINE WHandle GetHwnd() const { return info_.windowHandle; }
+    [[nodiscard]] INLINE WHandle GetHandle() const { return info_.windowHandle; }
 private:
     template<graphics::HRI Gfx> static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -172,7 +172,7 @@ void Win32::Update() {
 }
 
 void Win32::CloseWindow(input::action act, input::type type) {
-    PostMessage(GetHwnd().handle, WM_CLOSE, 0, 0);
+    PostMessage(GetHandle().handle, WM_CLOSE, 0, 0);
 }
 
 template<graphics::HRI Gfx>

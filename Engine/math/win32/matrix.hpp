@@ -82,6 +82,7 @@ public:
     INLINE void SetZ(xvec4 z) { mat4_.r[2] = z; }
     INLINE void SetW(xvec4 w) { mat4_.r[3] = w; }
 
+
     INLINE operator XMMATRIX() const { return mat4_; }
     INLINE xvec4 operator*(xvec3 vec) const { return XMVector3Transform(vec, mat4_); }
     INLINE xvec4 operator*(xvec4 vec) const { return XMVector4Transform(vec, mat4_); }

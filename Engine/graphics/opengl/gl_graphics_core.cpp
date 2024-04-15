@@ -57,38 +57,38 @@ void Graphics::LoadAssets() {
 
     for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (geometries[i].RenderInfo() == UINT_MAX) {
-            for (auto &mesh : geometries[i].Meshes()) {
+
+
+
+            for (auto &mesh : geometries[i].SubMeshes()) {
                 mesh.renderInfo = i;
                 renderLayers_.AddMesh(mesh);
             }
         } else {
-            for (auto &mesh : geometries[i].Meshes()) {
+            for (auto &mesh : geometries[i].SubMeshes()) {
                 mesh.renderInfo = geometries[i].RenderInfo();
                 renderLayers_.AddMesh(mesh);
             }
         }
+
 
     }
 
 }
 
 void Graphics::LoadAsset() {
-
+    //TODO
 }
 
 void Graphics::Update(render::Camera &camera) {
     passConstant_ = camera.GetViewProjectionMatrix();
 
-    passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
-    currFrameRes.passBuffer.CopyData(0, &passConstant);
-
     auto &transforms = core::scene.Transforms();
 
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (transforms[i].IsDirty() > 0) {
-            objConstant.data.world = transforms[i].World();
+            renderElements_[i].world = transforms[i].World();
             transforms[i].UpdateDirty();
-            currFrameRes.constantBuffer.CopyData(i, &objConstant);
         }
     }
 }
@@ -100,6 +100,9 @@ void Graphics::PrepareRender() {
 
 void Graphics::Draw() {
     for(u32 i = 0; i < render::shader::count; ++i) {
+        u32 vp_loc = glGetUniformLocation(renderLayers_[i].shaderId, "vp");
+        glUseProgram(renderLayers_[i].shaderId);
+        glUniformMatrix4fv(vp_loc, 1, GL_FALSE, (f32 *) &passConstant_); //NOTE: Possible bug
        renderLayers_.Draw(renderElements_, i);
     }
     SwapBuffers(window_.hdc);

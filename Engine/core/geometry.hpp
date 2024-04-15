@@ -42,11 +42,13 @@ public:
 
     INLINE render::Vertex* GetVerticesStart() { return mesh_->vertices_.data(); }
     INLINE u16* GetIndicesStart() { return mesh_->indices_.data(); }
-    INLINE std::vector<render::SubMesh>& Meshes() { return meshes_; }
+    INLINE std::vector<render::SubMesh>&SubMeshes() { return meshes_; }
     INLINE u32 RenderInfo() { return mesh_->renderInfo; }
+    INLINE void SetRenderInfo(u32 index) { mesh_->renderInfo = index; }
 
     void AddMesh(const wchar_t *path);
     void AddMesh(primitive type);
+
 private:
     std::vector<render::SubMesh> meshes_;
     std::shared_ptr<render::Mesh> mesh_;

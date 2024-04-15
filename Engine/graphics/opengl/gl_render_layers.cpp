@@ -87,34 +87,31 @@ u32 RenderLayers::CreateProgram(const char *vs, const char *fs) {
 }
 
 void RenderLayers::AddMesh(render::SubMesh &mesh) {
-    meshes_[mesh.shader].push_back(&mesh);
+    subMeshes_[mesh.shader].push_back(&mesh);
 }
 
 void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, u32 layer) {
 
-    u32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
     u32 ambient_color_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientColor");
-    u32 ambient_light_intensity = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
+    u32 ambient_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
     u32 sun_light_dir_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightDirection");
     u32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
     u32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
 
-    glUseProgram(layers_[layer].shaderId);
-    glUniformMatrix4fv(vp_loc, 1, GL_FALSE, );
-    glUniform1f(ambient_light_intensity, kGameConfig.ambient_light_intensity * 0.01f);
-    glUniform3f(ambient_color_loc, kGameConfig.ambient_light_color.x, kGameConfig.ambient_light_color.y,
-                kGameConfig.ambient_light_color.z);
-    glUniform3f(sun_light_dir_loc, kGameConfig.sun_light_direction.x, kGameConfig.sun_light_direction.y,
-                kGameConfig.sun_light_direction.z);
-    glUniform3f(sun_light_color_loc, kGameConfig.sun_light_color.x, kGameConfig.sun_light_color.y,
-                kGameConfig.sun_light_color.z);
-    glUniform1f(sun_light_intensity_loc, kGameConfig.sun_light_intensity * 0.01f);
+//    glUniform1f(ambient_light_intensity_loc, kGameConfig.ambient_light_intensity * 0.01f);
+//    glUniform3f(ambient_color_loc, kGameConfig.ambient_light_color.x, kGameConfig.ambient_light_color.y,
+//                kGameConfig.ambient_light_color.z);
+//    glUniform3f(sun_light_dir_loc, kGameConfig.sun_light_direction.x, kGameConfig.sun_light_direction.y,
+//                kGameConfig.sun_light_direction.z);
+//    glUniform3f(sun_light_color_loc, kGameConfig.sun_light_color.x, kGameConfig.sun_light_color.y,
+//                kGameConfig.sun_light_color.z);
+//    glUniform1f(sun_light_intensity_loc, kGameConfig.sun_light_intensity * 0.01f);
 
-    glBindTexture(GL_TEXTURE_2D, texture_);
+//    glBindTexture(GL_TEXTURE_2D, texture_);
 
-    for (const auto &mesh: meshes_) {
-        glBindVertexArray(mesh->vao);
-        glDrawElements(GL_TRIANGLES, mesh->faces * 6, GL_UNSIGNED_INT, 0);
+    for (const auto &mesh: subMeshes_[layer]) {
+        glBindVertexArray(renderElments[mesh->renderInfo].vao);
+        glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 

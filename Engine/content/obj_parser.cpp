@@ -98,7 +98,6 @@ u16 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, s
                 positions.push_back(pos);
             }
         } else if (line[0] == 'f'){
-            math::vec3 face[4];
             GetTriangle(line, primitives);
         }
     }

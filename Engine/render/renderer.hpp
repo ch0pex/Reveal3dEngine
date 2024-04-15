@@ -49,7 +49,6 @@ Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Init(WHandle wHandle) {
-
     f32 time = timer_.TotalTime();
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();

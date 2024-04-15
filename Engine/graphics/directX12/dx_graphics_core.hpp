@@ -57,8 +57,10 @@ private:
     void InitDsBuffer();
     void InitConstantBuffers();
     void SetViewport();
-//    void BuildInfinitGridPSO();
-
+    void GetHardwareAdapter(
+            _In_ IDXGIFactory1* pFactory,
+            _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
+            bool requestHighPerformanceAdapter = false);
     /****************** Factory and Device *****************/
 
     ComPtr<IDXGIFactory5> factory_;

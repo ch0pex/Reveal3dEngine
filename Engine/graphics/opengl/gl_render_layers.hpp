@@ -15,6 +15,7 @@
 
 #include "GL/glew.h"
 #include "render/mesh.hpp"
+#include "gl_render_info.hpp"
 
 namespace reveal3d::graphics::opengl {
 
@@ -37,7 +38,7 @@ private:
     static u32 CreateProgram(const char* vs, const char* fs);
 
     Layer layers_[render::shader::count];
-    std::vector<render::SubMesh *> meshes_[render::shader::count];
+    std::vector<render::SubMesh *> subMeshes_[render::shader::count];
 
 };
 
