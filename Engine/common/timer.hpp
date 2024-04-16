@@ -28,6 +28,7 @@ public:
 
     [[nodiscard]] f32 TotalTime() const;
     [[nodiscard]] INLINE f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
+    [[nodiscard]] INLINE f32 FrameTime() const { return static_cast<f32>(frameTime_); }
     [[nodiscard]] INLINE f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
     [[nodiscard]] bool INLINE IsRunning() { return !stopped_; };
     [[nodiscard]] f32 Diff(f32 time) const;
@@ -50,7 +51,8 @@ private:
 
     f64 secondPerCount_;
     i64 countsPerSecond_;
-    f64 deltaTime_;
+    f64 deltaTime_; // Affected by pause
+    f64 frameTime_; // Non afected by pause
 
     i64 baseTime_;
     i64 pausedTime_;

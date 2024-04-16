@@ -43,7 +43,7 @@ Camera::Camera(const window::Resolution &res) :
 
 
 void Camera::Update(const Timer& timer) {
-    UpdatePos(timer.DeltaTime());
+    UpdatePos(timer.FrameTime());
     UpdateFront();
     viewMatrix_ = math::LookAt(position_, position_ + front_, up_);
     viewProjectionMatrix_ = viewMatrix_ * projectionMatrix_;

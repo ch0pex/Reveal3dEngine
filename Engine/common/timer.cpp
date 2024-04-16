@@ -58,19 +58,20 @@ void Timer::Stop() {
 }
 
 void Timer::Tick() {
-    if (stopped_) {
-        deltaTime_ = 0.0;
-        return;
-    }
 
     i64 currTime = 0;
     QueryCounter(currTime);
 
     currTime_ = currTime;
     deltaTime_ = (currTime - prevTime_) * secondPerCount_;
+    frameTime_ = deltaTime_;
     prevTime_ = currTime_;
 
     if (deltaTime_ < 0.0) {
+        deltaTime_ = 0.0;
+    }
+
+    if (stopped_) {
         deltaTime_ = 0.0;
     }
 }
