@@ -46,6 +46,7 @@ VertexOut VS(VertexIn vin)
 	VertexOut vout;
 	float4 posW = mul(float4(vin.PosL, 1.0f), objWorld);
 
+    vout.PosW = posW.xyz;
 	vout.PosH = mul(posW, viewProj);
     vout.NormalW = mul(vin.NormalL, (float3x3)objWorld);
     vout.Color = vin.Color;
@@ -56,7 +57,7 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
     float sunLightIntensity = 0.8;
-    float3 sunLightDir = float3(-350.0f, -300.0f, 500.0f);
+    float3 sunLightDir = float3(0.0f, 0.5f, -1.0f);
     float4 sunLightColor = float4(1.0f, 1.0f, 1.0f, 0.0f);
 
     float ambientLightIntensity = 0.5f;

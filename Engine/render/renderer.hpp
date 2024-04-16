@@ -23,8 +23,8 @@ template<graphics::HRI Gfx>
 class Renderer {
 public:
     Renderer(window::Resolution *res, Timer &timer);
-    void Init(WHandle wHandle, core::Scene &scene);
-    void Update(core::Scene &scene);
+    void Init(WHandle wHandle);
+    void Update();
     void Render();
     void Destroy();
     void Resize(const window::Resolution &res);
@@ -38,4 +38,47 @@ private:
     Timer& timer_;
 };
 
+template<graphics::HRI Gfx>
+Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
+        : camera_(*res),
+          graphics_(res),
+          timer_(timer)
+{
+
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::Init(WHandle wHandle) {
+    f32 time = timer_.TotalTime();
+    graphics_.SetWindow(wHandle);
+    graphics_.LoadPipeline();
+    log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
+    time = timer_.TotalTime();
+    graphics_.LoadAssets();
+    log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::Update() {
+    camera_.Update(timer_);
+    graphics_.Update(camera_);
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::Render() {
+    graphics_.PrepareRender();
+    graphics_.Draw();
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::Destroy() {
+    log(logDEBUG) << "Cleaning pipeline...[" << timer_.TotalTime()  <<"]";
+    graphics_.Terminate();
+}
+
+template<graphics::HRI Gfx>
+void Renderer<Gfx>::Resize(const window::Resolution &res) {
+    camera_.Resize(res);
+    graphics_.Resize(res);
+}
 }

@@ -13,16 +13,37 @@
 
 #pragma once
 
+#include "graphics/directX12/dx_render_info.hpp"
 #include "math/math.hpp"
+
+#include <vector>
+
 
 
 namespace reveal3d::render {
 
-struct Vertex {
-    math::vec3 pos { 0.0f, 0.0f, 0.0f};
-    math::vec4 color { 0.4f, 0.4f, 0.4f, 0.0f};
-    math::vec3 normal { 0.0f, 0.0f, 0.0f};
-    math::vec2 uv { 0.0f, 0.0f};
+enum shader : u8 {
+    opaque = 0,
+    flat, // Not affected by lighting
+//    transparent,
+
+    count
+};
+
+struct SubMesh {
+    u32 renderInfo { UINT_MAX };
+    shader shader { opaque };
+    bool visible { true };
+    u32 vertexPos { 0 };
+    u32 indexPos { 0 };
+    u32 indexCount { 0 };
+};
+
+struct Mesh {
+    std::vector<render::Vertex> vertices_;
+    std::vector<u16> indices_;
+    u32 renderInfo { UINT_MAX }; // Vertex buffer where mesh is
 };
 
 }
+

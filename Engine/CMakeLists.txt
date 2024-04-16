@@ -3,7 +3,7 @@ set(SOURCES
         core/geometry.cpp
         core/transform.cpp
         core/script.cpp
-        render/renderer.cpp
+        core/entity.cpp
         render/camera.cpp
         render/light.cpp
         common/timer.cpp
@@ -13,23 +13,56 @@ set(SOURCES
         content/obj_parser.cpp
 )
 
-message("Renderer: ${GFX}")
-message("Window: ${PLAT}")
-aux_source_directory(graphics/${GFX} GRAPHICS)
-aux_source_directory(graphics/${GFX}/resources GRAPHICS)
-aux_source_directory(window/${PLAT} PLATFORM)
-#message(Graphics Sources: ${GRAPHICS})
-#message(Platform Sources: ${PLATFORM})
+set(HEADERS
+        core/scene.hpp
+        core/geometry.hpp
+        core/transform.hpp
+        core/script.hpp
+        core/entity.hpp
+        render/renderer.hpp
+        render/camera.hpp
+        render/light.hpp
+        common/timer.hpp
+        config/config.hpp
+        input/input.hpp
+        content/primitives.hpp
+        content/obj_parser.hpp
+)
+set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
-include_directories(PUBLIC .)
-include_directories(PUBLIC math/${PLAT})
-add_library(Engine STATIC ${SOURCES} ${GRAPHICS} ${PLATFORM})
-target_include_directories(Engine PUBLIC math/${PLAT})
+add_library(Engine STATIC ${SOURCES} ${HEADERS})
 
+find_package(OpenGL REQUIRED)
+target_include_directories(Engine PRIVATE extern/include)
 
-if(D3D12)
+if (WIN32)
+    #add_compile_options(/Wall /external:anglebrakets /external:W0)
+    message("-- WINDOWS")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+    set(PLAT win32)
+    set(EXTERN ${PROJECT_SOURCE_DIR}/Engine/extern/lib/${PLAT})
     target_compile_definitions(Engine PRIVATE "UNICODE" "_UNICODE")
-    target_link_libraries(Engine PRIVATE d3d12 dxgi d3dcompiler)
-else()
+    target_link_libraries(Engine PRIVATE d3d12 dxgi d3dcompiler ${OPENGL_LIBRARY} ${EXTERN}/glew.lib ${EXTERN}/glfw3.lib)
 
+    aux_source_directory(graphics/directX12 GRAPHICS)
+    aux_source_directory(graphics/directX12/resources GRAPHICS)
+    #add glew and glfw for windows
+elseif (UNIX)
+    message("-- UNIX" )
+    set(PLAT unix)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -O3 -ftree-vectorize -fprefetch-loop-arrays")
+    set(EXTERN ${PROJECT_SOURCE_DIR}/Engine/extern/lib/${PLAT})
+#    add_compile_options(-Werror -Wall -Wextra  -pedantic -pedantic-errors)
+    #add glew, glfw and glm for linux
+#    target_link_libraries(Engine PRIVATE ${EXTERN}/glew.t a ${EXTERN}/glfw3.lib)
 endif()
+
+aux_source_directory(graphics/opengl GRAPHICS)
+aux_source_directory(graphics/vulkan GRAPHICS)
+target_sources(Engine PUBLIC ${GRAPHICS})
+#target_link_libraries(Engine PRIVATE )
+
+target_include_directories(Engine PUBLIC .)
+target_include_directories(Engine PUBLIC math/${PLAT})
+target_include_directories(Engine PUBLIC extern/include)
+target_compile_definitions(Engine PUBLIC PROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")

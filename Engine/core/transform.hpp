@@ -20,6 +20,7 @@ namespace reveal3d::core {
 class Transform {
 public:
     Transform() : pos_(0), scale_(1), rot_(0)  {}
+    Transform(math::xvec3 pos) : pos_(pos), scale_(1), rot_(0) {}
     Transform(math::xvec3 pos, math::xvec3 size, math::xvec3 rotation) : pos_(pos), scale_(size), rot_(rotation) {}
 
     [[nodiscard]] INLINE math::mat4 World() const { return math::Transpose(math::AffineTransformation(pos_, scale_, rot_)); }

@@ -1,6 +1,0 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CUniversidad_005Ctfg_005Cengine_005CPrimal_002Dmaster_005CPrimal_002Dmaster_005Cx64_005CDebugEditor_005CEngineDLL_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CUniversidad_005Ctfg_005Cengine_005CReveal3d_005Cbuild_005Cwindows_005Cdirectx_005Cdebug_005CWrapper_005CWrapper_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CUniversidad_005Ctfg_005Cengine_005CReveal3d_005CDebug_005CDynamicLibrary1_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CUniversidad_005Ctfg_005Cengine_005CReveal3d_005CDebug_005CDynamicLibrary1_002Epdb/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=D_003A_005CUniversidad_005Ctfg_005Cengine_005CReveal3d_005CDynamicLibrary1_005Cx64_005CDebugEditor_005CEngineDLL_002Edll_002Erecipe/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

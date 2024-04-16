@@ -16,28 +16,10 @@
 #include  "../dx_common.hpp"
 #include "math/math.hpp"
 #include "dx_descriptor_heap.hpp"
+#include "graphics/constants.hpp"
 
 namespace reveal3d::graphics::dx {
 
-struct PassConstant {
-    math::mat4 view;
-    math::mat4 invView;
-    math::mat4 proj;
-    math::mat4 invProj;
-    math::mat4 viewProj;
-    math::mat4 invViewProj;
-    math::vec2 cbPerObjectPad1;
-    math::vec2 renderTargetSize;
-    f32 nearZ;
-    f32 farZ;
-    f32 totalTime;
-    f32 deltaTime;
-};
-
-struct ObjConstant {
-    ObjConstant() : world(XMMatrixIdentity()) {}
-    math::mat4 world;
-};
 
 // S denotes the necesary amount of 256 bytes for alignment
 template<typename T, u32 S>

@@ -15,12 +15,12 @@
 
 namespace reveal3d::content {
 
-void GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
-void GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
-void GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
-void GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
-void GetConeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
-void GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices);
+u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
+u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
+u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
+u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
+u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
+u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset = 0);
 
 }
 

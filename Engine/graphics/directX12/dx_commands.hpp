@@ -35,10 +35,6 @@ public:
     void Flush();
 
 private:
-    //This is right now the same render target buffers on the swap chain, but could be more
-    //Makes sense to be the same
-    //More adds delay to the app
-
     static const u32 bufferCount_ = 3;
     ComPtr<ID3D12CommandQueue> commandQueue_;
     ComPtr<ID3D12GraphicsCommandList> commandList_;

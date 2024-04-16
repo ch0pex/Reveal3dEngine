@@ -17,3 +17,14 @@
 #include "dx_descriptor_heap.hpp"
 #include "dx_upload_buffer.hpp"
 #include "dx_deferring_system.hpp"
+
+namespace reveal3d::graphics::dx {
+
+struct FrameResource {
+    ComPtr<ID3D12Resource> backBuffer;
+    DescriptorHandle backBufferHandle;
+    ConstantBuffer constantBuffer;
+    PassCB passBuffer;
+};
+
+}

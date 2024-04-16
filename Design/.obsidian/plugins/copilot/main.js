@@ -75213,7 +75213,7 @@ var VFile = class {
   /**
    * Set basename (including extname) (`'index.min.js'`).
    *
-   * Cannot contain path separators (`'/'` on unix, macOS, and browsers, `'\'`
+   * Cannot contain path separators (`'/'` on glfw, macOS, and browsers, `'\'`
    * on windows).
    * Cannot be nullified (use `file.path = file.dirname` instead).
    */
@@ -75231,7 +75231,7 @@ var VFile = class {
   /**
    * Set the extname (including dot) (example: `'.js'`).
    *
-   * Cannot contain path separators (`'/'` on unix, macOS, and browsers, `'\'`
+   * Cannot contain path separators (`'/'` on glfw, macOS, and browsers, `'\'`
    * on windows).
    * Cannot be set if there’s no `path` yet.
    */
@@ -75257,7 +75257,7 @@ var VFile = class {
   /**
    * Set the stem (basename w/o extname) (example: `'index.min'`).
    *
-   * Cannot contain path separators (`'/'` on unix, macOS, and browsers, `'\'`
+   * Cannot contain path separators (`'/'` on glfw, macOS, and browsers, `'\'`
    * on windows).
    * Cannot be nullified (use `file.path = file.dirname` instead).
    */

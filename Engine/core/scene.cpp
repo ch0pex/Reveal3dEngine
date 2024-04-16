@@ -16,36 +16,66 @@
 
 namespace reveal3d::core {
 
+Scene scene;
 
 Entity Scene::AddPrimitive(Geometry::primitive primitiveType) {
     transforms_.emplace_back();
     geometries_.emplace_back(primitiveType);
-    return Entity(entities_++, *this);
+    return Entity(entities_++);
 
 }
 
 Entity Scene::AddEntity(EntityInfo &entity) {
     transforms_.push_back(entity.transform);
     geometries_.push_back(entity.geometry);
-    return Entity(entities_++, *this);
+    scripts_.push_back(nullptr);
+    return Entity(entities_++);
 }
 
 Entity Scene::AddEntityFromObj(const wchar_t *path) {
     transforms_.emplace_back();
     geometries_.emplace_back(path);
-    return Entity(entities_++, *this);
+    scripts_.push_back(nullptr);
+    return Entity(entities_++);
 }
 
-void Scene::AddScript(Script &script) {
-    scripts_.push_back(&script);
+void Scene::AddScript(Script *script, u32 id) {
+    scripts_[id] = script;
+}
+
+void Scene::Init() {
+    for (u32 i = 0; i < scene.entities_; ++i) {
+        if (scripts_[i] != nullptr) {
+            Entity entity = GetEntity(i);
+            scripts_[i]->Begin(entity);
+        }
+    }
 }
 
 //Runs scripts
 void Scene::Update(f32 dt) {
-    for (auto& script : scripts_) {
-        script->Update(dt);
+    for (u32 i = 0; i < scene.entities_; ++i) {
+        if (scripts_[i] != nullptr) {
+            Entity entity = GetEntity(i);
+            scripts_[i]->Update(entity, dt);
+        }
     }
 }
 
+Entity Scene::AddEntity(math::vec3 pos) {
+    transforms_.push_back(Transform(pos));
+    geometries_.push_back(Geometry());
+    return Entity(entities_++);
+}
+
+Entity Scene::GetEntity(u32 id) {
+    return Entity(id);
+}
+
+Scene::~Scene() {
+    for(auto *script : scripts_) {
+        delete script;
+    }
+}
 
 }

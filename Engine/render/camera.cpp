@@ -20,7 +20,7 @@ Camera::Camera(const window::Resolution &res) :
         projectionMatrix_(math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f)),
         position_(-6.0f, 0.0f, 0.0f),
         moveSpeed_(5.0f), front_(1,0,0),
-        worldUp_(0,0,1), up_(0,0,1), right_(-1,0,0)
+        worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
 {
     inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
     inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});
@@ -53,7 +53,9 @@ void Camera::Resize(const window::Resolution &res) {
     projectionMatrix_ = math::PerspectiveFov(65.f, res.aspectRatio, 0.1f, 100.0f);
 }
 
-void Camera::Move(const input::action dir, const input::type value) { isMoving_[dir] = value;
+void Camera::Move(const input::action dir, const input::type value) {
+    isMoving_[dir] = value;
+//    log(logDEBUG) << "EyePos: " << position_.GetX() << ", " << position_.GetY() << ", " << position_.GetZ();
 }
 
 void Camera::SetLooking(const input::action action, const input::type value) {
@@ -111,10 +113,12 @@ void Camera::UpdateFront() {
             math::Sin(math::Radians(pitch_))
     };
 
+//    log(logDEBUG) << newFront.GetX() << ", " << newFront.GetY() << ", " << newFront.GetZ();
     front_ = math::Normalize(newFront);
     right_ = math::Normalize(math::Cross(front_, worldUp_));
     up_ = math::Normalize(math::Cross(right_, front_));
     lastPos_ = newPos_;
+//    log(logDEBUG) << front_.GetX() << ", " << front_.GetY() << ", " << front_.GetZ();
 }
 
 }

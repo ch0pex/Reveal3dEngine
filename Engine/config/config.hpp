@@ -13,12 +13,12 @@
 
 #pragma once
 
-#include "common/primitive_types.hpp"
+#include "math/math.hpp"
 #include <string>
 
 namespace reveal3d::config {
 
-
+constexpr math::vec4 clearColor = { 0.1f, 0.1f, 0.1f, 1.0f};
 
 }
 

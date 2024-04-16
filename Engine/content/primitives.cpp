@@ -17,9 +17,16 @@
 
 namespace reveal3d::content {
 
+static void ApplyOffset(std::vector<u16> &indices, u16 offset) {
+    if (offset != 0) {
+        for (auto &index : indices) {
+            index += offset;
+        }
+    }
+}
 
-void GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-     vertices = {
+u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
             { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
             { {1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 0.0f} }, // 2
@@ -30,7 +37,7 @@ void GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indice
             { {1.0f, -1.0f,  1.0f}, {1.0f, 0.0f, 1.0f, 0.0f} }  // 7
     };
 
-    indices = {
+    std::vector<u16> ind = {
             0, 1, 2, 0, 2, 3,
             4, 6, 5, 4, 7, 6,
             4, 5, 1, 4, 1, 0,
@@ -38,36 +45,48 @@ void GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indice
             1, 5, 6, 1, 6, 2,
             4, 0, 3, 4, 3, 7
     };
+
+
+//    ApplyOffset(ind, ++offset);
+
+    vertices.insert(vertices.end(), v.begin(), v.end());
+    indices.insert(indices.end(), ind.begin(), ind.end());
+    return 7 + offset;
 }
 
-void GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-    vertices = {
+u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { -1.0f, 1.0f, 0.0f },  { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { 1.0f, 1.0f, 0.0f },   { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { 1.0f, -1.0f, 0.0f },  { 0.0f, 0.0f, 1.0f, 0.0f } }
     };
 
-    indices = {
+    std::vector<u16> ind = {
             0, 1, 2,
             0, 2, 3
     };
+
+//    ApplyOffset(ind, ++offset);
+    vertices.insert(vertices.end(), v.begin(), v.end());
+    indices.insert(indices.end(), ind.begin(), ind.end());
+    return 3 + offset;
 }
 
-void GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-
+u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    return 0;
 }
 
-void GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-
+u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    return 0;
 }
 
-void GetConeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-
+u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    return 0;
 }
 
-void GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices) {
-
+u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+    return 0;
 }
 
 }

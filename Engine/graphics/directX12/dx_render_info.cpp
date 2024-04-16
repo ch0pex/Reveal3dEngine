@@ -13,9 +13,9 @@
 
 #include "dx_render_info.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics {
 
-RenderInfo::RenderInfo(BufferInitInfo &vertexInfo, BufferInitInfo &indexInfo)
+RenderInfo::RenderInfo(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo)
         : vertexBuffer(vertexInfo),
           indexBuffer(indexInfo)
 {

@@ -1,1 +1,2 @@
 - [ ] Input system mouse and middle click bug, solved with mayus bind
+- [ ] Input system mouse movement in release mode
