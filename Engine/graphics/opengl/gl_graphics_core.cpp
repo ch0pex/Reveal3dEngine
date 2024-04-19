@@ -45,8 +45,12 @@ void Graphics::LoadPipeline() {
     if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Error on OpenGl init\r\n");
     }
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glEnable(GL_DEPTH_TEST);
+//    glCullFace(GL_FRONT_AND_BACK);
+//    glDisable(GL_CULL_FACE);
 
     renderLayers_.Init();
 }
@@ -58,15 +62,18 @@ void Graphics::LoadAssets() {
     for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (geometries[i].RenderInfo() == UINT_MAX) {
 
-
+            renderElements_.emplace_back(geometries[i].Vertices(), geometries[i].Indices(), transforms[i].World());
+            geometries[i].SetRenderInfo(i);
 
             for (auto &mesh : geometries[i].SubMeshes()) {
                 mesh.renderInfo = i;
+                mesh.constantIndex = i;
                 renderLayers_.AddMesh(mesh);
             }
         } else {
             for (auto &mesh : geometries[i].SubMeshes()) {
                 mesh.renderInfo = geometries[i].RenderInfo();
+                mesh.constantIndex = i;
                 renderLayers_.AddMesh(mesh);
             }
         }
@@ -95,7 +102,7 @@ void Graphics::Update(render::Camera &camera) {
 
 void Graphics::PrepareRender() {
     glClearColor(config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Graphics::Draw() {

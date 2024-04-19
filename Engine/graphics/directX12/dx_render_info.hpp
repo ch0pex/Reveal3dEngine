@@ -22,7 +22,7 @@ struct RenderInfo {
     D3D_PRIMITIVE_TOPOLOGY topology { D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
     dx::VertexBuffer vertexBuffer;
     dx::IndexBuffer indexBuffer;
-    u32 constantIndex;
+//    u32 constantIndex;
 };
 
 

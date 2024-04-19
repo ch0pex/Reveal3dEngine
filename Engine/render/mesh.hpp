@@ -31,12 +31,13 @@ enum shader : u8 {
 };
 
 struct SubMesh {
-    u32 renderInfo { UINT_MAX };
-    shader shader { opaque };
-    bool visible { true };
-    u32 vertexPos { 0 };
-    u32 indexPos { 0 };
-    u32 indexCount { 0 };
+    u32 renderInfo      { UINT_MAX };
+    u32 constantIndex   { 0 };
+    shader shader       { opaque };
+    u32 vertexPos       { 0 };
+    u32 indexPos        { 0 };
+    u32 indexCount      { 0 };
+    bool visible        { true };
 };
 
 struct Mesh {

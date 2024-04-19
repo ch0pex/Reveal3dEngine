@@ -55,11 +55,11 @@ void Graphics::InitDXGIAdapter() {
     GetHardwareAdapter(factory_.Get(), &hardwareAdapter);
     D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
 
-//    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
-//        allowTearing) {
-//        presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
-//        swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-//    }
+    if (SUCCEEDED(factory_->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
+        allowTearing) {
+        presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
+        swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), TRUE);
@@ -193,23 +193,24 @@ void Graphics::LoadAssets() {
             };
 
             renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-            renderElements_[i].constantIndex = i;
-//            geometries[i].SetRenderInfo(i);
+            geometries[i].SetRenderInfo(i);
 
             for (auto &subMesh: geometries[i].SubMeshes()) {
                 subMesh.renderInfo = i;
+                subMesh.constantIndex = i;
                 renderLayers_.AddMesh(subMesh);
             }
         } else {
             for (auto &mesh : geometries[i].SubMeshes()) {
                 mesh.renderInfo = geometries[i].RenderInfo();
+                mesh.constantIndex = i;
                 renderLayers_.AddMesh(mesh);
             }
         }
 
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
-            objConstant.data.world = transforms[i].World();
+            objConstant.data.worldViewProj = transforms[i].World();
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
@@ -231,7 +232,7 @@ void Graphics::Update(render::Camera &camera) {
     AlignedConstant<ObjConstant, 1> objConstant;
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (transforms[i].IsDirty() > 0) {
-            objConstant.data.world = transforms[i].World();
+            objConstant.data.worldViewProj = transforms[i].World();
             transforms[i].UpdateDirty();
             currFrameRes.constantBuffer.CopyData(i, &objConstant);
         }

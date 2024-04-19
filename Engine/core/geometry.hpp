@@ -40,6 +40,8 @@ public:
     INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
     INLINE u32 IndexCount() {return mesh_->indices_.size(); }
 
+    INLINE std::vector<render::Vertex>& Vertices() { return mesh_->vertices_; }
+    INLINE std::vector<u16>& Indices() { return mesh_->indices_; }
     INLINE render::Vertex* GetVerticesStart() { return mesh_->vertices_.data(); }
     INLINE u16* GetIndicesStart() { return mesh_->indices_.data(); }
     INLINE std::vector<render::SubMesh>&SubMeshes() { return meshes_; }

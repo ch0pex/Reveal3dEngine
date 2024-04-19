@@ -98,23 +98,19 @@ void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, u32 layer) {
     u32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
     u32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
 
-//    glUniform1f(ambient_light_intensity_loc, kGameConfig.ambient_light_intensity * 0.01f);
-//    glUniform3f(ambient_color_loc, kGameConfig.ambient_light_color.x, kGameConfig.ambient_light_color.y,
-//                kGameConfig.ambient_light_color.z);
-//    glUniform3f(sun_light_dir_loc, kGameConfig.sun_light_direction.x, kGameConfig.sun_light_direction.y,
-//                kGameConfig.sun_light_direction.z);
-//    glUniform3f(sun_light_color_loc, kGameConfig.sun_light_color.x, kGameConfig.sun_light_color.y,
-//                kGameConfig.sun_light_color.z);
-//    glUniform1f(sun_light_intensity_loc, kGameConfig.sun_light_intensity * 0.01f);
+    glUniform1f(ambient_light_intensity_loc, 0.5f);
+    glUniform3f(ambient_color_loc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(sun_light_dir_loc, 0.0f, 0.5f, -1.0f);
+    glUniform3f(sun_light_color_loc, 1.0f, 1.0f, 1.0f);
+    glUniform1f(sun_light_intensity_loc, 0.8f);
 
 //    glBindTexture(GL_TEXTURE_2D, texture_);
 
     for (const auto &mesh: subMeshes_[layer]) {
         glBindVertexArray(renderElments[mesh->renderInfo].vao);
-        glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_SHORT, 0);
         glBindVertexArray(0);
     }
-
 }
 
 

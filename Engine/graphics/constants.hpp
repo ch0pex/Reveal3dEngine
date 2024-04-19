@@ -33,8 +33,8 @@ struct PassConstant {
 };
 
 struct ObjConstant {
-    ObjConstant() : world(math::Mat4Identity()) {}
-    math::mat4 world;
+    ObjConstant() : worldViewProj(math::Mat4Identity()) {}
+    math::mat4 worldViewProj;
 };
 
 }

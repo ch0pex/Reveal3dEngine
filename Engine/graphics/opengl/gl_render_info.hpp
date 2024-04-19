@@ -15,15 +15,18 @@
 
 #include "common/common.hpp"
 #include "math/math.hpp"
+#include "render/vertex.hpp"
+
+#include <vector>
 
 namespace reveal3d::graphics::opengl {
 
 struct RenderInfo {
-   u32 vao;
-   u32 vbo;
-   u32 ebo;
-   u32 faces;
-   math::mat4 world;
+    RenderInfo(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world);
+    u32 vao;
+    u32 vbo;
+    u32 ebo;
+    math::mat4 world;
 };
 
 }

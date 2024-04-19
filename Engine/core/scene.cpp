@@ -21,6 +21,7 @@ Scene scene;
 Entity Scene::AddPrimitive(Geometry::primitive primitiveType) {
     transforms_.emplace_back();
     geometries_.emplace_back(primitiveType);
+    scripts_.push_back(nullptr);
     return Entity(entities_++);
 
 }
