@@ -208,11 +208,6 @@ void Graphics::LoadAssets() {
             }
         }
 
-        AlignedConstant<ObjConstant, 1> objConstant;
-        for (u32 j = 0; j < frameBufferCount; ++j) {
-            objConstant.data.worldViewProj = transforms[i].World();
-            frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
-        }
     }
     cmdManager_.List()->Close();
     cmdManager_.Execute();
@@ -232,7 +227,7 @@ void Graphics::Update(render::Camera &camera) {
     AlignedConstant<ObjConstant, 1> objConstant;
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (transforms[i].IsDirty() > 0) {
-            objConstant.data.worldViewProj = transforms[i].World();
+            objConstant.data.worldViewProj = transforms[i].World() * passConstant.data.viewProj;
             transforms[i].UpdateDirty();
             currFrameRes.constantBuffer.CopyData(i, &objConstant);
         }
