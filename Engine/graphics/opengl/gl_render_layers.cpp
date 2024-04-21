@@ -12,6 +12,7 @@
  */
 
 #include "gl_render_layers.hpp"
+#include "core/scene.hpp"
 
 #include <fstream>
 
@@ -90,23 +91,29 @@ void RenderLayers::AddMesh(render::SubMesh &mesh) {
     subMeshes_[mesh.shader].push_back(&mesh);
 }
 
-void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, u32 layer) {
+void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, math::mat4& passConstants, u32 layer) {
 
-    u32 ambient_color_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientColor");
-    u32 ambient_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
-    u32 sun_light_dir_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightDirection");
-    u32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
-    u32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
+    const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
+    const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
+    const i32 ambient_color_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientColor");
+    const i32 ambient_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
+    const i32 sun_light_dir_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightDirection");
+    const i32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
+    const i32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
 
+    glUseProgram(layers_[layer].shaderId);
     glUniform1f(ambient_light_intensity_loc, 0.5f);
     glUniform3f(ambient_color_loc, 1.0f, 1.0f, 1.0f);
     glUniform3f(sun_light_dir_loc, 0.0f, 0.5f, -1.0f);
     glUniform3f(sun_light_color_loc, 1.0f, 1.0f, 1.0f);
     glUniform1f(sun_light_intensity_loc, 0.8f);
+    glUniformMatrix4fv(vp_loc, 1, GL_FALSE, (f32 *) &passConstants);
 
 //    glBindTexture(GL_TEXTURE_2D, texture_);
 
     for (const auto &mesh: subMeshes_[layer]) {
+        const math::mat4 world = math::Transpose(core::scene.Transforms()[mesh->constantIndex].World());
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
         glBindVertexArray(renderElments[mesh->renderInfo].vao);
         glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_SHORT, 0);
         glBindVertexArray(0);

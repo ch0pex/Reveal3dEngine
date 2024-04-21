@@ -7,11 +7,12 @@ layout (location = 2) in vec3 inNormal;
 out vec4 passColor;
 out vec3 passNormal;
 
-uniform mat4 vp; 
+uniform mat4 vp;
+uniform mat4 model;
 
 void main()
 {
-	gl_Position = vp * vec4(inPosition, 1.0);
+	gl_Position = vp * model * vec4(inPosition, 1.0);
 	passColor = inColor;
 	passNormal = inNormal;
 }
