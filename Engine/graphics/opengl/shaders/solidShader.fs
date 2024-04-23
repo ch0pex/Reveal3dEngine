@@ -18,7 +18,7 @@ void main()
 {
 	vec4 ambientLight = vec4(ambientColor, 1.0f) * ambientLightIntensity;
 	vec3 norm = normalize(passNormal);
-	norm = norm * vec3(1.0f, -1.0f, -1.0f);
+// 	norm = norm * vec3(1.0f, 1.0f, 1.0f);
 	vec3 lightDir = normalize(-sunLightDirection);
 	float diff = max(dot(norm, lightDir), 0.0f);
 	vec4 diffuseLight = vec4(sunLightColor, 1.0f) * diff * sunLightIntensity;
