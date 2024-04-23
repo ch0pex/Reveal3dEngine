@@ -14,5 +14,5 @@ void main()
 {
 	gl_Position = vp * model * vec4(inPosition, 1.0);
 	passColor = inColor;
-	passNormal = inNormal;
+	passNormal = mat3(model) * inNormal;
 }
