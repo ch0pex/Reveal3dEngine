@@ -23,9 +23,11 @@
 
 namespace reveal3d::window {
 
-template<typename T>
-concept Mng = requires(T window) {
+template<typename T, typename Gfx>
+concept Mng = requires(T window, render::Renderer<Gfx> renderer) {
+    {window.Create(renderer)} ->  std::same_as<void>;
     {window.Show()} ->  std::same_as<void>;
+    {window.Update()} ->  std::same_as<void>;
 };
 
 }

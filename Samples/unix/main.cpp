@@ -56,12 +56,12 @@ int  main() {
 
         log(logDEBUG) << "Total Init time: " << timer.Diff(time);
 
-        viewport.timer_.Reset();
+        viewport.timer.Reset();
         while(!viewport.window.ShouldClose()) {
-            viewport.timer_.Tick();
+            viewport.timer.Tick();
             viewport.window.ClipMouse(viewport.renderer);
             viewport.renderer.Update();
-            core::scene.Update(viewport.timer_.DeltaTime());
+            core::scene.Update(viewport.timer.DeltaTime());
             viewport.window.Update();
         }
         viewport.renderer.Destroy();

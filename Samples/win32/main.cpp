@@ -18,8 +18,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         Timer timer;
         f32 time = timer.TotalTime();
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
-//        render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
-        render::Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
+        render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
+//        render::Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
 
         core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
         core::Entity room = core::scene.AddEntityFromObj(relative(L"Assets/habitacion.obj").c_str());
@@ -44,12 +44,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
             log(logDEBUG) << "Total Init time: " << timer.Diff(time);
 
-            viewport.timer_.Reset();
+            viewport.timer.Reset();
             while(!viewport.window.ShouldClose()) {
-                viewport.timer_.Tick();
+                viewport.timer.Tick();
                 viewport.window.ClipMouse(viewport.renderer);
                 viewport.renderer.Update();
-                core::scene.Update(viewport.timer_.DeltaTime());
+                core::scene.Update(viewport.timer.DeltaTime());
                 viewport.window.Update();
             }
             viewport.renderer.Destroy();

@@ -21,13 +21,13 @@
 
 namespace reveal3d::render {
 
-template<graphics::HRI Gfx, window::Mng Window>
-// requires,
+template<graphics::HRI Gfx, window::Mng<Gfx> Window>
 struct Viewport {
-    explicit Viewport(window::InitInfo &windowInfo) : window(windowInfo), renderer(&window.GetRes(), timer_) { }
+    explicit Viewport(window::InitInfo &windowInfo) :
+        window(windowInfo), renderer(&window.GetRes(), timer) { }
     Window window;
     Renderer<Gfx> renderer;
-    Timer timer_;
+    Timer timer;
 };
 
 } // reveal3d
