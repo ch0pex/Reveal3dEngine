@@ -82,8 +82,8 @@ void Graphics::CreateSwapChain() {
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
             .Flags = swapChainFlags_
     };
-    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_.handle, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
-    factory_->MakeWindowAssociation(window_.handle, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
+    factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_.hwnd, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
+    factory_->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window_
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 

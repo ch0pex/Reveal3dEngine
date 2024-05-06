@@ -3,12 +3,12 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file timer.hpp
+ * @file timer_.hpp
  * @version 1.0
  * @date 06/03/2024
  * @brief Timer class header file
  *
- * This file declares the timer class used in the library
+ * This file declares the timer_ class used in the library
  * to deal with time, deltatime, etc...
  *
  */

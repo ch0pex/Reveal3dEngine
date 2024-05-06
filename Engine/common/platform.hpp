@@ -13,32 +13,27 @@
 
 #pragma once
 
+
 #ifdef WIN32
 
 #include <DirectXMath.h>
 #include <windows.h>
 
-#define INLINE __forceinline
 
+#define INLINE __forceinline
 using namespace DirectX;
-using WCallback = LRESULT(*)(HWND, UINT, WPARAM, LPARAM);
 
 struct WHandle {
-    HWND handle;
+    HWND hwnd;
     HDC hdc;
     HGLRC hglrc;
 };
 
 #else
 //#include <glm/glm.h>
-#include "GLFW/glfw3.h"
 #define INLINE inline
 
-
-using WCallback = void(*)();
-struct WHandle {
-    GLFWwindow* handle;
-};
+using WHandle = GLFWwindow* handle;
 
 #endif
 

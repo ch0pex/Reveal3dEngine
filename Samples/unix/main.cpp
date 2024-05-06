@@ -50,25 +50,25 @@ int  main() {
         }
 
     try {
-        viewport.window.Create(viewport.renderer);
-        viewport.renderer.Init(viewport.window.GetHandle());
-        viewport.window.Show();
+        viewport.window_.Create(viewport.renderer_);
+        viewport.renderer_.Init(viewport.window_.GetHandle());
+        viewport.window_.Show();
 
         log(logDEBUG) << "Total Init time: " << timer.Diff(time);
 
-        viewport.timer.Reset();
-        while(!viewport.window.ShouldClose()) {
-            viewport.timer.Tick();
-            viewport.window.ClipMouse(viewport.renderer);
-            viewport.renderer.Update();
-            core::scene.Update(viewport.timer.DeltaTime());
-            viewport.window.Update();
+        viewport.timer_.Reset();
+        while(!viewport.window_.ShouldClose()) {
+            viewport.timer_.Tick();
+            viewport.window_.ClipMouse(viewport.renderer_);
+            viewport.renderer_.Update();
+            core::scene.Update(viewport.timer_.DeltaTime());
+            viewport.window_.Update();
         }
-        viewport.renderer.Destroy();
+        viewport.renderer_.Destroy();
     } catch(std::exception &e) {
-        viewport.renderer.Destroy();
+        viewport.renderer_.Destroy();
         log(logERROR) << e.what();
-        MessageBoxA(viewport.window.GetHandle().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+        MessageBoxA(viewport.window_.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
         return EXIT_FAILURE;
     }
 

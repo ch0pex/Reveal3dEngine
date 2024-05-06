@@ -11,6 +11,7 @@ set(SOURCES
         input/input.cpp
         content/primitives.cpp
         content/obj_parser.cpp
+        window/glfw/glfw.cpp
 )
 
 set(HEADERS
@@ -27,6 +28,7 @@ set(HEADERS
         input/input.hpp
         content/primitives.hpp
         content/obj_parser.hpp
+        window/glfw/glfw.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
@@ -46,6 +48,7 @@ if (WIN32)
 
     aux_source_directory(graphics/directX12 GRAPHICS)
     aux_source_directory(graphics/directX12/resources GRAPHICS)
+    aux_source_directory(window/win32 WINDOW)
     #add glew and glfw for windows
 elseif (UNIX)
     message("-- UNIX" )
@@ -59,7 +62,8 @@ endif()
 
 aux_source_directory(graphics/opengl GRAPHICS)
 aux_source_directory(graphics/vulkan GRAPHICS)
-target_sources(Engine PUBLIC ${GRAPHICS})
+aux_source_directory(window/glfw WINDOW)
+target_sources(Engine PUBLIC ${GRAPHICS} ${WINDOW})
 #target_link_libraries(Engine PRIVATE )
 
 target_include_directories(Engine PUBLIC .)

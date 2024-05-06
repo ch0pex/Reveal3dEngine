@@ -23,24 +23,7 @@ Graphics::Graphics(window::Resolution *res) {
 }
 
 void Graphics::LoadPipeline() {
-    window_.hdc = GetDC(window_.handle);
-
-    // Configuración del formato de píxel
-    PIXELFORMATDESCRIPTOR pfd = {};
-    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 24;
-    pfd.cDepthBits = 32;
-    pfd.iLayerType = PFD_MAIN_PLANE;
-
-    i32 format = ChoosePixelFormat(window_.hdc, &pfd);
-    SetPixelFormat(window_.hdc, format, &pfd);
-
-    // Creación del contexto de renderizado
-    window_.hglrc = wglCreateContext(window_.hdc);
-    wglMakeCurrent(window_.hdc, window_.hglrc);
+    CreateContext();
 
     if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Error on OpenGl init\r\n");
@@ -106,17 +89,65 @@ void Graphics::Draw() {
     for(u32 i = 0; i < render::shader::count; ++i) {
         renderLayers_.Draw(renderElements_, passConstant_,i);
     }
-    SwapBuffers(window_.hdc);
+    SwapBuffer();
 }
 
 void Graphics::Terminate() {
-    wglMakeCurrent(NULL, NULL);
-    wglDeleteContext(window_.hglrc);
-    ReleaseDC(window_.handle, window_.hdc);
+    TerminateContext();
 }
 
 void Graphics::Resize(const window::Resolution &res) {
 
 }
+
+#ifdef WIN32
+
+void Graphics::CreateContext() {
+    window_.hdc = GetDC(window_.hwnd);
+
+    // Configuración del formato de píxel
+    PIXELFORMATDESCRIPTOR pfd = {};
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 24;
+    pfd.cDepthBits = 32;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    i32 format = ChoosePixelFormat(window_.hdc, &pfd);
+    SetPixelFormat(window_.hdc, format, &pfd);
+
+    // Creación del contexto de renderizado
+    window_.hglrc = wglCreateContext(window_.hdc);
+    wglMakeCurrent(window_.hdc, window_.hglrc);
+
+}
+
+void Graphics::SwapBuffer() {
+    SwapBuffers(window_.hdc);
+}
+
+void Graphics::TerminateContext() {
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(window_.hglrc);
+    ReleaseDC(window_.hwnd, window_.hdc);
+}
+
+#elif
+
+void Graphics::CreateContext() {
+    glfwMakeContextCurrent(window_);
+}
+
+void Graphics::SwapBuffer() {
+    glfwSwapBuffers(window_);
+}
+
+void Graphics::TerminateContext() {
+
+}
+
+#endif
 
 }

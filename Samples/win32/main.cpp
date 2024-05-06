@@ -37,28 +37,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
             }
         }
 
-        try {
-            viewport.window.Create(viewport.renderer);
-            viewport.renderer.Init(viewport.window.GetHandle());
-            viewport.window.Show();
+        viewport.Init();
+        log(logDEBUG) << "Total Init time: " << timer.Diff(time);
+        viewport.Run();
 
-            log(logDEBUG) << "Total Init time: " << timer.Diff(time);
-
-            viewport.timer.Reset();
-            while(!viewport.window.ShouldClose()) {
-                viewport.timer.Tick();
-                viewport.window.ClipMouse(viewport.renderer);
-                viewport.renderer.Update();
-                core::scene.Update(viewport.timer.DeltaTime());
-                viewport.window.Update();
-            }
-            viewport.renderer.Destroy();
-        } catch(std::exception &e) {
-            viewport.renderer.Destroy();
-            log(logERROR) << e.what();
-            MessageBoxA(viewport.window.GetHandle().handle, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
-            return EXIT_FAILURE;
-        }
     }
 #ifdef _DEBUG
 //    graphics::dx::utl::ReportLiveDeviceObjs();

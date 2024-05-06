@@ -9,7 +9,7 @@
 - [x] Shader Compiling
 - [x] Vs and Ps
 - [x] Clipping mouse bug, maybe change to set to the center?
-- [x] After resize the limits for clip remain in the same window position
+- [x] After resize the limits for clip remain in the same window_ position
 - [x] RootSignature and PSO abstraction
 - [x] Scripting system
 - [ ] Submesh system

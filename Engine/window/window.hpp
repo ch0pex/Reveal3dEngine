@@ -14,7 +14,7 @@
 #pragma once
 
 #ifdef WIN32
-#include "win32/win_32.hpp"
+#include "win32/win32.hpp"
 #endif
 #include "glfw/glfw.hpp"
 
@@ -28,6 +28,9 @@ concept Mng = requires(T window, render::Renderer<Gfx> renderer) {
     {window.Create(renderer)} ->  std::same_as<void>;
     {window.Show()} ->  std::same_as<void>;
     {window.Update()} ->  std::same_as<void>;
+    {window.ShouldClose()} ->  std::same_as<bool>;
+    {window.GetRes()} ->  std::same_as<Resolution&>;
+    {window.GetHandle()} ->  std::same_as<WHandle>;
 };
 
 }

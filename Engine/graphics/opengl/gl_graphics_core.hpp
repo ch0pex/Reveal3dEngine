@@ -35,6 +35,9 @@ public:
     INLINE void SetWindow(WHandle wHandle) { window_ = wHandle; }
 
 private:
+    void CreateContext();
+    void SwapBuffer();
+    void TerminateContext();
     math::mat4 passConstant_;
     std::vector<RenderInfo> renderElements_;
     RenderLayers renderLayers_;
