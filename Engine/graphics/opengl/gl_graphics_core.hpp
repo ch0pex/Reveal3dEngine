@@ -39,7 +39,7 @@ private:
     void SwapBuffer();
     void TerminateContext();
     math::mat4 passConstant_;
-    std::vector<RenderInfo> renderElements_;
+    std::vector<RenderElement> renderElements_;
     RenderLayers renderLayers_;
     WHandle window_ {};
 };

@@ -47,10 +47,10 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     HRESULT hr = S_OK;
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/ColorDirLight.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/ColorDirLight.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
@@ -108,7 +108,7 @@ void RenderLayers::AddMesh(render::SubMesh &mesh) {
     meshes_[mesh.shader].push_back(&mesh);
 }
 
-void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &frame, std::vector<RenderInfo>& elements, u32 layer) {
+void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &frame, std::vector<RenderElement>& elements, u32 layer) {
     for (auto &mesh : meshes_[layer]) {
         if (!mesh->visible) continue;
         cmdList->SetGraphicsRootConstantBufferView(0, frame.constantBuffer.GpuPos(mesh->constantIndex));

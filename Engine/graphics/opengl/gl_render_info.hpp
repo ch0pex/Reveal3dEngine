@@ -21,8 +21,8 @@
 
 namespace reveal3d::graphics::opengl {
 
-struct RenderInfo {
-    RenderInfo(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world);
+struct RenderElement {
+    RenderElement(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world);
     u32 vao;
     u32 vbo;
     u32 ebo;

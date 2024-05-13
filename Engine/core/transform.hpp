@@ -16,7 +16,7 @@
 #include "math/math.hpp"
 
 namespace reveal3d::core {
-
+static const frameBufferCount = 3;
 class Transform {
 public:
     Transform() : pos_(0), scale_(1), rot_(0)  {}
@@ -29,9 +29,9 @@ public:
     [[nodiscard]] INLINE math::xvec3 Rotation() const { return math::VecToDegrees(rot_); }
     [[nodiscard]] INLINE u8 IsDirty() const { return dirty_; }
 
-    INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = 3; } //TODO: don't hardcode dirty, put framebuffer count
-    INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = 3; }
-    INLINE void SetRotation(math::xvec3 rot) { rot_ = math::VecToRadians(rot); dirty_ = 3; }
+    INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = frameBufferCount; }
+    INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = frameBufferCount; }
+    INLINE void SetRotation(math::xvec3 rot) { rot_ = math::VecToRadians(rot); dirty_ = frameBufferCount; }
     INLINE void UpdateDirty() { assert(dirty_ > 0); --dirty_; }
 private:
     u8 dirty_ { 0 }; // If dirty should update in render buffers

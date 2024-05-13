@@ -31,7 +31,7 @@
 
 #include <array>
 
-//using reveal3d::graphics::dx::RenderInfo;
+//using reveal3d::graphics::dx::RenderElement;
 
 namespace reveal3d::graphics::dx {
 
@@ -76,7 +76,7 @@ private:
     Commands cmdManager_;
 
     /************ Render elements and layers**********/
-    std::vector<RenderInfo> renderElements_;
+    std::vector<RenderElement> renderElements_;
     RenderLayers renderLayers_;
 
     /***************** Surface Info **********************/

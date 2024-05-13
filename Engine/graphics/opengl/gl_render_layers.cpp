@@ -91,7 +91,7 @@ void RenderLayers::AddMesh(render::SubMesh &mesh) {
     subMeshes_[mesh.shader].push_back(&mesh);
 }
 
-void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, math::mat4& passConstants, u32 layer) {
+void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4& passConstants, u32 layer) {
 
     const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
     const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
@@ -112,6 +112,7 @@ void RenderLayers::Draw(std::vector<RenderInfo> &renderElments, math::mat4& pass
 //    glBindTexture(GL_TEXTURE_2D, texture_);
 
     for (const auto &mesh: subMeshes_[layer]) {
+        if (!mesh->visible) continue;
         const math::mat4 world = math::Transpose(core::scene.Transforms()[mesh->constantIndex].World());
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
         glBindVertexArray(renderElments[mesh->renderInfo].vao);

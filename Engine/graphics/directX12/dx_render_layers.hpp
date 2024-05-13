@@ -35,7 +35,7 @@ public:
     void BuildRoots(ID3D12Device *device);
     void BuildPSOs(ID3D12Device *device);
     void AddMesh(render::SubMesh &mesh);
-    void DrawLayer(ID3D12GraphicsCommandList* cmdList, FrameResource& frame, std::vector<RenderInfo> &elements, u32 layer);
+    void DrawLayer(ID3D12GraphicsCommandList* cmdList, FrameResource& frame, std::vector<RenderElement> &elements, u32 layer);
 
     INLINE Layer& operator[] (u32 index) { return layers_[index]; }
     INLINE const Layer& operator[] (u32 index) const { return layers_[index]; }

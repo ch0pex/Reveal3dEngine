@@ -15,7 +15,7 @@
 
 namespace reveal3d::graphics::opengl {
 
-RenderInfo::RenderInfo(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world) : world(world) {
+RenderElement::RenderElement(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world) : world(world) {
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);

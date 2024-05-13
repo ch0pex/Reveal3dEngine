@@ -17,8 +17,8 @@
 
 namespace reveal3d::graphics {
 
-struct RenderInfo {
-    RenderInfo(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo);
+struct RenderElement {
+    RenderElement(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo);
     D3D_PRIMITIVE_TOPOLOGY topology { D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
     dx::VertexBuffer vertexBuffer;
     dx::IndexBuffer indexBuffer;

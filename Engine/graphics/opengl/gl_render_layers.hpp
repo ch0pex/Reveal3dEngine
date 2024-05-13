@@ -27,7 +27,7 @@ class RenderLayers  {
 public:
     void Init();
     void AddMesh(render::SubMesh &mesh);
-    void Draw(std::vector<RenderInfo>& renderElments, math::mat4 &passConstants, u32 layer);
+    void Draw(std::vector<RenderElement>& renderElments, math::mat4 &passConstants, u32 layer);
 
     INLINE Layer& operator[] (u32 index) { return layers_[index]; }
     INLINE const Layer& operator[] (u32 index) const { return layers_[index]; }
