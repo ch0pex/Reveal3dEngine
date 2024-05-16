@@ -23,7 +23,7 @@ public:
     INLINE scalar() = default;
     INLINE scalar(const scalar & s) : vec_(s) {}
     INLINE scalar(f32 f) : vec_ (XMVectorReplicate(f)) {}
-    INLINE explicit scalar( FXMVECTOR vec ) : vec_(vec) {}
+    INLINE scalar( FXMVECTOR vec ) : vec_(vec) {}
     INLINE operator XMVECTOR() const { return vec_; }
     INLINE operator f32() const { return XMVectorGetX(vec_); }
 

@@ -19,11 +19,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         f32 time = timer.TotalTime();
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
         render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
-//        render::Viewport<opengl::Graphics, window::Win32> viewport(windowInitInfo);
 
-        core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
-        core::Entity room = core::scene.AddEntityFromObj(relative(L"Assets/habitacion.obj").c_str());
-        core::Scene *myScene = &core::scene;
+        core::Entity human = core::scene.AddEntityFromObj(L"Assets/humano.obj");
+        core::scene.AddPrimitive(reveal3d::core::Geometry::cube);
 
         for (u32 i = 0; i < 10; ++i) {
             for (u32 j = 0; j < 10; ++j) {
@@ -33,6 +31,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
                             human.GetGeometry()};
                     core::Entity entity = core::scene.AddEntity(info);
                     entity.AddScript<HumanScript>();
+
                 }
             }
         }

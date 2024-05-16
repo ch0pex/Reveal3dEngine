@@ -15,6 +15,5 @@ include_directories(PUBLIC .)
 
 add_subdirectory(Engine)
 add_subdirectory(Samples)
-#add_subdirectory(Wrapper)
-#add_subdirectory(Test)
+add_subdirectory(Test)
 
