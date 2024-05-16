@@ -20,8 +20,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
         render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
 
-        core::Entity human = core::scene.AddEntityFromObj(L"Assets/humano.obj");
-        core::scene.AddPrimitive(reveal3d::core::Geometry::cube);
+        core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
+//        core::scene.AddPrimitive(reveal3d::core::Geometry::cube);
 
         for (u32 i = 0; i < 10; ++i) {
             for (u32 j = 0; j < 10; ++j) {

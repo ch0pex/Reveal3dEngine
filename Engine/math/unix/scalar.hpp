@@ -18,4 +18,6 @@
 
 namespace reveal3d::math {
 
+using scalar = f32;
+
 }

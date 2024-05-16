@@ -134,7 +134,7 @@ void Graphics::TerminateContext() {
     ReleaseDC(window_.hwnd, window_.hdc);
 }
 
-#elif
+#else
 
 void Graphics::CreateContext() {
     glfwMakeContextCurrent(window_);

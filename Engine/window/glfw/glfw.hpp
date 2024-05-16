@@ -17,8 +17,7 @@
 #include "window/window_info.hpp"
 #include "input/input.hpp"
 
-#include "GLFW//glfw3.h"
-#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3.h"
 #include <glfw/glfw3native.h>
 
 

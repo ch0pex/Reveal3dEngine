@@ -29,11 +29,15 @@ struct WHandle {
     HGLRC hglrc;
 };
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+
 #else
-//#include <glm/glm.h>
+#include "GL/glew.h"
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #define INLINE inline
 
-using WHandle = GLFWwindow* handle;
+using WHandle = GLFWwindow*;
 
 #endif
 

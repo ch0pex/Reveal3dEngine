@@ -15,9 +15,6 @@
 
 #include <cstdint>
 
-
-
-
 namespace reveal3d{
 
 using u8 = uint8_t;
