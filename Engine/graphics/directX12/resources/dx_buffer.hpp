@@ -56,7 +56,7 @@ private:
 };
 
 using VertexBuffer = Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>;
-using IndexBuffer = Buffer<D3D12_INDEX_BUFFER_VIEW, u16>;
+using IndexBuffer = Buffer<D3D12_INDEX_BUFFER_VIEW, u32>;
 
 template<typename BUFFER_VIEW_TYPE, typename T>
 void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
@@ -108,7 +108,7 @@ inline void Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>::SetView(BufferInit
 }
 
 template<>
-inline void Buffer<D3D12_INDEX_BUFFER_VIEW, u16>::SetView(BufferInitInfo &info) {
+inline void Buffer<D3D12_INDEX_BUFFER_VIEW, u32>::SetView(BufferInitInfo &info) {
     view_.BufferLocation = buff_->GetGPUVirtualAddress();
     view_.SizeInBytes = size_;
     view_.Format= info.format;

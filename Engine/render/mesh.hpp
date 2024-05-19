@@ -14,14 +14,13 @@
 #pragma once
 
 #include "math/math.hpp"
+#include "vertex.hpp"
 
 #include <vector>
 
-
-
 namespace reveal3d::render {
 
-enum shader : u8 {
+enum Shader : u8 {
     opaque = 0,
     flat, // Not affected by lighting
 //    transparent,
@@ -32,7 +31,7 @@ enum shader : u8 {
 struct SubMesh {
     u32 renderInfo      { UINT_MAX };
     u32 constantIndex   { 0 };
-    shader shader       { opaque };
+    Shader shader       { opaque };
     u32 vertexPos       { 0 };
     u32 indexPos        { 0 };
     u32 indexCount      { 0 };
@@ -41,7 +40,7 @@ struct SubMesh {
 
 struct Mesh {
     std::vector<render::Vertex> vertices_;
-    std::vector<u16> indices_;
+    std::vector<u32> indices_;
     u32 renderInfo { UINT_MAX }; // Vertex buffer where mesh is
 };
 

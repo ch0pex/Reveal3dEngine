@@ -25,7 +25,7 @@ static void ApplyOffset(std::vector<u16> &indices, u16 offset) {
     }
 }
 
-u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
             { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
@@ -54,7 +54,7 @@ u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices
     return 7 + offset;
 }
 
-u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { -1.0f, 1.0f, 0.0f },  { 0.2f, 0.2f, 0.2f, 0.0f } },
@@ -73,19 +73,19 @@ u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u16> &indice
     return 3 + offset;
 }
 
-u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     return 0;
 }
 
-u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     return 0;
 }
 
-u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     return 0;
 }
 
-u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 offset) {
+u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     return 0;
 }
 

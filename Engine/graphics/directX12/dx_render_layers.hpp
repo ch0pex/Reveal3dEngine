@@ -17,8 +17,9 @@
 #include "dx_pso.hpp"
 #include "dx_root_signature.hpp"
 
-#include "resources/dx_resources.hpp"
+#include "dx_render_info.hpp"
 #include "render/mesh.hpp"
+#include "resources/dx_resources.hpp"
 
 namespace reveal3d::graphics::dx {
 
@@ -42,8 +43,8 @@ public:
 private:
 
 
-    Layer layers_[render::shader::count];
-    std::vector<render::SubMesh *> meshes_[render::shader::count];
+    Layer layers_[render::Shader::count];
+    std::vector<render::SubMesh *> meshes_[render::Shader::count];
 
 //    Layer worldGridLayer_;
 

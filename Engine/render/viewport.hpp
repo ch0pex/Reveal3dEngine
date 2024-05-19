@@ -45,7 +45,7 @@ void Viewport<Gfx, Window>::Init() {
     } catch(std::exception &e) {
         renderer_.Destroy();
         log(logERROR) << e.what();
-        MessageBoxA(window_.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+//        MessageBoxA(window_.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
 
@@ -54,18 +54,23 @@ void Viewport<Gfx, Window>::Run() {
     try {
         timer_.Reset();
         while(!window_.ShouldClose()) {
+            if (timer_.TotalTime() > 30)
+                break;
             timer_.Tick();
             window_.ClipMouse(renderer_);
             renderer_.Update();
             core::scene.Update(timer_.DeltaTime());
-//            renderer_.Render();
+#ifdef WIN32
+            if constexpr (not std::same_as<Window, window::Win32>)
+                renderer_.Render();
+#endif
             window_.Update();
         }
         renderer_.Destroy();
     } catch(std::exception &e) {
         renderer_.Destroy();
         log(logERROR) << e.what();
-        MessageBoxA(window_.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+//        MessageBoxA(window_.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
 

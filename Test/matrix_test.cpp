@@ -38,7 +38,9 @@ protected:
     math::mat4 v3_;
 };
 
+TEST(Matrix3Test, Init) {
 
+}
 
 TEST(Matrix3Test, Add) {
 
@@ -53,6 +55,10 @@ TEST(Matrix3Test, Mul) {
 }
 
 TEST(Matrix3Test, Div) {
+
+}
+
+TEST(Matrix4Test, Init) {
 
 }
 

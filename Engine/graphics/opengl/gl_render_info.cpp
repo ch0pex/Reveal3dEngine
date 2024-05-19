@@ -12,9 +12,10 @@
  */
 #include "gl_render_info.hpp"
 
+
 namespace reveal3d::graphics::opengl {
 
-RenderElement::RenderElement(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world) : world(world) {
+RenderElement::RenderElement(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, math::mat4 world) : world(world) {
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -25,7 +26,7 @@ RenderElement::RenderElement(std::vector<render::Vertex> &vertices, std::vector<
 
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u32) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(render::Vertex), static_cast<GLvoid *>(0));

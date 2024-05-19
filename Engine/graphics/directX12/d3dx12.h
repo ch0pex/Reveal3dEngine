@@ -2403,7 +2403,7 @@ struct D3DX12_MESH_SHADER_PIPELINE_STATE_DESC
     D3D12_PIPELINE_STATE_FLAGS    Flags;
 };
 
-// CD3DX12_PIPELINE_STATE_STREAM2 Works on OS Build 19041+ (where there is a new mesh shader pipeline).
+// CD3DX12_PIPELINE_STATE_STREAM2 Works on OS Build 19041+ (where there is a new mesh Shader pipeline).
 // Use CD3DX12_PIPELINE_STATE_STREAM1 for OS Build 16299+ (where there is a new view instancing subobject).
 // Use CD3DX12_PIPELINE_STATE_STREAM for OS Build 15063+ support.
 struct CD3DX12_PIPELINE_STATE_STREAM2

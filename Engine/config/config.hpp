@@ -18,7 +18,7 @@
 
 namespace reveal3d::config {
 
-constexpr math::vec4 clearColor = { 0.1f, 0.1f, 0.1f, 1.0f};
+const math::vec4 clearColor = { 0.2f, 0.2f, 0.2f, 1.0f};
 
 }
 

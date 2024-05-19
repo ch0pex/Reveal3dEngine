@@ -16,19 +16,19 @@
 namespace reveal3d::graphics::dx {
 
 RenderLayers::RenderLayers() {
-    layers_[render::shader::opaque].rootSignature.Reset(2);
-    layers_[render::shader::flat].rootSignature.Reset(2);
+    layers_[render::Shader::opaque].rootSignature.Reset(2);
+    layers_[render::Shader::flat].rootSignature.Reset(2);
 //    worldGridLayer_.rootSignature.Reset(1);
 }
 
 void RenderLayers::BuildRoots(ID3D12Device *device) {
-    layers_[render::shader::opaque].rootSignature[0].InitAsConstantBufferView(0);
-    layers_[render::shader::opaque].rootSignature[1].InitAsConstantBufferView(1);
-    layers_[render::shader::opaque].rootSignature.Finalize(device);
+    layers_[render::Shader::opaque].rootSignature[0].InitAsConstantBufferView(0);
+    layers_[render::Shader::opaque].rootSignature[1].InitAsConstantBufferView(1);
+    layers_[render::Shader::opaque].rootSignature.Finalize(device);
 
-    layers_[render::shader::flat].rootSignature[0].InitAsConstantBufferView(0);
-    layers_[render::shader::flat].rootSignature[1].InitAsConstantBufferView(1);
-    layers_[render::shader::flat].rootSignature.Finalize(device);
+    layers_[render::Shader::flat].rootSignature[0].InitAsConstantBufferView(0);
+    layers_[render::Shader::flat].rootSignature[1].InitAsConstantBufferView(1);
+    layers_[render::Shader::flat].rootSignature.Finalize(device);
 //    worldGridLayer_.rootSignature.Reset(1);
 
 }
@@ -39,7 +39,7 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     ComPtr<ID3DBlob> errors;
 
 #if defined(_DEBUG)
-    // Enable better shader debugging with the graphics debugging tools.
+    // Enable better Shader debugging with the graphics debugging tools.
     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
     UINT compileFlags = 0;
@@ -60,20 +60,20 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
             { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    layers_[render::shader::opaque].pso.SetInputLayout(inputElementDescs, _countof(inputElementDescs));
-    layers_[render::shader::opaque].pso.SetRootSignature(layers_[render::shader::opaque].rootSignature);
-    layers_[render::shader::opaque].pso.SetShaders(vertexShader.Get(), pixelShader.Get());
-    layers_[render::shader::opaque].pso.SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    layers_[render::shader::opaque].pso.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    layers_[render::shader::opaque].pso.SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    layers_[render::shader::opaque].pso.SetSampleMask(UINT_MAX);
-    layers_[render::shader::opaque].pso.SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    layers_[render::shader::opaque].pso.SetNumRenderTargets(1U);
-    layers_[render::shader::opaque].pso.SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    layers_[render::shader::opaque].pso.SetSampleDescCount(1U); //TODO: Support x4
-    layers_[render::shader::opaque].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    layers_[render::Shader::opaque].pso.SetInputLayout(inputElementDescs, _countof(inputElementDescs));
+    layers_[render::Shader::opaque].pso.SetRootSignature(layers_[render::Shader::opaque].rootSignature);
+    layers_[render::Shader::opaque].pso.SetShaders(vertexShader.Get(), pixelShader.Get());
+    layers_[render::Shader::opaque].pso.SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    layers_[render::Shader::opaque].pso.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    layers_[render::Shader::opaque].pso.SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    layers_[render::Shader::opaque].pso.SetSampleMask(UINT_MAX);
+    layers_[render::Shader::opaque].pso.SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    layers_[render::Shader::opaque].pso.SetNumRenderTargets(1U);
+    layers_[render::Shader::opaque].pso.SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    layers_[render::Shader::opaque].pso.SetSampleDescCount(1U); //TODO: Support x4
+    layers_[render::Shader::opaque].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    layers_[render::shader::opaque].pso.Finalize(device);
+    layers_[render::Shader::opaque].pso.Finalize(device);
 
     //TODO Config file for assets path
     hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
@@ -88,20 +88,20 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    layers_[render::shader::flat].pso.SetInputLayout(flatElementsDesc, _countof(flatElementsDesc));
-    layers_[render::shader::flat].pso.SetRootSignature(layers_[render::shader::opaque].rootSignature);
-    layers_[render::shader::flat].pso.SetShaders(vertexShader.Get(), pixelShader.Get());
-    layers_[render::shader::flat].pso.SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    layers_[render::shader::flat].pso.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    layers_[render::shader::flat].pso.SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    layers_[render::shader::flat].pso.SetSampleMask(UINT_MAX);
-    layers_[render::shader::flat].pso.SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    layers_[render::shader::flat].pso.SetNumRenderTargets(1U);
-    layers_[render::shader::flat].pso.SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    layers_[render::shader::flat].pso.SetSampleDescCount(1U); //TODO: Support x4
-    layers_[render::shader::flat].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    layers_[render::Shader::flat].pso.SetInputLayout(flatElementsDesc, _countof(flatElementsDesc));
+    layers_[render::Shader::flat].pso.SetRootSignature(layers_[render::Shader::opaque].rootSignature);
+    layers_[render::Shader::flat].pso.SetShaders(vertexShader.Get(), pixelShader.Get());
+    layers_[render::Shader::flat].pso.SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    layers_[render::Shader::flat].pso.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    layers_[render::Shader::flat].pso.SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    layers_[render::Shader::flat].pso.SetSampleMask(UINT_MAX);
+    layers_[render::Shader::flat].pso.SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    layers_[render::Shader::flat].pso.SetNumRenderTargets(1U);
+    layers_[render::Shader::flat].pso.SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    layers_[render::Shader::flat].pso.SetSampleDescCount(1U); //TODO: Support x4
+    layers_[render::Shader::flat].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    layers_[render::shader::flat].pso.Finalize(device);
+    layers_[render::Shader::flat].pso.Finalize(device);
 }
 
 void RenderLayers::AddMesh(render::SubMesh &mesh) {

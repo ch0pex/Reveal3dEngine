@@ -189,7 +189,7 @@ void Graphics::LoadAssets() {
                     .cmdList = cmdManager_.List(),
                     .data = geometries[i].GetIndicesStart(),
                     .count = geometries[i].IndexCount(),
-                    .format = DXGI_FORMAT_R16_UINT
+                    .format = DXGI_FORMAT_R32_UINT
             };
 
             renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
@@ -244,7 +244,7 @@ void Graphics::PrepareRender() {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
-    cmdManager_.Reset(renderLayers_[render::shader::opaque].pso.Get()); //Resets commands list and current frame allocator
+    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
     commandList->RSSetViewports(1, &viewport_);
@@ -260,12 +260,12 @@ void Graphics::PrepareRender() {
 
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
 
-    commandList->SetGraphicsRootSignature(renderLayers_[render::shader::opaque].rootSignature.Get());
+    commandList->SetGraphicsRootSignature(renderLayers_[render::Shader::opaque].rootSignature.Get());
     commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
 
-    renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::shader::opaque);
+    renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
 
-    for (u32 i = 1; i < render::shader::count; ++i) {
+    for (u32 i = 1; i < render::Shader::count; ++i) {
         renderLayers_[i].Set(commandList);
         renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
     }

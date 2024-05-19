@@ -13,7 +13,6 @@
 
 #include "input.hpp"
 
-
 namespace reveal3d::input  {
 
 std::vector<BaseSystem *> inputSystems;

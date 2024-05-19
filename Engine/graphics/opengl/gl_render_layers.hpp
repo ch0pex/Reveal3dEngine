@@ -37,8 +37,8 @@ private:
     static u32 CreateShader(GLenum shaderType, std::string &source, const char* shaderName);
     static u32 CreateProgram(const char* vs, const char* fs);
 
-    Layer layers_[render::shader::count];
-    std::vector<render::SubMesh *> subMeshes_[render::shader::count];
+    Layer layers_[render::Shader::count];
+    std::vector<render::SubMesh *> subMeshes_[render::Shader::count];
 
 };
 

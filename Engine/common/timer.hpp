@@ -27,10 +27,12 @@ public:
     Timer();
 
     [[nodiscard]] f32 TotalTime() const;
-    [[nodiscard]] INLINE f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
-    [[nodiscard]] INLINE f32 FrameTime() const { return static_cast<f32>(frameTime_); }
-    [[nodiscard]] INLINE f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
-    [[nodiscard]] bool INLINE IsRunning() { return !stopped_; };
+    [[nodiscard]] f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
+    [[nodiscard]] f32 FrameTime() const { return static_cast<f32>(frameTime_); }
+    [[nodiscard]] f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
+    [[nodiscard]] f64 AverageFps() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
+    [[nodiscard]] u64 TotalFrames() const { return totalFrames_; }
+    [[nodiscard]] bool IsRunning() { return !stopped_; };
     [[nodiscard]] f32 Diff(f32 time) const;
 
     void Reset();
@@ -46,6 +48,8 @@ private:
     static INLINE void QueryFrequency(i64 &time) { QueryPerformanceFrequency((LARGE_INTEGER *) &time); }
     static INLINE void QueryCounter(i64 &time) { QueryPerformanceCounter((LARGE_INTEGER *) &time); }
 #else
+    static INLINE void QueryFrequency(i64 &time) {}
+    static INLINE void QueryCounter(i64 &time) {}
 
 #endif
 
@@ -60,6 +64,7 @@ private:
     i64 prevTime_;
     i64 currTime_;
 
+    u64 totalFrames_;
     bool stopped_;
 
 };

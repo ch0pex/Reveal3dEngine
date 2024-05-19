@@ -43,7 +43,9 @@ protected:
     math::xvec4 v3_;
 };
 
+TEST(Vector3Test, Init) {
 
+}
 
 TEST(Vector3Test, Add) {
 
@@ -58,6 +60,10 @@ TEST(Vector3Test, Mul) {
 }
 
 TEST(Vector3Test, Div) {
+
+}
+
+TEST(Vector4Test, Init) {
 
 }
 

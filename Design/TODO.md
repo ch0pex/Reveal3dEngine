@@ -5,5 +5,5 @@
 - [ ] Implementar conceptos
 - [ ] Barrier creation class
 - [ ] Frustum culling
-- [ ] Offline shader compiling
+- [ ] Offline Shader compiling
 - [ ] Improve camera smoothness maybe with quaternions

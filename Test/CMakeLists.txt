@@ -11,6 +11,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_executable(Test
+        math_func_test.cpp
         vector_test.cpp
         scalar_test.cpp
         matrix_test.cpp

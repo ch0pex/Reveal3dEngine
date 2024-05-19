@@ -16,6 +16,7 @@
 #include "common/common.hpp"
 #include "math/math.hpp"
 #include <unordered_map>
+#include <vector>
 
 namespace reveal3d::input {
 

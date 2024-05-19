@@ -3,9 +3,9 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file scalar.cpp
+ * @file math_func_test.cpp
  * @version 1.0
- * @date 13/05/2024
+ * @date 16/05/2024
  * @brief Short description
  *
  * Longer description
@@ -18,38 +18,50 @@ LogLevel loglevel = logDEBUG;
 
 namespace reveal3d {
 
-class ScalarTest  : public testing::Test {
-protected:
-    ScalarTest() {
-        s1_ = 1.0f;
-        s2_ = 32.2f;
-        s3_ = -23.f;
-    }
 
-    math::scalar s1_;
-    math::scalar s2_;
-    math::scalar s3_;
-};
 
-TEST(ScalarTest, Init) {
+TEST(MathFunctionTest, Cos) {
 
 }
 
-TEST(ScalarTest, Add) {
+TEST(MathFunctionTest, Sin) {
 
 }
 
-TEST(ScalarTest, Sub) {
+TEST(MathFunctionTest, Radians) {
 
 }
 
-TEST(ScalarTest, Mul) {
+TEST(MathFunctionTest, Normalize) {
 
 }
 
-TEST(ScalarTest, Div) {
+TEST(MathFunctionTest, Cross) {
 
 }
 
+TEST(MathFunctionTest, VecToRaians) {
+
+}
+
+TEST(MathFunctionTest, VecToDegrees) {
+
+}
+
+TEST(MathFunctionTest, Transpose) {
+
+}
+
+TEST(MathFunctionTest, LookAt) {
+
+}
+
+TEST(MathFunctionTest, PerspectiveFov) {
+
+}
+
+TEST(MathFunctionTest, AffineTransformation) {
+
+}
 
 }

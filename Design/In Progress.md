@@ -1,6 +1,6 @@
 - [x] Update camera
 - [x] Input system
-- [ ] Fix shader paths
+- [ ] Fix Shader paths
 - [x] Load models
 - [x] Scene, transform, and geometry
 - [x] CPass

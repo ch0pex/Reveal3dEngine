@@ -27,7 +27,7 @@ Geometry::Geometry(Geometry::primitive type) {
     AddMesh(type);
 }
 
-Geometry::Geometry(std::vector<render::Vertex> &&vertices, std::vector<u16> &&indices)
+Geometry::Geometry(std::vector<render::Vertex> &&vertices, std::vector<u32> &&indices)
 {
     mesh_ = std::make_shared<render::Mesh>(vertices, indices);
 }
@@ -38,7 +38,7 @@ void Geometry::AddMesh(const wchar_t *path) {
     mesh.indexPos = IndexCount();
     mesh.indexCount = IndexCount();
 
-    content::GetDataFromObj(path, mesh_->vertices_, mesh_->indices_, 0);
+    content::GetDataFromObj(path, mesh_->vertices_, mesh_->indices_);
 
     mesh.indexCount = IndexCount() - mesh.indexCount;
     meshes_.push_back(mesh);

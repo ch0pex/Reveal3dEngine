@@ -15,7 +15,6 @@
 
 
 #include "vector.hpp"
-#include <array>
 
 namespace reveal3d::math {
 
@@ -23,17 +22,13 @@ template<u32 T>
 class matrix {
 public:
     matrix() {}
-    matrix(xvec3 x, xvec3 y, xvec3 z, xvec3 w) {
-
-    }
+//    matrix(xvec3 x, xvec3 y, xvec3 z, xvec3 w) {
+//    }
     matrix(const f32 *data) {}
-    matrix(xvec4 x, xvec4 y, xvec4 z, xvec4 w) : matrix(x,y,z,w) {}
-    matrix(const matrix &mat) : matrix(mat.mat4_) {}
-//    matrix(const matrix &mat) : matrix(
-//            XMVectorSetW(mat.GetX(), 0.0f),
-//            XMVectorSetW(mat.GetY(), 0.0f),
-//            XMVectorSetW(mat.GetZ(), 0.0f),
-//            XMVectorSet(0.0f,0.0f,0.0f,1.0f)) {}
+    matrix(const glm::mat4 &mat) : mat_(mat) {}
+//    matrix(xvec3 x, xvec3 y, xvec3 z) : mat_(x,y,z) {}
+//    matrix(xvec4 x, xvec4 y, xvec4 z, xvec4 w) : mat_(x,y,z,w) {}
+    matrix(const matrix &mat) : mat_(mat.mat_) {}
 //    matrix(const matrix &xyz, matrix w) : mat4_(
 //            XMVectorSetW(xyz.GetX(), 0),
 //            XMVectorSetW(xyz.GetY(), 0),
@@ -58,10 +53,11 @@ public:
 
 
     operator glm::mat<T,T, f32>() const { return mat_; }
-    xvec4 operator*(xvec3 vec) const { return vec * mat_; }
-    xvec4 operator*(xvec4 vec) const { return vec * mat_; }
-    matrix operator*(const matrix &mat) const { return mat * mat_; }
-    matrix MakeScale(scalar scale) { return scale * mat_; }
+//    xvec4 operator*(xvec3 vec) const { return vec * mat_; }
+//    xvec4 operator*(xvec4 vec) const { return vec * mat_; }
+    matrix operator*(const matrix &mat) const { return mat.mat_ * mat_; }
+    matrix MakeScale(scalar scale) {
+        return scale * mat_; }
 //    matrix MakeScale(xvec3 scale) { return XMMatrixScalingFromVector(scale); }
 private:
     glm::mat<T,T,f32> mat_;

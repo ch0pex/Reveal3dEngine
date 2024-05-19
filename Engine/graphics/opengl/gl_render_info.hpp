@@ -17,12 +17,14 @@
 #include "math/math.hpp"
 #include "render/vertex.hpp"
 
+#include "GL/glew.h"
+
 #include <vector>
 
 namespace reveal3d::graphics::opengl {
 
 struct RenderElement {
-    RenderElement(std::vector<render::Vertex> &vertices, std::vector<u16> &indices, math::mat4 world);
+    RenderElement(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, math::mat4 world);
     u32 vao;
     u32 vbo;
     u32 ebo;

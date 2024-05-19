@@ -16,6 +16,7 @@
 #include "render/mesh.hpp"
 
 #include <vector>
+#include <memory>
 
 namespace reveal3d::core {
 
@@ -35,15 +36,15 @@ public:
 //    ~Geometry();
     Geometry(const wchar_t *path);
     Geometry(primitive type);
-    Geometry(std::vector<render::Vertex> && vertices, std::vector<u16> && indices);
+    Geometry(std::vector<render::Vertex> && vertices, std::vector<u32> && indices);
     Geometry(const Geometry &geo);
     INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
     INLINE u32 IndexCount() {return mesh_->indices_.size(); }
 
     INLINE std::vector<render::Vertex>& Vertices() { return mesh_->vertices_; }
-    INLINE std::vector<u16>& Indices() { return mesh_->indices_; }
+    INLINE std::vector<u32>& Indices() { return mesh_->indices_; }
     INLINE render::Vertex* GetVerticesStart() { return mesh_->vertices_.data(); }
-    INLINE u16* GetIndicesStart() { return mesh_->indices_.data(); }
+    INLINE u32* GetIndicesStart() { return mesh_->indices_.data(); }
     INLINE std::vector<render::SubMesh>&SubMeshes() { return meshes_; }
     INLINE u32 RenderInfo() { return mesh_->renderInfo; }
     INLINE void SetRenderInfo(u32 index) { mesh_->renderInfo = index; }

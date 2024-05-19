@@ -65,12 +65,13 @@ void Glfw::Create(render::Renderer<Gfx> &renderer) {
 
 #else
     winPtr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
-    handle = winPtr_;
-    if (!handle) {
+    info_.handle = winPtr_;
+    if (!info_.handle) {
         glfwTerminate();
         std::terminate();
     }
 #endif
+    glfwSwapInterval( 0 );
 
 }
 

@@ -14,8 +14,11 @@
 
 #include "obj_parser.hpp"
 
-#include <unordered_map>
+#include <codecvt>
 #include <fstream>
+#include <locale>
+#include <string>
+#include <unordered_map>
 
 
 namespace reveal3d::content {
@@ -36,14 +39,14 @@ struct FaceElem {
         return posIndex == p.posIndex && uvIndex == p.uvIndex && normalIndex == p.normalIndex;
     }
 
-    u16 posIndex;
-    u16 uvIndex;
-    u16 normalIndex;
+    u32 posIndex;
+    u32 uvIndex;
+    u32 normalIndex;
 };
 
 static void GetPoly(std::string &line, std::vector<FaceElem> &primitives) {
-    u16 elem[4][3];
-    sscanf(line.c_str(), "f %hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu",
+    u32 elem[4][3];
+    sscanf(line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u %u/%u/%u",
            &elem[0][0], &elem[0][1], &elem[0][2],
            &elem[1][0], &elem[1][1], &elem[1][2],
            &elem[2][0], &elem[2][1], &elem[2][2],
@@ -54,8 +57,8 @@ static void GetPoly(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
-    u16 elem[3][3];
-    sscanf(line.c_str(), "f %hu/%hu/%hu %hu/%hu/%hu %hu/%hu/%hu",
+    u32 elem[3][3];
+    sscanf(line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u",
            &elem[0][0], &elem[0][1], &elem[0][2],
            &elem[1][0], &elem[1][1], &elem[1][2],
            &elem[2][0], &elem[2][1], &elem[2][2]);
@@ -65,8 +68,14 @@ static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 
-u16 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u16> &indices, u16 index) {
+u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+#ifndef WIN32
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::string path_str = converter.to_bytes(path);
+    std::ifstream file(path_str);
+#else
     std::ifstream file(path);
+#endif
     std::vector<math::vec3> positions;
     std::vector<math::vec3> normals;
     std::vector<math::vec2> uvs;
@@ -102,9 +111,10 @@ u16 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, s
         }
     }
 
+    u32 index = 0;
     render::Vertex vert;
-    std::unordered_map<FaceElem, u16, FaceElem::Hash> cache;
-    for(u32 i = 0; i < primitives.size(); ++i) {
+    std::unordered_map<FaceElem, u32, FaceElem::Hash> cache;
+    for(u64 i = 0; i < primitives.size(); ++i) {
         if (cache.find(primitives[i]) == cache.end()) {
             vert.pos = positions[primitives[i].posIndex - 1U];
             vert.normal = normals[primitives[i].normalIndex - 1U];

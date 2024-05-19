@@ -56,11 +56,11 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    float sunLightIntensity = 0.8;
+    float sunLightIntensity = 0.9;
     float3 sunLightDir = float3(0.0f, 0.5f, -1.0f);
     float4 sunLightColor = float4(1.0f, 1.0f, 1.0f, 0.0f);
 
-    float ambientLightIntensity = 0.5f;
+    float ambientLightIntensity = 0.7f;
     float4 ambientColor = float4(1.0f, 1.0f, 1.0f, 0.0f);
    	float4 ambientLight =  mul(ambientColor, ambientLightIntensity);
 

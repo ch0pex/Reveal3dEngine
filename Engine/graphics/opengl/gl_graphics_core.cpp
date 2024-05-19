@@ -15,6 +15,10 @@
 
 #include "core/entity.hpp"
 #include "config/config.hpp"
+//#ifdef WIN32
+//#include <GL/wglew.h>
+//#else
+//#endif
 
 namespace reveal3d::graphics::opengl {
 
@@ -30,11 +34,11 @@ void Graphics::LoadPipeline() {
     }
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
+//    wglSwapIntervalEXT(0);
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //    glCullFace(GL_FRONT_AND_BACK);
 //    glDisable(GL_CULL_FACE);
-
     renderLayers_.Init();
 }
 
@@ -86,7 +90,7 @@ void Graphics::PrepareRender() {
 }
 
 void Graphics::Draw() {
-    for(u32 i = 0; i < render::shader::count; ++i) {
+    for(u32 i = 0; i < render::Shader::count; ++i) {
         renderLayers_.Draw(renderElements_, passConstant_,i);
     }
     SwapBuffer();
