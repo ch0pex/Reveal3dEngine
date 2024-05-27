@@ -27,11 +27,7 @@ struct FaceElem {
     struct Hash {
         size_t operator()(const FaceElem& p) const
         {
-            size_t val;
-            std::stringstream string;
-            string << p.posIndex << p.uvIndex << p.normalIndex;
-            string >> val;
-            return val;
+            return ((p.posIndex << 16U) | (p.uvIndex));
         }
     };
     bool operator==(const FaceElem& p) const
