@@ -15,7 +15,6 @@
 #include "gl_render_info.hpp"
 #include "render/camera.hpp"
 
-#include "GL/glew.h"
 #include "gl_render_layers.hpp"
 
 namespace reveal3d::graphics::opengl {

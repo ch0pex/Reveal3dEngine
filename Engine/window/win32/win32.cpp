@@ -22,6 +22,7 @@ Win32::Win32(InitInfo &info) : info_(info)
 
 void Win32::Show() {
     ShowWindow(info_.handle.hwnd, SW_SHOW);
+    UpdateWindow(info_.handle.hwnd);
     isRunning_ = true;
 }
 

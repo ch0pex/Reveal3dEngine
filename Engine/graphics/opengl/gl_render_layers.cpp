@@ -19,10 +19,10 @@
 namespace reveal3d::graphics::opengl {
 
 void RenderLayers::Init() {
-    layers_[render::Shader::opaque].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/solidShader.vs").c_str(),
-                                                           relative("Engine/graphics/opengl/shaders/solidShader.fs").c_str());
-    layers_[render::Shader::flat].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/flatShader.vs").c_str(),
-                                                             relative("Engine/graphics/opengl/shaders/flatShader.fs").c_str());
+    layers_[render::Shader::opaque].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
+                                                           relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str());
+//    layers_[render::Shader::flat].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
+//                                                             relative("Engine/graphics/opengl/shaders/flatShader.frag").c_str());
 }
 
 std::string RenderLayers::ReadShader(const char* fileName) {
@@ -54,8 +54,8 @@ u32 RenderLayers::CreateShader(GLenum shaderType, std::string &source, const cha
         i32 info_log_length = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
         std::vector<char> shader_log(info_log_length);
-        glGetShaderInfoLog(shader, info_log_length, NULL, &shader_log[0]);
-        log(logDEBUG) << "Error compiling Shader";
+        glGetShaderInfoLog(shader, info_log_length, NULL, shader_log.data());
+        log(logDEBUG) << "Error compiling Shader: " << shader_log.data();
         return 0;
     }
     return shader;
@@ -68,7 +68,7 @@ u32 RenderLayers::CreateProgram(const char *vs, const char *fs) {
     const u32 vertex_shader = CreateShader(GL_VERTEX_SHADER, source_vertex_shader, "Vertex Shader");
     const u32 fragment_shader = CreateShader(GL_FRAGMENT_SHADER, source_fragment_shader, "Fragment Shader");
 
-    int link_result = 0;
+    i32 link_result = 0;
 
     const u32 program = glCreateProgram();
     glAttachShader(program, vertex_shader);

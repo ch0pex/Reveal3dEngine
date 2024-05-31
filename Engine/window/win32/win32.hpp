@@ -18,6 +18,8 @@
 #include "input/input.hpp"
 #include <WindowsX.h>
 
+#include "backends/imgui_impl_win32.h"
+
 
 namespace reveal3d::window {
 
@@ -47,8 +49,13 @@ private:
     bool isRunning_ { false };
 };
 
+
 template<graphics::HRI Gfx>
 LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+    extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
+        return true;
 
     auto* renderer = reinterpret_cast<render::Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 

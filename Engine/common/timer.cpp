@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file timer_.cpp
+ * @file timer.cpp
  * @version 1.0
  * @date 06/03/2024
  * @brief Short description

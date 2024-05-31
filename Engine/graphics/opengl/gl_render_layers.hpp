@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include "GL/glew.h"
 #include "render/mesh.hpp"
 #include "gl_render_info.hpp"
 

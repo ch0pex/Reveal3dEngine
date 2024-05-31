@@ -141,11 +141,11 @@ void Graphics::TerminateContext() {
 #else
 
 void Graphics::CreateContext() {
-    glfwMakeContextCurrent(window_);
+    glfwMakeContextCurrent(window);
 }
 
 void Graphics::SwapBuffer() {
-    glfwSwapBuffers(window_);
+    glfwSwapBuffers(window);
 }
 
 void Graphics::TerminateContext() {

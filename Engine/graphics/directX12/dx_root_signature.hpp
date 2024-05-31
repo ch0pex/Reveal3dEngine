@@ -54,6 +54,7 @@ public:
     const CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex ) const;
 
 private:
+    std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
     u32 numParameters_ { 0 };
     std::unique_ptr<CD3DX12_ROOT_PARAMETER[]> parameters_;
     ComPtr<ID3D12RootSignature> signature_;

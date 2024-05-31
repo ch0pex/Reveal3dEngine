@@ -85,7 +85,7 @@ public:
     DescriptorHeap rtv;
     DescriptorHeap dsv;
 //    DescriptorHeap cbv;
-//    DescriptorHeap srvHeap; //TODO
+    DescriptorHeap srv; //TODO
 //    DescriptorHeap uavHeap; //TODO
 };
 

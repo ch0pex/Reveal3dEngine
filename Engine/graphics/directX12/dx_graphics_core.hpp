@@ -39,6 +39,7 @@ namespace reveal3d::graphics::dx {
 __declspec(align(16))
 class Graphics {
 public:
+
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
@@ -49,6 +50,8 @@ public:
     void Terminate();
     void Resize(const window::Resolution &res);
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
+    INLINE ID3D12Device* GetDevice() { return device_.Get(); }
+    INLINE Heaps& GetHeaps() { return heaps_;}
 
 private:
     void InitDXGIAdapter();

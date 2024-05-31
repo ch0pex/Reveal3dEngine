@@ -3,12 +3,12 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file timer_.hpp
+ * @file timer.hpp
  * @version 1.0
  * @date 06/03/2024
  * @brief Timer class header file
  *
- * This file declares the timer_ class used in the library
+ * This file declares the timer class used in the library
  * to deal with time, deltatime, etc...
  *
  */
@@ -18,6 +18,7 @@
 #include "primitive_types.hpp"
 #include "platform.hpp"
 #include "input/input.hpp"
+#include <chrono>
 
 
 namespace reveal3d {
@@ -42,16 +43,20 @@ public:
     void Pause(input::action act, input::type type);
 
 private:
-    input::System<Timer> inputSystem_;
 
 #ifdef _WIN32
     static INLINE void QueryFrequency(i64 &time) { QueryPerformanceFrequency((LARGE_INTEGER *) &time); }
     static INLINE void QueryCounter(i64 &time) { QueryPerformanceCounter((LARGE_INTEGER *) &time); }
 #else
-    static INLINE void QueryFrequency(i64 &time) {}
-    static INLINE void QueryCounter(i64 &time) {}
+    static INLINE void QueryFrequency(i64 &time) { time = 1000000000; }
+    static INLINE void QueryCounter(i64 &time) {
+        auto now = std::chrono::high_resolution_clock::now();
+        auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
+        ime = now_ns.time_since_epoch().count();
+    }
 
 #endif
+    input::System<Timer> inputSystem_;
 
     f64 secondPerCount_;
     i64 countsPerSecond_;

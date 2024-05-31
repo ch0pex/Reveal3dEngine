@@ -11,9 +11,14 @@
  * Longer description
  */
 
+#ifdef IMGUI
+#include "IMGUI/imgui.h"
+#include "IMGUI/backends/imgui_impl_dx12.h"
+//#include "IMGUI/imgui_internal.h"
+#endif
+
 #include "dx_graphics_core.hpp"
 #include "config/config.hpp"
-
 namespace reveal3d::graphics::dx {
 
 using namespace render;
@@ -29,6 +34,7 @@ void Graphics::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
     heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
+    heaps_.srv.Initialize(device_.Get(), 1U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
     renderElements_.reserve(4092U);
     dsHandle_ = heaps_.dsv.alloc();
@@ -83,7 +89,7 @@ void Graphics::CreateSwapChain() {
             .Flags = swapChainFlags_
     };
     factory_->CreateSwapChainForHwnd(cmdManager_.GetQueue(), window_.hwnd, &swapChainDesc, nullptr, nullptr, &swapChain1) >> utl::DxCheck;
-    factory_->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window_
+    factory_->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck; // Disable Alt + Enter for full screen window
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 
@@ -259,9 +265,10 @@ void Graphics::PrepareRender() {
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
-
     commandList->SetGraphicsRootSignature(renderLayers_[render::Shader::opaque].rootSignature.Get());
     commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
+    ID3D12DescriptorHeap* srvDesc = heaps_.srv.Get();
+    commandList->SetDescriptorHeaps(1, &srvDesc);
 
     renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
 
@@ -273,6 +280,10 @@ void Graphics::PrepareRender() {
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT );
+
+#ifdef IMGUI
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+#endif
     commandList->ResourceBarrier(1, &presentBarrier);
     commandList->Close() >> utl::DxCheck;
 }
@@ -280,6 +291,10 @@ void Graphics::PrepareRender() {
 
 void Graphics::Draw() {
     cmdManager_.Execute();
+#ifdef IMGUI
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmdManager_.List());
+#endif
     swapChain_->Present(0, presentInfo_) >> utl::DxCheck;
     cmdManager_.MoveToNextFrame();
 }

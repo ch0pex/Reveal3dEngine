@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details) 
  ************************************************************************/
 /**
- * @file window_.hpp
+ * @file window.hpp
  * @version 1.0
  * @date 27/02/2024
  * @brief Short description

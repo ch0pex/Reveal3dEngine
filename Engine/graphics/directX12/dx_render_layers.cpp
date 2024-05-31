@@ -16,18 +16,20 @@
 namespace reveal3d::graphics::dx {
 
 RenderLayers::RenderLayers() {
-    layers_[render::Shader::opaque].rootSignature.Reset(2);
-    layers_[render::Shader::flat].rootSignature.Reset(2);
+    layers_[render::Shader::opaque].rootSignature.Reset(3);
+    layers_[render::Shader::flat].rootSignature.Reset(3);
 //    worldGridLayer_.rootSignature.Reset(1);
 }
 
 void RenderLayers::BuildRoots(ID3D12Device *device) {
     layers_[render::Shader::opaque].rootSignature[0].InitAsConstantBufferView(0);
     layers_[render::Shader::opaque].rootSignature[1].InitAsConstantBufferView(1);
+    layers_[render::Shader::opaque].rootSignature[2].InitAsShaderResourceView(2);
     layers_[render::Shader::opaque].rootSignature.Finalize(device);
 
     layers_[render::Shader::flat].rootSignature[0].InitAsConstantBufferView(0);
     layers_[render::Shader::flat].rootSignature[1].InitAsConstantBufferView(1);
+    layers_[render::Shader::flat].rootSignature[2].InitAsShaderResourceView(2);
     layers_[render::Shader::flat].rootSignature.Finalize(device);
 //    worldGridLayer_.rootSignature.Reset(1);
 
