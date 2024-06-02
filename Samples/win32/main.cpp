@@ -6,9 +6,9 @@
 
 #include "Samples/common/scripts.hpp"
 
-//#include "IMGUI/imgui.h"
-//#include "IMGUI/backends/imgui_impl_win32.h"
-//#include "IMGUI/backends/imgui_impl_dx12.h"
+#include "IMGUI/imgui.h"
+#include "IMGUI/backends/imgui_impl_win32.h"
+#include "IMGUI/backends/imgui_impl_dx12.h"
 //#include "IMGUI/imgui_internal.h"
 
 using namespace reveal3d;
@@ -45,7 +45,7 @@ i32 main() {
 
     window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
     render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
-    core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
+    core::Entity human = core::scene.AddEntityFromObj(relative(L"Samples/Assets/human.obj").c_str());
 
     core::scene.Init();
     viewport.window.Create(viewport.renderer);
@@ -67,14 +67,10 @@ i32 main() {
             core::scene.Update(viewport.timer.DeltaTime());
             viewport.renderer.Update();
             viewport.window.Update();
-//            viewport.renderer.Render();
-#ifdef IMGUI
-
-#endif
         }
         viewport.renderer.Destroy();
-        ImGui_ImplDX12_Shutdown();
         ImGui_ImplWin32_Shutdown();
+        ImGui_ImplDX12_Shutdown();
         ImGui::DestroyContext();
     } catch(std::exception &e) {
         viewport.renderer.Destroy();
@@ -82,41 +78,3 @@ i32 main() {
         //        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
-
-
-/*
-_Use_decl_annotations_
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    {
-        Timer timer;
-        const f32 time = timer.TotalTime();
-        window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
-        render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
-        core::Entity human = core::scene.AddEntityFromObj(relative(L"Assets/human.obj").c_str());
-
-        for (u32 i = 0; i < 10; ++i) {
-            for (u32 j = 0; j < 10; ++j) {
-                for (u32 k = 0; k < 10; ++k) {
-                    core::EntityInfo info = {
-                            core::Transform({i * 1.5f, j * 1.5f, 1.5f * k}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}),
-                            human.GetGeometry()};
-                    core::Entity entity = core::scene.AddEntity(info);
-                    entity.AddScript<HumanScript>();
-
-                }
-            }
-        }
-
-        core::scene.Init();
-        viewport.Init();
-        log(logDEBUG) << "Total Init time: " << timer.Diff(time);
-//        log(logDEBUG) << "Media de fps: " << viewport.BenchMark(30U);
-        viewport.Run();
-
-    }
-#ifdef _DEBUG
-//    graphics::dx::utl::ReportLiveDeviceObjs();
-#endif
-    return 0;
-}
-*/
