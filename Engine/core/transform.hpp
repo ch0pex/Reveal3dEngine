@@ -28,6 +28,10 @@ public:
     [[nodiscard]] INLINE math::xvec3 Rotation() const { return math::VecToDegrees(rot_); }
     [[nodiscard]] INLINE u8 IsDirty() const { return dirty_; }
 
+//    math::xvec3& PositionRef() { return pos_; }
+//    math::xvec3& ScaleRef() { return scale_; }
+//    math::xvec3& RotationRef() { return rot_; }
+
     INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = 3; }
     INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = 3; }
     INLINE void SetRotation(math::xvec3 rot) { rot_ = math::VecToRadians(rot); dirty_ = 3; }

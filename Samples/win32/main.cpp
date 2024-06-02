@@ -58,13 +58,14 @@ i32 main() {
                         viewport.renderer.Graphics().GetHeaps().srv.GpuStart() );
 
     viewport.window.Show();
+
     try {
         viewport.timer.Reset();
         while(!viewport.window.ShouldClose()) {
             viewport.timer.Tick();
             viewport.window.ClipMouse(viewport.renderer);
-            viewport.renderer.Update();
             core::scene.Update(viewport.timer.DeltaTime());
+            viewport.renderer.Update();
             viewport.window.Update();
 //            viewport.renderer.Render();
 #ifdef IMGUI

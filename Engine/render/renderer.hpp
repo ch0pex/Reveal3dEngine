@@ -79,6 +79,7 @@ void Renderer<Gfx>::Render() {
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+//    ImGui::DockSpaceOverViewport();
     // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 
     if (d_window)
@@ -95,11 +96,17 @@ void Renderer<Gfx>::Render() {
         ImGui::Checkbox("Demo Window", &d_window);      // Edit bools storing our window open/close state
         ImGui::Checkbox("Another Window", &an_window);
 
+        core::Transform& t = core::scene.GetTransform(0);
+//        t.SetPosition(t.Position() + math::vec3{4.0f, 0.0f, 0.0f});
+        math::xvec3 pos = t.Position();
         ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&cl); // Edit 3 floats representing a color
+        ImGui::Text("Position");               // Display some text (you can use a format strings too)
+        ImGui::SameLine();
+        ImGui::DragFloat3("##vec3", (f32*)&pos, 0.01f); // Edit 3 floats representing a color
+        t.SetPosition(pos);
 
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
+        if (ImGui::Button("Button")) {
+        }                           // Buttons return true when clicked (most widgets return true when edited/activated)
         ImGui::SameLine();
         ImGui::Text("counter = %d", counter);
 
