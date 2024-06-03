@@ -19,6 +19,9 @@ namespace reveal3d::core {
 Scene scene;
 
 Entity Scene::AddPrimitive(Geometry::primitive primitiveType) {
+    const std::string name = "New entity ";
+    const std::string id = std::to_string(scene.NumEntities());
+    names_.emplace_back(name + id);
     transforms_.emplace_back();
     geometries_.emplace_back(primitiveType);
     scripts_.push_back(nullptr);
@@ -27,6 +30,9 @@ Entity Scene::AddPrimitive(Geometry::primitive primitiveType) {
 }
 
 Entity Scene::AddEntity(EntityInfo &entity) {
+    const std::string name = "New entity ";
+    const std::string id = std::to_string(scene.NumEntities());
+    names_.emplace_back(name + id);
     transforms_.push_back(entity.transform);
     geometries_.push_back(entity.geometry);
     scripts_.push_back(nullptr);
@@ -34,6 +40,9 @@ Entity Scene::AddEntity(EntityInfo &entity) {
 }
 
 Entity Scene::AddEntityFromObj(const wchar_t *path) {
+    const std::string name = "New entity ";
+    const std::string id = std::to_string(scene.NumEntities());
+    names_.emplace_back(name + id);
     transforms_.emplace_back();
     geometries_.emplace_back(path);
     scripts_.push_back(nullptr);

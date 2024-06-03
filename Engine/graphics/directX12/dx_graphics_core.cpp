@@ -284,6 +284,7 @@ void Graphics::PrepareRender() {
 #ifdef IMGUI
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 #endif
+
     commandList->ResourceBarrier(1, &presentBarrier);
     commandList->Close() >> utl::DxCheck;
 }

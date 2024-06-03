@@ -21,18 +21,14 @@
 
 enum LogLevel {
     logERROR = 0,
+    logWARNING,
     logDEBUG,
 };
 
 class Logger
 {
 public:
-    Logger(LogLevel _loglevel = logERROR) {
-        if (_loglevel == logERROR)
-            buffer_ << "ERROR MSG" << ": ";
-        else
-            buffer_ << "DEBUG MSG" << ": ";
-    }
+    Logger(LogLevel logLevel = logERROR);
 
     template <typename T>
     Logger & operator<<(T const & value)
@@ -41,18 +37,14 @@ public:
         return *this;
     }
 
-    ~Logger()
-    {
-        buffer_ << std::endl;
-#ifdef _WIN32
-        OutputDebugStringA(buffer_.str().c_str());
-#else
-        std::cerr << buffer_.str();
-#endif
-    }
+    static void Clear(LogLevel logLevel);
+    static std::string Log(LogLevel logLevel);
+    ~Logger();
 
 private:
+    LogLevel level_;
     std::ostringstream buffer_;
+    static std::stringstream persistent_logs_[3];
 };
 
 extern LogLevel loglevel;

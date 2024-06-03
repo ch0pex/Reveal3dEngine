@@ -79,15 +79,6 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
-        case WM_PAINT:
-            try {
-                renderer->Render();
-            } catch (std::exception &e) {
-                log(logERROR) << e.what();
-                renderer->Destroy();
-                PostQuitMessage(0);
-            }
-            return 0;
         case WM_KEYDOWN:
             input::KeyDown(wParam);
             return 0;
@@ -98,6 +89,7 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         {
             input::cursor::shouldClip = true;
             SetCapture(hwnd);
+            SetCursor(NULL);
             input::KeyDown(input::code::mouse_middle);
             return 0;
         }

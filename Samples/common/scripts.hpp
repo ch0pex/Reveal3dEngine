@@ -34,7 +34,7 @@ public:
         if (entity.Position().GetX() >= (posX + 20.0f) || entity.Position().GetX() < f32(startPos.GetX())) {
             dir_ = -dir_;
         }
-        entity.SetPosition(entity.Position() + dir_ * dt);
+//        entity.SetPosition(entity.Position() + dir_ * dt);
     }
     private:
         math::xvec3 dir_ = {1.0f, 0.0f, 0.0f};

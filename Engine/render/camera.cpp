@@ -59,8 +59,11 @@ void Camera::Move(const input::action dir, const input::type value) {
 }
 
 void Camera::SetLooking(const input::action action, const input::type value) {
+//    input::cursor::shouldClip = (value == input::type::up) ? false : true;
     isLooking_ = value;
-    if (value == input::type::up) firstMouse_ = true;
+    if (value == input::type::up) {
+        firstMouse_ = true;
+    }
 }
 
 void Camera::SetNewMousePos(const input::action action, const math::vec2 mousePos) {

@@ -39,8 +39,11 @@ public:
     Entity AddPrimitive(Geometry::primitive type);
     Entity AddEntityFromObj(const wchar_t *path);
 
+    INLINE std::string &GetName(u32 id) { return names_.at(id); }
     INLINE Transform &GetTransform(u32 id) { return transforms_.at(id); }
     INLINE Geometry &GetGeometry(u32 id) { return geometries_.at(id); }
+    INLINE Script *GetScript(u32 id) { return scripts_.at(id); }
+
     INLINE u32 NumEntities() const { return entities_; }
     INLINE std::vector<Transform>& Transforms() { return transforms_; }
     INLINE std::vector<Geometry>& Geometries() { return geometries_; }
@@ -52,6 +55,7 @@ public:
 
 private:
 //    std::vector<u8> generationId_;
+    std::vector<std::string> names_;
     std::vector<Transform> transforms_;
     std::vector<Geometry> geometries_;
     std::vector<Script *> scripts_;

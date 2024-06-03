@@ -25,13 +25,13 @@ constexpr char PROJECT_DIR[] = "" PROJECT_ROOT_DIR;
 INLINE std::wstring relative(const wchar_t* wstring) {
     const std::wstring p = PROJECT_DIR_L;
     const std::wstring s = wstring;
-    return (p + L"/" + s);
+    return (p + L"/Source/Reveal3d/" + s); //TODO: fix relative paths
 }
 
 INLINE std::string relative(const char* string) {
     const std::string p = PROJECT_DIR;
     const std::string s = string;
-    return (p + "/" + s);
+    return (p + "/Source/Reveal3d/" + s); //TODO: fix relative paths
 }
 
 }
