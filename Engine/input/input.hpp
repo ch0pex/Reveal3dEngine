@@ -255,6 +255,7 @@ private:
 struct cursor {
     static math::vec2 pos;
     static bool shouldClip;
+    static math::vec2 lastUnclipedPos;
     //    static bool isLooking;
     //    static bool fistMouse;
 };

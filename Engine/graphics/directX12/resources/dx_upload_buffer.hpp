@@ -49,8 +49,8 @@ public:
     //bool Add(const T* data, u32 count); TODO
     void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
     void Release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr); DeferredRelease(buff_); }
-    T* mappedData_ { nullptr };
 private:
+    T* mappedData_ { nullptr };
     ID3D12Resource *buff_;
     u32 capacity_ { 0 };
     u32 size_ { 0 };
@@ -73,8 +73,6 @@ void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
 
     // TODO: add option to hide this to cpu with range(0,0)
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&mappedData_));
-
-
 }
 
 template<typename T>
@@ -89,7 +87,6 @@ DescriptorHandle UploadBuffer<T>::CreateView(ID3D12Device *device, DescriptorHea
     device->CreateConstantBufferView(&desc, handle.cpu);
     return handle;
 }
-
 
 using ConstantBuffer = UploadBuffer<AlignedConstant<ObjConstant, 1>>;
 using PassCB = UploadBuffer<AlignedConstant<PassConstant, 2>>;

@@ -23,6 +23,7 @@ cbuffer cbPass : register(b1)
 cbuffer cbPerObject : register(b0)
 {
 	float4x4 objWorld;
+	float4 flatColor;
 };
 
 struct VertexIn
@@ -49,7 +50,7 @@ VertexOut VS(VertexIn vin)
     vout.PosW = posW.xyz;
 	vout.PosH = mul(posW, viewProj);
     vout.NormalW = mul(vin.NormalL, (float3x3)objWorld);
-    vout.Color = vin.Color;
+    vout.Color = flatColor;
 
     return vout;
 }

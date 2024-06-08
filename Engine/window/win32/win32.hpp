@@ -53,10 +53,11 @@ private:
 template<graphics::HRI Gfx>
 LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
+#ifdef IMGUI
     extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
         return true;
-
+#endif
     auto* renderer = reinterpret_cast<render::Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     switch (message) {
@@ -80,14 +81,22 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             PostQuitMessage(0);
             return 0;
         case WM_KEYDOWN:
+        {
+#ifdef IMGUI
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            if (io.WantCaptureMouse)
+                return 0;
+#endif
             input::KeyDown(wParam);
             return 0;
+        }
         case WM_KEYUP:
             input::KeyUp(wParam);
             return 0;
         case WM_MBUTTONDOWN:
         {
             input::cursor::shouldClip = true;
+            input::cursor::lastUnclipedPos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
             SetCapture(hwnd);
             SetCursor(NULL);
             input::KeyDown(input::code::mouse_middle);
@@ -97,6 +106,9 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         {
             input::cursor::shouldClip = false;
             input::KeyUp(input::code::mouse_middle);
+            RECT window_rect;
+            GetWindowRect(hwnd, &window_rect);
+            SetCursorPos(input::cursor::lastUnclipedPos.x + window_rect.left, input::cursor::lastUnclipedPos.y + window_rect.top);
             ReleaseCapture();
             return 0;
         }

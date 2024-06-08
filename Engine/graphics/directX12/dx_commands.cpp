@@ -95,6 +95,9 @@ void Commands::ResetFences() {
     fenceValues_[2] = 0;
 }
 
+void Commands::AddGraphicsList(ID3D12GraphicsCommandList *list) {
+
+}
 
 
 }

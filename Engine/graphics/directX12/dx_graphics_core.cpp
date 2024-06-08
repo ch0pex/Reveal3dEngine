@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file dx_graphics.cpp
@@ -182,41 +182,12 @@ void Graphics::LoadAssets() {
     std::vector<core::Geometry> &geometries = core::scene.Geometries();
 
     for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
-        if (geometries[i].RenderInfo() == UINT_MAX) {
-            BufferInitInfo vertexBufferInfo = {
-                    .device = device_.Get(),
-                    .cmdList = cmdManager_.List(),
-                    .data = geometries[i].GetVerticesStart(),
-                    .count = geometries[i].VertexCount()
-            };
 
-            BufferInitInfo indexBufferInfo = {
-                    .device = device_.Get(),
-                    .cmdList = cmdManager_.List(),
-                    .data = geometries[i].GetIndicesStart(),
-                    .count = geometries[i].IndexCount(),
-                    .format = DXGI_FORMAT_R32_UINT
-            };
-
-            renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-            geometries[i].SetRenderInfo(i);
-
-            for (auto &subMesh: geometries[i].SubMeshes()) {
-                subMesh.renderInfo = i;
-                subMesh.constantIndex = i;
-                renderLayers_.AddMesh(subMesh);
-            }
-        } else {
-            for (auto &mesh : geometries[i].SubMeshes()) {
-                mesh.renderInfo = geometries[i].RenderInfo();
-                mesh.constantIndex = i;
-                renderLayers_.AddMesh(mesh);
-            }
-        }
-
+        CreateRenderElement(geometries[i], i);
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
             objConstant.data.worldViewProj = transforms[i].World();
+            objConstant.data.flatColor = geometries[i].Color();
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
@@ -228,17 +199,22 @@ void Graphics::LoadAssets() {
 
 void Graphics::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
+    ID3D12GraphicsCommandList* commandList = cmdManager_.List();
+
+    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     AlignedConstant<PassConstant, 2> passConstant;
 
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
     auto &transforms = core::scene.Transforms();
+    auto &geometries = core::scene.Geometries();
 
     AlignedConstant<ObjConstant, 1> objConstant;
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (transforms[i].IsDirty() > 0) {
             objConstant.data.worldViewProj = transforms[i].World();
+            objConstant.data.flatColor = geometries[i].Color();
             transforms[i].UpdateDirty();
             currFrameRes.constantBuffer.CopyData(i, &objConstant);
         }
@@ -250,14 +226,14 @@ void Graphics::PrepareRender() {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
 
-    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
+//    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
     commandList->RSSetViewports(1, &viewport_);
     commandList->RSSetScissorRects(1, &scissorRect_);
 
-    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition( currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
-            D3D12_RESOURCE_STATE_RENDER_TARGET );
+    auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &targetBarrier);
 
     const f32 clearColor[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
@@ -411,4 +387,36 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
 
     *ppAdapter = adapter.Detach();
 }
+
+void Graphics::CreateRenderElement(core::Geometry &geometry, u32 index) {
+    if (geometry.OnGPU) return;
+    geometry.OnGPU = true;
+    if (geometry.RenderInfo() == UINT_MAX) {
+        BufferInitInfo vertexBufferInfo = {
+                .device = device_.Get(),
+                .cmdList = cmdManager_.List(),
+                .data = geometry.GetVerticesStart(),
+                .count = geometry.VertexCount()
+        };
+
+        BufferInitInfo indexBufferInfo = {
+                .device = device_.Get(),
+                .cmdList = cmdManager_.List(),
+                .data = geometry.GetIndicesStart(),
+                .count = geometry.IndexCount(),
+                .format = DXGI_FORMAT_R32_UINT
+        };
+
+        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+        geometry.SetRenderInfo(index);
+    }
+    for (auto &subMesh: geometry.SubMeshes()) {
+        subMesh.renderInfo = index;
+        subMesh.constantIndex = index;
+        renderLayers_.AddMesh(subMesh);
+    }
+
+}
+
+
 }

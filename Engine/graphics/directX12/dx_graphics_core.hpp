@@ -31,8 +31,6 @@
 
 #include <array>
 
-//using reveal3d::graphics::dx::RenderElement;
-
 namespace reveal3d::graphics::dx {
 
 
@@ -60,6 +58,7 @@ private:
     void InitDsBuffer();
     void InitConstantBuffers();
     void SetViewport();
+    void CreateRenderElement(core::Geometry &geometry, u32 index);
     void GetHardwareAdapter( _In_ IDXGIFactory1* pFactory, _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter);
     /****************** Factory and Device *****************/
 
@@ -92,5 +91,3 @@ private:
 };
 
 }
-
-using reveal3d::graphics::dx::Graphics;

@@ -33,6 +33,7 @@ public:
     void MoveToNextFrame();
 
     void Flush();
+    void AddGraphicsList(ID3D12GraphicsCommandList* list);
 
 private:
     static const u32 bufferCount_ = 3;

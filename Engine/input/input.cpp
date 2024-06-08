@@ -32,6 +32,7 @@ std::unordered_map<u8, action> bindings = {
 
 bool cursor::shouldClip = false;
 math::vec2 cursor::pos = {};
+math::vec2 cursor::lastUnclipedPos = {};
 
 
 void KeyDown(u8 keycode) {

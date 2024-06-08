@@ -63,7 +63,7 @@ void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
 {
     count_ = info.count;
     size_ = sizeof(T) * info.count;
-    auto uploadBuffer = UploadBuffer<T>();
+    auto uploadBuffer = UploadBuffer<T>(); //Upload buffer is created in order to store buffer in gpu
     auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(size_);
 
@@ -87,8 +87,8 @@ void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
                                                         D3D12_RESOURCE_STATE_COMMON,
                                                         D3D12_RESOURCE_STATE_COPY_DEST);
     info.cmdList->ResourceBarrier(1, &barrier);
-    uploadBuffer.CopyData(0, (T *) info.data, info.count);
-    info.cmdList->CopyResource(buff_, uploadBuffer.Get());
+    uploadBuffer.CopyData(0, (T *) info.data, info.count); //Copying cpu info to upload buvffer
+    info.cmdList->CopyResource(buff_, uploadBuffer.Get()); // Coping upload buffer into buffer
 
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(buff_,
                                                    D3D12_RESOURCE_STATE_COPY_DEST,
@@ -104,7 +104,6 @@ inline void Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>::SetView(BufferInit
     view_.BufferLocation = buff_->GetGPUVirtualAddress();
     view_.SizeInBytes = size_;
     view_.StrideInBytes = sizeof(render::Vertex);
-
 }
 
 template<>

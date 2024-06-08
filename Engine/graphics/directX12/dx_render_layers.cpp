@@ -112,7 +112,7 @@ void RenderLayers::AddMesh(render::SubMesh &mesh) {
 
 void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &frame, std::vector<RenderElement>& elements, u32 layer) {
     for (auto &mesh : meshes_[layer]) {
-        if (!mesh->visible) continue;
+        if (!mesh->visible or mesh->renderInfo == UINT_MAX) continue;
         cmdList->SetGraphicsRootConstantBufferView(0, frame.constantBuffer.GpuPos(mesh->constantIndex));
         cmdList->IASetVertexBuffers(0, 1, elements[mesh->renderInfo].vertexBuffer.View());
         cmdList->IASetIndexBuffer(elements[mesh->renderInfo].indexBuffer.View());

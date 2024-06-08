@@ -34,6 +34,7 @@ public:
     INLINE void SetScale(f32 x, f32 y, f32 z) { scene.GetTransform(id_).SetScale({x, y, z}); }
     INLINE void SetScale(math::vec3& scale) { scene.GetTransform(id_).SetScale(scale); }
     INLINE void SetScale(math::xvec3 scale) { scene.GetTransform(id_).SetScale(scale); }
+    INLINE void SetVisible(bool visible) { scene.GetGeometry(id_).SetVisibility(visible); }
 
 //    INLINE void SetTransform(Transform& transform);
 //    INLINE void SetGeometry(Geometry& geometry);
@@ -42,6 +43,7 @@ public:
     INLINE Transform& GetTransform() { return scene.GetTransform(id_); }
     INLINE Geometry& GetGeometry() { return scene.GetGeometry(id_); }
     INLINE Script* GetScript() { return scene.GetScript(id_); }
+    INLINE bool IsVisible() const { return scene.GetGeometry(id_).IsVisible(); }
 
     template<typename T> void AddScript();
 
