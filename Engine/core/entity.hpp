@@ -53,6 +53,7 @@ public:
     [[nodiscard]] INLINE math::xvec3 Position() const { return scene.GetTransform(id_).Position(); }
     [[nodiscard]] INLINE math::xvec3 Rotation() const { return scene.GetTransform(id_).Rotation(); }
     [[nodiscard]] INLINE math::xvec3 Scale() const { return scene.GetTransform(id_).Scale(); }
+    INLINE u32 Id() { return id_; }
 
 private:
     u32 id_;

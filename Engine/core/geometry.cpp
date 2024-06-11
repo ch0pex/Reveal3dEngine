@@ -64,10 +64,12 @@ void Geometry::AddMesh(Geometry::primitive type) {
     meshes_.push_back(mesh);
 
 }
-Geometry::Geometry(const Geometry &geo) {
-    mesh_ = geo.mesh_;
-    meshes_ = geo.meshes_;
-}
+//Geometry::Geometry(const Geometry &geo) {
+//    mesh_ = geo.mesh_;
+//    meshes_ = geo.meshes_;
+//    OnGPU = geo.OnGPU;
+//
+//}
 
 
 

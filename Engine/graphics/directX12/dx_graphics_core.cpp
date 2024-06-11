@@ -43,6 +43,9 @@ void Graphics::LoadPipeline() {
     InitDsBuffer();
     InitConstantBuffers();
     SetViewport();
+    renderLayers_.BuildRoots(device_.Get());
+    renderLayers_.BuildPSOs(device_.Get());
+
 }
 
 // TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
@@ -102,6 +105,8 @@ void Graphics::InitFrameResources() {
         frameResources_[i].backBufferHandle = heaps_.rtv.alloc();
         swapChain_->GetBuffer(i, IID_PPV_ARGS(&frameResources_[i].backBuffer)) >> utl::DxCheck;
         device_->CreateRenderTargetView(frameResources_[i].backBuffer.Get() ,&desc, frameResources_[i].backBufferHandle.cpu);
+        std::wstring name = L"BackBuffer " + std::to_wstring(i);
+        frameResources_[i].backBuffer->SetName(name.c_str()) >> utl::DxCheck;
     }
 }
 
@@ -156,6 +161,7 @@ void Graphics::InitDsBuffer() {
             }
     };
 
+    depthStencilBuffer_->SetName(L"Depth Buffer");
     device_->CreateDepthStencilView(depthStencilBuffer_.Get(), &dsvDesc, dsHandle_.cpu);
 }
 
@@ -173,17 +179,13 @@ void Graphics::SetViewport() {
 }
 
 void Graphics::LoadAssets() {
-    renderLayers_.BuildRoots(device_.Get());
-    renderLayers_.BuildPSOs(device_.Get());
-
     cmdManager_.Reset(nullptr);
 
     std::vector<core::Transform> &transforms = core::scene.Transforms();
     std::vector<core::Geometry> &geometries = core::scene.Geometries();
 
     for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
-
-        CreateRenderElement(geometries[i], i);
+        CreateRenderElement(i);
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
             objConstant.data.worldViewProj = transforms[i].World();
@@ -197,11 +199,16 @@ void Graphics::LoadAssets() {
 
 }
 
+void Graphics::LoadAsset(u32 id) {
+    cmdManager_.Reset(nullptr);
+    CreateRenderElement(id);
+    cmdManager_.List()->Close();
+    cmdManager_.Execute();
+    cmdManager_.WaitForGPU();
+}
+
 void Graphics::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
-    ID3D12GraphicsCommandList* commandList = cmdManager_.List();
-
-    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     AlignedConstant<PassConstant, 2> passConstant;
 
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
@@ -212,9 +219,11 @@ void Graphics::Update(render::Camera &camera) {
 
     AlignedConstant<ObjConstant, 1> objConstant;
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
+        if (!geometries[i].OnGPU)
+            LoadAsset(i);
         if (transforms[i].IsDirty() > 0) {
-            objConstant.data.worldViewProj = transforms[i].World();
             objConstant.data.flatColor = geometries[i].Color();
+            objConstant.data.worldViewProj = transforms[i].World();
             transforms[i].UpdateDirty();
             currFrameRes.constantBuffer.CopyData(i, &objConstant);
         }
@@ -225,6 +234,7 @@ void Graphics::PrepareRender() {
 
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
+    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
 
 //    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
@@ -248,7 +258,7 @@ void Graphics::PrepareRender() {
 
     renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
 
-    for (u32 i = 1; i < render::Shader::count; ++i) {
+    for (u32 i = 0; i < render::Shader::count; ++i) {
         renderLayers_[i].Set(commandList);
         renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
     }
@@ -388,8 +398,8 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
     *ppAdapter = adapter.Detach();
 }
 
-void Graphics::CreateRenderElement(core::Geometry &geometry, u32 index) {
-    if (geometry.OnGPU) return;
+void Graphics::CreateRenderElement(u32 index) {
+    core::Geometry &geometry = core::scene.GetGeometry(index);
     geometry.OnGPU = true;
     if (geometry.RenderInfo() == UINT_MAX) {
         BufferInitInfo vertexBufferInfo = {
@@ -408,12 +418,19 @@ void Graphics::CreateRenderElement(core::Geometry &geometry, u32 index) {
         };
 
         renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-        geometry.SetRenderInfo(index);
+        geometry.SetRenderInfo(renderElements_.size() - 1U);
+        for (auto &subMesh: geometry.SubMeshes()) {
+            subMesh.renderInfo = renderElements_.size() - 1U;
+            subMesh.constantIndex = index;
+            renderLayers_.AddMesh(subMesh);
+        }
     }
-    for (auto &subMesh: geometry.SubMeshes()) {
-        subMesh.renderInfo = index;
-        subMesh.constantIndex = index;
-        renderLayers_.AddMesh(subMesh);
+    else {
+        for (auto &subMesh: geometry.SubMeshes()) {
+            subMesh.renderInfo = geometry.RenderInfo();
+            subMesh.constantIndex = index;
+            renderLayers_.AddMesh(subMesh);
+        }
     }
 
 }

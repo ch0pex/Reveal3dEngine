@@ -28,7 +28,7 @@ template<typename Gfx>
 concept HRI = requires(Gfx graphics, render::Camera& camera, window::Resolution& res) {
     {graphics.LoadPipeline()} ->  std::same_as<void>;
     {graphics.LoadAssets()} ->  std::same_as<void>;
-    {graphics.LoadAsset()} ->  std::same_as<void>;
+//    {graphics.LoadAsset(std::declval<u32>)} ->  std::same_as<void>;
     {graphics.Update(camera)} ->  std::same_as<void>;
     {graphics.PrepareRender()} ->  std::same_as<void>;
     {graphics.Draw()} ->  std::same_as<void>;

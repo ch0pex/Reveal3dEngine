@@ -24,7 +24,7 @@
 #include "dx_render_layers.hpp"
 #include "resources/dx_resources.hpp"
 
-#include "core/scene.hpp"
+#include "core/entity.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
 
@@ -41,7 +41,7 @@ public:
     explicit Graphics(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
-    void LoadAsset();
+    void LoadAsset(u32 id);
     void Update(render::Camera &camera);
     void PrepareRender();
     void Draw();
@@ -58,7 +58,7 @@ private:
     void InitDsBuffer();
     void InitConstantBuffers();
     void SetViewport();
-    void CreateRenderElement(core::Geometry &geometry, u32 index);
+    void CreateRenderElement(u32 index);
     void GetHardwareAdapter( _In_ IDXGIFactory1* pFactory, _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter);
     /****************** Factory and Device *****************/
 

@@ -58,6 +58,8 @@ private:
 using VertexBuffer = Buffer<D3D12_VERTEX_BUFFER_VIEW, render::Vertex>;
 using IndexBuffer = Buffer<D3D12_INDEX_BUFFER_VIEW, u32>;
 
+static u32 mycounter = 0;
+
 template<typename BUFFER_VIEW_TYPE, typename T>
 void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
 {
@@ -97,6 +99,8 @@ void Buffer<BUFFER_VIEW_TYPE, T>::Init(BufferInitInfo &info)
 
     uploadBuffer.Release();
     SetView(info);
+    std::wstring name = L"Buffer" + std::to_wstring(mycounter++);
+    buff_->SetName(name.c_str());
 }
 
 template<>

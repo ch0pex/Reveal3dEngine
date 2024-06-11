@@ -36,7 +36,7 @@ public:
     Geometry(const wchar_t *path);
     Geometry(primitive type);
     Geometry(std::vector<render::Vertex> && vertices, std::vector<u32> && indices);
-    Geometry(const Geometry &geo);
+//    Geometry(const Geometry &geo);
     INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
     INLINE u32 IndexCount() {return mesh_->indices_.size(); }
 
@@ -57,9 +57,13 @@ public:
     void AddMesh(const wchar_t *path);
     void AddMesh(primitive type);
 
-    bool OnGPU { false }; // Determines if it has been stored in GPU
+    bool OnGPU { false };
+
+//    INLINE u8 IsDirty() { return isDirty_; }
+//    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
 private:
+//    u8 isDirty_;
     std::vector<render::SubMesh> meshes_;
     std::shared_ptr<render::Mesh> mesh_;
     math::vec4 color_ {1.0f, 1.0f, 1.0f, 1.0f,};

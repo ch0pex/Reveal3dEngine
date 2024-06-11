@@ -37,7 +37,7 @@ public:
     INLINE void SetRotation(math::xvec3 rot) { rot_ = math::VecToRadians(rot); dirty_ = 3; }
     INLINE void UpdateDirty() { assert(dirty_ > 0); --dirty_; }
 private:
-    u8 dirty_ { 0 }; // If dirty should update in render buffers
+    u8 dirty_ { 3 }; // If dirty should update in render buffers
     math::xvec3 pos_;
     math::xvec3 scale_;
     math::xvec3 rot_;
