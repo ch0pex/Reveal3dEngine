@@ -57,13 +57,18 @@ public:
     void AddMesh(const wchar_t *path);
     void AddMesh(primitive type);
 
-    bool OnGPU { false };
+    INLINE u8 IsDirty() { return isDirty_; }
+    INLINE void UpdateDirty() { --isDirty_;}
+
+    INLINE bool OnGpu() { return OnGPU_;}
+    INLINE void MarkAsStored() { OnGPU_ = true;}
 
 //    INLINE u8 IsDirty() { return isDirty_; }
 //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
 private:
-//    u8 isDirty_;
+    u8 isDirty_ { 3 };
+    bool OnGPU_ { false };
     std::vector<render::SubMesh> meshes_;
     std::shared_ptr<render::Mesh> mesh_;
     math::vec4 color_ {1.0f, 1.0f, 1.0f, 1.0f,};

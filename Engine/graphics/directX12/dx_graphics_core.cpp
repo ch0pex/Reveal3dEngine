@@ -219,7 +219,7 @@ void Graphics::Update(render::Camera &camera) {
 
     AlignedConstant<ObjConstant, 1> objConstant;
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
-        if (!geometries[i].OnGPU)
+        if (!geometries[i].OnGpu())
             LoadAsset(i);
         if (transforms[i].IsDirty() > 0) {
             objConstant.data.flatColor = geometries[i].Color();
@@ -400,7 +400,7 @@ void Graphics::GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAda
 
 void Graphics::CreateRenderElement(u32 index) {
     core::Geometry &geometry = core::scene.GetGeometry(index);
-    geometry.OnGPU = true;
+    geometry.MarkAsStored();
     if (geometry.RenderInfo() == UINT_MAX) {
         BufferInitInfo vertexBufferInfo = {
                 .device = device_.Get(),
