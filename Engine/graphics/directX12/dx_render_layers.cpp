@@ -18,6 +18,7 @@ namespace reveal3d::graphics::dx {
 RenderLayers::RenderLayers() {
     layers_[render::Shader::opaque].rootSignature.Reset(3);
     layers_[render::Shader::flat].rootSignature.Reset(3);
+    layers_[render::Shader::grid].rootSignature.Reset(3);
 //    worldGridLayer_.rootSignature.Reset(1);
 }
 
@@ -32,6 +33,10 @@ void RenderLayers::BuildRoots(ID3D12Device *device) {
     layers_[render::Shader::flat].rootSignature[2].InitAsShaderResourceView(2);
     layers_[render::Shader::flat].rootSignature.Finalize(device);
 //    worldGridLayer_.rootSignature.Reset(1);
+    layers_[render::Shader::grid].rootSignature[0].InitAsConstantBufferView(0);
+    layers_[render::Shader::grid].rootSignature[1].InitAsConstantBufferView(1);
+    layers_[render::Shader::grid].rootSignature[2].InitAsShaderResourceView(2);
+    layers_[render::Shader::grid].rootSignature.Finalize(device);
 
 }
 
@@ -104,6 +109,49 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     layers_[render::Shader::flat].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
     layers_[render::Shader::flat].pso.Finalize(device);
+
+    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    hr >> utl::DxCheck;
+    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    hr >> utl::DxCheck;
+
+    D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
+    transparencyBlendDesc.BlendEnable = true;
+    transparencyBlendDesc.LogicOpEnable = false;
+    transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+    transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+    transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+    transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+    transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+    transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+    transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+    transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+    D3D12_BLEND_DESC blend_desc = {
+            .RenderTarget = transparencyBlendDesc
+    };
+
+    layers_[render::Shader::grid].pso.SetInputLayout(flatElementsDesc, _countof(flatElementsDesc));
+    layers_[render::Shader::grid].pso.SetRootSignature(layers_[render::Shader::grid].rootSignature);
+    layers_[render::Shader::grid].pso.SetShaders(vertexShader.Get(), pixelShader.Get());
+    layers_[render::Shader::grid].pso.SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    layers_[render::Shader::grid].pso.SetBlendState(blend_desc);
+    layers_[render::Shader::grid].pso.SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    layers_[render::Shader::grid].pso.SetSampleMask(UINT_MAX);
+    layers_[render::Shader::grid].pso.SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    layers_[render::Shader::grid].pso.SetNumRenderTargets(1U);
+    layers_[render::Shader::grid].pso.SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    layers_[render::Shader::grid].pso.SetSampleDescCount(1U); //TODO: Support x4
+    layers_[render::Shader::grid].pso.SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+    layers_[render::Shader::grid].pso.Finalize(device);
+
+    render::SubMesh *gridMesh = new render::SubMesh();
+//    auto gridMesh = render::SubMesh();
+    gridMesh->indexCount = 6;
+    meshes_[render::Shader::grid].push_back(gridMesh);
 }
 
 void RenderLayers::AddMesh(render::SubMesh &mesh) {
@@ -119,8 +167,19 @@ void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &
         cmdList->IASetPrimitiveTopology(elements[mesh->renderInfo].topology);
         cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos, 0);
     }
+}
+
+void RenderLayers::DrawEffectLayer(ID3D12GraphicsCommandList *cmdList, u32 layer) {
+    for (auto *mesh : meshes_[layer]) {
+        cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos, 0);
+    }
 
 }
+RenderLayers::~RenderLayers() {
+    delete meshes_[render::Shader::grid].at(0);
+}
+
+
 void Layer::Set(ID3D12GraphicsCommandList *cmdList) {
     cmdList->SetPipelineState(pso.Get());
     cmdList->SetGraphicsRootSignature(rootSignature.Get());

@@ -258,10 +258,13 @@ void Graphics::PrepareRender() {
 
     renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
 
-    for (u32 i = 0; i < render::Shader::count; ++i) {
+    for (u32 i = 0; i < render::Shader::count - 1; ++i) {
         renderLayers_[i].Set(commandList);
         renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
     }
+
+    renderLayers_[render::Shader::grid].Set(commandList);
+    renderLayers_.DrawEffectLayer(commandList, render::Shader::grid);
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),

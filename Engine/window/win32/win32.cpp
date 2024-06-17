@@ -27,14 +27,15 @@ void Win32::Show() {
 }
 
 bool Win32::ShouldClose() {
-    PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE);
     return !(isRunning_ );
 }
 
 void Win32::Update() {
-    TranslateMessage(&msg_);
-    DispatchMessage(&msg_);
-    isRunning_ &= (msg_.message != WM_QUIT);
+    while (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg_);
+        DispatchMessage(&msg_);
+        isRunning_ &= (msg_.message != WM_QUIT);
+    }
 }
 
 void Win32::CloseWindow(input::action act, input::type type) {
