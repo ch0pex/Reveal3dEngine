@@ -40,16 +40,11 @@ public:
     void DrawLayer(ID3D12GraphicsCommandList* cmdList, FrameResource& frame, std::vector<RenderElement> &elements, u32 layer);
     void DrawEffectLayer(ID3D12GraphicsCommandList* cmdList, u32 layer);
 
-    INLINE Layer& operator[] (u32 index) { return layers_[index]; }
-    INLINE const Layer& operator[] (u32 index) const { return layers_[index]; }
+    INLINE Layer& operator[] (u32 index) { return layers_.at(index); }
+    INLINE const Layer& operator[] (u32 index) const { return layers_.at(index); }
 private:
-
-
-    Layer layers_[render::Shader::count];
-    std::vector<render::SubMesh *> meshes_[render::Shader::count];
-
-//    Layer worldGridLayer_;
-
+    std::array<Layer ,render::Shader::count> layers_;
+    std::array<std::vector<render::SubMesh *>, render::Shader::count> meshes_;
 };
 
 }

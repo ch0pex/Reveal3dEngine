@@ -148,7 +148,7 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
 
     layers_[render::Shader::grid].pso.Finalize(device);
 
-    render::SubMesh *gridMesh = new render::SubMesh();
+    auto gridMesh = new render::SubMesh();
 //    auto gridMesh = render::SubMesh();
     gridMesh->indexCount = 6;
     meshes_[render::Shader::grid].push_back(gridMesh);
@@ -170,8 +170,9 @@ void RenderLayers::DrawLayer(ID3D12GraphicsCommandList *cmdList, FrameResource &
 }
 
 void RenderLayers::DrawEffectLayer(ID3D12GraphicsCommandList *cmdList, u32 layer) {
+    cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     for (auto *mesh : meshes_[layer]) {
-        cmdList->DrawIndexedInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos, 0);
+        cmdList->DrawInstanced(mesh->indexCount, 1, mesh->indexPos, mesh->vertexPos);
     }
 
 }

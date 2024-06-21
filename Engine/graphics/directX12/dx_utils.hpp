@@ -35,6 +35,7 @@ struct Error {
     u32 hr;
     std::source_location loc;
 };
+
 void operator>>(Error, Checker);
 
 void EnableCpuLayer(u32 &factoryFlag);
@@ -42,6 +43,7 @@ void EnableGpuLayer();
 void QueueInfo(ID3D12Device *device, BOOL enable);
 void LogAdapters();
 void SetReporter(ID3D12Device *device);
+void GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter);
 void ReportLiveDeviceObjs();
 void DisplayFps();
 

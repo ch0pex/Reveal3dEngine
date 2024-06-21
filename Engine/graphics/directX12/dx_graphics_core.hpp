@@ -59,7 +59,6 @@ private:
     void InitConstantBuffers();
     void SetViewport();
     void CreateRenderElement(u32 index);
-    void GetHardwareAdapter( _In_ IDXGIFactory1* pFactory, _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter);
     /****************** Factory and Device *****************/
 
     ComPtr<IDXGIFactory5> factory_;
