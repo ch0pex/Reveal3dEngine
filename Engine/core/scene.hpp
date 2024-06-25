@@ -54,7 +54,8 @@ public:
     void AddScript(Script *script, u32 id);
 
 private:
-//    std::vector<u8> generationId_;
+//    std::vector<u8> generations_;
+//    std::vector<u8> freeIds_;
     std::vector<std::string> names_;
     std::vector<Transform> transforms_;
     std::vector<Geometry> geometries_;

@@ -30,6 +30,7 @@ set(HEADERS
         content/primitives.hpp
         content/obj_parser.hpp
         window/glfw/glfw.hpp
+        common/id.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
