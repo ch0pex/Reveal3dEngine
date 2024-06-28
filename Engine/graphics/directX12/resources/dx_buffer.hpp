@@ -17,7 +17,7 @@
 #include "dx_deferring_system.hpp"
 #include "render/vertex.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 struct BufferInitInfo {
     ID3D12Device *device;

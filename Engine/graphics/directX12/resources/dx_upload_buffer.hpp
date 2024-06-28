@@ -18,7 +18,7 @@
 #include "dx_descriptor_heap.hpp"
 #include "graphics/constants.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 
 // S denotes the necesary amount of 256 bytes for alignment

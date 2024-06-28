@@ -17,11 +17,11 @@
 
 #include "gl_render_layers.hpp"
 
-namespace reveal3d::graphics::opengl {
+namespace reveal3d::graphics {
 
-class Graphics {
+class OpenGL {
 public:
-    explicit Graphics(window::Resolution *res);
+    explicit OpenGL(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
     void LoadAsset();
@@ -38,8 +38,8 @@ private:
     void SwapBuffer();
     void TerminateContext();
     math::mat4 passConstant_;
-    std::vector<RenderElement> renderElements_;
-    RenderLayers renderLayers_;
+    std::vector<opengl::RenderElement> renderElements_;
+    opengl::RenderLayers renderLayers_;
     WHandle window_ {};
 };
 

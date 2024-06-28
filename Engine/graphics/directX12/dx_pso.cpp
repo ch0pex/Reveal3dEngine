@@ -13,7 +13,7 @@
 
 #include "dx_pso.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 GraphicsPso::GraphicsPso() {}
 

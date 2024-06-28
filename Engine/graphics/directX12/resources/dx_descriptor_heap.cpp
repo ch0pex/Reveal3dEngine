@@ -14,7 +14,7 @@
 #include "dx_descriptor_heap.hpp"
 #include "../dx_commands.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 bool DescriptorHeap::Initialize(ID3D12Device * const device, u32 capacity, bool isShaderVisible) {
 

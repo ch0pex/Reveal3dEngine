@@ -15,7 +15,7 @@
 
 #include "../dx_common.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 struct Heaps;
 

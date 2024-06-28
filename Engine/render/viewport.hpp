@@ -27,6 +27,7 @@ struct Viewport {
     void Init();
     void Run();
     f64 BenchMark(u32 seconds);
+    INLINE Timer& Time() { return timer; }
 
     Window window;
     Renderer<Gfx> renderer;
@@ -95,6 +96,6 @@ f64 Viewport<Gfx, Window>::BenchMark(u32 seconds) {
         log(logERROR) << e.what();
         //        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
-    return timer.AverageFps();
+    return timer.MeanFps();
 }
 } // reveal3d

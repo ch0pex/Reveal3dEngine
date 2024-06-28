@@ -20,13 +20,15 @@
 //#else
 //#endif
 
-namespace reveal3d::graphics::opengl {
+namespace reveal3d::graphics {
 
-Graphics::Graphics(window::Resolution *res) {
+using namespace opengl;
+
+OpenGL::OpenGL(window::Resolution *res) {
 
 }
 
-void Graphics::LoadPipeline() {
+void OpenGL::LoadPipeline() {
     CreateContext();
 
     if (glewInit() != GLEW_OK) {
@@ -42,7 +44,7 @@ void Graphics::LoadPipeline() {
     renderLayers_.Init();
 }
 
-void Graphics::LoadAssets() {
+void OpenGL::LoadAssets() {
     std::vector<core::Transform> &transforms = core::scene.Transforms();
     std::vector<core::Geometry> &geometries = core::scene.Geometries();
 
@@ -67,11 +69,11 @@ void Graphics::LoadAssets() {
     }
 }
 
-void Graphics::LoadAsset() {
+void OpenGL::LoadAsset() {
     //TODO
 }
 
-void Graphics::Update(render::Camera &camera) {
+void OpenGL::Update(render::Camera &camera) {
     passConstant_ = camera.GetViewProjectionMatrix();
 
 //    auto &transforms = core::scene.Transforms();
@@ -84,29 +86,29 @@ void Graphics::Update(render::Camera &camera) {
 //    }
 }
 
-void Graphics::PrepareRender() {
+void OpenGL::PrepareRender() {
     glClearColor(config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Graphics::Draw() {
+void OpenGL::Draw() {
     for(u32 i = 0; i < render::Shader::count; ++i) {
         renderLayers_.Draw(renderElements_, passConstant_,i);
     }
     SwapBuffer();
 }
 
-void Graphics::Terminate() {
+void OpenGL::Terminate() {
     TerminateContext();
 }
 
-void Graphics::Resize(const window::Resolution &res) {
+void OpenGL::Resize(const window::Resolution &res) {
 
 }
 
 #ifdef WIN32
 
-void Graphics::CreateContext() {
+void OpenGL::CreateContext() {
     window_.hdc = GetDC(window_.hwnd);
 
     // Configuración del formato de píxel
@@ -128,11 +130,11 @@ void Graphics::CreateContext() {
 
 }
 
-void Graphics::SwapBuffer() {
+void OpenGL::SwapBuffer() {
     SwapBuffers(window_.hdc);
 }
 
-void Graphics::TerminateContext() {
+void OpenGL::TerminateContext() {
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(window_.hglrc);
     ReleaseDC(window_.hwnd, window_.hdc);
@@ -140,15 +142,15 @@ void Graphics::TerminateContext() {
 
 #else
 
-void Graphics::CreateContext() {
+void Dx12::CreateContext() {
     glfwMakeContextCurrent(window);
 }
 
-void Graphics::SwapBuffer() {
+void Dx12::SwapBuffer() {
     glfwSwapBuffers(window);
 }
 
-void Graphics::TerminateContext() {
+void Dx12::TerminateContext() {
 
 }
 

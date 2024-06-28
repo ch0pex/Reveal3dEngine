@@ -37,6 +37,7 @@ public:
 
     INLINE f32 DeltaTime() const { return timer_.DeltaTime(); }
     INLINE  void CameraResetMouse() { camera_.ResetMouse(); }
+    INLINE Timer& Time() { return timer_; }
 
 private:
     Gfx graphics_;

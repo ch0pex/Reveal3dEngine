@@ -15,7 +15,7 @@
 
 #include "dx_deferring_system.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 struct DescriptorHandle {
     D3D12_CPU_DESCRIPTOR_HANDLE  cpu {};

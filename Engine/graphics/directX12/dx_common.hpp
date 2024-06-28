@@ -26,7 +26,7 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 constexpr u32 frameBufferCount = 3;
 

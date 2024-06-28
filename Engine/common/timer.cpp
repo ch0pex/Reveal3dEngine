@@ -67,6 +67,8 @@ void Timer::Tick() {
     deltaTime_ = (currTime - prevTime_) * secondPerCount_;
     frameTime_ = deltaTime_;
     prevTime_ = currTime_;
+//    fpsCache_.at(cacheIndex_) = 1 / deltaTime_;
+//    cacheIndex_ = (cacheIndex_ + 1) % 1024;
 
     if (deltaTime_ < 0.0) {
         deltaTime_ = 0.0;

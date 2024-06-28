@@ -14,29 +14,36 @@
 #pragma once
 
 #include "math/math.hpp"
+#include "common/id.hpp"
 
 namespace reveal3d::core {
+
 class Transform {
 public:
-    Transform() : pos_(0), scale_(1), rot_(0)  {}
-    Transform(math::xvec3 pos) : pos_(pos), scale_(1), rot_(0) {}
-    Transform(math::xvec3 pos, math::xvec3 size, math::xvec3 rotation) : pos_(pos), scale_(size), rot_(rotation) {}
+    struct InitInfo {
+        math::xvec3 position;
+        math::xvec3 rotation;
+        math::xvec3 scale;
+    };
 
-    [[nodiscard]] INLINE math::mat4 World() const { return math::Transpose(math::AffineTransformation(pos_, scale_, rot_)); }
-    [[nodiscard]] INLINE math::xvec3 Position() const { return pos_; }
-    [[nodiscard]] INLINE math::xvec3 Scale() const { return scale_; }
-    [[nodiscard]] INLINE math::xvec3 Rotation() const { return math::VecToDegrees(rot_); }
-    [[nodiscard]] INLINE u8 IsDirty() const { return dirty_; }
+    Transform() : id_ { id::invalid }  {}
+    explicit Transform(id_t id);
+    Transform(id_t id, math::xvec3 pos);
+    Transform(id_t id, InitInfo& info);
 
-    INLINE void SetPosition(math::xvec3 pos) { pos_ = pos; dirty_ = 3; }
-    INLINE void SetScale(math::xvec3 size) { scale_ = size; dirty_ = 3; }
-    INLINE void SetRotation(math::xvec3 rot) { rot_ = math::VecToRadians(rot); dirty_ = 3; }
+     math::mat4 World() const;
+     math::xvec3 Position() const;
+     math::xvec3 Scale() const;
+     math::xvec3 Rotation() const;
+     u8 IsDirty() const;
+
+    void SetPosition(math::xvec3 pos);
+    void SetScale(math::xvec3 size);
+    void SetRotation(math::xvec3 rot);
     INLINE void UpdateDirty() { assert(dirty_ > 0); --dirty_; }
 private:
     u8 dirty_ { 3 }; // If dirty should update in render buffers
-    math::xvec3 pos_;
-    math::xvec3 scale_;
-    math::xvec3 rot_;
+    id_t id_;
 };
 
 }

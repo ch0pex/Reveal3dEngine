@@ -19,21 +19,22 @@
 
 #include "dx_graphics_core.hpp"
 #include "config/config.hpp"
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics {
 
 using namespace render;
+using namespace dx12;
 
-Graphics::Graphics(window::Resolution *res) :
+Dx12::Dx12(window::Resolution *res) :
     resolution_(res), presentInfo_(0),
     swapChainFlags_(DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)
 {
 
 }
 
-void Graphics::LoadPipeline() {
+void Dx12::LoadPipeline() {
     InitDXGIAdapter();
     cmdManager_.Init(device_.Get());
-    heaps_.rtv.Initialize(device_.Get(), frameBufferCount, false);
+    heaps_.rtv.Initialize(device_.Get(), dx12::frameBufferCount, false);
     heaps_.srv.Initialize(device_.Get(), 1U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
     renderElements_.reserve(4092U);
@@ -50,7 +51,7 @@ void Graphics::LoadPipeline() {
 
 // TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
 // TODO: check for more features
-void Graphics::InitDXGIAdapter() {
+void Dx12::InitDXGIAdapter() {
     u32 factoryFlags = 0;
     BOOL allowTearing = FALSE;
 
@@ -75,7 +76,7 @@ void Graphics::InitDXGIAdapter() {
 #endif
 }
 
-void Graphics::CreateSwapChain() {
+void Dx12::CreateSwapChain() {
     ComPtr<IDXGISwapChain1> swapChain1;
 
     const DXGI_SWAP_CHAIN_DESC1 swapChainDesc{
@@ -85,7 +86,7 @@ void Graphics::CreateSwapChain() {
             .Stereo = FALSE,
             .SampleDesc = {1, 0},
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = frameBufferCount,
+            .BufferCount = dx12::frameBufferCount,
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
@@ -96,7 +97,7 @@ void Graphics::CreateSwapChain() {
     swapChain1.As(&swapChain_) >> utl::DxCheck;
 }
 
-void Graphics::InitFrameResources() {
+void Dx12::InitFrameResources() {
     for(u32 i = 0; i < frameBufferCount; ++i) {
         D3D12_RENDER_TARGET_VIEW_DESC desc = {
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -110,7 +111,7 @@ void Graphics::InitFrameResources() {
     }
 }
 
-void Graphics::InitConstantBuffers() {
+void Dx12::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
         frameResource.constantBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
@@ -118,7 +119,7 @@ void Graphics::InitConstantBuffers() {
     }
 }
 
-void Graphics::InitDsBuffer() {
+void Dx12::InitDsBuffer() {
     const D3D12_RESOURCE_DESC depthStencilDesc = {
             .Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
             .Alignment = 0,
@@ -165,7 +166,7 @@ void Graphics::InitDsBuffer() {
     device_->CreateDepthStencilView(depthStencilBuffer_.Get(), &dsvDesc, dsHandle_.cpu);
 }
 
-void Graphics::SetViewport() {
+void Dx12::SetViewport() {
     DXGI_SWAP_CHAIN_DESC desc {};
 
     swapChain_->GetDesc(&desc)  >> utl::DxCheck;
@@ -178,7 +179,7 @@ void Graphics::SetViewport() {
     scissorRect_ = { 0, 0, (i32) desc.BufferDesc.Width, (i32) desc.BufferDesc.Height };
 }
 
-void Graphics::LoadAssets() {
+void Dx12::LoadAssets() {
     cmdManager_.Reset(nullptr);
 
     std::vector<core::Transform> &transforms = core::scene.Transforms();
@@ -199,7 +200,7 @@ void Graphics::LoadAssets() {
 
 }
 
-void Graphics::LoadAsset(u32 id) {
+void Dx12::LoadAsset(u32 id) {
     cmdManager_.Reset(nullptr);
     CreateRenderElement(id);
     cmdManager_.List()->Close();
@@ -207,7 +208,7 @@ void Graphics::LoadAsset(u32 id) {
     cmdManager_.WaitForGPU();
 }
 
-void Graphics::Update(render::Camera &camera) {
+void Dx12::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     AlignedConstant<PassConstant, 2> passConstant;
 
@@ -230,7 +231,7 @@ void Graphics::Update(render::Camera &camera) {
     }
 }
 
-void Graphics::PrepareRender() {
+void Dx12::PrepareRender() {
 
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
@@ -258,7 +259,7 @@ void Graphics::PrepareRender() {
 
     renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
 
-    for (u32 i = 0; i < render::Shader::count - 1; ++i) {
+    for (u32 i = 1; i < render::Shader::count - 1; ++i) {
         renderLayers_[i].Set(commandList);
         renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
     }
@@ -279,7 +280,7 @@ void Graphics::PrepareRender() {
 }
 
 
-void Graphics::Draw() {
+void Dx12::Draw() {
     cmdManager_.Execute();
 #ifdef IMGUI
     ImGui::UpdatePlatformWindows();
@@ -289,7 +290,7 @@ void Graphics::Draw() {
     cmdManager_.MoveToNextFrame();
 }
 
-void Graphics::Resize(const window::Resolution &res) {
+void Dx12::Resize(const window::Resolution &res) {
     if (res.aspectRatio == resolution_->aspectRatio) {
         return;
     }
@@ -327,7 +328,7 @@ void Graphics::Resize(const window::Resolution &res) {
     SetViewport();
 }
 
-void Graphics::Terminate() {
+void Dx12::Terminate() {
 #ifdef _DEBUG
     utl::QueueInfo(device_.Get(), FALSE);
     utl::SetReporter(device_.Get());
@@ -347,7 +348,7 @@ void Graphics::Terminate() {
     CleanDeferredResources(heaps_);
 }
 
-void Graphics::CreateRenderElement(u32 index) {
+void Dx12::CreateRenderElement(u32 index) {
     core::Geometry &geometry = core::scene.GetGeometry(index);
     geometry.MarkAsStored();
     if (geometry.RenderInfo() == UINT_MAX) {

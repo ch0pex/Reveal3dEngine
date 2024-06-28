@@ -13,7 +13,7 @@
 
 #include "dx_render_layers.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 RenderLayers::RenderLayers() {
     layers_[render::Shader::opaque].rootSignature.Reset(3);
@@ -149,7 +149,6 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     layers_[render::Shader::grid].pso.Finalize(device);
 
     auto gridMesh = new render::SubMesh();
-//    auto gridMesh = render::SubMesh();
     gridMesh->indexCount = 6;
     meshes_[render::Shader::grid].push_back(gridMesh);
 }

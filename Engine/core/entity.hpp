@@ -23,7 +23,7 @@ namespace reveal3d::core {
 class Entity {
 public:
     Entity(); // TODO: Change -1 for invalid when custom id
-    explicit Entity(u32 id);
+    explicit Entity(id_t id);
     INLINE void SetPosition(f32 x, f32 y, f32 z) { scene.GetTransform(id_).SetPosition({x, y, z}); }
     INLINE void SetPosition(math::xvec3 pos) { scene.GetTransform(id_).SetPosition(pos); }
 
@@ -53,10 +53,10 @@ public:
     [[nodiscard]] INLINE math::xvec3 Position() const { return scene.GetTransform(id_).Position(); }
     [[nodiscard]] INLINE math::xvec3 Rotation() const { return scene.GetTransform(id_).Rotation(); }
     [[nodiscard]] INLINE math::xvec3 Scale() const { return scene.GetTransform(id_).Scale(); }
-    INLINE u32 Id() { return id_; }
+    INLINE u32 Id() const { return id_; }
 
 private:
-    u32 id_;
+    id_t id_;
 };
 
 template<typename T>

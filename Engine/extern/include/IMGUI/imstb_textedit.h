@@ -892,12 +892,12 @@ retry:
             STB_TEXTEDIT_LAYOUTROW(&row, str, state->cursor);
             x = row.x0;
             for (i=0; i < row.num_chars; ++i) {
-               float dx = STB_TEXTEDIT_GETWIDTH(str, start, i);
+               float dx12 = STB_TEXTEDIT_GETWIDTH(str, start, i);
                #ifdef IMSTB_TEXTEDIT_GETWIDTH_NEWLINE
-               if (dx == IMSTB_TEXTEDIT_GETWIDTH_NEWLINE)
+               if (dx12 == IMSTB_TEXTEDIT_GETWIDTH_NEWLINE)
                   break;
                #endif
-               x += dx;
+               x += dx12;
                if (x > goal_x)
                   break;
                ++state->cursor;
@@ -954,12 +954,12 @@ retry:
             STB_TEXTEDIT_LAYOUTROW(&row, str, state->cursor);
             x = row.x0;
             for (i=0; i < row.num_chars; ++i) {
-               float dx = STB_TEXTEDIT_GETWIDTH(str, find.prev_first, i);
+               float dx12 = STB_TEXTEDIT_GETWIDTH(str, find.prev_first, i);
                #ifdef IMSTB_TEXTEDIT_GETWIDTH_NEWLINE
-               if (dx == IMSTB_TEXTEDIT_GETWIDTH_NEWLINE)
+               if (dx12 == IMSTB_TEXTEDIT_GETWIDTH_NEWLINE)
                   break;
                #endif
-               x += dx;
+               x += dx12;
                if (x > goal_x)
                   break;
                ++state->cursor;

@@ -15,7 +15,7 @@
 
 namespace reveal3d::graphics {
 
-RenderElement::RenderElement(dx::BufferInitInfo &vertexInfo, dx::BufferInitInfo &indexInfo)
+RenderElement::RenderElement(dx12::BufferInitInfo &vertexInfo, dx12::BufferInitInfo &indexInfo)
         : vertexBuffer(vertexInfo),
           indexBuffer(indexInfo)
 {

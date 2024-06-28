@@ -17,7 +17,7 @@
 
 
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 std::vector<IUnknown*> deferredReleases[frameBufferCount];
 u32 deferredReleasesFlags[frameBufferCount];

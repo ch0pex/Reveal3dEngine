@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace reveal3d::graphics::dx::utl {
+namespace reveal3d::graphics::dx12::utl {
 
 Checker DxCheck;
 ID3D12DebugDevice2* reporter;

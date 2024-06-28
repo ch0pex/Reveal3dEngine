@@ -15,9 +15,9 @@
 
 namespace reveal3d::core {
 
-Entity::Entity() : id_(-1) {}
+Entity::Entity() : id_(id::invalid) {}
 
-Entity::Entity(u32 id) : id_(id) {}
+Entity::Entity(u32 id) : id_ {id} {}
 
 void Entity::AddMesh(const wchar_t *path) {
     // TODO: Check if has geometry, for now all have geometries

@@ -15,7 +15,7 @@
 
 #include <array>
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 /*
 
 RootParameter::RootParameter() {

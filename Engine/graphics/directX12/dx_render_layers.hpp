@@ -21,7 +21,7 @@
 #include "render/mesh.hpp"
 #include "resources/dx_resources.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 struct Layer {
     void Set(ID3D12GraphicsCommandList* cmdList);

@@ -16,7 +16,7 @@
 #include "dx_common.hpp"
 #include <source_location>
 
-namespace reveal3d::graphics::dx::utl {
+namespace reveal3d::graphics::dx12::utl {
 
 template<typename T>
 void release(T*& resource) {

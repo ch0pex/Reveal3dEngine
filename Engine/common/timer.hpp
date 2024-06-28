@@ -31,7 +31,8 @@ public:
     [[nodiscard]] f32 DeltaTime() const { return static_cast<f32>(deltaTime_); }
     [[nodiscard]] f32 FrameTime() const { return static_cast<f32>(frameTime_); }
     [[nodiscard]] f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
-    [[nodiscard]] f64 AverageFps() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
+    [[nodiscard]] f64 MeanFps() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
+    [[nodiscard]] f64 AverageFPS() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
     [[nodiscard]] u64 TotalFrames() const { return totalFrames_; }
     [[nodiscard]] bool IsRunning() { return !stopped_; };
     [[nodiscard]] f32 Diff(f32 time) const;

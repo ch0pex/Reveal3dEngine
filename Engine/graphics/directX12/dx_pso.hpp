@@ -16,7 +16,7 @@
 #include "dx_common.hpp"
 #include "dx_root_signature.hpp"
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics::dx12 {
 
 class GraphicsPso {
 public:

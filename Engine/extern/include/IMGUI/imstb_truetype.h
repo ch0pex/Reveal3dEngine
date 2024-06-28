@@ -2819,7 +2819,7 @@ typedef struct stbtt__active_edge
 {
    struct stbtt__active_edge *next;
    #if STBTT_RASTERIZER_VERSION==1
-   int x,dx;
+   int x,dx12;
    float ey;
    int direction;
    #elif STBTT_RASTERIZER_VERSION==2
@@ -2844,13 +2844,13 @@ static stbtt__active_edge *stbtt__new_active(stbtt__hheap *hh, stbtt__edge *e, i
    STBTT_assert(z != NULL);
    if (!z) return z;
 
-   // round dx down to avoid overshooting
+   // round dx12 down to avoid overshooting
    if (dxdy < 0)
-      z->dx = -STBTT_ifloor(STBTT_FIX * -dxdy);
+      z->dx12 = -STBTT_ifloor(STBTT_FIX * -dxdy);
    else
-      z->dx = STBTT_ifloor(STBTT_FIX * dxdy);
+      z->dx12 = STBTT_ifloor(STBTT_FIX * dxdy);
 
-   z->x = STBTT_ifloor(STBTT_FIX * e->x0 + z->dx * (start_point - e->y0)); // use z->dx so when we offset later it's by the same amount
+   z->x = STBTT_ifloor(STBTT_FIX * e->x0 + z->dx12 * (start_point - e->y0)); // use z->dx12 so when we offset later it's by the same amount
    z->x -= off_x * STBTT_FIX;
 
    z->ey = e->y1;
@@ -2960,7 +2960,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
                z->direction = 0;
                stbtt__hheap_free(&hh, z);
             } else {
-               z->x += z->dx; // advance to position for current scanline
+               z->x += z->dx12; // advance to position for current scanline
                step = &((*step)->next); // advance through list
             }
          }
@@ -3217,7 +3217,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
                // the second pixel's contribution to the third pixel will be the
                // rectangle 1 wide times the height change in the second pixel, which is dy.
 
-               step = sign * dy * 1; // dy is dy/dx, change in y for every 1 change in x,
+               step = sign * dy * 1; // dy is dy/dx12, change in y for every 1 change in x,
                // which multiplied by 1-pixel-width is how much pixel area changes for each step in x
                // so the area advances by 'step' every time
 
@@ -3265,9 +3265,9 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
                float x3 = xb;
                float y3 = y_bottom;
 
-               // x = e->x + e->dx * (y-y_top)
-               // (y-y_top) = (x - e->x) / e->dx
-               // y = (x - e->x) / e->dx + y_top
+               // x = e->x + e->dx12 * (y-y_top)
+               // (y-y_top) = (x - e->x) / e->dx12
+               // y = (x - e->x) / e->dx12 + y_top
                float y1 = (x - x0) / dx + y_top;
                float y2 = (x+1 - x0) / dx + y_top;
 
@@ -4671,8 +4671,8 @@ STBTT_DEF unsigned char * stbtt_GetGlyphSDF(const stbtt_fontinfo *info, float sc
                      // minimize (x'-sx)*(x'-sx)+(y'-sy)*(y'-sy)
                      float dx = x1-x0, dy = y1-y0;
                      float px = x0-sx, py = y0-sy;
-                     // minimize (px+t*dx)^2 + (py+t*dy)^2 = px*px + 2*px*dx*t + t^2*dx*dx + py*py + 2*py*dy*t + t^2*dy*dy
-                     // derivative: 2*px*dx + 2*py*dy + (2*dx*dx+2*dy*dy)*t, set to 0 and solve
+                     // minimize (px+t*dx12)^2 + (py+t*dy)^2 = px*px + 2*px*dx12*t + t^2*dx12*dx12 + py*py + 2*py*dy*t + t^2*dy*dy
+                     // derivative: 2*px*dx12 + 2*py*dy + (2*dx12*dx12+2*dy*dy)*t, set to 0 and solve
                      float t = -(px*dx + py*dy) / (dx*dx + dy*dy);
                      if (t >= 0.0f && t <= 1.0f)
                         min_dist = dist;

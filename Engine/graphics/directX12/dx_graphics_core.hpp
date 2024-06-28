@@ -31,14 +31,14 @@
 
 #include <array>
 
-namespace reveal3d::graphics::dx {
+namespace reveal3d::graphics {
 
 
 __declspec(align(16))
-class Graphics {
+class Dx12 {
 public:
 
-    explicit Graphics(window::Resolution *res);
+    explicit Dx12(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
     void LoadAsset(u32 id);
@@ -49,7 +49,7 @@ public:
     void Resize(const window::Resolution &res);
     INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
     INLINE ID3D12Device* GetDevice() { return device_.Get(); }
-    INLINE Heaps& GetHeaps() { return heaps_;}
+    INLINE dx12::Heaps& GetHeaps() { return heaps_;}
 
 private:
     void InitDXGIAdapter();
@@ -66,19 +66,19 @@ private:
 
     /****************** Frame resources, depth stencil and swapchain *****************/
 
-    FrameResource frameResources_[frameBufferCount];
+    dx12::FrameResource frameResources_[dx12::frameBufferCount];
     ComPtr<IDXGISwapChain3> swapChain_;
 
     /***************** Depth stencil buffer**********************/
     ComPtr<ID3D12Resource> depthStencilBuffer_;
-    DescriptorHandle dsHandle_;
+    dx12::DescriptorHandle dsHandle_;
 
-    Heaps heaps_;
-    Commands cmdManager_;
+    dx12::Heaps heaps_;
+    dx12::Commands cmdManager_;
 
     /************ Render elements and layers**********/
     std::vector<RenderElement> renderElements_;
-    RenderLayers renderLayers_;
+    dx12::RenderLayers renderLayers_;
 
     /***************** Surface Info **********************/
     window::Resolution *resolution_;

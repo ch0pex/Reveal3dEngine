@@ -17,35 +17,35 @@
 #include "platform.hpp"
 #include <typeinfo>
 
+using id_t = reveal3d::u32;
 
 namespace reveal3d::id {
-
-using id_t = u32;
 
 constexpr u32 generationBits {8};
 constexpr u32 indexBits {sizeof(id_t) * 8 - generationBits};
 constexpr id_t generationMask {(id_t {1} << generationBits) - 1};
 constexpr id_t indexMask {(id_t {1} << generationBits) - 1};
 
-constexpr id_t invalidId {~id_t{0}};
+constexpr id_t invalid {~id_t{0}};
+constexpr u32 minFree {1024};
 
 using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 
-INLINE bool IsValid(id_t id) {
-    return id != invalidId;
+INLINE bool isValid(id_t id) {
+    return id != invalid;
 }
 
-INLINE id_t Index(id_t id) {
+INLINE id_t index(id_t id) {
     return id & indexMask;
 }
 
-INLINE id_t Generation(id_t id) {
+INLINE id_t generation(id_t id) {
     return (id >> indexBits) & generationMask;
 }
 
-INLINE id_t NewGeneration(id_t id) {
-    const id_t gen {Generation(id) + 1};
-    return Index(id) | (gen << indexBits);
+INLINE id_t newGeneration(id_t idx) {
+    const id_t gen {generation(idx) + 1};
+    return index(idx) | (gen << indexBits);
 }
 
 }
