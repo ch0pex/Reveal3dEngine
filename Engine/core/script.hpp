@@ -21,7 +21,7 @@ class Entity;
 
 class Script {
 public:
-//    Script(Entity &entity)  : entity_(entity) {}
+    //    Script(Entity &entity)  : entity_(entity) {}
     virtual void Begin(Entity &entity) {}
     virtual void Update(Entity &entity, f32 dt) { log(logDEBUG) << "Updating"; }
 };

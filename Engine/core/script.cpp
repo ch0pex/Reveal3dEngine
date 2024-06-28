@@ -12,3 +12,14 @@
  */
 
 #include "script.hpp"
+
+namespace reveal3d::core {
+
+namespace internal {
+
+
+}
+
+
+
+}

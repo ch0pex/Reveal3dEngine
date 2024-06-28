@@ -43,7 +43,7 @@ public:
     INLINE Transform& GetTransform() { return scene.GetTransform(id_); }
     INLINE Geometry& GetGeometry() { return scene.GetGeometry(id_); }
     INLINE Script* GetScript() { return scene.GetScript(id_); }
-    INLINE bool IsVisible() const { return scene.GetGeometry(id_).IsVisible(); }
+    [[nodiscard]] INLINE bool IsVisible() const { return scene.GetGeometry(id_).IsVisible(); }
 
     template<typename T> void AddScript();
 

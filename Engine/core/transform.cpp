@@ -17,19 +17,28 @@
 
 namespace reveal3d::core {
 
-struct TransformData {
+
+namespace {
+namespace internal {
+
+struct Transform {
     math::xvec3 position { 0.0f, 0.0f, 0.0f };
     math::xvec3 rotation { 0.0f, 0.0f, 0.0f };
     math::xvec3 scale    { 1.0f, 1.0f, 1.0f };
 };
 
-std::vector<TransformData> transforms;
+}
+
+
+std::vector<internal::Transform> transforms;
+
+} //Anonymous namesapce
 
 Transform::Transform(id_t id) : id_(id) {
     id_t index { id::index(id) };
 
     if (transforms.size() > index)
-        transforms[index] = TransformData();
+        transforms[index] = internal::Transform();
     else
         transforms.emplace_back();
 
@@ -37,7 +46,7 @@ Transform::Transform(id_t id) : id_(id) {
 
 Transform::Transform(id_t id, math::xvec3 pos) : id_(id) {
     id_t index { id::index(id) };
-    TransformData transform;
+    internal::Transform transform;
 
     transform.position = pos;
 
@@ -63,7 +72,7 @@ Transform::Transform(id_t id, Transform::InitInfo &info) : id_(id) {
 }
 
 math::mat4 Transform::World() const {
-    TransformData& transform = transforms[id::index(id_)];
+    internal::Transform& transform = transforms[id::index(id_)];
     return math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
 }
 

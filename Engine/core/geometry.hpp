@@ -14,6 +14,7 @@
 #pragma once
 
 #include "render/mesh.hpp"
+#include "common/id.hpp"
 
 #include <vector>
 #include <memory>
@@ -67,6 +68,7 @@ public:
 //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
 private:
+    id_t id_;
     u8 isDirty_ { 3 };
     bool OnGPU_ { false };
     std::vector<render::SubMesh> meshes_;
