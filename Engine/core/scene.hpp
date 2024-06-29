@@ -21,6 +21,7 @@
 #include "transform.hpp"
 
 #include <deque>
+#include <set>
 #include <vector>
 
 
@@ -78,7 +79,7 @@ public:
     INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
 
     std::vector<Transform>& Transforms();
-    std::vector<id_t>& DirtyTransforms();
+    std::set<id_t>& DirtyTransforms();
     std::vector<Geometry>& Geometries();
 
     void Init();

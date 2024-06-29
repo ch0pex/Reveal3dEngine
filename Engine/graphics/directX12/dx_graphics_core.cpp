@@ -215,13 +215,14 @@ void Dx12::Update(render::Camera &camera) {
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
-    auto &dirtyTransforms = core::scene.DirtyTransforms();
     auto &geometries = core::scene.Geometries();
+    std::set<id_t>& dirties = core::scene.DirtyTransforms();
 
     AlignedConstant<ObjConstant, 1> objConstant;
-    for (auto id : dirtyTransforms) {
+    for (auto id : dirties) {
         objConstant.data.flatColor = geometries.at(id::index(id)).Color();
         core::Transform trans = core::scene.GetEntity(id).Transform();
+
         objConstant.data.worldViewProj = trans.World();
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);

@@ -15,6 +15,7 @@
 #include "scene.hpp"
 
 #include <vector>
+#include <set>
 
 namespace reveal3d::core {
 
@@ -36,7 +37,7 @@ std::vector<math::mat4> invWorld;
 std::vector<internal::Transform> transforms;
 
 std::vector<u8> dirties;
-std::vector<id_t> dirtyIds;
+std::set<id_t> dirtyIds;
 
 } //Anonymous namesapce
 
@@ -47,13 +48,13 @@ Transform::Transform(id_t id) : id_(id) {
         transforms[index] = internal::Transform();
         world.at(index) = math::Mat4Identity();
         dirties.at(index) = 4;
-        dirtyIds.push_back(id_);
+        dirtyIds.insert(id_);
     }
     else {
         transforms.emplace_back();
         world.emplace_back(math::Mat4Identity());
         dirties.emplace_back(4);
-        dirtyIds.emplace_back(id_);
+        dirtyIds.insert(id_);
     }
 
 }
@@ -65,13 +66,13 @@ Transform::Transform(id_t id, math::mat4 &parentWorld) {
         transforms.at(index) = internal::Transform();
         world.at(index) = parentWorld;
         dirties.at(index) = 4;
-        dirtyIds.push_back(id_);
+        dirtyIds.insert(id_);
     }
     else {
         transforms.emplace_back();
         world.push_back(parentWorld);
         dirties.emplace_back(4);
-        dirtyIds.push_back(id_);
+        dirtyIds.insert(id_);
 //        invWorld.push_back();
     }
 
@@ -129,29 +130,27 @@ void Transform::SetRotation(math::xvec3 rot) {
     SetDirty();
 }
 
-std::vector<id_t> Transform::UpdateWorld(math::mat4 parentWorld) {
-    if (dirties.at(id::index(id_)) != 4) return {};
-    --dirties.at(id::index(id_));
+void Transform::UpdateWorld() {
+    if (dirties.at(id::index(id_)) != 4) return;
 
     internal::Transform& transform = transforms[id::index(id_)];
-    std::vector<id_t> newDirties;
-
-    world.at(id::index(id_)) = parentWorld * math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
     core::Scene::Node &currNode = scene.GetNode(id::index(id_));
 
-    if (currNode.firstChild.IsAlive()) {
-        core::Scene::Node &childNode = scene.GetNode(id::index(currNode.firstChild.Id()));
-        while (true) {
-            newDirties.push_back(childNode.entity.Id());
-            dirties.at(id::index(childNode.entity.Id())) = 4;
-            childNode.entity.Transform().UpdateWorld(World());
-            if (childNode.next.Id() != currNode.next.Id() and childNode.next.IsAlive())
-                childNode = core::scene.GetNode(id::index(childNode.next.Id()));
-            else
-                break;
+    if (currNode.parent.IsAlive()) {
+        id_t idx = id::index(currNode.parent.Id());
+        if (dirties.at(idx) < 4) {
+            math::mat4 parentWorld = world.at(idx);
+            world.at(id::index(id_)) = parentWorld * math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+        } else {
+            currNode.parent.Transform().UpdateWorld();
+            math::mat4 parentWorld = world.at(idx);
+            world.at(id::index(id_)) = parentWorld * math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
         }
+    } else {
+        world.at(id::index(id_)) = math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
     }
-    return newDirties;
+
+    --dirties.at(id::index(id_));
 }
 
 void Transform::UnDirty() const {
@@ -165,37 +164,39 @@ void Transform::UnDirty() const {
 
 void Transform::SetDirty() const {
     id_t idx = id::index(id_);
+    if (dirties.at(idx) == 4)
+        return;
     if (dirties.at(idx) == 0)
-        dirtyIds.push_back(id_);
+        dirtyIds.insert(id_);
+    core::Scene::Node &node = scene.GetNode(id_);
+    if (node.firstChild.IsAlive()) {
+        core::Scene::Node &currNode = scene.GetNode(node.firstChild.Id());
+        while(true) {
+            currNode.entity.Transform().SetDirty();
+            if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
+                currNode = scene.GetNode(currNode.next.Id());
+            } else { break; }
+        }
+    }
     dirties.at(idx) = 4;
+}
+u8 Transform::Dirty() const {
+    return dirties.at(id::index(id_));
 }
 
 void Scene::UpdateTransforms() {
-    std::vector<id_t> newDirties;
-    do {
-        for (auto it = dirtyIds.begin(); it != dirtyIds.end();) {
-            id_t idx = id::index(*it);
-            Entity parent = GetNode(idx).parent;
-            std::vector<id_t> entities;
-            if (parent.IsAlive()) {
-                entities = GetEntity(idx).Transform().UpdateWorld(parent.Transform().World());
-            } else {
-                entities = GetEntity(idx).Transform().UpdateWorld();
-            }
-            newDirties.insert(newDirties.end(), entities.begin(), entities.end());
-            if (dirties.at(idx) == 0) {
-                it = dirtyIds.erase(it);
-            } else {
-                ++it;
-            }
+    for (auto it = dirtyIds.begin(); it != dirtyIds.end();) {
+        id_t idx = id::index(*it);
+        GetEntity(idx).Transform().UpdateWorld();
+        if (dirties.at(idx) == 0) {
+            it = dirtyIds.erase(it);
+        } else {
+            ++it;
         }
-        dirtyIds.insert(dirtyIds.end(), newDirties.begin(), newDirties.end());
-        newDirties.clear();
-    } while(newDirties.size());
-
+    }
 }
 
-std::vector<id_t> &Scene::DirtyTransforms() {
+std::set<id_t>& Scene::DirtyTransforms() {
     return dirtyIds;
 }
 

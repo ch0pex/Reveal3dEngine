@@ -35,11 +35,12 @@ public:
      math::xvec3 Rotation() const;
      void UnDirty() const;
      void SetDirty() const;
+     u8 Dirty() const;
 
     void SetPosition(math::xvec3 pos);
     void SetScale(math::xvec3 size);
     void SetRotation(math::xvec3 rot);
-    std::vector<id_t> UpdateWorld(math::mat4 parentWorld = math::Mat4Identity());
+    void UpdateWorld();
 private:
     id_t id_;
 };
