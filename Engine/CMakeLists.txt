@@ -3,7 +3,6 @@ set(SOURCES
         core/geometry.cpp
         core/transform.cpp
         core/script.cpp
-        core/entity.cpp
         render/camera.cpp
         render/light.cpp
         common/timer.cpp
@@ -20,7 +19,6 @@ set(HEADERS
         core/geometry.hpp
         core/transform.hpp
         core/script.hpp
-        core/entity.hpp
         render/renderer.hpp
         render/camera.hpp
         render/light.hpp

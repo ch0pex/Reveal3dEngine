@@ -44,7 +44,7 @@ i32 main() {
     // Setup Platform/Renderer backends
 
     window::InitInfo windowInitInfo(L"Reveal3d", 1920, 1080);
-    render::Viewport<dx::Graphics, window::Win32> viewport(windowInitInfo);
+    render::Viewport<dx12::Graphics, window::Win32> viewport(windowInitInfo);
     core::Entity human = core::scene.AddEntityFromObj(relative(L"Samples/Assets/human.obj").c_str());
 
     core::scene.Init();
@@ -52,10 +52,10 @@ i32 main() {
     viewport.renderer.Init(viewport.window.GetHandle());
 
     ImGui_ImplWin32_Init(viewport.window.GetHandle().hwnd);
-    ImGui_ImplDX12_Init(viewport.renderer.Graphics().GetDevice(), 3,
-                        DXGI_FORMAT_R8G8B8A8_UNORM, viewport.renderer.Graphics().GetHeaps().srv.Get(),
-                        viewport.renderer.Graphics().GetHeaps().srv.CpuStart(),
-                        viewport.renderer.Graphics().GetHeaps().srv.GpuStart() );
+    ImGui_ImplDX12_Init(viewport.renderer.Dx12().GetDevice(), 3,
+                        DXGI_FORMAT_R8G8B8A8_UNORM, viewport.renderer.Dx12().GetHeaps().srv.Get(),
+                        viewport.renderer.Dx12().GetHeaps().srv.CpuStart(),
+                        viewport.renderer.Dx12().GetHeaps().srv.GpuStart() );
 
     viewport.window.Show();
 

@@ -13,7 +13,7 @@
 
 #include "gl_graphics_core.hpp"
 
-#include "core/entity.hpp"
+#include "core/scene.hpp"
 #include "config/config.hpp"
 //#ifdef WIN32
 //#include <GL/wglew.h>

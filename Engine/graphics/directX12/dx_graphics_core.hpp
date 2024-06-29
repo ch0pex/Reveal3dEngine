@@ -24,7 +24,7 @@
 #include "dx_render_layers.hpp"
 #include "resources/dx_resources.hpp"
 
-#include "core/entity.hpp"
+#include "core/scene.hpp"
 #include "render/camera.hpp"
 #include "window/window_info.hpp"
 

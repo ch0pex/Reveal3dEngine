@@ -20,52 +20,77 @@
 #include "script.hpp"
 #include "transform.hpp"
 
+#include <deque>
 #include <vector>
 
-#include <deque>
+
 namespace reveal3d::core {
 
-struct EntityInfo {
-    Transform transform;
-    Geometry geometry;
+class Entity {
+public:
+    Entity() : id_(id::invalid) {}
+    explicit Entity(std::string& name);
+    explicit Entity(const wchar_t *path);
+    explicit Entity(id_t id);
+
+    std::string& Name() const;
+    Transform& Transform();
+    Geometry& Geometry();
+    Script Script();
+
+    void SetName(std::string_view name);
+    void SetTransform();
+    void SetGeometry();
+    void SetScript();
+
+    INLINE u32 Id() const { return id_; }
+    bool IsAlive();
+
+private:
+    void GenerateId();
+    id_t id_;
 };
 
-//TODO: ids, generation and custom std::vector
+
 class Scene {
 public:
+    struct Node {
+        Entity entity;
+        Entity parent;
+        Entity firstChild;
+        Entity next;
+        Entity prev;
+    };
     Scene() = default;
     ~Scene();
 
-    Entity AddEntity(math::vec3 pos);
-    Entity AddEntity(EntityInfo &entity);
-    Entity AddPrimitive(Geometry::primitive type);
+    Entity CreateEntity();
+    void AddEntity(Entity entity);
+    void AddChild(Entity child, Entity parent);
+
     Entity AddEntityFromObj(const wchar_t *path);
     bool RemoveEntity(id_t id);
 
-    INLINE std::string &GetName(u32 id) { return names_.at(id); }
-    INLINE Transform &GetTransform(u32 id) { return transforms_.at(id); }
-    INLINE Geometry &GetGeometry(u32 id) { return geometries_.at(id); }
-    INLINE Script *GetScript(u32 id) { return scripts_.at(id); }
+    INLINE Entity GetEntity(id_t id) { return sceneGraph_.at(id::index(id)).entity; }
+    INLINE u32 NumEntities() const { return sceneGraph_.size(); }
+    INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
+    INLINE Node& Root() { return sceneGraph_.at(0); }
+    INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
 
-    [[nodiscard]] INLINE u32 NumEntities() const { return generations_.size(); }
-    INLINE std::vector<Transform>& Transforms() { return transforms_; }
-    INLINE std::vector<Geometry>& Geometries() { return geometries_; }
-    Entity GetEntity(u32 id);
+    std::vector<Transform>& Transforms();
+    std::vector<id_t>& DirtyTransforms();
+    std::vector<Geometry>& Geometries();
 
     void Init();
     void Update(f32 dt);
     void AddScript(Script *script, id_t id);
 
 private:
-    // Entities Ids
-    std::vector<id_t> generations_;
-    std::deque<id_t> freeIndices_;
-
-    //Entities components
-    std::vector<std::string> names_;
-    std::vector<Transform> transforms_;
-    std::vector<Geometry> geometries_;
-    std::vector<Script *> scripts_;
+    void UpdateTransforms();
+    void UpdateGeometries();
+    // Entity graph
+    Node* lastNode;
+    std::vector<Scene::Node> sceneGraph_;
 };
 
 extern Scene scene;

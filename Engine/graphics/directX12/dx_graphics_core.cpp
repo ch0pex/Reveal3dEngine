@@ -215,19 +215,21 @@ void Dx12::Update(render::Camera &camera) {
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
-    auto &transforms = core::scene.Transforms();
+    auto &dirtyTransforms = core::scene.DirtyTransforms();
     auto &geometries = core::scene.Geometries();
 
     AlignedConstant<ObjConstant, 1> objConstant;
+    for (auto id : dirtyTransforms) {
+        objConstant.data.flatColor = geometries.at(id::index(id)).Color();
+        core::Transform trans = core::scene.GetEntity(id).Transform();
+        objConstant.data.worldViewProj = trans.World();
+        trans.UnDirty();
+        currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
+    }
+
     for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
         if (!geometries[i].OnGpu())
             LoadAsset(i);
-        if (transforms[i].IsDirty() > 0) {
-            objConstant.data.flatColor = geometries[i].Color();
-            objConstant.data.worldViewProj = transforms[i].World();
-            transforms[i].UpdateDirty();
-            currFrameRes.constantBuffer.CopyData(i, &objConstant);
-        }
     }
 }
 
@@ -349,7 +351,7 @@ void Dx12::Terminate() {
 }
 
 void Dx12::CreateRenderElement(u32 index) {
-    core::Geometry &geometry = core::scene.GetGeometry(index);
+    core::Geometry &geometry = core::scene.GetEntity(index).Geometry();
     geometry.MarkAsStored();
     if (geometry.RenderInfo() == UINT_MAX) {
         BufferInitInfo vertexBufferInfo = {

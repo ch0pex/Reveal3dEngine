@@ -17,16 +17,18 @@
 
 namespace reveal3d::core {
 
-namespace {
-
-std::vector<id_t> generations;
-std::vector<id_t> freeIds;
-
-
-std::vector<bool> uploaded;
-std::vector<u8> dirty;
-
-}
+//namespace {
+//
+//std::vector<id_t> generations;
+//std::vector<id_t> freeIds;
+//
+//
+//std::vector<std::vector<render::SubMesh>> subMeshes_;
+//std::shared_ptr<render::Mesh> mesh_;
+//std::vector<bool> uploaded;
+//std::vector<u8> dirty;
+//
+//}
 
 Geometry::Geometry(const wchar_t *path) {
     mesh_ = std::make_shared<render::Mesh>();

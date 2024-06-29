@@ -16,6 +16,7 @@
 #include "primitive_types.hpp"
 #include "logger.hpp"
 #include "platform.hpp"
+#include "id.hpp"
 
 namespace reveal3d {
 
