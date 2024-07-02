@@ -91,6 +91,7 @@ INLINE mat4 LookAt(xvec3 position, xvec3 focusPoint, xvec3 upDir) { return XMMat
 INLINE mat4 PerspectiveFov(f32 fov, f32 aspectRatio, f32 nearPlane, f32 farPlane) {return XMMatrixPerspectiveFovLH(Radians(fov), aspectRatio, nearPlane, farPlane);}
 //INLINE mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixAffineTransformation(scale, {0.0f, 0.0f, 0.0f}, XMQuaternionRotationRollPitchYawFromVector(rotation), position);}
 INLINE mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation) * XMMatrixTranslationFromVector(position); }
+INLINE mat4 Inverse(const mat4& mat) { return XMMatrixInverse(nullptr, mat); }
 INLINE mat4 Mat4Identity() { return XMMatrixIdentity(); }
 
 INLINE mat3 InverseTranspose(const mat3 & mat)

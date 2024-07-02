@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file matrix.hpp
+ * @file mat4_.hpp
  * @version 1.0
  * @date 01/03/2024
  * @brief Short description
@@ -82,6 +82,58 @@ public:
     INLINE void SetZ(xvec4 z) { mat4_.r[2] = z; }
     INLINE void SetW(xvec4 w) { mat4_.r[3] = w; }
 
+    INLINE xvec3 GetTranslation() const {
+        return { GetX().GetW(), GetY().GetW(), GetZ().GetW() };
+    }
+    INLINE xvec3 GetScale() const {
+        XMVECTOR scaleX = XMVector3Length(mat4_.r[0]);
+        XMVECTOR scaleY = XMVector3Length(mat4_.r[1]);
+        XMVECTOR scaleZ = XMVector3Length(mat4_.r[2]);
+        return XMVectorSet(XMVectorGetX(scaleX), XMVectorGetY(scaleY), XMVectorGetZ(scaleZ), 0.0f);
+    }
+    INLINE xvec3 GetRotation() const {
+        // Crear una matriz de rotación sin la escala
+        xvec3 rotation;
+//
+//        f32 sy = -XMVectorGetX(mat4_.r[0]);
+//        if (sy < 1.0f) {
+//            if (sy > -1.0f) {
+//                rotation.SetY(asinf(sy));
+//                rotation.SetX(atan2f(XMVectorGetY(mat4_.r[2]), XMVectorGetZ(mat4_.r[2])));
+//                rotation.SetZ(atan2f(XMVectorGetY(mat4_.r[1]), XMVectorGetX(mat4_.r[1])));
+//            } else {
+//                 Not a unique solution: rotation.y == -90 degrees
+//                rotation.SetY(-XM_PIDIV2);
+//                rotation.SetX(-atan2f(XMVectorGetY(mat4_.r[1]), XMVectorGetY(mat4_.r[0])));
+//                rotation.SetZ(0.0f);
+//            }
+//        } else {
+//             Not a unique solution: rotation.y == 90 degrees
+//            rotation.SetY(XM_PIDIV2);
+//            rotation.SetX(atan2f(XMVectorGetY(mat4_.r[1]), XMVectorGetY(mat4_.r[0])));
+//            rotation.SetZ(0.0f);
+//        }
+
+        return rotation;
+    }
+    INLINE void Decompose(xvec3& translation, xvec3& scale, xvec3& rotation) {
+        translation = mat4_.r[3];
+
+        // Extraer la escala
+        XMVECTOR scaleX = XMVector3Length(mat4_.r[0]);
+        XMVECTOR scaleY = XMVector3Length(mat4_.r[1]);
+        XMVECTOR scaleZ = XMVector3Length(mat4_.r[2]);
+        scale = XMVectorSet(XMVectorGetX(scaleX), XMVectorGetY(scaleY), XMVectorGetZ(scaleZ), 0.0f);
+
+        // Crear una matriz de rotación sin la escala
+        XMMATRIX rotationMatrix = mat4_;
+        rotationMatrix.r[0] = XMVector3Normalize(mat4_.r[0]);
+        rotationMatrix.r[1] = XMVector3Normalize(mat4_.r[1]);
+        rotationMatrix.r[2] = XMVector3Normalize(mat4_.r[2]);
+
+        // Extraer la rotación (cuaternión)
+        rotation = XMQuaternionRotationMatrix(rotationMatrix);
+    }
 
     INLINE operator XMMATRIX() const { return mat4_; }
     INLINE xvec4 operator*(xvec3 vec) const { return XMVector3Transform(vec, mat4_); }

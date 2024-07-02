@@ -31,7 +31,6 @@ struct Transform {
 
 }
 
-
 std::vector<math::mat4> world;
 std::vector<math::mat4> invWorld;
 std::vector<internal::Transform> transforms;
@@ -47,12 +46,14 @@ Transform::Transform(id_t id) : id_(id) {
     if (transforms.size() > index) {
         transforms[index] = internal::Transform();
         world.at(index) = math::Mat4Identity();
+        invWorld.at(index) = math::Mat4Identity();
         dirties.at(index) = 4;
         dirtyIds.insert(id_);
     }
     else {
         transforms.emplace_back();
         world.emplace_back(math::Mat4Identity());
+        invWorld.emplace_back(math::Mat4Identity());
         dirties.emplace_back(4);
         dirtyIds.insert(id_);
     }
@@ -65,15 +66,16 @@ Transform::Transform(id_t id, math::mat4 &parentWorld) {
     if (transforms.size() > index) {
         transforms.at(index) = internal::Transform();
         world.at(index) = parentWorld;
+        invWorld.at(index) = math::Mat4Identity();
         dirties.at(index) = 4;
         dirtyIds.insert(id_);
     }
     else {
         transforms.emplace_back();
         world.push_back(parentWorld);
+        invWorld.at(index) = math::Mat4Identity();
         dirties.emplace_back(4);
         dirtyIds.insert(id_);
-//        invWorld.push_back();
     }
 
 }
@@ -89,14 +91,13 @@ Transform::Transform(id_t id, math::xvec3 pos) : id_(id) {
     } else {
         transforms.emplace_back();
     }
-
 }
 
-math::mat4 Transform::World() const {
+math::mat4& Transform::World() const {
     return world.at(id::index(id_));
 }
 
-math::mat4 Transform::InvWorld() const {
+math::mat4& Transform::InvWorld() const {
     return invWorld.at(id::index(id_));
 }
 
@@ -112,22 +113,103 @@ math::xvec3 Transform::Rotation() const {
     return math::VecToDegrees(transforms.at(id::index(id_)).rotation);
 }
 
-void Transform::SetPosition(math::xvec3 pos) {
+math::xvec3 Transform::WorldPosition() const {
+    math::mat4 worldMat = world.at(id::index(id_));
+    return worldMat.GetTranslation();
+}
+
+math::xvec3 Transform::WorldScale() const {
+    return world.at(id::index(id_)).GetScale();
+}
+
+math::xvec3 Transform::WorldRotation() const {
+    return world.at(id::index(id_)).GetRotation();
+}
+
+void Transform::SetPosition(math::xvec3 pos) const {
     id_t idx = id::index(id_);
     transforms.at(idx).position = pos;
     SetDirty();
 }
 
-void Transform::SetScale(math::xvec3 size) {
+void Transform::SetScale(math::xvec3 size) const {
     id_t idx = id::index(id_);
     transforms.at(idx).scale = size;
     SetDirty();
 }
 
-void Transform::SetRotation(math::xvec3 rot) {
+void Transform::SetRotation(math::xvec3 rot) const {
     id_t idx = id::index(id_);
     transforms.at(idx).rotation = math::VecToRadians(rot);
     SetDirty();
+}
+
+
+void Transform::SetWorldPosition(const math::xvec3 pos) {
+    id_t idx = id::index(id_);
+    internal::Transform& trans = transforms.at(idx);
+    world.at(idx) = math::Transpose(math::AffineTransformation(pos, trans.scale, trans.rotation));
+    core::Entity parent = scene.GetNode(id_).parent;
+    if (parent.IsAlive()) {
+        trans.position = math::Transpose(parent.Transform().InvWorld()) * pos;
+    } else {
+        trans.position = pos;
+    }
+
+    invWorld.at(idx) = math::Inverse(world.at(idx));
+    dirties.at(idx) = 3;
+    dirtyIds.insert(idx);
+    UpdateChilds();
+}
+
+void Transform::SetWorldScale(const math::xvec3 size) {
+    id_t idx = id::index(id_);
+    internal::Transform& trans = transforms.at(idx);
+    world.at(idx) = math::Transpose(math::AffineTransformation(trans.position, size, trans.rotation));
+    core::Entity parent = scene.GetNode(id_).parent;
+    if (parent.IsAlive()) {
+        trans.scale = parent.Transform().InvWorld() * size;
+    } else {
+        trans.scale = size;
+    }
+    invWorld.at(idx) = math::Inverse(world.at(idx));
+    dirties.at(idx) = 3;
+    dirtyIds.insert(idx);
+    UpdateChilds();
+}
+
+void Transform::SetWorldRotation(const math::xvec3 rot) {
+    id_t idx = id::index(id_);
+    internal::Transform& trans = transforms.at(id::index(id_));
+    World() = math::Transpose(math::AffineTransformation(trans.position, trans.scale, rot));
+    core::Entity parent = scene.GetNode(id_).parent;
+    if (parent.IsAlive()) {
+        trans.rotation = parent.Transform().InvWorld() * rot;
+    } else {
+       trans.rotation = rot;
+    }
+    invWorld.at(idx) = math::Inverse(world.at(idx));
+    dirties.at(idx) = 3;
+    dirtyIds.insert(idx);
+    UpdateChilds();
+}
+
+math::mat4 Transform::CalcWorld(id_t id){
+    internal::Transform &transform = transforms.at(id::index(id));
+    return math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+}
+
+void Transform::UpdateChilds() const {
+    core::Scene::Node &node = scene.GetNode(id_);
+    if (node.firstChild.IsAlive()) {
+        core::Scene::Node &currNode = scene.GetNode(node.firstChild.Id());
+        while(true) {
+            currNode.entity.Transform().SetDirty();
+            if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
+                currNode = scene.GetNode(currNode.next.Id());
+            } else { break; }
+        }
+    }
 }
 
 void Transform::UpdateWorld() {
@@ -140,16 +222,16 @@ void Transform::UpdateWorld() {
         id_t idx = id::index(currNode.parent.Id());
         if (dirties.at(idx) < 4) {
             math::mat4 parentWorld = world.at(idx);
-            world.at(id::index(id_)) = parentWorld * math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+            World() = parentWorld * CalcWorld(id_);
         } else {
             currNode.parent.Transform().UpdateWorld();
             math::mat4 parentWorld = world.at(idx);
-            world.at(id::index(id_)) = parentWorld * math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+            World() = parentWorld * CalcWorld(id_);
         }
     } else {
-        world.at(id::index(id_)) = math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+        World() = CalcWorld(id_);
     }
-
+    InvWorld() = math::Transpose(math::Inverse(world.at(id::index(id_))));
     --dirties.at(id::index(id_));
 }
 
@@ -158,7 +240,7 @@ void Transform::UnDirty() const {
     if (dirties.at(idx) != 0) {
         --dirties.at(idx);
     } else {
-       dirties.at(idx) = 0;
+        dirties.at(idx) = 0;
     }
 }
 
@@ -168,18 +250,10 @@ void Transform::SetDirty() const {
         return;
     if (dirties.at(idx) == 0)
         dirtyIds.insert(id_);
-    core::Scene::Node &node = scene.GetNode(id_);
-    if (node.firstChild.IsAlive()) {
-        core::Scene::Node &currNode = scene.GetNode(node.firstChild.Id());
-        while(true) {
-            currNode.entity.Transform().SetDirty();
-            if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
-                currNode = scene.GetNode(currNode.next.Id());
-            } else { break; }
-        }
-    }
+    UpdateChilds();
     dirties.at(idx) = 4;
 }
+
 u8 Transform::Dirty() const {
     return dirties.at(id::index(id_));
 }

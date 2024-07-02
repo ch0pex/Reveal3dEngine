@@ -19,6 +19,7 @@
 
 namespace reveal3d::core {
 
+
 class Transform {
 public:
 
@@ -28,20 +29,32 @@ public:
     Transform(id_t id, math::xvec3 pos);
 //    Transform(id_t id, InitInfo& info);
 
-    [[nodiscard]] math::mat4 World() const;
-    [[nodiscard]] math::mat4 InvWorld() const;
-     math::xvec3 Position() const;
-     math::xvec3 Scale() const;
-     math::xvec3 Rotation() const;
-     void UnDirty() const;
-     void SetDirty() const;
-     u8 Dirty() const;
+    [[nodiscard]] math::mat4& World() const;
+    [[nodiscard]] math::mat4& InvWorld() const;
+    [[nodiscard]] math::xvec3 Position() const;
+    [[nodiscard]] math::xvec3 Scale() const;
+    [[nodiscard]] math::xvec3 Rotation() const;
+    [[nodiscard]] math::xvec3 WorldPosition() const;
+    [[nodiscard]] math::xvec3 WorldScale() const;
+    [[nodiscard]] math::xvec3 WorldRotation() const;
 
-    void SetPosition(math::xvec3 pos);
-    void SetScale(math::xvec3 size);
-    void SetRotation(math::xvec3 rot);
+    INLINE bool IsAlive() const { return id_ != id::invalid; }
+    INLINE id_t Id() { return id_; }
+
+    void UnDirty() const;
+    void SetDirty() const;
+    u8 Dirty() const;
+
+    void SetPosition(math::xvec3 pos) const;
+    void SetScale(math::xvec3 size) const;
+    void SetRotation(math::xvec3 rot) const;
+    void SetWorldPosition(math::xvec3 pos);
+    void SetWorldScale(math::xvec3 size);
+    void SetWorldRotation(math::xvec3 rot);
     void UpdateWorld();
 private:
+    static math::mat4 CalcWorld(id_t id);
+    void UpdateChilds() const;
     id_t id_;
 };
 

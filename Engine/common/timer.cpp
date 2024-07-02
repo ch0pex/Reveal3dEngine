@@ -17,7 +17,7 @@ namespace reveal3d {
 
 Timer::Timer() :
     secondPerCount_(0.0), deltaTime_(-1.0), baseTime_(0), pausedTime_(0), stopTime_(0), prevTime_(0), currTime_(0),
-    totalFrames_(0), stopped_(false)
+    prevTotalFrames_(0), totalTime_(0), totalFrames_(0), stopped_(false)
 {
     QueryFrequency(countsPerSecond_);
     secondPerCount_ = 1.0 / (f64)countsPerSecond_;
@@ -67,8 +67,14 @@ void Timer::Tick() {
     deltaTime_ = (currTime - prevTime_) * secondPerCount_;
     frameTime_ = deltaTime_;
     prevTime_ = currTime_;
-//    fpsCache_.at(cacheIndex_) = 1 / deltaTime_;
-//    cacheIndex_ = (cacheIndex_ + 1) % 1024;
+
+    u64 newTotalSeconds =static_cast<u64>(floor((currTime - baseTime_) * secondPerCount_));
+
+    if (totalTime_ < newTotalSeconds) {
+        totalTime_ = newTotalSeconds;
+        fps_ = totalFrames_ - prevTotalFrames_;
+        prevTotalFrames_ = totalFrames_;
+    }
 
     if (deltaTime_ < 0.0) {
         deltaTime_ = 0.0;

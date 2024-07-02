@@ -91,6 +91,7 @@ public:
     INLINE void operator*=(const scalar s) { *this = *this * xvec4(s); }
     INLINE void operator/=(const scalar s) { *this = *this / xvec4(s); }
     INLINE operator DirectX::XMVECTOR() const { return vec_; }
+    INLINE operator xvec3() const { return vec_; }
 
     INLINE friend xvec4 operator* (scalar v1, xvec4 v2) { return xvec4(v1) * v2; }
     INLINE friend xvec4 operator/ (scalar v1, xvec4 v2) 	{ return xvec4(v1) / v2; }

@@ -32,7 +32,7 @@ public:
     [[nodiscard]] f32 FrameTime() const { return static_cast<f32>(frameTime_); }
     [[nodiscard]] f32 Fps() const { return static_cast<f32>(1 / deltaTime_); }
     [[nodiscard]] f64 MeanFps() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
-    [[nodiscard]] f64 AverageFPS() const { return static_cast<f64>(totalFrames_) / static_cast<f64>(TotalTime()); }
+    [[nodiscard]] f64 AverageFPS() const { return fps_; }
     [[nodiscard]] u64 TotalFrames() const { return totalFrames_; }
     [[nodiscard]] bool IsRunning() { return !stopped_; };
     [[nodiscard]] f32 Diff(f32 time) const;
@@ -70,6 +70,9 @@ private:
     i64 prevTime_;
     i64 currTime_;
 
+    u64 totalTime_;
+    u64 prevTotalFrames_;
+    u64 fps_;
     u64 totalFrames_;
     bool stopped_;
 
