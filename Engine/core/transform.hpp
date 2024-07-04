@@ -38,12 +38,6 @@ public:
     [[nodiscard]] math::xvec3 WorldScale() const;
     [[nodiscard]] math::xvec3 WorldRotation() const;
 
-    INLINE bool IsAlive() const { return id_ != id::invalid; }
-    INLINE id_t Id() { return id_; }
-
-    void UnDirty() const;
-    void SetDirty() const;
-    u8 Dirty() const;
 
     void SetPosition(math::xvec3 pos) const;
     void SetScale(math::xvec3 size) const;
@@ -52,6 +46,13 @@ public:
     void SetWorldScale(math::xvec3 size);
     void SetWorldRotation(math::xvec3 rot);
     void UpdateWorld();
+
+    INLINE bool IsAlive() const { return id_ != id::invalid; }
+    INLINE id_t Id() { return id_; }
+
+    void UnDirty() const;
+    void SetDirty() const;
+    u8 Dirty() const;
 private:
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
