@@ -18,14 +18,6 @@
 
 namespace reveal3d::graphics::dx12::utl {
 
-template<typename T>
-void release(T*& resource) {
-    if (resource) {
-        resource->Release();
-        resource = nullptr;
-    }
-}
-
 struct Checker {};
 
 extern Checker DxCheck;
@@ -37,6 +29,14 @@ struct Error {
 };
 
 void operator>>(Error, Checker);
+
+template<typename T>
+void release(T*& resource) {
+    if (resource) {
+        resource->Release();
+        resource = nullptr;
+    }
+}
 
 void EnableCpuLayer(u32 &factoryFlag);
 void EnableGpuLayer();
