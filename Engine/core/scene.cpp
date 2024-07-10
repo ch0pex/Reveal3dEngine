@@ -130,13 +130,13 @@ void Scene::AddChild(Entity child, Entity parent) {
     if (parentNode.firstChild.Id() == id::invalid) {
        parentNode.firstChild = child;
     } else {
-        Node& currChild = sceneGraph_.at(id::index(parentNode.firstChild.Id()));
-        while (currChild.next.Id() != parentNode.next.Id() and currChild.next.IsAlive()) {
-           currChild = sceneGraph_.at(id::index(currChild.next.Id()));
+        Node* currChild = &sceneGraph_.at(id::index(parentNode.firstChild.Id()));
+        while (currChild->next.IsAlive()) {
+           currChild = &sceneGraph_.at(id::index(currChild->next.Id()));
         }
-        currChild.next = childNode.entity;
-        childNode.prev = currChild.entity;
-        childNode.next = parentNode.next;
+        currChild->next = childNode.entity;
+        childNode.prev = currChild->entity;
+//        childNode.next = parentNode.next;
     }
 
     sceneGraph_.push_back(childNode);
