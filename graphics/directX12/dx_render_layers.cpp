@@ -54,10 +54,10 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     HRESULT hr = S_OK;
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
@@ -83,10 +83,10 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
     layers_[render::Shader::opaque].pso.Finalize(device);
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
@@ -110,10 +110,10 @@ void RenderLayers::BuildPSOs(ID3D12Device *device) {
 
     layers_[render::Shader::flat].pso.Finalize(device);
 
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"Engine/graphics/cshaders/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
     if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
