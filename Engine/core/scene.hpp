@@ -6,10 +6,27 @@
  * @file scene.hpp
  * @version 1.0
  * @date 11/03/2024
- * @brief Short description
+ * @brief ECS  
  *
- * Longer description
- */
+ * Entity component system main header file. 
+ * In Reveal3D componentes just holds and ID that points to the real data.
+ * Real data is compacted in order to avoid cache misses
+ * 
+ * ************************** Scene IDs ************************************************* Scene Data ***********************
+ *                                                            *                                                            *
+ * Enity IDs        |  00   | 01    |  02   |  03  | ...      * Enity IDs        |  00   | 01    |  02   |  03  | ...      * 
+ *                                                            *                                                            *
+ * ----------------------- Components IDs-------------------- * ---------------------- Components Data ------------------- *
+ *                  ------- ------- ------- -------           *                  ------- ------- -------                   *
+ * Transform IDs   |   00  |  01   |  FF   |  02  |  ...      * Transforms      |       |       |      |  ...              *
+ *                 ------- ------- ------- -------            *                 ------- ------- -------                    *
+ *                  ------- ------- ------- -------           *                  ------- ------- -------                   *
+ * Geometry IDs    |  00   |  FF   |  01   |  02  |  ...      * Geometries      |       |       |      |  ...              *
+ *                 ------- ------- ------- -------            *                 ------- ------- -------                    *
+ *                  ------- ------- ------- -------           *                  ------- -------                           *
+ * Script IDs      | 00    |  FF   | FF   |  01   |  ...      * Scripts         |       |      |  ...                      *
+ *                 ------- ------- ------- -------            *                 ------- -------                            *
+ * *************************************************************************************************************************
 
 #pragma once
 
