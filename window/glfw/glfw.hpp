@@ -8,7 +8,7 @@
  * @date 27/02/2024
  * @brief Short description
  *
- * Longer description
+ * GLFW backend manager class
  */
 
 #pragma once
@@ -54,14 +54,14 @@ void Glfw::Create(render::Renderer<Gfx> &renderer) {
 #ifdef WIN32
     winPtr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
     if (!winPtr_) {
-        std::cout << "Creat window error" << std::endl;
+        std::cout << "Creat window error\n";
     }
     info_.handle.hwnd = glfwGetWin32Window(winPtr_);
 
-//    if (info_.handle.hwnd == NULL) {
-//        glfwTerminate();
-//        std::terminate();
-//    }
+    if (info_.handle.hwnd == NULL) {
+        glfwTerminate();
+        std::terminate();
+    }
 
 #else
     winPtr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);

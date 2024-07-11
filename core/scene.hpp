@@ -17,15 +17,15 @@
  * Enity IDs        |  00   | 01    |  02   |  03  | ...    * Enity IDs        |  00   | 01    |  02   |  03  | ...    * 
  *                                                          *                                                          *
  * --------------------- Components IDs-------------------- * ------------------- Components Data -------------------- *
- *                  ------- ------- ------- -------         *                  ------- ------- -------                 *
- * Transform IDs   |   00  |  01   |  FF   |  02  |  ...    * Transforms      |       |       |      |  ...            *
- *                 ------- ------- ------- -------          *                 ------- ------- -------                  *
- *                  ------- ------- ------- -------         *                  ------- ------- -------                 *
- * Geometry IDs    |  00   |  FF   |  01   |  02  |  ...    * Geometries      |       |       |      |  ...            *
- *                 ------- ------- ------- -------          *                 ------- ------- -------                  *
- *                  ------- ------- ------- -------         *                  ------- -------                         *
- * Script IDs      | 00    |  FF   | FF   |  01   |  ...    * Scripts         |       |      |  ...                    *
- *                 ------- ------- ------- -------          *                 ------- -------                          *
+ *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
+ * Transform IDs   |   00  |  01   |  FF   |  02  |  ...    * Transforms      |       |       |       |  ...           *
+ *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
+ *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
+ * Geometry IDs    |  00   |  FF   |  01   |  02  |  ...    * Geometries      |       |       |       |  ...           *
+ *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
+ *                  ------- ------- ------- ------          *                  ------- -------                         *
+ * Script IDs      |  00   |  FF   |  FF   |  01   |  ...   * Scripts         |       |       |  ...                   *
+ *                  ------- ------- ------- ------          *                  ------- -------                         *
  * *********************************************************************************************************************
  */
 
@@ -90,15 +90,20 @@ public:
     Entity AddEntityFromObj(const wchar_t *path);
     bool RemoveEntity(id_t id);
 
+    /******************************* Scene Graph methods ******************************/
+    [[nodiscard]] INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
+    [[nodiscard]] INLINE u32 NumEntities() const { return sceneGraph_.size(); }
     INLINE Entity GetEntity(id_t id) { return sceneGraph_.at(id::index(id)).entity; }
-    INLINE u32 NumEntities() const { return sceneGraph_.size(); }
     INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
     INLINE Node& Root() { return sceneGraph_.at(0); }
-    INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
 
+    // NOTE: references, yes this is not the best
     std::vector<Transform>& Transforms();
-    std::set<id_t>& DirtyTransforms();
     std::vector<Geometry>& Geometries();
+
+    std::set<id_t>& DirtyTransforms();
+    std::set<id_t>& DirtyGeometries();
+    std::set<id_t>& DirtyLights();
 
     void Init();
     void Update(f32 dt);

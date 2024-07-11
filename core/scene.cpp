@@ -6,9 +6,9 @@
  * @file scene.cpp
  * @version 1.0
  * @date 11/03/2024
- * @brief Short description
+ * @brief Scene
  *
- * Longer description
+ * Scene IDs implementation
  */
 
 #include "scene.hpp"
@@ -19,27 +19,25 @@ Scene scene;
 
 namespace {
 
+/*************** Entity IDs ***************/
+std::vector<id_t>           generations;
+std::deque<id_t>            freeIndices;
 
-// Entity IDs
-std::vector<id_t> generations;
-std::deque<id_t> freeIndices;
+/************* Component IDs ***************/
+std::vector<std::string>    names;
+std::vector<Transform>      transforms;
+std::vector<Geometry>       geometries;
+std::vector<Script *>       scripts;
+//std::vector<Light>          lights;
 
-//Components IDs
-std::vector<std::string> names;
-std::vector<Transform> transforms;
-std::vector<Geometry> geometries;
-std::vector<Script *> scripts;
-
-}
+} // Anonymous namespace
 
 Entity::Entity(std::string& name) {
     std::string id;
 
     GenerateId();
     id = std::to_string(id_);
-
     names.emplace_back(name + id);
-
 }
 
 Entity::Entity(u32 id) : id_ {id} { }
@@ -175,6 +173,7 @@ Scene::~Scene() {
 //        delete script;
 //    }
 }
+
 std::vector<Transform> &Scene::Transforms() {
     return transforms;
 }

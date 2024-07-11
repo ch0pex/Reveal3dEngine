@@ -6,9 +6,9 @@
  * @file math.hpp
  * @version 1.0
  * @date 02/03/2024
- * @brief Short description
+ * @brief Math
  *
- * Longer description
+ * Math includes
  */
 
 #pragma once

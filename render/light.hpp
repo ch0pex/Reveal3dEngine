@@ -12,3 +12,25 @@
  */
 
 #pragma once
+
+#include "common/common.hpp"
+
+
+namespace reveal3d::render {
+
+class Light {
+public:
+    enum type {
+        directional,
+        spot,
+        cone,
+
+        count
+    };
+
+private:
+    id_t id_ { id::invalid };
+};
+
+
+}

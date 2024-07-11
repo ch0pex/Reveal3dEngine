@@ -89,8 +89,8 @@ u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, s
             if (line[1] == 'n') {
                 math::vec3 normal;
                 std::stringstream(line) >> c[0] >> c[1] >> normal.x >> normal.y >> normal.z;
-                normal.z = -normal.z;
-                normal.y = -normal.y;
+//                normal.z = -normal.z;
+//                normal.y = -normal.y;
                 normals.push_back(normal);
             } else if (line[1] == 't') {
                 math::vec2 uv;

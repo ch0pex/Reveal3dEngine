@@ -8,7 +8,7 @@
  * @date 27/02/2024
  * @brief Short description
  *
- * Longer description
+ * Win32 backend manager class
  */
 
 #pragma once

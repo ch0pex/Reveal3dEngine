@@ -8,7 +8,12 @@
  * @date 07/03/2024
  * @brief Short description
  *
- * Longer description
+ * Input module has two levels of abstraction above callbacks
+ *
+ * -------------------------------------
+ * |   Code  |  Action   |  Callback   |
+ * -------------------------------------
+ *
  */
 
 #pragma once
