@@ -8,7 +8,19 @@
  * @date 28/02/2024
  * @brief Short description
  *
- * Longer description
+ * Viewport template class, it takes two classes as parameters a window manager
+ * and a renderer  
+ *                           ---------- 
+ *                          | Viewport |
+ *                           ---------- 
+ *                               |
+ *                  ------------------------------
+ *                  |
+ *             ----------              ---------- 
+ *            | Renderer |
+ *             ---------- 
+ *     
+ * 
  */
 
 #pragma once

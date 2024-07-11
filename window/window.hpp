@@ -6,9 +6,10 @@
  * @file window.hpp
  * @version 1.0
  * @date 27/02/2024
- * @brief Short description
+ * @brief Window Concept 
  *
- * Longer description
+ * This C++ Concept defines the constrains that a Window Manager Class
+ * must have in order to be used in a Viewport class 
  */
 
 #pragma once

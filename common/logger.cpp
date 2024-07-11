@@ -6,9 +6,9 @@
  * @file logger.cpp
  * @version 1.0
  * @date 02/06/2024
- * @brief Short description
+ * @brief Logger 
  *
- * Longer description
+ * Logger class 
  */
 
 #include "logger.hpp"

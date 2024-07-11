@@ -6,9 +6,9 @@
  * @file mesh.hpp
  * @version 1.0
  * @date 10/03/2024
- * @brief Short description
+ * @brief Mesh and Submesh 
  *
- * Longer description
+ * Mesh, submesh and shader structures 
  */
 
 #pragma once

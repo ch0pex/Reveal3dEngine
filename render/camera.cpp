@@ -6,9 +6,9 @@
  * @file camera.cpp
  * @version 1.0
  * @date 01/03/2024
- * @brief Short description
+ * @brief Reveal3D Camera 
  *
- * Longer description
+ * Visualization Camera Class 
  */
 
 #include "camera.hpp"

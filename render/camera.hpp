@@ -6,9 +6,9 @@
  * @file camera.hpp
  * @version 1.0
  * @date 01/03/2024
- * @brief Short description
+ * @brief Camera 
  *
- * Longer description
+ * Visualization camera 
  */
 
 #pragma once

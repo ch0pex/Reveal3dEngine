@@ -38,7 +38,7 @@ std::vector<internal::Transform> transforms;
 std::vector<u8> dirties;
 std::set<id_t> dirtyIds;
 
-} //Anonymous namesapce
+} //Anonymous namespace
 
 Transform::Transform(id_t id) : id_(id) {
     id_t index { id::index(id) };

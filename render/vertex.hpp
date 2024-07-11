@@ -6,9 +6,10 @@
  * @file vertex.hpp
  * @version 1.0
  * @date 06/04/2024
- * @brief Short description
+ * @brief Vertex  
  *
- * Longer description
+ * Mesh vertex definition
+ * 
  */
 
 #pragma once
