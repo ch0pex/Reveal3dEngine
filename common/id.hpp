@@ -8,7 +8,16 @@
  * @date 21/06/2024
  * @brief Short description
  *
- * Longer description
+ * Generation and index identifiers 
+ * 
+ *  |----------------------32 bits ---------------------|
+ * 
+ *  |-----8 bits-----|-------------24 bits--------------|
+ * 
+ *   ---------------- -----------------------------------
+ *  |  Generation   |              Index                |
+ *  ---------------- -----------------------------------
+ * 
  */
 
 #pragma once
