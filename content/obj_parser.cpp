@@ -6,9 +6,9 @@
 * @file obj_parser.hpp
 * @version 1.0
 * @date 26/03/2024
-* @brief obj and fbx functions
+* @brief Obj parser 
 *
-* methods to parse obj and fbx functions
+* Functions to parse Wavefront (.obj) files
 *
 */
 

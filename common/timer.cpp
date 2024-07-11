@@ -6,9 +6,9 @@
  * @file timer.cpp
  * @version 1.0
  * @date 06/03/2024
- * @brief Short description
+ * @brief Timing utilities 
  *
- * Longer description
+ * Timer class definitions
  */
 
 #include "timer.hpp"

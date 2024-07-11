@@ -6,9 +6,10 @@
  * @file renderer.hpp
  * @version 1.0
  * @date 25/02/2024
- * @brief Short description
+ * @brief Render class 
  *
- * Longer description
+ * Renderer template class, abstracts at a very high level the HRI (Hardware render interface)
+ * 
  */
 
 #pragma once

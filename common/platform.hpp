@@ -6,7 +6,7 @@
  * @file platform.hpp
  * @version 1.0
  * @date 09/03/2024
- * @brief Short description
+ * @brief Platform 
  *
  * Platform especific stuff
  */

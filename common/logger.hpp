@@ -6,9 +6,9 @@
  * @file logger.hpp
  * @version 1.0
  * @date 08/03/2024
- * @brief Short description
+ * @brief Logger 
  *
- * Longer description
+ * Logger class  
  */
 
 #pragma once

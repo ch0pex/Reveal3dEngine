@@ -6,9 +6,9 @@
  * @file primitive_types.hpp
  * @version 1.0
  * @date 26/02/2024
- * @brief Short description
+ * @brief Types 
  *
- * Longer description
+ * Primitive types
  */
 
 #pragma once
