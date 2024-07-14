@@ -58,9 +58,8 @@ public:
     Script Script();
 
     void SetName(std::string_view name);
-    void SetTransform();
-    void SetGeometry();
-    void SetScript();
+
+    template<typename T> void AddComponent();
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();

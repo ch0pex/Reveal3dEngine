@@ -12,6 +12,7 @@
  */
 
 #include "scene.hpp"
+#include "render/light.hpp"
 
 namespace reveal3d::core {
 
@@ -20,15 +21,15 @@ Scene scene;
 namespace {
 
 /*************** Entity IDs ***************/
-std::vector<id_t>           generations;
-std::deque<id_t>            freeIndices;
+std::vector<id_t>               generations;
+std::deque<id_t>                freeIndices;
 
 /************* Component IDs ***************/
-std::vector<std::string>    names;
-std::vector<Transform>      transforms;
-std::vector<Geometry>       geometries;
-std::vector<Script *>       scripts;
-//std::vector<Light>          lights;
+std::vector<std::string>        names;
+std::vector<Transform>          transforms;
+std::vector<Geometry>           geometries;
+std::vector<Script *>           scripts;
+std::vector<render::Light>      lights;
 
 } // Anonymous namespace
 
@@ -85,6 +86,10 @@ bool Entity::IsAlive() {
     if (id::generation(id_) != generations.at(id::index(id_)))
         return false;
     return true;
+}
+
+template<typename T>
+void Entity::AddComponent() {
 }
 
 Entity Scene::CreateEntity() {

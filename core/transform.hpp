@@ -23,7 +23,7 @@ namespace reveal3d::core {
 class Transform {
 public:
 
-    Transform() : id_ { id::invalid }  {}
+    Transform() = default;
     explicit Transform(id_t id);
     Transform(id_t id, math::mat4& parentWorld);
     Transform(id_t id, math::xvec3 pos);
@@ -56,9 +56,8 @@ public:
 private:
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
-    id_t id_;
+    id_t id_ { id::invalid };
 };
-
 
 }
 
