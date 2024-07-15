@@ -53,17 +53,17 @@ Entity::Entity(const wchar_t *path) {
     scripts.push_back(nullptr);
 }
 
-std::string &Entity::Name() const {
-    return names.at(id::index(id_));
-}
-
-Transform& Entity::Transform() {
-    return transforms.at(id::index(id_));
-}
-
-Geometry& Entity::Geometry() {
-    return geometries.at(id::index(id_));
-}
+//std::string &Entity::Name() const {
+//    return names.at(id::index(id_));
+//}
+//
+//Transform& Entity::Transform() {
+//    return transforms.at(id::index(id_));
+//}
+//
+//Geometry& Entity::Geometry() {
+//    return geometries.at(id::index(id_));
+//}
 
 void Entity::GenerateId() {
     if (freeIndices.size() > id::minFree) {

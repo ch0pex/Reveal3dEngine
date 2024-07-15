@@ -11,7 +11,8 @@
  * Entity component system main header file. 
  * In Reveal3D componentes just holds and ID that points to the real data.
  * Real data is compacted in order to avoid cache misses
- * 
+ *
+ * ************************************************ Component pool *****************************************************
  * ************************** Scene IDs ********************************************* Scene Data ***********************
  *                                                          *                                                          *
  * Enity IDs        |  00   | 01    |  02   |  03  | ...    * Enity IDs        |  00   | 01    |  02   |  03  | ...    * 
@@ -35,6 +36,7 @@
 #include "common/timer.hpp"
 #include "content/primitives.hpp"
 #include "geometry.hpp"
+#include "render/light.hpp"
 #include "script.hpp"
 #include "transform.hpp"
 
@@ -57,9 +59,9 @@ public:
 //    Geometry& Geometry();
 //    Script Script();
 
-    template<typename T> T::Component Component();
+    template<typename T> T Component();
     template<typename T> void AddComponent();
-    template<typename T> void AddComponent(T&& data);
+    template<typename T> void AddComponent(T::InitInfo&& data);
 
 //    void SetName(std::string_view name);
 
@@ -100,7 +102,7 @@ public:
 //    std::vector<Transform>& Transforms();
 //    std::vector<Geometry>& Geometries();
 
-    template<typename T> T::Pool& ComponentPool();
+    template<typename T> auto& ComponentPool();
 
 //    std::set<id_t>& DirtyTransforms();
 //    std::set<id_t>& DirtyGeometries();
@@ -114,14 +116,19 @@ private:
     void UpdateTransforms();
     void UpdateGeometries();
 
-    // Entity graph
-    Node* lastNode;
-    std::vector<Scene::Node> sceneGraph_;
+    /*************** Entity IDs ****************/
+    std::vector<id_t>           generations;
+    std::deque<id_t>            freeIndices;
 
-    // Entity Components
+    /************** Entity graph****************/
+    Node*                       lastNode;
+    std::vector<Scene::Node>    sceneGraph_;
+
+    /*********** Components Pools  *************/
+    TransformPool               transform_pool_;
+    GeometryPool                geometry_pool_;
+
 //    Metadata::Pool metadata_pool_;
-    Transform::Pool transform_pool_;
-    Transform::Pool geometry_pool_;
 //    script::Pool script_pool_;
 
 };
@@ -129,7 +136,7 @@ private:
 extern Scene scene;
 
 template<typename T>
-T::Pool &Scene::ComponentPool() {
+auto& Scene::ComponentPool() {
     if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
     } else if constexpr (std::is_same<T, Geometry>()){
@@ -138,15 +145,13 @@ T::Pool &Scene::ComponentPool() {
 }
 
 template<typename T>
-T::Component Entity::Component() {
+T Entity::Component() {
     return scene.ComponentPool<T>().At(id_);
-
 }
 
 template<typename T>
 void Entity::AddComponent() {
     scene.ComponentPool<T>().AddComponent(id_);
-
 }
 
 template<typename T>
