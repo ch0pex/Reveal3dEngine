@@ -73,7 +73,7 @@ private:
     bool OnGPU_ { false };
     std::vector<render::SubMesh> meshes_;
     std::shared_ptr<render::Mesh> mesh_;
-    math::vec4 color_ {1.0f, 1.0f, 1.0f, 1.0f,};
+    math::vec4 color_ {1.f, 1.f, 1.f, 1.f,};
 };
 
 }

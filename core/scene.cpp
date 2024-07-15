@@ -92,14 +92,6 @@ template<typename T>
 void Entity::AddComponent() {
 }
 
-Entity Scene::CreateEntity() {
-    std::string name = "NewString";
-    Entity entity(name);
-
-    AddEntity(entity);
-
-    return entity;
-}
 
 void Scene::AddEntity(Entity entity) {
     Node node {

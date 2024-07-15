@@ -52,15 +52,16 @@ public:
     explicit Entity(const wchar_t *path);
     explicit Entity(id_t id);
 
-    std::string& Name() const;
-    Transform& Transform();
-    Geometry& Geometry();
-    Script Script();
+//    std::string& Name() const;
+//    Transform& Transform();
+//    Geometry& Geometry();
+//    Script Script();
 
-    template<typename T> T& GetComponent();
-    template<typename T> void AddComponent(T component);
+    template<typename T> T::Component Component();
+    template<typename T> void AddComponent();
+    template<typename T> void AddComponent(T&& data);
 
-    void SetName(std::string_view name);
+//    void SetName(std::string_view name);
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -69,7 +70,6 @@ private:
     void GenerateId();
     id_t id_;
 };
-
 
 class Scene {
 public:
@@ -83,7 +83,6 @@ public:
     Scene() = default;
     ~Scene();
 
-    Entity CreateEntity();
     void AddEntity(Entity entity);
     void AddChild(Entity child, Entity parent);
 
@@ -98,14 +97,14 @@ public:
     INLINE Node& Root() { return sceneGraph_.at(0); }
 
     // NOTE: references, yes this is not the best TODO fix this
-    std::vector<Transform>& Transforms();
-    std::vector<Geometry>& Geometries();
+//    std::vector<Transform>& Transforms();
+//    std::vector<Geometry>& Geometries();
 
-    template<typename T> T& ComponentPool();
+    template<typename T> T::Pool& ComponentPool();
 
-    std::set<id_t>& DirtyTransforms();
-    std::set<id_t>& DirtyGeometries();
-    std::set<id_t>& DirtyLights();
+//    std::set<id_t>& DirtyTransforms();
+//    std::set<id_t>& DirtyGeometries();
+//    std::set<id_t>& DirtyLights();
 
     void Init();
     void Update(f32 dt);
@@ -120,33 +119,39 @@ private:
     std::vector<Scene::Node> sceneGraph_;
 
     // Entity Components
-    transform::Pool transform_pool_;
+//    Metadata::Pool metadata_pool_;
+    Transform::Pool transform_pool_;
+    Transform::Pool geometry_pool_;
+//    script::Pool script_pool_;
+
 };
 
 extern Scene scene;
 
 template<typename T>
-T &Scene::ComponentPool() {
-    if constexpr (typeid(T) == typeid(Transform)) {
+T::Pool &Scene::ComponentPool() {
+    if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
+    } else if constexpr (std::is_same<T, Geometry>()){
+        return geometry_pool_;
     }
-    /*
-     else if constexpr (typeid(T) == typeid(Geometry) {
-
-     }
-     */
 }
 
 template<typename T>
-T& Entity::GetComponent() {
-    return scene.ComponentPool<T>();
+T::Component Entity::Component() {
+    return scene.ComponentPool<T>().At(id_);
 
 }
 
 template<typename T>
 void Entity::AddComponent() {
-    scene.ComponentPool<T>().
+    scene.ComponentPool<T>().AddComponent(id_);
 
+}
+
+template<typename T>
+void Entity::AddComponent(T&& data) {
+    scene.ComponentPool<T>().AddComponent(id_, std::forward(data));
 }
 
 }
