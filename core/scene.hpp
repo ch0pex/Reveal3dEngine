@@ -57,9 +57,10 @@ public:
     Geometry& Geometry();
     Script Script();
 
-    void SetName(std::string_view name);
+    template<typename T> T& GetComponent();
+    template<typename T> void AddComponent(T component);
 
-    template<typename T> void AddComponent();
+    void SetName(std::string_view name);
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -100,6 +101,8 @@ public:
     std::vector<Transform>& Transforms();
     std::vector<Geometry>& Geometries();
 
+    template<typename T> T& ComponentPool();
+
     std::set<id_t>& DirtyTransforms();
     std::set<id_t>& DirtyGeometries();
     std::set<id_t>& DirtyLights();
@@ -115,8 +118,35 @@ private:
     // Entity graph
     Node* lastNode;
     std::vector<Scene::Node> sceneGraph_;
+
+    // Entity Components
+    transform::Pool transform_pool_;
 };
 
 extern Scene scene;
+
+template<typename T>
+T &Scene::ComponentPool() {
+    if constexpr (typeid(T) == typeid(Transform)) {
+        return transform_pool_;
+    }
+    /*
+     else if constexpr (typeid(T) == typeid(Geometry) {
+
+     }
+     */
+}
+
+template<typename T>
+T& Entity::GetComponent() {
+    return scene.ComponentPool<T>();
+
+}
+
+template<typename T>
+void Entity::AddComponent() {
+    scene.ComponentPool<T>().
+
+}
 
 }

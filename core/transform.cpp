@@ -17,35 +17,13 @@
 #include <vector>
 #include <set>
 
-namespace reveal3d::core {
+namespace reveal3d::core::transform {
 
-
-namespace {
-namespace internal {
-
-struct Transform {
-    math::xvec3 position { 0.0f, 0.0f, 0.0f };
-    math::xvec3 rotation { 0.0f, 0.0f, 0.0f };
-    math::xvec3 scale    { 1.0f, 1.0f, 1.0f };
-};
-
-}
-
-// Transform data pool
-std::vector<math::mat4> world;
-std::vector<math::mat4> invWorld;
-std::vector<internal::Transform> transforms;
-
-std::vector<u8> dirties;
-std::set<id_t> dirtyIds;
-
-} //Anonymous namespace
-
-Transform::Transform(id_t id) : id_(id) {
+Component::Component(id_t id) : id_(id) {
     id_t index { id::index(id) };
 
     if (transforms.size() > index) {
-        transforms[index] = internal::Transform();
+        transforms.at(index) = internal::Component();
         world.at(index) = math::Mat4Identity();
         invWorld.at(index) = math::Mat4Identity();
         dirties.at(index) = 4;
@@ -61,11 +39,11 @@ Transform::Transform(id_t id) : id_(id) {
 
 }
 
-Transform::Transform(id_t id, math::mat4 &parentWorld) {
+Component::Component(id_t id, math::mat4 &parentWorld) {
     id_t index { id::index(id) };
 
     if (transforms.size() > index) {
-        transforms.at(index) = internal::Transform();
+        transforms.at(index) = internal::Component();
         world.at(index) = parentWorld;
         invWorld.at(index) = math::Mat4Identity();
         dirties.at(index) = 4;
@@ -81,9 +59,9 @@ Transform::Transform(id_t id, math::mat4 &parentWorld) {
 
 }
 
-Transform::Transform(id_t id, math::xvec3 pos) : id_(id) {
+Component::Component(id_t id, math::xvec3 pos) : id_(id) {
     id_t index { id::index(id) };
-    internal::Transform transform;
+    internal::Component transform;
 
     transform.position = pos;
 
@@ -94,66 +72,66 @@ Transform::Transform(id_t id, math::xvec3 pos) : id_(id) {
     }
 }
 
-math::mat4& Transform::World() const {
+math::mat4& Component::World() const {
     return world.at(id::index(id_));
 }
 
-math::mat4& Transform::InvWorld() const {
+math::mat4& Component::InvWorld() const {
     return invWorld.at(id::index(id_));
 }
 
-math::xvec3 Transform::Position() const {
+math::xvec3 Component::Position() const {
     return transforms.at(id::index(id_)).position;
 }
 
-math::xvec3 Transform::Scale() const {
+math::xvec3 Component::Scale() const {
     return transforms.at(id::index(id_)).scale;
 }
 
-math::xvec3 Transform::Rotation() const {
+math::xvec3 Component::Rotation() const {
     return math::VecToDegrees(transforms.at(id::index(id_)).rotation);
 }
 
-math::xvec3 Transform::WorldPosition() const {
+math::xvec3 Component::WorldPosition() const {
     math::mat4 worldMat = world.at(id::index(id_));
     return worldMat.GetTranslation();
 }
 
-math::xvec3 Transform::WorldScale() const {
+math::xvec3 Component::WorldScale() const {
     return world.at(id::index(id_)).GetScale();
 }
 
-math::xvec3 Transform::WorldRotation() const {
+math::xvec3 Component::WorldRotation() const {
     return world.at(id::index(id_)).GetRotation();
 }
 
-void Transform::SetPosition(math::xvec3 pos) const {
+void Component::SetPosition(math::xvec3 pos) const {
     id_t idx = id::index(id_);
     transforms.at(idx).position = pos;
     SetDirty();
 }
 
-void Transform::SetScale(math::xvec3 size) const {
+void Component::SetScale(math::xvec3 size) const {
     id_t idx = id::index(id_);
     transforms.at(idx).scale = size;
     SetDirty();
 }
 
-void Transform::SetRotation(math::xvec3 rot) const {
+void Component::SetRotation(math::xvec3 rot) const {
     id_t idx = id::index(id_);
-    std::vector<internal::Transform> &transforms_ = transforms;
+    std::vector<internal::Component> &transforms_ = transforms;
     transforms.at(idx).rotation = math::VecToRadians(rot);
     SetDirty();
 }
 
 
-void Transform::SetWorldPosition(const math::xvec3 pos) {
+void Component::SetWorldPosition(const math::xvec3 pos) {
     id_t idx = id::index(id_);
-    internal::Transform& trans = transforms.at(idx);
-    world.at(idx) = math::Transpose(math::AffineTransformation(pos, trans.scale, trans.rotation));
+    internal::Component& trans = transforms.at(idx);
+    world.at(idx) = math::Transpose(math::AffineComponentation(pos, trans.scale, trans.rotation));
     core::Entity parent = scene.GetNode(id_).parent;
     if (parent.IsAlive()) {
-        trans.position = math::Transpose(parent.Transform().InvWorld()) * pos;
+        trans.position = math::Transpose(parent.Component().InvWorld()) * pos;
     } else {
         trans.position = pos;
     }
@@ -164,13 +142,13 @@ void Transform::SetWorldPosition(const math::xvec3 pos) {
     UpdateChilds();
 }
 
-void Transform::SetWorldScale(const math::xvec3 size) {
+void Component::SetWorldScale(const math::xvec3 size) {
     id_t idx = id::index(id_);
-    internal::Transform& trans = transforms.at(idx);
-    world.at(idx) = math::Transpose(math::AffineTransformation(trans.position, size, trans.rotation));
+    internal::Component& trans = transforms.at(idx);
+    world.at(idx) = math::Transpose(math::AffineComponentation(trans.position, size, trans.rotation));
     core::Entity parent = scene.GetNode(id_).parent;
     if (parent.IsAlive()) {
-        trans.scale = parent.Transform().InvWorld() * size;
+        trans.scale = parent.Component().InvWorld() * size;
     } else {
         trans.scale = size;
     }
@@ -180,13 +158,13 @@ void Transform::SetWorldScale(const math::xvec3 size) {
     UpdateChilds();
 }
 
-void Transform::SetWorldRotation(const math::xvec3 rot) {
+void Component::SetWorldRotation(const math::xvec3 rot) {
     id_t idx = id::index(id_);
-    internal::Transform& trans = transforms.at(id::index(id_));
-    World() = math::Transpose(math::AffineTransformation(trans.position, trans.scale, rot));
+    internal::Component& trans = transforms.at(id::index(id_));
+    World() = math::Transpose(math::AffineComponentation(trans.position, trans.scale, rot));
     core::Entity parent = scene.GetNode(id_).parent;
     if (parent.IsAlive()) {
-        trans.rotation = parent.Transform().InvWorld() * rot;
+        trans.rotation = parent.Component().InvWorld() * rot;
     } else {
        trans.rotation = rot;
     }
@@ -196,17 +174,17 @@ void Transform::SetWorldRotation(const math::xvec3 rot) {
     UpdateChilds();
 }
 
-math::mat4 Transform::CalcWorld(id_t id){
-    internal::Transform &transform = transforms.at(id::index(id));
-    return math::Transpose(math::AffineTransformation(transform.position, transform.scale, transform.rotation));
+math::mat4 Component::CalcWorld(id_t id){
+    internal::Component &transform = transforms.at(id::index(id));
+    return math::Transpose(math::AffineComponentation(transform.position, transform.scale, transform.rotation));
 }
 
-void Transform::UpdateChilds() const {
+void Component::UpdateChilds() const {
     core::Scene::Node &node = scene.GetNode(id_);
     if (node.firstChild.IsAlive()) {
         core::Scene::Node &currNode = scene.GetNode(node.firstChild.Id());
         while(true) {
-            currNode.entity.Transform().SetDirty();
+            currNode.entity.Component().SetDirty();
             if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
                 currNode = scene.GetNode(currNode.next.Id());
             } else { break; }
@@ -214,10 +192,10 @@ void Transform::UpdateChilds() const {
     }
 }
 
-void Transform::UpdateWorld() {
+void Component::UpdateWorld() {
     if (dirties.at(id::index(id_)) != 4) return;
 
-    internal::Transform& transform = transforms[id::index(id_)];
+    internal::Component& transform = transforms[id::index(id_)];
     core::Scene::Node &currNode = scene.GetNode(id::index(id_));
 
     if (currNode.parent.IsAlive()) {
@@ -226,7 +204,7 @@ void Transform::UpdateWorld() {
             math::mat4 parentWorld = world.at(idx);
             World() = parentWorld * CalcWorld(id_);
         } else {
-            currNode.parent.Transform().UpdateWorld();
+            currNode.parent.Component().UpdateWorld();
             math::mat4 parentWorld = world.at(idx);
             World() = parentWorld * CalcWorld(id_);
         }
@@ -237,7 +215,7 @@ void Transform::UpdateWorld() {
     --dirties.at(id::index(id_));
 }
 
-void Transform::UnDirty() const {
+void Component::UnDirty() const {
     id_t idx = id::index(id_);
     if (dirties.at(idx) != 0) {
         --dirties.at(idx);
@@ -246,7 +224,7 @@ void Transform::UnDirty() const {
     }
 }
 
-void Transform::SetDirty() const {
+void Component::SetDirty() const {
     id_t idx = id::index(id_);
     if (dirties.at(idx) == 4)
         return;
@@ -256,14 +234,14 @@ void Transform::SetDirty() const {
     dirties.at(idx) = 4;
 }
 
-u8 Transform::Dirty() const {
+u8 Component::Dirty() const {
     return dirties.at(id::index(id_));
 }
 
-void Scene::UpdateTransforms() {
+void Scene::UpdateComponents() {
     for (auto it = dirtyIds.begin(); it != dirtyIds.end();) {
         id_t idx = id::index(*it);
-        GetEntity(idx).Transform().UpdateWorld();
+        GetEntity(idx).Component().UpdateWorld();
         if (dirties.at(idx) == 0) {
             it = dirtyIds.erase(it);
         } else {
@@ -272,7 +250,7 @@ void Scene::UpdateTransforms() {
     }
 }
 
-std::set<id_t>& Scene::DirtyTransforms() {
+std::set<id_t>& Scene::DirtyComponents() {
     return dirtyIds;
 }
 

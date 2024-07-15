@@ -15,19 +15,28 @@
 
 #include "math/math.hpp"
 #include "common/id.hpp"
+
 #include <vector>
+#include <set>
 
 namespace reveal3d::core {
 
+struct Transform {
 
-class Transform {
-public:
+    math::vec3 position;
+    math::vec3 rotation;
+    math::vec3 scale;
 
-    Transform() = default;
-    explicit Transform(id_t id);
-    Transform(id_t id, math::mat4& parentWorld);
-    Transform(id_t id, math::xvec3 pos);
-//    Transform(id_t id, InitInfo& info);
+};
+
+namespace transform {
+
+class Component {
+    Component() = default;
+    explicit Component(id_t id);
+    Component(id_t id, math::mat4& parentWorld);
+    Component(id_t id, math::xvec3 pos);
+    //    Transform(id_t id, InitInfo& info);
 
     [[nodiscard]] math::mat4& World() const;
     [[nodiscard]] math::mat4& InvWorld() const;
@@ -59,6 +68,29 @@ private:
 
     id_t id_ { id::invalid };
 };
+
+class Pool {
+public:
+    void AddComponent(id_t id);
+    void RemoveComponent(id_t id);
+    void AddChildComponent(id_t id, math::mat4 &parentWorld);
+
+    INLINE math::mat4& World(id_t id) { return world_.at(id::index(id)); }
+    INLINE math::mat4& InvWorld(id_t id) { return invWorld_.at(id::index(id)); }
+    INLINE Transform&  Data(id_t id) { return transform_data_.at(id::index(id)); }
+
+private:
+    std::vector<math::mat4> world_;
+    std::vector<math::mat4> invWorld_;
+    std::vector<Transform> transform_data_;
+
+    std::vector<u8> dirties_;
+    std::set<id_t> dirtyIds_;
+
+    std::vector<Component> transform_components_;
+};
+
+}
 
 }
 

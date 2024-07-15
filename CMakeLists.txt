@@ -45,6 +45,7 @@ set(HEADERS
         content/obj_parser.hpp
         window/glfw/glfw.hpp
         common/id.hpp
+        core/entity.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
