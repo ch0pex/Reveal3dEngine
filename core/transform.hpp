@@ -56,6 +56,7 @@ public:
 private:
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
+
     id_t id_ { id::invalid };
 };
 

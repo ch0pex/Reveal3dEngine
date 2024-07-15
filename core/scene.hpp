@@ -96,7 +96,7 @@ public:
     INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
     INLINE Node& Root() { return sceneGraph_.at(0); }
 
-    // NOTE: references, yes this is not the best
+    // NOTE: references, yes this is not the best TODO fix this
     std::vector<Transform>& Transforms();
     std::vector<Geometry>& Geometries();
 
@@ -111,6 +111,7 @@ public:
 private:
     void UpdateTransforms();
     void UpdateGeometries();
+
     // Entity graph
     Node* lastNode;
     std::vector<Scene::Node> sceneGraph_;

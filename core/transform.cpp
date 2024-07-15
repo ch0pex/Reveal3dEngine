@@ -31,6 +31,7 @@ struct Transform {
 
 }
 
+// Transform data pool
 std::vector<math::mat4> world;
 std::vector<math::mat4> invWorld;
 std::vector<internal::Transform> transforms;
@@ -140,6 +141,7 @@ void Transform::SetScale(math::xvec3 size) const {
 
 void Transform::SetRotation(math::xvec3 rot) const {
     id_t idx = id::index(id_);
+    std::vector<internal::Transform> &transforms_ = transforms;
     transforms.at(idx).rotation = math::VecToRadians(rot);
     SetDirty();
 }
