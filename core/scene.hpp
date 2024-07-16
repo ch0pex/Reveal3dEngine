@@ -10,7 +10,7 @@
  *
  * Entity component system main header file. 
  * In Reveal3D componentes just holds and ID that points to the real data.
- * Real data is compacted in order to avoid cache misses
+ * Real data is compacted to avoid cache misses, this logic is handled by components pools
  *
  * ************************************************ Component pool *****************************************************
  * ************************** Scene IDs ********************************************* Scene Data ***********************
@@ -47,32 +47,6 @@
 
 namespace reveal3d::core {
 
-class Entity {
-public:
-    Entity() : id_(id::invalid) {}
-    explicit Entity(std::string& name);
-    explicit Entity(const wchar_t *path);
-    explicit Entity(id_t id);
-
-//    std::string& Name() const;
-//    Transform& Transform();
-//    Geometry& Geometry();
-//    Script Script();
-
-    template<typename T> T Component();
-    template<typename T> void AddComponent();
-    template<typename T> void AddComponent(T::InitInfo&& data);
-
-//    void SetName(std::string_view name);
-
-    INLINE u32 Id() const { return id_; }
-    bool IsAlive();
-
-private:
-    void GenerateId();
-    id_t id_;
-};
-
 class Scene {
 public:
     struct Node {
@@ -85,11 +59,10 @@ public:
     Scene() = default;
     ~Scene();
 
-    void AddEntity(Entity entity);
-    void AddChild(Entity child, Entity parent);
-
-    Entity AddEntityFromObj(const wchar_t *path);
-    bool RemoveEntity(id_t id);
+    Entity NewEntity();
+    Entity NewChildEntity(Entity parent);
+    bool   RemoveEntity(id_t id);
+    bool   IsEntityAlive(id_t id);
 
     /******************************* Scene Graph methods ******************************/
     [[nodiscard]] INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
@@ -110,26 +83,29 @@ public:
 
     void Init();
     void Update(f32 dt);
-    void AddScript(Script *script, id_t id);
 
 private:
-    void UpdateTransforms();
-    void UpdateGeometries();
 
-    /*************** Entity IDs ****************/
-    std::vector<id_t>           generations;
-    std::deque<id_t>            freeIndices;
+    /************ Entity IDs factory ***********/
+
+    id_t NewId();
+
+    std::vector<id_t>           generations_;
+    std::deque<id_t>            freeIndices_;
 
     /************** Entity graph****************/
-    Node*                       lastNode;
+
+    Node*                       lastNode_;
     std::vector<Scene::Node>    sceneGraph_;
 
     /*********** Components Pools  *************/
+
     TransformPool               transform_pool_;
     GeometryPool                geometry_pool_;
 
-//    Metadata::Pool metadata_pool_;
-//    script::Pool script_pool_;
+//    MetadataPool              metadata_pool_;
+//    ScriptPool                script_pool_;
+//    LightPool                 light_pool_;
 
 };
 

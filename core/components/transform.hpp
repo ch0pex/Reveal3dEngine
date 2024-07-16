@@ -70,27 +70,33 @@ public:
     void AddComponent(id_t id, Transform::InitInfo& init_info);
     void AddChildComponent(id_t id, math::mat4 &parentWorld);
     void RemoveComponent(id_t id);
-    Transform At(id_t id);
+    u32  Size();
 
+    INLINE Transform At(id_t id)         { return Transform(id); }
     INLINE math::mat4& World(id_t id)    { return world_.at(id::index(id)); }
     INLINE math::mat4& InvWorld(id_t id) { return invWorld_.at(id::index(id)); }
-    INLINE math::vec3& Position(id_t id) { return pos_.at(id::index(id)); }
-    INLINE math::vec3& Rotation(id_t id) { return rot_.at(id::index(id)); }
-    INLINE math::vec3& Scale(id_t id)    { return scale_.at(id::index(id)); }
+    INLINE Transform Transform(id_t id)  { return transform_components_.at(id::index(id)); }
 
 private:
     /************** Transform IDs ****************/
     std::vector<Transform>  transform_components_;
 
     /************* Transform Data ****************/
-    std::vector<math::mat4> world_;
-    std::vector<math::mat4> invWorld_;
-    std::vector<math::vec3> pos_;
-    std::vector<math::vec3> rot_;
-    std::vector<math::vec3> scale_;
+    struct TransformData {
+        math::vec3 position;
+        math::vec3 rotation;
+        math::vec3 scale;
+    }
 
-    std::vector<u8>         dirties_;
-    std::set<id_t>          dirtyIds_;
+    std::vector<math::mat4>     world_;
+    std::vector<math::mat4>     invWorld_;
+    std::vector<TransformData>  transform_data_;
+
+    // Transforms that must be updated on GPU
+    std::set<id_t>              dirtyIds_; 
+    std::vector<u8>             dirties_;  
+    
+    friend class Transform;
 };
 
 }

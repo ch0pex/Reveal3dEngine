@@ -19,25 +19,7 @@
 
 namespace reveal3d::core::transform {
 
-Transform::Transform(id_t id) : id_(id) {
-    id_t index { id::index(id) };
-
-    if (transforms.size() > index) {
-        transforms.at(index) = internal::Transform();
-        world.at(index) = math::Mat4Identity();
-        invWorld.at(index) = math::Mat4Identity();
-        dirties.at(index) = 4;
-        dirtyIds.insert(id_);
-    }
-    else {
-        transforms.emplace_back();
-        world.emplace_back(math::Mat4Identity());
-        invWorld.emplace_back(math::Mat4Identity());
-        dirties.emplace_back(4);
-        dirtyIds.insert(id_);
-    }
-
-}
+Transform::Transform(id_t id) : id_(id) {}
 
 Transform::Transform(id_t id, math::mat4 &parentWorld) {
     id_t index { id::index(id) };
@@ -254,5 +236,39 @@ std::set<id_t>& Scene::DirtyTransforms() {
     return dirtyIds;
 }
 
+void reveal3d::core::TransformPool::AddComponent(id_t id) {
+     id_t index { id::index(id) };
+
+    if (transform_data_.size() > index) {
+        transform_data_.at(index) = TransformData();
+        world_.at(index) = math::Mat4Identity();
+        invWorld_.at(index) = math::Mat4Identity();
+        dirties_.at(index) = 4;
+        dirtyIds_.insert(id_);
+        transform_components_.emplace_back(id);
+    }
+    else {
+        transforms.emplace_back();
+        world.emplace_back(math::Mat4Identity());
+        invWorld.emplace_back(math::Mat4Identity());
+        dirties.emplace_back(4);
+        dirtyIds.insert(id_);
+    }   
+}
+
+void reveal3d::core::TransformPool::AddComponent(id_t id, Transform::InitInfo &init_info)
+{
+
+}
+
+void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld)
+{
+
+}
+
+void reveal3d::core::TransformPool::RemoveComponent(id_t id)
+{
+
+}
 
 }

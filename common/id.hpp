@@ -38,7 +38,7 @@ constexpr id_t generationMask { (id_t { 1 } << generationBits) - 1 };
 constexpr id_t indexMask { (id_t { 1 } << generationBits) - 1 };
 
 constexpr id_t invalid { ~id_t{ 0 } };
-constexpr u32 minFree { 1024 };
+constexpr u32  maxFree { 1024 };
 
 using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 

@@ -11,22 +11,22 @@
 * Longer description
 */
 
+#include "common/common.hpp" 
+
+namespace reveal3d::core {
+
 class Entity {
 public:
     Entity() : id_(id::invalid) {}
-    explicit Entity(std::string& name);
-    explicit Entity(const wchar_t *path);
     explicit Entity(id_t id);
 
-    std::string& Name() const;
-    Transform& Transform();
-    Geometry& Geometry();
-    Script Script();
+    // std::string& Name() const;
+    // Transform& Transform();
+    // Geometry& Geometry();
+    // Script Script();
 
-    template<typename T> T& GetComponent();
+    template<typename T> T& Component();
     template<typename T> void AddComponent();
-
-    void SetName(std::string_view name);
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -35,3 +35,16 @@ private:
     void GenerateId();
     id_t id_;
 };
+
+template<typename T>
+inline void Entity::AddComponent() {
+    
+}
+
+template <typename T>
+inline T &Entity::GetComponent()
+{
+    // TODO: Insertar una instrucción "return" aquí
+}
+
+}
