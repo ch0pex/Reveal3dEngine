@@ -16,9 +16,9 @@ include_directories(PUBLIC .)
 
 set(SOURCES
         core/scene.cpp
-        core/geometry.cpp
-        core/transform.cpp
-        core/script.cpp
+        core/components/geometry.cpp
+        core/components/transform.cpp
+        core/components/script.cpp
         render/camera.cpp
         render/light.cpp
         common/timer.cpp
@@ -32,9 +32,9 @@ set(SOURCES
 
 set(HEADERS
         core/scene.hpp
-        core/geometry.hpp
-        core/transform.hpp
-        core/script.hpp
+        core/components/geometry.hpp
+        core/components/transform.hpp
+        core/components/script.hpp
         render/renderer.hpp
         render/camera.hpp
         render/light.hpp
@@ -45,7 +45,7 @@ set(HEADERS
         content/obj_parser.hpp
         window/glfw/glfw.hpp
         common/id.hpp
-        core/entity.hpp
+        core/components/components.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

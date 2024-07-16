@@ -21,6 +21,8 @@
 
 namespace reveal3d::core {
 
+class TransformPool;
+
 class Transform {
 public:
     struct InitInfo {
@@ -41,7 +43,6 @@ public:
     [[nodiscard]] math::xvec3 WorldScale() const;
     [[nodiscard]] math::xvec3 WorldRotation() const;
 
-
     void SetPosition(math::xvec3 pos) const;
     void SetScale(math::xvec3 size) const;
     void SetRotation(math::xvec3 rot) const;
@@ -60,6 +61,7 @@ public:
 private:
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
+    TransformPool& Pool() const;
 
     id_t id_ { id::invalid };
 };
@@ -70,23 +72,27 @@ public:
     void AddComponent(id_t id, Transform::InitInfo& init_info);
     void AddChildComponent(id_t id, math::mat4 &parentWorld);
     void RemoveComponent(id_t id);
-    u32  Size();
+    void Update();
 
-    INLINE Transform At(id_t id)         { return Transform(id); }
-    INLINE math::mat4& World(id_t id)    { return world_.at(id::index(id)); }
-    INLINE math::mat4& InvWorld(id_t id) { return invWorld_.at(id::index(id)); }
-    INLINE Transform Transform(id_t id)  { return transform_components_.at(id::index(id)); }
+    INLINE u32  Count()                     { return transform_data_.size(); }
+    INLINE Transform At(id_t id)            { return GetTransform(id); }
+    INLINE math::mat4& World(id_t id)       { return world_.at(id::index(id)); }
+    INLINE math::mat4& InvWorld(id_t id)    { return invWorld_.at(id::index(id)); }
+    INLINE Transform GetTransform(id_t id)  { return transform_components_.at(id::index(id)); }
+
+
+
 
 private:
     /************** Transform IDs ****************/
-    std::vector<Transform>  transform_components_;
+    std::vector<Transform>      transform_components_;
 
     /************* Transform Data ****************/
     struct TransformData {
-        math::vec3 position;
-        math::vec3 rotation;
-        math::vec3 scale;
-    }
+        math::xvec3 position;
+        math::xvec3 rotation;
+        math::xvec3 scale;
+    };
 
     std::vector<math::mat4>     world_;
     std::vector<math::mat4>     invWorld_;

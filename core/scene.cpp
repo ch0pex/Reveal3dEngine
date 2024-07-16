@@ -18,6 +18,13 @@ namespace reveal3d::core {
 
 Scene scene;
 
+Entity::Entity(u32 id) : id_ {id} { }
+
+bool Entity::IsAlive() {
+    return core::scene.IsEntityAlive(id_);
+}
+
+
 Entity Scene::NewEntity() {
     Entity entity(NewId());
 
@@ -25,13 +32,13 @@ Entity Scene::NewEntity() {
         .entity = entity
     };
 
-    if (lastNode != nullptr) {
-       node.prev = lastNode->entity;
-       lastNode->next = node.entity;
+    if (lastNode_ != nullptr) {
+       node.prev = lastNode_->entity;
+       lastNode_->next = node.entity;
     }
 
     sceneGraph_.push_back(node);
-    lastNode = &sceneGraph_.at(sceneGraph_.size() - 1);
+    lastNode_ = &sceneGraph_.at(sceneGraph_.size() - 1);
 
     return entity;
 }
@@ -69,9 +76,9 @@ bool Scene::RemoveEntity(id_t id) {
 }
 
 bool Scene::IsEntityAlive(id_t id) {
-    if(id == id::invalid)
+    if (id == id::invalid)
         return false;
-    if (id::generation(id) != generations.at(id::index(id)))
+    if (id::generation(id) != generations_.at(id::index(id)))
         return false;
     return true;
 }
@@ -108,11 +115,12 @@ void Scene::Update(f32 dt) {
 }
 
 id_t Scene::NewId() {
-    id_t id { id::invalid }
+    id_t id { id::invalid };
+
     if (freeIndices_.size() > id::maxFree) {
         id = id::newGeneration(freeIndices_.front());
         freeIndices_.pop_front();
-        ++generations[id::index(id)];
+        ++generations_[id::index(id)];
     } else {
         id = generations_.size();
         generations_.push_back(0);

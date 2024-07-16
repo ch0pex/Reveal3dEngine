@@ -32,13 +32,11 @@
 
 #pragma once
 
-#include "common/id.hpp"
-#include "common/timer.hpp"
+#include "common/common.hpp"
 #include "content/primitives.hpp"
-#include "geometry.hpp"
 #include "render/light.hpp"
-#include "script.hpp"
-#include "transform.hpp"
+#include "entity.hpp"
+#include "components/components.hpp"
 
 #include <deque>
 #include <set>
@@ -46,6 +44,28 @@
 
 
 namespace reveal3d::core {
+
+class Entity {
+public:
+    Entity() : id_(id::invalid) {}
+    explicit Entity(id_t id);
+
+    // std::string& Name() const;
+    // Transform& Transform();
+    // Geometry& Geometry();
+    // Script Script();
+
+    template<typename T> T Component();
+    template<typename T> T AddComponent();
+
+    INLINE u32 Id() const { return id_; }
+    bool IsAlive();
+
+private:
+    void GenerateId();
+    id_t id_;
+};
+
 
 class Scene {
 public:
@@ -75,7 +95,7 @@ public:
 //    std::vector<Transform>& Transforms();
 //    std::vector<Geometry>& Geometries();
 
-    template<typename T> auto& ComponentPool();
+    template<typename T> auto&ComponentPool();
 
 //    std::set<id_t>& DirtyTransforms();
 //    std::set<id_t>& DirtyGeometries();
@@ -126,13 +146,13 @@ T Entity::Component() {
 }
 
 template<typename T>
-void Entity::AddComponent() {
+T Entity::AddComponent() {
     scene.ComponentPool<T>().AddComponent(id_);
 }
 
-template<typename T>
-void Entity::AddComponent(T&& data) {
-    scene.ComponentPool<T>().AddComponent(id_, std::forward(data));
-}
+//template<typename T>
+//void Entity::AddComponent(T&& data) {
+//    scene.ComponentPool<T>().AddComponent(id_, std::forward(data));
+//}
 
 }
