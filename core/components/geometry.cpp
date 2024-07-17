@@ -74,4 +74,9 @@ GeometryPool &Geometry::Pool() const {
 //     OnGPU = geo.OnGPU;
 //
 // }
+
+void GeometryPool::AddComponent() {
+
+}
+
 }

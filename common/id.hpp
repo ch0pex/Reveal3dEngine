@@ -28,7 +28,8 @@
 #include "platform.hpp"
 
 #include <typeinfo>
-#include  <deque>
+#include <vector>
+#include <deque>
 
 using id_t = reveal3d::u32;
 
@@ -63,10 +64,23 @@ constexpr id_t newGeneration(id_t idx) {
 
 class Factory { 
 public:
-    void New() {
-        id_t id{id::invalid};
 
-        if (freeIndices_.size() > id::maxFree) {
+
+    INLINE bool FreeCap() {
+        return (freeIndices_.size() > id::maxFree);
+    }
+
+    bool IsAlive(id_t id) {
+        if (id == id::invalid)
+            return false;
+        if (id::generation(id) != generations_.at(id::index(id)))
+            return false;
+        return true;
+    }
+
+    id_t New() {
+        id_t id { id::invalid };
+        if (FreeCap()) {
             id = id::newGeneration(freeIndices_.front());
             freeIndices_.pop_front();
             ++generations_[id::index(id)];
@@ -74,19 +88,18 @@ public:
             id = generations_.size();
             generations_.push_back(0);
         }
-
         return id;
     }
 
-    void Remove(id_t id) { 
+    void Remove(id_t id) {
         id_t idx { id::index(id) };
-        assert(idx => generations.size()) ;
-        freeIndices.push_back(idx)
+        assert(IsAlive(id));
+        freeIndices_.push_back(idx);
     }
 
 private:
-    std::vector<id_t> generations;
-    std::deque<id_t> freeIndices;
+    std::vector<id_t> generations_;
+    std::deque<id_t> freeIndices_;
 }
 
 }

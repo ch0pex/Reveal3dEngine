@@ -87,7 +87,7 @@ void Transform::SetWorldPosition(const math::xvec3 pos) {
 
 void Transform::SetWorldScale(const math::xvec3 size) {
     Transform::Data& trans = Pool().Data(id_);
-    Pool().World(idx) = math::Transpose(math::AffineTransformation(trans.position, size, trans.rotation));
+    Pool().World(id_) = math::Transpose(math::AffineTransformation(trans.position, size, trans.rotation));
     core::Entity parent = scene.GetNode(id_).parent;
     if (parent.IsAlive()) {
         trans.scale = parent.Component<Transform>().InvWorld() * size;
@@ -95,8 +95,8 @@ void Transform::SetWorldScale(const math::xvec3 size) {
         trans.scale = size;
     }
     Pool().InvWorld(id_) = math::Inverse(Pool().World(id_));
-    Pool().dirties_.at(idx) = 3;
-    Pool().dirtyIds_.insert(id_);
+    Pool().dirties_.at(id::index(id_)) = 3;
+    Pool().dirtyIds_.insert(id::index(id_));
     UpdateChilds();
 }
 
@@ -105,18 +105,18 @@ void Transform::SetWorldRotation(const math::xvec3 rot) {
     World() = math::Transpose(math::AffineTransformation(trans.position, trans.scale, rot));
     core::Entity parent = scene.GetNode(id_).parent;
     if (parent.IsAlive()) {
-        trans.rotation = parent.Transform().InvWorld() * rot;
+        trans.rotation = parent.Component<Transform>().InvWorld() * rot;
     } else {
        trans.rotation = rot;
     }
     Pool().InvWorld(id_) = math::Inverse(Pool().World(id_));
-    Pool().dirties_.at(idx) = 3;
-    Pool().dirtyIds_.insert(idx);
+    Pool().dirties_.at(id::index(id_)) = 3;
+    Pool().dirtyIds_.insert(id::index(id_));
     UpdateChilds();
 }
 
 math::mat4 Transform::CalcWorld(id_t id){
-    Transform::Data& trans = Pool().Data(id_);
+    Transform::Data& trans = core::scene.ComponentPool<Transform>().Data(id);
     return math::Transpose(math::AffineTransformation(trans.position, trans.scale, trans.rotation));
 }
 
@@ -136,19 +136,19 @@ void Transform::UpdateChilds() const {
 }
 
 void Transform::UpdateWorld() {
-    if (dirties.at(id::index(id_)) != 4) return;
+    if (Pool().dirties_.at(id::index(id_)) != 4) return;
 
     Transform::Data& transform = Pool().Data(id_);
     core::Scene::Node &currNode = scene.GetNode(id::index(id_));
 
     if (currNode.parent.IsAlive()) {
         const id_t parent_id = currNode.parent.Id();
-        if (dirties.at(idx) < 4) {
-            math::mat4 parentWorld = Pool().world.at(parent_id);
+        if (Pool().dirties_.at(id::index(id_)) < 4) {
+            math::mat4 parentWorld = Pool().World(parent_id);
             World() = parentWorld * CalcWorld(parent_id);
         } else {
-            currNode.parent.Transform().UpdateWorld();
-            math::mat4 parentWorld = world.at(parent_id);
+            currNode.parent.Component<Transform>().UpdateWorld();
+            math::mat4 parentWorld = Pool().World(parent_id);
             World() = parentWorld * CalcWorld(id_);
         }
     } else {
@@ -168,16 +168,17 @@ void Transform::UnDirty() const {
 }
 
 void Transform::SetDirty() const {
+    const id_t idx = id::index(id_);
     if (Dirty() == 4)
         return;
     if (Dirty() == 0)
-        dirtyIds.insert(id_);
+        Pool().dirtyIds_.insert(idx);
     UpdateChilds();
-    Pool().dirties_.at(id::index(id_)) = 4;
+    Pool().dirties_.at(idx) = 4;
 }
 
 u8 Transform::Dirty() const {
-    return Pool().Dirties(id_);
+    return Pool().dirties_.at(id::index(id_));
 }
 
 TransformPool &Transform::Pool() const {
@@ -201,18 +202,21 @@ TransformPool &Transform::Pool() const {
 //}
 
 
+void TransformPool::AddComponent() {
+    transform_components_.emplace_back();
+}
+
 void reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
     id_t index{id::index(id)};
 
     if (transform_data_.size() > index) {
-        transform_data_.at(index) = init_info;
+        transform_data_.at(index) = initInfo;
         world_.at(index) = math::Mat4Identity();
         invWorld_.at(index) = math::Mat4Identity();
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
-        transform_components_.emplace_back(id_factory_.New());
     } else {
-        transform_data_.push_back(init_info);
+        transform_data_.push_back(initInfo);
         world_.emplace_back(math::Mat4Identity());
         invWorld_.emplace_back(math::Mat4Identity());
         dirties_.emplace_back(4);
@@ -221,11 +225,11 @@ void reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&init
 }
 
 void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
-    id_t index{id::index(id)};
-    id_t id = id_factory_.New();
+    id_t index {id::index(id)};
+    id_t new_id = id_factory_.New();
     if (transform_data_.size() > index)
     {
-        transform_data_.at(index) = TransformData();
+        transform_data_.at(index) = Transform::Data();
         world_.at(index) = math::Mat4Identity();
         invWorld_.at(index) = math::Mat4Identity();
         dirties_.at(index) = 4;
@@ -242,8 +246,7 @@ void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &paren
     }
 }
 
-void reveal3d::core::TransformPool::RemoveComponent(id_t id)
-{
+void reveal3d::core::TransformPool::RemoveComponent(id_t id) {
 
 }
 

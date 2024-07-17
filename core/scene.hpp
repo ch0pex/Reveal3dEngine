@@ -50,8 +50,8 @@ public:
     Entity() : id_(id::invalid) {}
     explicit Entity(id_t id);
 
-    template<typename T> T Component();
-    template<typename T> T AddComponent();
+    template<component T> T Component();
+    template<component T> T AddComponent();
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -76,7 +76,7 @@ public:
 
     Entity NewEntity();
     Entity NewChildEntity(Entity parent);
-    bool   RemoveEntity(id_t id);
+    void   RemoveEntity(id_t id);
     bool   IsEntityAlive(id_t id);
 
     /******************************* Scene Graph methods ******************************/
@@ -90,7 +90,7 @@ public:
 //    std::vector<Transform>& Transforms();
 //    std::vector<Geometry>& Geometries();
 
-    template<typename T> auto& ComponentPool();
+    template<component T> T::PoolType& ComponentPool() noexcept;
 
 //    std::set<id_t>& DirtyTransforms();
 //    std::set<id_t>& DirtyGeometries();
@@ -118,24 +118,25 @@ private:
 
 };
 
-template<typename T>
-auto& Scene::ComponentPool() {
+template<component T>
+T::PoolType& Scene::ComponentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
+    } else {
+        return geometry_pool_;
     }
-    return geometry_pool_;
 
 }
 
 extern Scene scene;
 
 
-template<typename T>
+template<component T>
 T Entity::Component() {
     return scene.ComponentPool<T>().At(id_);
 }
 
-template<typename T>
+template<component T>
 T Entity::AddComponent() {
     scene.ComponentPool<T>().AddComponent(id_);
 }

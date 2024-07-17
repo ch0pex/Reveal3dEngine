@@ -26,7 +26,7 @@ bool Entity::IsAlive() {
 
 
 Entity Scene::NewEntity() {
-    Entity entity(id_factory.New());
+    Entity entity(id_factory_.New());
 
     Node node {
         .entity = entity
@@ -39,6 +39,11 @@ Entity Scene::NewEntity() {
 
     sceneGraph_.push_back(node);
     lastNode_ = &sceneGraph_.at(sceneGraph_.size() - 1);
+
+    if (!id_factory_.FreeCap()) {
+        transform_pool_.AddComponent();
+        geometry_pool_.AddComponent();
+    }
 
     return entity;
 }
@@ -71,16 +76,14 @@ Entity Scene::NewChildEntity(Entity parent) {
     return child;
 }
 
-bool Scene::RemoveEntity(id_t id) {
-    return false;
+void Scene::RemoveEntity(id_t id) {
+    id_factory_.Remove(id);
+    transform_pool_.RemoveComponent(id);
+    geometry_pool_.RemoveComponent(id);
 }
 
 bool Scene::IsEntityAlive(id_t id) {
-    if (id == id::invalid)
-        return false;
-    if (id::generation(id) != generations_.at(id::index(id)))
-        return false;
-    return true;
+    return id_factory_.IsAlive(id);
 }
 
 void Scene::Init() {

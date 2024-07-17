@@ -26,9 +26,9 @@ class TransformPool;
 class Transform {
 public:
     struct Data {
-        math::xvec3 pos   { 0.f, 0.f, 0.f };
-        math::xvec3 rot   { 0.f, 0.f, 0.f };
-        math::xvec3 scale { 1.f, 1.f, 1.f };
+        math::xvec3 position    { 0.f, 0.f, 0.f };
+        math::xvec3 rotation    { 0.f, 0.f, 0.f };
+        math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
     Transform() = default;
@@ -59,6 +59,8 @@ public:
 
     u8 Dirty() const;
 
+    using PoolType = TransformPool;
+
 private:
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
@@ -69,13 +71,14 @@ private:
 
 class TransformPool {
 public:
+    void AddComponent();
     void AddComponent(id_t id, Transform::Data&& initInfo = {});
     void AddChildComponent(id_t id, math::mat4 &parentWorld);
     void RemoveComponent(id_t id);
     void Update();
 
     INLINE u32  Count()                     { return transform_data_.size(); }
-    INLINE Transform At(id_t id)            { return transform_component_.at(id::index(id)); }
+    INLINE Transform At(id_t id)            { return transform_components_.at(id::index(id)); }
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
 
     std::vector<Transform>::iterator begin();
@@ -84,9 +87,9 @@ public:
 private:
     friend class Transform;
 
-    INLINE math::mat4& World(id_t id)    { return world_.at(id::index(id)); }
-    INLINE math::mat4& InvWorld(id_t id) { return invWorld_.at(id::index(id)); }
-    INLINE Transform::Data& Data(id_t id){ return transform_data_.at(id::index(id)); }
+    INLINE math::mat4& World(id_t id)     { return world_.at(id::index(id)); }
+    INLINE math::mat4& InvWorld(id_t id)  { return invWorld_.at(id::index(id)); }
+    INLINE Transform::Data& Data(id_t id) { return transform_data_.at(id::index(id)); }
 
     /************** Transform IDs ****************/
     id::Factory                   id_factory_;

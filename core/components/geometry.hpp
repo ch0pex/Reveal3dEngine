@@ -63,6 +63,7 @@ public:
     void AddMesh(std::shared_ptr<render::Mesh> mesh_);
     void AddMesh(primitive type);
 
+    using PoolType = GeometryPool;
     //    INLINE u8 IsDirty() { return isDirty_; }
     //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
@@ -74,6 +75,12 @@ private:
 
 class GeometryPool {
 public:
+    void AddComponent();
+    void AddComponent(id_t id);
+    void RemoveComponent(id_t id);
+
+    bool IsAlive(id_t id);
+
     std::shared_ptr<render::Mesh> Mesh(id_t id);
     std::span<render::Mesh> SubMeshes(id_t id);
     math::vec4 Color(id_t id);
