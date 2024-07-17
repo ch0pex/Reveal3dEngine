@@ -226,21 +226,16 @@ void reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&init
 
 void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
     id_t index {id::index(id)};
-    id_t new_id = id_factory_.New();
-    if (transform_data_.size() > index)
-    {
+    if (transform_data_.size() > index) {
         transform_data_.at(index) = Transform::Data();
         world_.at(index) = math::Mat4Identity();
         invWorld_.at(index) = math::Mat4Identity();
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
-        transform_components_.emplace_back(id_factory_.New());
-    }
-    else
-    {
+    } else {
         transform_data_.emplace_back();
-        world_.push_back(parentWorld);
-        invWorld_.push_back(math::Inverse(parentWorld));
+        world_.emplace_back(parentWorld);
+        invWorld_.emplace_back(math::Inverse(parentWorld));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
     }
