@@ -36,7 +36,7 @@
 #include "content/primitives.hpp"
 #include "render/light.hpp"
 #include "entity.hpp"
-#include "components/components.hpp"
+#include "components.hpp"
 
 #include <deque>
 #include <set>
@@ -122,9 +122,9 @@ template<typename T>
 auto& Scene::ComponentPool() {
     if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
-    } else if constexpr (std::is_same<T, Geometry>()){
-        return geometry_pool_;
     }
+    return geometry_pool_;
+
 }
 
 extern Scene scene;

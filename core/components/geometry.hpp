@@ -16,12 +16,14 @@
 #include "render/mesh.hpp"
 #include "common/id.hpp"
 
-#include <vector>
 #include <queue>
+#include <span>
+#include <vector>
 
 namespace reveal3d::core {
 
-/*TODO: move this to SubMesh and have multiple meshes in an entity geometry? */
+class GeometryPool;
+
 class Geometry {
 public:
     enum primitive : u8 {
@@ -36,27 +38,27 @@ public:
     union InitInfo { 
         primitive primitive;
         render::Mesh* mesh;
-    }
+    };
 
     Geometry() = default;
     Geometry(id_t id);
-    Geometry(id_t id, Initinfo& initInfo);
+    Geometry(id_t id, InitInfo& initInfo);
     //    Component(const Component &geo);
-    INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
-    INLINE u32 IndexCount() { return mesh_->indices_.size(); }
+    u32 VertexCount() { return mesh_->vertices_.size(); }
+    u32 IndexCount() { return mesh_->indices_.size(); }
 
-    INLINE std::vector<render::SubMesh> &SubMeshes() { return meshes_; }
-    INLINE std::vector<render::Vertex> &Vertices() { return mesh_->vertices_; }
-    INLINE std::vector<u32> &Indices() { return mesh_->indices_; }
-    INLINE render::Vertex *GetVerticesStart() { return mesh_->vertices_.data(); }
-    INLINE u32 *GetIndicesStart() { return mesh_->indices_.data(); }
+    std::vector<render::SubMesh> &SubMeshes() { return meshes_; }
+    std::vector<render::Vertex> &Vertices() { return mesh_->vertices_; }
+    std::vector<u32> &Indices() { return mesh_->indices_; }
+    render::Vertex *GetVerticesStart() { return mesh_->vertices_.data(); }
+    u32 *GetIndicesStart() { return mesh_->indices_.data(); }
 
-    INLINE u32 RenderInfo() { return mesh_->renderInfo; }
-    INLINE void SetRenderInfo(u32 index) { mesh_->renderInfo = index; }
+    u32 RenderInfo() { return mesh_->renderInfo; }
+    void SetRenderInfo(u32 index) { mesh_->renderInfo = index; }
 
-    INLINE void SetVisibility(bool visibility) { meshes_[0].visible = visibility; }
-    INLINE bool IsVisible() { return meshes_[0].visible; }
-    INLINE math::vec4 &Color() { return color_; }
+    void SetVisibility(bool visibility) { meshes_[0].visible = visibility; }
+    bool IsVisible() { return meshes_[0].visible; }
+    math::vec4 &Color() { return color_; }
 
     void AddMesh(std::shared_ptr<render::Mesh> mesh_);
     void AddMesh(primitive type);
@@ -65,13 +67,17 @@ public:
     //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
 private:
-    GeometryPool& Pool() const;
+    [[nodiscard]] GeometryPool& Pool() const;
 
     id_t id_;
 };
 
 class GeometryPool {
 public:
+    std::shared_ptr<render::Mesh> Mesh(id_t id);
+    std::span<render::Mesh> SubMeshes(id_t id);
+    math::vec4 Color(id_t id);
+    id_t PopNewGeometry(id_t id);
 
 private:
 

@@ -19,6 +19,7 @@
 
 #include "dx_graphics_core.hpp"
 #include "config/config.hpp"
+#include "core/components.hpp"
 namespace reveal3d::graphics {
 
 using namespace render;
@@ -182,7 +183,7 @@ void Dx12::SetViewport() {
 void Dx12::LoadAssets() {
     cmdManager_.Reset(nullptr);
 
-    auto& transforms = core::scene.ComponentPool<Transform>();
+    core::TransformPool& transforms = core::scene.ComponentPool<core::Transform>();
     // auto& geometries = core::scene.ComponentPool<Geometry>();
 
     for(u32 i = 0; i < core::scene.EntityCount(); ++i) {
@@ -191,7 +192,7 @@ void Dx12::LoadAssets() {
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
             objConstant.data.worldViewProj = transform.World();
-            objConstant.data.flatColor = { 0.9f, 0.9f, 0.9f };
+            objConstant.data.flatColor = { 0.9f, 0.9f, 0.9f, 1.0f };
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
