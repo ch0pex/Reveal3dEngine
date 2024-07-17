@@ -17,14 +17,6 @@
 
 namespace reveal3d::content {
 
-static void ApplyOffset(std::vector<u16> &indices, u16 offset) {
-    if (offset != 0) {
-        for (auto &index : indices) {
-            index += offset;
-        }
-    }
-}
-
 u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
     std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0

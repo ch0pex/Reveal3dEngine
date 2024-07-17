@@ -182,15 +182,16 @@ void Dx12::SetViewport() {
 void Dx12::LoadAssets() {
     cmdManager_.Reset(nullptr);
 
-    std::vector<core::Transform> &transforms = core::scene.Transforms();
-    std::vector<core::Geometry> &geometries = core::scene.Geometries();
+    auto& transforms = core::scene.ComponentPool<Transform>();
+    // auto& geometries = core::scene.ComponentPool<Geometry>();
 
-    for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
+    for(u32 i = 0; i < core::scene.EntityCount(); ++i) {
+        Transform transform = transforms.At(i);
         CreateRenderElement(i);
         AlignedConstant<ObjConstant, 1> objConstant;
         for (u32 j = 0; j < frameBufferCount; ++j) {
-            objConstant.data.worldViewProj = transforms[i].World();
-            objConstant.data.flatColor = geometries[i].Color();
+            objConstant.data.worldViewProj = transform.World();
+            objConstant.data.flatColor = { 0.9f, 0.9f, 0.9f };
             frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
         }
     }
@@ -215,12 +216,12 @@ void Dx12::Update(render::Camera &camera) {
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
-    auto &geometries = core::scene.Geometries();
-    std::set<id_t>& dirties = core::scene.DirtyTransforms();
+    // auto &geometries = core::scene.Geometries();
+    std::set<id_t>& dirties = core::scene.ComponentPool<Transform>().DirtyElements();
 
     AlignedConstant<ObjConstant, 1> objConstant;
     for (auto id : dirties) {
-        objConstant.data.flatColor = geometries.at(id::index(id)).Color();
+        // objConstant.data.flatColor = geometries.at(id::index(id)).Color();
         core::Transform trans = core::scene.GetEntity(id).Transform();
 
         objConstant.data.worldViewProj = trans.World();

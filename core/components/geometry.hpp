@@ -17,12 +17,13 @@
 #include "common/id.hpp"
 
 #include <vector>
-#include <memory>
+#include <queue>
 
 namespace reveal3d::core {
 
 /*TODO: move this to SubMesh and have multiple meshes in an entity geometry? */
-struct Geometry {
+class Geometry {
+public:
     enum primitive : u8 {
         cube,
         plane,
@@ -32,10 +33,14 @@ struct Geometry {
         torus,
     };
 
+    union InitInfo { 
+        primitive primitive;
+        render::Mesh* mesh;
+    }
+
     Geometry() = default;
-    Geometry(const wchar_t *path);
-    Geometry(primitive type);
-    Geometry(std::vector<render::Vertex> &&vertices, std::vector<u32> &&indices);
+    Geometry(id_t id);
+    Geometry(id_t id, Initinfo& initInfo);
     //    Component(const Component &geo);
     INLINE u32 VertexCount() { return mesh_->vertices_.size(); }
     INLINE u32 IndexCount() { return mesh_->indices_.size(); }
@@ -53,32 +58,36 @@ struct Geometry {
     INLINE bool IsVisible() { return meshes_[0].visible; }
     INLINE math::vec4 &Color() { return color_; }
 
-    void AddMesh(const wchar_t *path);
+    void AddMesh(std::shared_ptr<render::Mesh> mesh_);
     void AddMesh(primitive type);
-
-    INLINE u8 IsDirty() { return isDirty_; }
-    INLINE void UpdateDirty() { --isDirty_; }
-
-    INLINE bool OnGpu() { return OnGPU_; }
-    INLINE void MarkAsStored() { OnGPU_ = true; }
 
     //    INLINE u8 IsDirty() { return isDirty_; }
     //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
 
 private:
-    id_t id_;
-    u8 isDirty_{3};
-    bool OnGPU_{false};
-    std::vector<render::SubMesh> meshes_;
-    std::shared_ptr<render::Mesh> mesh_;
-    math::vec4 color_{ 1.f, 1.f, 1.f, 1.f, };
+    GeometryPool& Pool() const;
 
+    id_t id_;
 };
 
 class GeometryPool {
 public:
 
 private:
+
+    /************** Geometry IDs ****************/
+
+    id::Factory id_factory_;
+    std::vector<Geometry> geometry_components_;
+
+    /************* Geometry Data ****************/
+
+    std::vector<math::vec4> colors_;
+    std::vector<render::SubMesh> subMeshes_;
+    std::vector<std::shared_ptr<render::Mesh>> meshes_;
+
+    // New geometries must be uploaded to GPU
+    std::queue<id_t> newGeometries_;
 
 };
 

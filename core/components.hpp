@@ -13,6 +13,6 @@
 
 #pragma once
 
-#include "transform.hpp"
-#include "geometry.hpp"
-#include "script.hpp"
+#include "components/transform.hpp"
+#include "components/geometry.hpp"
+#include "components/script.hpp"

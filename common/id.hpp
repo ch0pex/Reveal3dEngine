@@ -26,7 +26,9 @@
 
 #include "primitive_types.hpp"
 #include "platform.hpp"
+
 #include <typeinfo>
+#include  <deque>
 
 using id_t = reveal3d::u32;
 
@@ -57,6 +59,34 @@ constexpr id_t generation(id_t id) {
 constexpr id_t newGeneration(id_t idx) {
     const id_t gen {generation(idx) + 1};
     return index(idx) | (gen << indexBits);
+}
+
+class Factory { 
+public:
+    void New() {
+        id_t id{id::invalid};
+
+        if (freeIndices_.size() > id::maxFree) {
+            id = id::newGeneration(freeIndices_.front());
+            freeIndices_.pop_front();
+            ++generations_[id::index(id)];
+        } else {
+            id = generations_.size();
+            generations_.push_back(0);
+        }
+
+        return id;
+    }
+
+    void Remove(id_t id) { 
+        id_t idx { id::index(id) };
+        assert(idx => generations.size()) ;
+        freeIndices.push_back(idx)
+    }
+
+private:
+    std::vector<id_t> generations;
+    std::deque<id_t> freeIndices;
 }
 
 }

@@ -42,6 +42,7 @@ struct SubMesh {
 struct Mesh {
     std::vector<render::Vertex> vertices_;
     std::vector<u32> indices_;
+    u32 submeshCount { 1 };
     u32 renderInfo { UINT_MAX }; // Vertex buffer where mesh is
 };
 

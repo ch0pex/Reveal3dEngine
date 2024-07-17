@@ -50,11 +50,6 @@ public:
     Entity() : id_(id::invalid) {}
     explicit Entity(id_t id);
 
-    // std::string& Name() const;
-    // Transform& Transform();
-    // Geometry& Geometry();
-    // Script Script();
-
     template<typename T> T Component();
     template<typename T> T AddComponent();
 
@@ -95,7 +90,7 @@ public:
 //    std::vector<Transform>& Transforms();
 //    std::vector<Geometry>& Geometries();
 
-    template<typename T> auto&ComponentPool();
+    template<typename T> auto& ComponentPool();
 
 //    std::set<id_t>& DirtyTransforms();
 //    std::set<id_t>& DirtyGeometries();
@@ -108,15 +103,9 @@ private:
 
     /************ Entity IDs factory ***********/
 
-    id_t NewId();
-
-    std::vector<id_t>           generations_;
-    std::deque<id_t>            freeIndices_;
-
-    /************** Entity graph****************/
-
-    Node*                       lastNode_;
+    id::Factory                 id_factory_;
     std::vector<Scene::Node>    sceneGraph_;
+    Node*                       lastNode_;
 
     /*********** Components Pools  *************/
 
@@ -129,8 +118,6 @@ private:
 
 };
 
-extern Scene scene;
-
 template<typename T>
 auto& Scene::ComponentPool() {
     if constexpr (std::is_same<T, Transform>()) {
@@ -139,6 +126,9 @@ auto& Scene::ComponentPool() {
         return geometry_pool_;
     }
 }
+
+extern Scene scene;
+
 
 template<typename T>
 T Entity::Component() {
@@ -155,4 +145,4 @@ T Entity::AddComponent() {
 //    scene.ComponentPool<T>().AddComponent(id_, std::forward(data));
 //}
 
-}
+} // reveal3d::core namespace

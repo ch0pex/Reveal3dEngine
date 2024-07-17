@@ -15,29 +15,16 @@
 #include "content/primitives.hpp"
 #include "content/obj_parser.hpp"
 
+#include "core/scene.hpp"
+
 namespace reveal3d::core {
 
-//namespace {
-//
-//std::vector<id_t> generations;
-//std::vector<id_t> freeIds;
-//
-//
-//std::vector<std::vector<render::SubMesh>> subMeshes_;
-//std::shared_ptr<render::Mesh> mesh_;
-//std::vector<bool> uploaded;
-//std::vector<u8> dirty;
-//
-//}
-
-Geometry::Geometry(const wchar_t *path) {
-    mesh_ = std::make_shared<render::Mesh>();
-    AddMesh(path);
+Geometry::Geometry(id_t id)
+{
 }
 
-Geometry::Geometry(Geometry::primitive type) {
-    mesh_ = std::make_shared<render::Mesh>();
-    AddMesh(type);
+Geometry::Geometry(id_t id, Initinfo &initInfo)
+{
 }
 
 Geometry::Geometry(std::vector<render::Vertex> &&vertices, std::vector<u32> &&indices)
@@ -57,7 +44,9 @@ void Geometry::AddMesh(const wchar_t *path) {
     meshes_.push_back(mesh);
 }
 
-void Geometry::AddMesh(Geometry::primitive type) {
+
+void Geometry::AddMesh(Geometry::primitive type)
+{
     render::SubMesh mesh;
 
     mesh.vertexPos = VertexCount();
@@ -75,15 +64,14 @@ void Geometry::AddMesh(Geometry::primitive type) {
 
     mesh.indexCount = IndexCount() - mesh.indexCount;
     meshes_.push_back(mesh);
-
 }
-//Geometry::Geometry(const Geometry &geo) {
-//    mesh_ = geo.mesh_;
-//    meshes_ = geo.meshes_;
-//    OnGPU = geo.OnGPU;
+GeometryPool &Geometry::Pool() const {
+    return core::scene.ComponentPool<Geometry>();
+}
+// Geometry::Geometry(const Geometry &geo) {
+//     mesh_ = geo.mesh_;
+//     meshes_ = geo.meshes_;
+//     OnGPU = geo.OnGPU;
 //
-//}
-
-
-
+// }
 }

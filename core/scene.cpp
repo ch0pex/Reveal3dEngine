@@ -26,7 +26,7 @@ bool Entity::IsAlive() {
 
 
 Entity Scene::NewEntity() {
-    Entity entity(NewId());
+    Entity entity(id_factory.New());
 
     Node node {
         .entity = entity
@@ -45,7 +45,7 @@ Entity Scene::NewEntity() {
 
 Entity Scene::NewChildEntity(Entity parent) {
 
-    Entity child(NewId());
+    Entity child(id_factory_.New());
 
     Node childNode {
             .entity = child,
@@ -112,21 +112,6 @@ void Scene::Update(f32 dt) {
 //            scripts_[i]->Update(entity, dt);
 //        }
 //    }
-}
-
-id_t Scene::NewId() {
-    id_t id { id::invalid };
-
-    if (freeIndices_.size() > id::maxFree) {
-        id = id::newGeneration(freeIndices_.front());
-        freeIndices_.pop_front();
-        ++generations_[id::index(id)];
-    } else {
-        id = generations_.size();
-        generations_.push_back(0);
-    }
-
-    return id;
 }
 
 Scene::~Scene() {
