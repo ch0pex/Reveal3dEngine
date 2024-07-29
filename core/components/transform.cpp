@@ -19,7 +19,7 @@
 
 namespace reveal3d::core {
 
-Transform::Transform(id_t id) : id_(id) {}
+Transform::Transform(id_t id) : id_(id) { }
 
 math::mat4& Transform::World() const {
     return Pool().World(id_);
@@ -79,8 +79,8 @@ void Transform::SetWorldPosition(const math::xvec3 pos) {
         trans.position = pos;
     }
 
-    Pool().InvWorld(idx) = math::Inverse(Pool().World(id_));
-    Pool().dirties_.at(idx) = 3;
+    Pool().InvWorld(id_) = math::Inverse(Pool().World(id_));
+    Pool().dirties_.at(id_) = 3;
     Pool().dirtyIds_.insert(id_);
     UpdateChilds();
 }
@@ -181,9 +181,10 @@ u8 Transform::Dirty() const {
     return Pool().dirties_.at(id::index(id_));
 }
 
-TransformPool &Transform::Pool() const {
+TransformPool &Transform::Pool() {
     return core::scene.ComponentPool<Transform>();
 }
+
 
 //void Scene::UpdateTransforms() {
 //    for (auto it = dirtyIds.begin(); it != dirtyIds.end();) {
@@ -202,29 +203,36 @@ TransformPool &Transform::Pool() const {
 //}
 
 
-void TransformPool::AddComponent() {
+Transform TransformPool::AddComponent() {
     transform_components_.emplace_back();
+    return transform_components_.at(transform_components_.size() - 1);
 }
 
-void reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
+Transform reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
     id_t index{id::index(id)};
 
     if (transform_data_.size() > index) {
-        transform_data_.at(index) = initInfo;
-        world_.at(index) = math::Mat4Identity();
-        invWorld_.at(index) = math::Mat4Identity();
+        Transform::Data& data = transform_data_.at(index);
+        data = initInfo;
+        world_.at(index) = math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation));
+        invWorld_.at(index) = math::Inverse(world_.at(index));
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
+        transform_components_.at(index) = Transform(id);
     } else {
         transform_data_.push_back(initInfo);
-        world_.emplace_back(math::Mat4Identity());
-        invWorld_.emplace_back(math::Mat4Identity());
+        Transform::Data& data = transform_data_.at(index);
+        world_.at(index) = math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation));
+        invWorld_.at(index) = math::Inverse(world_.at(index));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
+        transform_components_.emplace_back(id);
     }
+
+    return transform_components_.at(index);
 }
 
-void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
+Transform reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
     id_t index {id::index(id)};
     if (transform_data_.size() > index) {
         transform_data_.at(index) = Transform::Data();
@@ -232,13 +240,17 @@ void reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &paren
         invWorld_.at(index) = math::Mat4Identity();
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
+        transform_components_.at(index) = Transform(id);
     } else {
         transform_data_.emplace_back();
         world_.emplace_back(parentWorld);
         invWorld_.emplace_back(math::Inverse(parentWorld));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
+        transform_components_.emplace_back(id);
     }
+
+    return transform_components_.at(index);
 }
 
 void reveal3d::core::TransformPool::RemoveComponent(id_t id) {
@@ -251,6 +263,18 @@ std::vector<Transform>::iterator TransformPool::begin() {
 
 std::vector<Transform>::iterator TransformPool::end() {
     return transform_components_.end();
+}
+
+void TransformPool::Update() {
+    for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
+        id_t idx = id::index(*it);
+        transform_components_.at(idx).UpdateWorld();
+        if (dirties_.at(idx) == 0) {
+            it = dirtyIds_.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 } // reveal3d::core namespace

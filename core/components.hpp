@@ -20,10 +20,9 @@
 
 namespace reveal3d::core {
 
-
 template<typename T>
 concept component = requires(T component) {
-    typename T::PoolType;
+//    typename T::PoolType;
     {component.IsAlive()} -> std::same_as<bool>;
     {component.Id()} -> std::same_as<id_t>;
 };

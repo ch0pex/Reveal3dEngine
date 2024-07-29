@@ -128,5 +128,10 @@ u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, s
     return index;
 }
 
+render::Mesh ImportObj(const wchar_t *path) {
+   render::Mesh mesh;
+   GetDataFromObj(path, mesh.vertices, mesh.indices);
+   return std::move(mesh);
+}
 
 } // namespace reveal3d::content

@@ -64,8 +64,6 @@ constexpr id_t newGeneration(id_t idx) {
 
 class Factory { 
 public:
-
-
     INLINE bool FreeCap() {
         return (freeIndices_.size() > id::maxFree);
     }
@@ -100,6 +98,6 @@ public:
 private:
     std::vector<id_t> generations_;
     std::deque<id_t> freeIndices_;
-}
+};
 
 }

@@ -25,7 +25,7 @@ set(SOURCES
         config/config.cpp
         input/input.cpp
         content/primitives.cpp
-        content/obj_parser.cpp
+        content/formats/obj/obj_parser.cpp
         window/glfw/glfw.cpp
         common/logger.cpp
 )
@@ -42,10 +42,12 @@ set(HEADERS
         config/config.hpp
         input/input.hpp
         content/primitives.hpp
-        content/obj_parser.hpp
+        content/formats/obj/obj_parser.hpp
         window/glfw/glfw.hpp
         common/id.hpp
         core/components.hpp
+        render/material.hpp
+        content/content.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

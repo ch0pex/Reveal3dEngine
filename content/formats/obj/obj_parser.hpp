@@ -22,6 +22,7 @@
 namespace reveal3d::content {
 
 u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
+render::Mesh ImportObj(const wchar_t *path);
 
 
 }

@@ -360,14 +360,14 @@ void Dx12::CreateRenderElement(u32 index) {
         BufferInitInfo vertexBufferInfo = {
                 .device = device_.Get(),
                 .cmdList = cmdManager_.List(),
-                .data = geometry.GetVerticesStart(),
+                .data = geometry.Vertices().data(),
                 .count = geometry.VertexCount()
         };
 
         BufferInitInfo indexBufferInfo = {
                 .device = device_.Get(),
                 .cmdList = cmdManager_.List(),
-                .data = geometry.GetIndicesStart(),
+                .data = geometry.Indices().data(),
                 .count = geometry.IndexCount(),
                 .format = DXGI_FORMAT_R32_UINT
         };

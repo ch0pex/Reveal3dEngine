@@ -113,7 +113,7 @@ void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4& p
 
     for (const auto &mesh: subMeshes_[layer]) {
         if (!mesh->visible) continue;
-        const math::mat4 world = math::Transpose(core::scene.Transforms()[mesh->constantIndex].World());
+        const math::mat4 world = math::Transpose(core::scene.ComponentPool<core::Transform>().At(mesh->constantIndex).World());
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
         glBindVertexArray(renderElments[mesh->renderInfo].vao);
         glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_INT, 0);

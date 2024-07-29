@@ -31,6 +31,9 @@ public:
         math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
+    using PoolType = TransformPool&;
+    using InitInfo = Data;
+
     Transform() = default;
     explicit Transform(id_t id);
 
@@ -51,29 +54,27 @@ public:
     void SetWorldRotation(math::xvec3 rot);
     void UpdateWorld();
 
-    INLINE bool IsAlive() const { return id_ != id::invalid; }
-    INLINE id_t Id() { return id_; }
+    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] INLINE id_t Id() const { return id_; }
 
+    [[nodiscard]] u8 Dirty() const;
     void UnDirty() const;
     void SetDirty() const;
 
-    u8 Dirty() const;
-
-    using PoolType = TransformPool;
 
 private:
+    [[nodiscard]] static TransformPool& Pool();
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
-    TransformPool& Pool() const;
 
     id_t id_ { id::invalid };
 };
 
 class TransformPool {
 public:
-    void AddComponent();
-    void AddComponent(id_t id, Transform::Data&& initInfo = {});
-    void AddChildComponent(id_t id, math::mat4 &parentWorld);
+    Transform AddComponent();
+    Transform AddComponent(id_t id, Transform::Data&& initInfo = {});
+    Transform AddChildComponent(id_t id, math::mat4 &parentWorld);
     void RemoveComponent(id_t id);
     void Update();
 
@@ -86,12 +87,12 @@ public:
 
 private:
     friend class Transform;
-
     INLINE math::mat4& World(id_t id)     { return world_.at(id::index(id)); }
     INLINE math::mat4& InvWorld(id_t id)  { return invWorld_.at(id::index(id)); }
     INLINE Transform::Data& Data(id_t id) { return transform_data_.at(id::index(id)); }
 
     /************** Transform IDs ****************/
+
     id::Factory                   id_factory_;
     std::vector<Transform>        transform_components_;
 

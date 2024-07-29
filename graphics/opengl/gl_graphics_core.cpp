@@ -45,28 +45,29 @@ void OpenGL::LoadPipeline() {
 }
 
 void OpenGL::LoadAssets() {
-    std::vector<core::Transform> &transforms = core::scene.Transforms();
-    std::vector<core::Geometry> &geometries = core::scene.Geometries();
-
-    for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
-        if (geometries[i].RenderInfo() == UINT_MAX) {
-
-            renderElements_.emplace_back(geometries[i].Vertices(), geometries[i].Indices(), transforms[i].World());
-            geometries[i].SetRenderInfo(i);
-
-            for (auto &mesh : geometries[i].SubMeshes()) {
-                mesh.renderInfo = i;
-                mesh.constantIndex = i;
-                renderLayers_.AddMesh(mesh);
-            }
-        } else {
-            for (auto &mesh : geometries[i].SubMeshes()) {
-                mesh.renderInfo = geometries[i].RenderInfo();
-                mesh.constantIndex = i;
-                renderLayers_.AddMesh(mesh);
-            }
-        }
-    }
+    //TODO
+//    std::vector<core::Transform> &transforms = core::scene.Transforms();
+//    std::vector<core::Geometry> &geometries = core::scene.Geometries();
+//
+//    for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
+//        if (geometries[i].RenderInfo() == UINT_MAX) {
+//
+//            renderElements_.emplace_back(geometries[i].Vertices(), geometries[i].Indices(), transforms[i].World());
+//            geometries[i].SetRenderInfo(i);
+//
+//            for (auto &mesh : geometries[i].SubMeshes()) {
+//                mesh.renderInfo = i;
+//                mesh.constantIndex = i;
+//                renderLayers_.AddMesh(mesh);
+//            }
+//        } else {
+//            for (auto &mesh : geometries[i].SubMeshes()) {
+//                mesh.renderInfo = geometries[i].RenderInfo();
+//                mesh.constantIndex = i;
+//                renderLayers_.AddMesh(mesh);
+//            }
+//        }
+//    }
 }
 
 void OpenGL::LoadAsset() {

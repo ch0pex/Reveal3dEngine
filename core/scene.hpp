@@ -35,12 +35,12 @@
 #include "common/common.hpp"
 #include "content/primitives.hpp"
 #include "render/light.hpp"
-#include "entity.hpp"
 #include "components.hpp"
 
 #include <deque>
 #include <set>
 #include <vector>
+#include <utility>
 
 
 namespace reveal3d::core {
@@ -52,6 +52,7 @@ public:
 
     template<component T> T Component();
     template<component T> T AddComponent();
+    template<component T> T AddComponent(T::InitInfo&& initInfo);
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -90,7 +91,7 @@ public:
 //    std::vector<Transform>& Transforms();
 //    std::vector<Geometry>& Geometries();
 
-    template<component T> T::PoolType& ComponentPool() noexcept;
+    template<component T> T::PoolType ComponentPool() noexcept;
 
 //    std::set<id_t>& DirtyTransforms();
 //    std::set<id_t>& DirtyGeometries();
@@ -119,7 +120,7 @@ private:
 };
 
 template<component T>
-T::PoolType& Scene::ComponentPool() noexcept {
+T::PoolType Scene::ComponentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
     } else {
@@ -139,6 +140,11 @@ T Entity::Component() {
 template<component T>
 T Entity::AddComponent() {
     scene.ComponentPool<T>().AddComponent(id_);
+}
+
+template<component T>
+T Entity::AddComponent(T::InitInfo&& initInfo) {
+    return scene.ComponentPool<T>().AddComponent(id_, std::forward<T::InitInfo>(initInfo));
 }
 
 //template<typename T>

@@ -11,7 +11,7 @@
  * Longer description
  */
 
-#include "core/geometry.hpp"
+#include "core/components/geometry.hpp"
 
 namespace reveal3d::content {
 

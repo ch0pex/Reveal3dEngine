@@ -33,60 +33,69 @@ public:
         sphere,
         cone,
         torus,
+        custom,
+
+        count
     };
 
-    union InitInfo { 
-        primitive primitive;
-        render::Mesh* mesh;
-    };
+    using PoolType = GeometryPool&;
+    using InitInfo = render::Mesh;
 
-    Geometry() = default;
-    Geometry(id_t id);
-    Geometry(id_t id, InitInfo& initInfo);
-    //    Component(const Component &geo);
-    u32 VertexCount() { return mesh_->vertices_.size(); }
-    u32 IndexCount() { return mesh_->indices_.size(); }
+    Geometry();
+    explicit Geometry(id_t id);
 
-    std::vector<render::SubMesh> &SubMeshes() { return meshes_; }
-    std::vector<render::Vertex> &Vertices() { return mesh_->vertices_; }
-    std::vector<u32> &Indices() { return mesh_->indices_; }
-    render::Vertex *GetVerticesStart() { return mesh_->vertices_.data(); }
-    u32 *GetIndicesStart() { return mesh_->indices_.data(); }
+    u32 VertexCount() const;
+    u32 IndexCount() const;
 
-    u32 RenderInfo() { return mesh_->renderInfo; }
-    void SetRenderInfo(u32 index) { mesh_->renderInfo = index; }
-
-    void SetVisibility(bool visibility) { meshes_[0].visible = visibility; }
-    bool IsVisible() { return meshes_[0].visible; }
-    math::vec4 &Color() { return color_; }
-
-    void AddMesh(std::shared_ptr<render::Mesh> mesh_);
+    // NOTE: This will need to be changed when Mesh instancing is implemented
+    // For now there is no mesh instancing and only one submesh each mesh
+    void AddMesh(render::Mesh& mesh);
     void AddMesh(primitive type);
 
-    using PoolType = GeometryPool;
-    //    INLINE u8 IsDirty() { return isDirty_; }
-    //    INLINE void UpdateDirty() { assert(isDirty_ > 0); --isDirty_; }
+    std::span<render::SubMesh> SubMeshes() const;
+    std::vector<render::Vertex> &Vertices() const;
+    std::vector<u32> &Indices() const;
+
+    u32 RenderInfo() const;
+    void SetRenderInfo(u32 index) const;
+
+    void SetVisibility(bool visibility);
+    bool IsVisible() const;
+    math::vec4 &Color() const;
+
+
+    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] INLINE id_t Id() const { return id_; }
+
+    [[nodiscard]] u8 Dirty() const;
+    void UnDirty() const;
+    void SetDirty() const;
+
 
 private:
-    [[nodiscard]] GeometryPool& Pool() const;
+    [[nodiscard]] static GeometryPool& Pool();
 
     id_t id_;
 };
 
 class GeometryPool {
 public:
-    void AddComponent();
-    void AddComponent(id_t id);
+    Geometry AddComponent();
+    Geometry AddComponent(id_t id);
+    Geometry AddComponent(id_t id, Geometry::InitInfo&& initInfo);
     void RemoveComponent(id_t id);
 
-    bool IsAlive(id_t id);
+    Geometry At(id_t id);
 
-    std::shared_ptr<render::Mesh> Mesh(id_t id);
-    std::span<render::Mesh> SubMeshes(id_t id);
-    math::vec4 Color(id_t id);
-    id_t PopNewGeometry(id_t id);
+    std::vector<Geometry>::iterator begin();
+    std::vector<Geometry>::iterator end();
 
 private:
+    friend class Geometry;
+    render::Mesh& Mesh(id_t id);
+    std::span<render::SubMesh> SubMeshes(id_t id);
+    math::vec4& Color(id_t id);
+    id_t PopNewGeometry(id_t id);
 
     /************** Geometry IDs ****************/
 
@@ -97,7 +106,7 @@ private:
 
     std::vector<math::vec4> colors_;
     std::vector<render::SubMesh> subMeshes_;
-    std::vector<std::shared_ptr<render::Mesh>> meshes_;
+    std::vector<render::Mesh> meshes_;
 
     // New geometries must be uploaded to GPU
     std::queue<id_t> newGeometries_;
