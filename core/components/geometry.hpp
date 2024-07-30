@@ -19,6 +19,7 @@
 #include <queue>
 #include <span>
 #include <vector>
+#include <set>
 
 namespace reveal3d::core {
 
@@ -65,9 +66,13 @@ public:
     void SetRenderInfo(u32 index) const;
 
     void SetVisibility(bool visibility);
-    bool IsVisible() const;
-    math::vec4 &Color() const;
+    [[nodiscard]] bool IsVisible() const;
+    const render::Material& Material();
 
+    void SetDiffuseColor(math::vec4 color);
+    void SetRoughness(f32 roughness);
+    void SetFresnel(math::vec3 fresnel);
+    void SetMatTransform(math::mat4 transform);
 
     [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
     [[nodiscard]] INLINE id_t Id() const { return id_; }
@@ -75,7 +80,6 @@ public:
     [[nodiscard]] u8 Dirty() const;
     void UnDirty() const;
     void SetDirty() const;
-
 
 private:
     [[nodiscard]] static GeometryPool& Pool();
@@ -92,6 +96,7 @@ public:
 
     Geometry At(id_t id);
     Geometry PopNewGeometry();
+    INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
 
     std::vector<Geometry>::iterator begin();
     std::vector<Geometry>::iterator end();
@@ -100,8 +105,8 @@ private:
     friend class Geometry;
     render::Mesh& Mesh(id_t id);
     std::span<render::SubMesh> SubMeshes(id_t id);
-    math::vec4& Color(id_t id);
     id_t PopNewGeometry(id_t id);
+    render::Material& Material(id_t id);
 
     /************** Geometry IDs ****************/
 
@@ -110,12 +115,17 @@ private:
 
     /************* Geometry Data ****************/
 
-    std::vector<math::vec4> colors_;
+    std::vector<render::Material> materials_;
     std::vector<render::SubMesh> subMeshes_;
     std::vector<render::Mesh> meshes_;
 
     // New geometries must be uploaded to GPU
     std::queue<id_t> newGeometries_;
+
+    // Materials must be updated on GPU
+    std::set<id_t>                dirtyIds_;
+    std::vector<u8>               dirties_;
+
 
 };
 

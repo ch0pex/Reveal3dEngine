@@ -108,11 +108,51 @@ void Geometry::SetVisibility(bool visibility) {
 bool Geometry::IsVisible() const {
     return Pool().SubMeshes(id_)[0].visible;
 }
-
-math::vec4 &Geometry::Color() const {
-    return Pool().Color(id_);
+const render::Material &Geometry::Material(){
+   return Pool().Material(id_);
 }
 
+void Geometry::SetDiffuseColor(math::vec4 color) {
+    Pool().Material(id_).baseColor = color;
+    SetDirty();
+}
+
+void Geometry::SetFresnel(math::vec3 fresnel) {
+    Pool().Material(id_).fresnel = fresnel;
+    SetDirty();
+}
+
+void Geometry::SetMatTransform(math::mat4 transform) {
+    Pool().Material(id_).matTransform = transform;
+    SetDirty();
+}
+
+void Geometry::SetRoughness(f32 roughness) {
+    Pool().Material(id_).roughness = roughness;
+    SetDirty();
+}
+
+u8 Geometry::Dirty() const {
+    return Pool().dirties_.at(id::index(id_));
+}
+
+void Geometry::UnDirty() const {
+    const id_t idx = id::index(id_);
+    if (Pool().dirties_.at(idx) != 0) {
+        --Pool().dirties_.at(idx);
+    } else {
+        Pool().dirties_.at(idx) = 0;
+    }
+}
+
+void Geometry::SetDirty() const {
+    const id_t idx = id::index(id_);
+    if (Dirty() == 3)
+        return;
+    if (Dirty() == 0)
+        Pool().dirtyIds_.insert(idx);
+    Pool().dirties_.at(idx) = 3;
+}
 
 Geometry GeometryPool::AddComponent() {
     geometry_components_.emplace_back();
@@ -125,12 +165,16 @@ Geometry GeometryPool::AddComponent(id_t id) {
     if (meshes_.size() > idx) {
         meshes_.at(idx) = render::Mesh();
         subMeshes_.at(idx) = render::SubMesh();
-        colors_.at(idx) = {0.8f, 0.8f, 0.8f, 1.0f};
+        materials_.at(idx) = {};
+        dirties_.at(idx) = 3;
+        dirtyIds_.insert(id);
         newGeometries_.push(id);
     } else {
         meshes_.emplace_back();
         subMeshes_.emplace_back();
-        colors_.emplace_back(0.8f, 0.8f, 0.8f, 1.0f);
+        materials_.emplace_back();
+        dirties_.emplace_back(4);
+        dirtyIds_.insert(id);
         newGeometries_.push(id);
     }
     geometry_components_.at(idx) = Geometry(id);
@@ -142,12 +186,16 @@ Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
     id_t idx = id::index(id);
     if (meshes_.size() > idx) {
         meshes_.at(idx) = std::move(initInfo);
-        colors_.at(idx) = {0.8f, 0.8f, 0.8f, 1.0f};
+        materials_.at(idx) = {};
+        dirties_.at(idx) = 3;
+        dirtyIds_.insert(id);
         newGeometries_.push(id);
     } else {
         meshes_.push_back(std::move(initInfo));
         subMeshes_.emplace_back();
-        colors_.emplace_back(0.8f, 0.8f, 0.8f, 1.0f);
+        materials_.emplace_back();
+        dirties_.emplace_back(4);
+        dirtyIds_.insert(id);
         newGeometries_.push(id);
     }
 
@@ -196,10 +244,6 @@ std::vector<Geometry>::iterator GeometryPool::end() {
     return geometry_components_.end();
 }
 
-math::vec4& GeometryPool::Color(id_t id) {
-    return colors_.at(id::index(id));
-}
-
 Geometry GeometryPool::At(id_t id) {
     return geometry_components_.at(id::index(id));
 }
@@ -211,6 +255,10 @@ Geometry GeometryPool::PopNewGeometry() {
     auto geo = Geometry(newGeometries_.front());
     newGeometries_.pop();
     return geo;
+}
+
+render::Material &GeometryPool::Material(id_t id) {
+    return materials_.at(id::index(id));
 }
 
 

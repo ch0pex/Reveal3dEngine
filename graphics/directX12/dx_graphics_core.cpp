@@ -115,6 +115,7 @@ void Dx12::InitFrameResources() {
 void Dx12::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
         frameResource.constantBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
+        frameResource.matBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
 //        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }
@@ -193,11 +194,13 @@ void Dx12::LoadAssets() {
         id_t idx = id::index(geometry.Id());
         core::Transform transform = transforms.At(idx);
         CreateRenderElement(idx);
-        AlignedConstant<ObjConstant, 1> objConstant;
+        AlignedConstant<ObjConstant> objConstant;
+        AlignedConstant<Material> matConstant;
         for (auto & frameResource : frameResources_) {
             objConstant.data.worldViewProj = transform.World();
-            objConstant.data.flatColor = {0.8f, 0.8f, 0.8f, 0.0f};
+            matConstant.data.baseColor = geometry.Material().baseColor;
             frameResource.constantBuffer.CopyData(idx, &objConstant, 1);
+            frameResource.matBuffer.CopyData(idx, &matConstant, 1);
         }
 
         geometry = geometries.PopNewGeometry();
@@ -219,27 +222,38 @@ void Dx12::LoadAsset(u32 id) {
 
 void Dx12::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
-    AlignedConstant<PassConstant, 2> passConstant;
 
+    std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
+    std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
+
+    AlignedConstant<PassConstant> passConstant;
+    AlignedConstant<ObjConstant> objConstant;
+    AlignedConstant<Material> matConstant;
+
+    // Update pass constants
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
-    // auto &geometries = core::scene.Geometries();
-    std::set<id_t>& dirties = core::scene.ComponentPool<core::Transform>().DirtyElements();
-
-    AlignedConstant<ObjConstant, 1> objConstant;
-    for (auto id : dirties) {
-        // objConstant.data.flatColor = geometries.at(id::index(id)).Color();
-        core::Transform trans = core::scene.GetEntity(id).Component<core::Transform>();
+    // Update object constants
+    for (auto id : dirtyTransforms) {
+        core::Transform trans = core::scene.ComponentPool<core::Transform>().At(id);
         objConstant.data.worldViewProj = trans.World();
-        objConstant.data.flatColor = {0.8f, 0.8f, 0.8f, 0.0f};
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
+    }
+
+    // Update material constants
+    for (auto id : dirtyMats) {
+        core::Geometry geo = core::scene.ComponentPool<core::Geometry>().At(id);
+        matConstant.data.baseColor = geo.Material().baseColor;
+        geo.UnDirty();
+        currFrameRes.matBuffer.CopyData(id::index(id), &matConstant);
     }
 
     core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
     core::Geometry geometry = geometries.PopNewGeometry();
 
+    // Load new geometries
     while(geometry.IsAlive()) {
         LoadAsset(geometry.Id());
         geometry = geometries.PopNewGeometry();
@@ -269,7 +283,7 @@ void Dx12::PrepareRender() {
 
     commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
     commandList->SetGraphicsRootSignature(renderLayers_[render::Shader::opaque].rootSignature.Get());
-    commandList->SetGraphicsRootConstantBufferView(1, currFrameRes.passBuffer.GpuStart());
+    commandList->SetGraphicsRootConstantBufferView(2, currFrameRes.passBuffer.GpuStart());
     ID3D12DescriptorHeap* srvDesc = heaps_.srv.Get();
     commandList->SetDescriptorHeaps(1, &srvDesc);
 

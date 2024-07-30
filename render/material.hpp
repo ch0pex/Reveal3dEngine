@@ -22,13 +22,15 @@ enum Shader : u8 {
     opaque = 0,
     flat, // Not affected by lighting
     grid,
-    //    transparent,
 
     count
 };
 
 struct Material {
-    math::vec4 baseColor;
+    math::vec4 baseColor { 0.8f, 0.8f, 0.8f, 0.0f };
+    math::vec3 fresnel { 0.8f, 0.8f, 0.8f };
+    f32 roughness { 0.8f };
+    math::mat4 matTransform { math::Mat4Identity() };
 };
 
 }
