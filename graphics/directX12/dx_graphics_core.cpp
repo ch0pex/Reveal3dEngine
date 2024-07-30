@@ -185,17 +185,24 @@ void Dx12::LoadAssets() {
 
     core::TransformPool& transforms = core::scene.ComponentPool<core::Transform>();
     // auto& geometries = core::scene.ComponentPool<Geometry>();
+    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
 
-    for(u32 i = 0; i < core::scene.EntityCount(); ++i) {
-        Transform transform = transforms.At(i);
-        CreateRenderElement(i);
+    core::Geometry geometry = geometries.PopNewGeometry();
+
+    while(geometry.IsAlive()) {
+        id_t idx = id::index(geometry.Id());
+        core::Transform transform = transforms.At(idx);
+        CreateRenderElement(idx);
         AlignedConstant<ObjConstant, 1> objConstant;
-        for (u32 j = 0; j < frameBufferCount; ++j) {
+        for (auto & frameResource : frameResources_) {
             objConstant.data.worldViewProj = transform.World();
-            objConstant.data.flatColor = { 0.9f, 0.9f, 0.9f, 1.0f };
-            frameResources_[j].constantBuffer.CopyData(i, &objConstant, 1);
+            objConstant.data.flatColor = {0.8f, 0.8f, 0.8f, 0.0f};
+            frameResource.constantBuffer.CopyData(idx, &objConstant, 1);
         }
+
+        geometry = geometries.PopNewGeometry();
     }
+
     cmdManager_.List()->Close();
     cmdManager_.Execute();
     cmdManager_.WaitForGPU();
@@ -218,22 +225,26 @@ void Dx12::Update(render::Camera &camera) {
     currFrameRes.passBuffer.CopyData(0, &passConstant);
 
     // auto &geometries = core::scene.Geometries();
-    std::set<id_t>& dirties = core::scene.ComponentPool<Transform>().DirtyElements();
+    std::set<id_t>& dirties = core::scene.ComponentPool<core::Transform>().DirtyElements();
 
     AlignedConstant<ObjConstant, 1> objConstant;
     for (auto id : dirties) {
         // objConstant.data.flatColor = geometries.at(id::index(id)).Color();
-        core::Transform trans = core::scene.GetEntity(id).Transform();
-
+        core::Transform trans = core::scene.GetEntity(id).Component<core::Transform>();
         objConstant.data.worldViewProj = trans.World();
+        objConstant.data.flatColor = {0.8f, 0.8f, 0.8f, 0.0f};
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
     }
 
-    for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
-        if (!geometries[i].OnGpu())
-            LoadAsset(i);
+    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
+    core::Geometry geometry = geometries.PopNewGeometry();
+
+    while(geometry.IsAlive()) {
+        LoadAsset(geometry.Id());
+        geometry = geometries.PopNewGeometry();
     }
+
 }
 
 void Dx12::PrepareRender() {
@@ -354,8 +365,7 @@ void Dx12::Terminate() {
 }
 
 void Dx12::CreateRenderElement(u32 index) {
-    core::Geometry &geometry = core::scene.GetEntity(index).Geometry();
-    geometry.MarkAsStored();
+    auto geometry = core::scene.GetEntity(index).Component<core::Geometry>();
     if (geometry.RenderInfo() == UINT_MAX) {
         BufferInitInfo vertexBufferInfo = {
                 .device = device_.Get(),

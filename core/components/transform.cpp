@@ -222,8 +222,8 @@ Transform reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &
     } else {
         transform_data_.push_back(initInfo);
         Transform::Data& data = transform_data_.at(index);
-        world_.at(index) = math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation));
-        invWorld_.at(index) = math::Inverse(world_.at(index));
+        world_.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
+        invWorld_.emplace_back(math::Inverse(world_.at(index)));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
         transform_components_.emplace_back(id);

@@ -42,7 +42,12 @@ public:
     using InitInfo = render::Mesh;
 
     Geometry();
+    Geometry(Geometry& other);
+    Geometry(Geometry&& other) noexcept;
     explicit Geometry(id_t id);
+
+    Geometry& operator=(const Geometry& other);
+    Geometry& operator=(Geometry&& other) noexcept ;
 
     u32 VertexCount() const;
     u32 IndexCount() const;
@@ -86,6 +91,7 @@ public:
     void RemoveComponent(id_t id);
 
     Geometry At(id_t id);
+    Geometry PopNewGeometry();
 
     std::vector<Geometry>::iterator begin();
     std::vector<Geometry>::iterator end();

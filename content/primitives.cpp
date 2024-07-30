@@ -17,7 +17,7 @@
 
 namespace reveal3d::content {
 
-u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
             { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
@@ -43,10 +43,10 @@ u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices
 
     vertices.insert(vertices.end(), v.begin(), v.end());
     indices.insert(indices.end(), ind.begin(), ind.end());
-    return 7 + offset;
+    return 7;
 }
 
-u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { -1.0f, 1.0f, 0.0f },  { 0.2f, 0.2f, 0.2f, 0.0f } },
@@ -62,22 +62,22 @@ u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indice
 //    ApplyOffset(ind, ++offset);
     vertices.insert(vertices.end(), v.begin(), v.end());
     indices.insert(indices.end(), ind.begin(), ind.end());
-    return 3 + offset;
+    return 3;
 }
 
-u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices, u16 offset) {
+u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 

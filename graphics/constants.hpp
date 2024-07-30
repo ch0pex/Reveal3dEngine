@@ -35,7 +35,7 @@ struct PassConstant {
 struct ObjConstant {
     ObjConstant() : worldViewProj(math::Mat4Identity()) {}
     math::mat4 worldViewProj;
-    math::vec4 flatColor;
+    math::xvec4 flatColor;
 };
 
 }
