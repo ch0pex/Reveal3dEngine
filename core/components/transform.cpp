@@ -38,7 +38,7 @@ math::xvec3 Transform::Scale() const {
 }
 
 math::xvec3 Transform::Rotation() const {
-    return Pool().transform_data_.at(id::index(id_)).rotation;
+    return math::VecToDegrees(Pool().transform_data_.at(id::index(id_)).rotation);
 }
 
 math::xvec3 Transform::WorldPosition() const {
@@ -185,30 +185,11 @@ TransformPool &Transform::Pool() {
     return core::scene.ComponentPool<Transform>();
 }
 
-
-//void Scene::UpdateTransforms() {
-//    for (auto it = dirtyIds.begin(); it != dirtyIds.end();) {
-//        id_t idx = id::index(*it);
-//        GetEntity(idx).Transform().UpdateWorld();
-//        if (dirties.at(idx) == 0) {
-//            it = dirtyIds.erase(it);
-//        } else {
-//            ++it;
-//        }
-//    }
-//}
-//
-//std::set<id_t>& Scene::DirtyTransforms() {
-//    return dirtyIds;
-//}
-
-
-Transform TransformPool::AddComponent() {
-    transform_components_.emplace_back();
-    return transform_components_.at(transform_components_.size() - 1);
+Transform TransformPool::AddComponent(id_t id) {
+    return AddComponent(id, {});
 }
 
-Transform reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
+Transform TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
     id_t index{id::index(id)};
 
     if (transform_data_.size() > index) {
@@ -218,7 +199,7 @@ Transform reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &
         invWorld_.at(index) = math::Inverse(world_.at(index));
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
-        transform_components_.at(index) = Transform(id);
+        components_.at(index) = Transform(id);
     } else {
         transform_data_.push_back(initInfo);
         Transform::Data& data = transform_data_.at(index);
@@ -226,13 +207,13 @@ Transform reveal3d::core::TransformPool::AddComponent(id_t id, Transform::Data &
         invWorld_.emplace_back(math::Inverse(world_.at(index)));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
-        transform_components_.emplace_back(id);
+        components_.emplace_back(id);
     }
 
-    return transform_components_.at(index);
+    return components_.at(index);
 }
 
-Transform reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
+Transform TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
     id_t index {id::index(id)};
     if (transform_data_.size() > index) {
         transform_data_.at(index) = Transform::Data();
@@ -240,35 +221,26 @@ Transform reveal3d::core::TransformPool::AddChildComponent(id_t id, math::mat4 &
         invWorld_.at(index) = math::Mat4Identity();
         dirties_.at(index) = 4;
         dirtyIds_.insert(id);
-        transform_components_.at(index) = Transform(id);
+        components_.at(index) = Transform(id);
     } else {
         transform_data_.emplace_back();
         world_.emplace_back(parentWorld);
         invWorld_.emplace_back(math::Inverse(parentWorld));
         dirties_.emplace_back(4);
         dirtyIds_.insert(id);
-        transform_components_.emplace_back(id);
+        components_.emplace_back(id);
     }
 
-    return transform_components_.at(index);
+    return components_.at(index);
 }
 
-void reveal3d::core::TransformPool::RemoveComponent(id_t id) {
-
-}
-
-std::vector<Transform>::iterator TransformPool::begin() {
-    return transform_components_.begin();
-}
-
-std::vector<Transform>::iterator TransformPool::end() {
-    return transform_components_.end();
+void TransformPool::RemoveComponent(id_t id) {
 }
 
 void TransformPool::Update() {
     for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
         id_t idx = id::index(*it);
-        transform_components_.at(idx).UpdateWorld();
+        components_.at(idx).UpdateWorld();
         if (dirties_.at(idx) == 0) {
             it = dirtyIds_.erase(it);
         } else {

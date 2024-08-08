@@ -66,7 +66,7 @@ private:
 
     /****************** Frame resources, depth stencil and swapchain *****************/
 
-    dx12::FrameResource frameResources_[dx12::frameBufferCount];
+    std::array<dx12::FrameResource, dx12::frameBufferCount> frameResources_;
     ComPtr<IDXGISwapChain3> swapChain_;
 
     /***************** Depth stencil buffer**********************/

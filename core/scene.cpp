@@ -24,7 +24,6 @@ bool Entity::IsAlive() {
     return core::scene.IsEntityAlive(id_);
 }
 
-
 Entity Scene::NewEntity() {
     Entity entity(id_factory_.New());
 
@@ -103,8 +102,8 @@ void Scene::Init() {
 void Scene::Update(f32 dt) {
     // Pooling update
     transform_pool_.Update();
-    // geometry_pool_.Update();
-    // script_pool_.Update();
+    geometry_pool_.Update();
+    script_pool_.Update();
     // transform_pool_.Update();
 //    UpdateGeometries();
 //    UpdateScripts();

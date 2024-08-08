@@ -221,8 +221,7 @@ void Dx12::LoadAsset(u32 id) {
 }
 
 void Dx12::Update(render::Camera &camera) {
-    auto &currFrameRes = frameResources_[Commands::FrameIndex()];
-
+    auto &currFrameRes = frameResources_.at(Commands::FrameIndex());
     std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
 
@@ -374,6 +373,7 @@ void Dx12::Terminate() {
     for (auto& frameResource : frameResources_) {
         frameResource.constantBuffer.Release();
         frameResource.passBuffer.Release();
+        frameResource.matBuffer.Release();
     }
     CleanDeferredResources(heaps_);
 }

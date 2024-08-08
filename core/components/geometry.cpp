@@ -47,8 +47,7 @@ void Geometry::AddMesh(render::Mesh &mesh) {
 }
 
 
-void Geometry::AddMesh(Geometry::primitive type)
-{
+void Geometry::AddMesh(Geometry::primitive type) {
 
     render::SubMesh &subMesh = Pool().SubMeshes(id_)[0]; // Only one submesh for now
 
@@ -155,8 +154,8 @@ void Geometry::SetDirty() const {
 }
 
 Geometry GeometryPool::AddComponent() {
-    geometry_components_.emplace_back();
-    return geometry_components_.at(geometry_components_.size() - 1);
+    components_.emplace_back();
+    return components_.at(components_.size() - 1);
 }
 
 Geometry GeometryPool::AddComponent(id_t id) {
@@ -177,9 +176,9 @@ Geometry GeometryPool::AddComponent(id_t id) {
         dirtyIds_.insert(id);
         newGeometries_.push(id);
     }
-    geometry_components_.at(idx) = Geometry(id);
+    components_.at(idx) = Geometry(id);
 
-    return geometry_components_.at(idx);
+    return components_.at(idx);
 }
 
 Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
@@ -199,7 +198,7 @@ Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
         newGeometries_.push(id);
     }
 
-    geometry_components_.at(idx) = Geometry(id);
+    components_.at(idx) = Geometry(id);
 
     subMeshes_.at(idx) = {
             .renderInfo = meshes_.at(idx).renderInfo,
@@ -207,11 +206,11 @@ Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
             .shader = render::opaque,
             .vertexPos = 0,
             .indexPos = 0,
-            .indexCount = geometry_components_.at(idx).IndexCount(),
+            .indexCount = components_.at(idx).IndexCount(),
             .visible = true,
     };
 
-    return geometry_components_.at(idx);
+    return components_.at(idx);
 }
 
 void GeometryPool::RemoveComponent(id_t id) {
@@ -236,17 +235,6 @@ id_t GeometryPool::PopNewGeometry(id_t id) {
     return 0;
 }
 
-std::vector<Geometry>::iterator GeometryPool::begin() {
-    return geometry_components_.begin();
-}
-
-std::vector<Geometry>::iterator GeometryPool::end() {
-    return geometry_components_.end();
-}
-
-Geometry GeometryPool::At(id_t id) {
-    return geometry_components_.at(id::index(id));
-}
 
 Geometry GeometryPool::PopNewGeometry() {
     if (newGeometries_.empty()) {
@@ -261,5 +249,16 @@ render::Material &GeometryPool::Material(id_t id) {
     return materials_.at(id::index(id));
 }
 
+void GeometryPool::Update() {
+    for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
+        id_t idx = id::index(*it);
+//        transform_components_.at(idx).UpdateWorld();
+        if (dirties_.at(idx) == 0) {
+            it = dirtyIds_.erase(it);
+        } else {
+            ++it;
+        }
+}
+}
 
 }

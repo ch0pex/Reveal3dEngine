@@ -14,7 +14,7 @@
 #pragma once
 
 #include "render/mesh.hpp"
-#include "common/id.hpp"
+#include "pool.hpp"
 
 #include <queue>
 #include <span>
@@ -87,19 +87,17 @@ private:
     id_t id_;
 };
 
-class GeometryPool {
+class GeometryPool : public Pool<Geometry>{
 public:
     Geometry AddComponent();
     Geometry AddComponent(id_t id);
     Geometry AddComponent(id_t id, Geometry::InitInfo&& initInfo);
-    void RemoveComponent(id_t id);
+    void RemoveComponent(id_t id) override;
+    void Update() override;
 
-    Geometry At(id_t id);
+    INLINE u32 Count() override { return meshes_.size(); }
     Geometry PopNewGeometry();
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
-
-    std::vector<Geometry>::iterator begin();
-    std::vector<Geometry>::iterator end();
 
 private:
     friend class Geometry;
@@ -107,11 +105,6 @@ private:
     std::span<render::SubMesh> SubMeshes(id_t id);
     id_t PopNewGeometry(id_t id);
     render::Material& Material(id_t id);
-
-    /************** Geometry IDs ****************/
-
-    id::Factory id_factory_;
-    std::vector<Geometry> geometry_components_;
 
     /************* Geometry Data ****************/
 

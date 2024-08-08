@@ -13,8 +13,7 @@
 
 #pragma once
 
-#include "math/math.hpp"
-#include "common/id.hpp"
+#include "pool.hpp"
 
 #include <vector>
 #include <set>
@@ -70,31 +69,22 @@ private:
     id_t id_ { id::invalid };
 };
 
-class TransformPool {
+class TransformPool : public Pool<Transform> {
 public:
-    Transform AddComponent();
-    Transform AddComponent(id_t id, Transform::Data&& initInfo = {});
+    Transform AddComponent(id_t id);
+    Transform AddComponent(id_t id, Transform::Data&& initInfo);
     Transform AddChildComponent(id_t id, math::mat4 &parentWorld);
-    void RemoveComponent(id_t id);
-    void Update();
+    void RemoveComponent(id_t id) override;
+    void Update() override;
 
-    INLINE u32  Count()                     { return transform_data_.size(); }
-    INLINE Transform At(id_t id)            { return transform_components_.at(id::index(id)); }
+    INLINE u32  Count()  override           { return transform_data_.size(); }
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
-
-    std::vector<Transform>::iterator begin();
-    std::vector<Transform>::iterator end();
 
 private:
     friend class Transform;
-    INLINE math::mat4& World(id_t id)     { return world_.at(id::index(id)); }
-    INLINE math::mat4& InvWorld(id_t id)  { return invWorld_.at(id::index(id)); }
-    INLINE Transform::Data& Data(id_t id) { return transform_data_.at(id::index(id)); }
-
-    /************** Transform IDs ****************/
-
-    id::Factory                   id_factory_;
-    std::vector<Transform>        transform_components_;
+    INLINE math::mat4& World(id_t id)       { return world_.at(id::index(id)); }
+    INLINE math::mat4& InvWorld(id_t id)    { return invWorld_.at(id::index(id)); }
+    INLINE Transform::Data& Data(id_t id)   { return transform_data_.at(id::index(id)); }
 
     /************* Transform Data ****************/
 

@@ -12,8 +12,8 @@
  * In Reveal3D componentes just holds and ID that points to the real data.
  * Real data is compacted to avoid cache misses, this logic is handled by components pools
  *
- * ************************************************ Component pool *****************************************************
- * ************************** Scene IDs ********************************************* Scene Data ***********************
+ * *********************************************** Components pool *****************************************************
+ * ************************** IDs **************************************************** Data ****************************
  *                                                          *                                                          *
  * Enity IDs        |  00   | 01    |  02   |  03  | ...    * Enity IDs        |  00   | 01    |  02   |  03  | ...    * 
  *                                                          *                                                          *
@@ -58,7 +58,6 @@ public:
     bool IsAlive();
 
 private:
-    void GenerateId();
     id_t id_;
 };
 
@@ -112,9 +111,9 @@ private:
 
     TransformPool               transform_pool_;
     GeometryPool                geometry_pool_;
+    ScriptPool                  script_pool_;
 
 //    MetadataPool              metadata_pool_;
-//    ScriptPool                script_pool_;
 //    LightPool                 light_pool_;
 
 };
@@ -123,6 +122,8 @@ template<component T>
 T::PoolType Scene::ComponentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
         return transform_pool_;
+    } else if constexpr (std::is_same<T, Script>()) {
+        return script_pool_;
     } else {
         return geometry_pool_;
     }
@@ -130,7 +131,6 @@ T::PoolType Scene::ComponentPool() noexcept {
 }
 
 extern Scene scene;
-
 
 template<component T>
 T Entity::Component() {
@@ -146,10 +146,5 @@ template<component T>
 T Entity::AddComponent(T::InitInfo&& initInfo) {
     return scene.ComponentPool<T>().AddComponent(id_, std::forward<T::InitInfo>(initInfo));
 }
-
-//template<typename T>
-//void Entity::AddComponent(T&& data) {
-//    scene.ComponentPool<T>().AddComponent(id_, std::forward(data));
-//}
 
 } // reveal3d::core namespace
