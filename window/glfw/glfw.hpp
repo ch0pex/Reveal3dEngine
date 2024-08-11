@@ -30,19 +30,26 @@ public:
 
     template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
     void Show();
-    void Update();
+    template<graphics::HRI Gfx> void Update(render::Renderer<Gfx> &renderer);
     void CloseWindow(input::action act, input::type type);
-    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
     bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHandle() const { return info_.handle; }
 private:
+    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
+
     input::System<Glfw> inputSystem_;
     InitInfo info_;
     GLFWwindow* winPtr_;
 
 };
+
+template<graphics::HRI Gfx>
+void Glfw::Update(render::Renderer<Gfx> &renderer) {
+    //Handle inputs
+    glfwPollEvents();
+}
 
 template<graphics::HRI Gfx>
 void Glfw::Create(render::Renderer<Gfx> &renderer) {

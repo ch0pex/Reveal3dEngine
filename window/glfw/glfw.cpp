@@ -24,10 +24,6 @@ void Glfw::Show() {
     //Show window
 }
 
-void Glfw::Update() {
-    //Handle inputs
-    glfwPollEvents();
-}
 
 void Glfw::CloseWindow(input::action act, input::type type) {
     //Close Window

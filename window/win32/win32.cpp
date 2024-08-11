@@ -30,13 +30,7 @@ bool Win32::ShouldClose() {
     return !(isRunning_ );
 }
 
-void Win32::Update() {
-    while (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
-        TranslateMessage(&msg_);
-        DispatchMessage(&msg_);
-        isRunning_ &= (msg_.message != WM_QUIT);
-    }
-}
+
 
 void Win32::CloseWindow(input::action act, input::type type) {
     PostMessage(info_.handle.hwnd, WM_CLOSE, 0, 0);

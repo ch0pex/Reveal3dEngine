@@ -17,7 +17,7 @@
 
 namespace reveal3d::graphics {
 
-struct PassConstant {
+struct GlobalShaderData {
     math::mat4 view;
     math::mat4 invView;
     math::mat4 proj;
@@ -32,8 +32,8 @@ struct PassConstant {
     f32 deltaTime;
 };
 
-struct ObjConstant {
-    ObjConstant() : worldViewProj(math::Mat4Identity()) {}
+struct PerObjectData {
+    PerObjectData() : worldViewProj(math::Mat4Identity()) {}
     math::mat4 worldViewProj;
 };
 

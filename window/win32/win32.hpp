@@ -30,15 +30,15 @@ public:
     Win32(InitInfo &info);
 
     template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void Update(render::Renderer<Gfx> &renderer);
     void Show();
-    void Update();
     void CloseWindow(input::action act, input::type type);
-    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
     bool ShouldClose();
 
     [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
     [[nodiscard]] INLINE WHandle GetHandle() const { return info_.handle; }
 private:
+    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
     template<graphics::HRI Gfx>
     static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -49,6 +49,15 @@ private:
     bool isRunning_ { false };
 };
 
+template<graphics::HRI Gfx>
+void Win32::Update(render::Renderer<Gfx> &renderer) {
+    while (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg_);
+        DispatchMessage(&msg_);
+        isRunning_ &= (msg_.message != WM_QUIT);
+    }
+    ClipMouse(renderer);
+}
 
 template<graphics::HRI Gfx>
 LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {

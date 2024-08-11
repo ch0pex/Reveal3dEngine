@@ -159,7 +159,6 @@ Geometry GeometryPool::AddComponent() {
 }
 
 Geometry GeometryPool::AddComponent(id_t id) {
-    //TODO
     id_t idx = id::index(id);
     if (meshes_.size() > idx) {
         meshes_.at(idx) = render::Mesh();

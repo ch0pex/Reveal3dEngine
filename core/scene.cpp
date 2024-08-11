@@ -39,7 +39,7 @@ Entity Scene::NewEntity() {
     sceneGraph_.push_back(node);
     lastNode_ = &sceneGraph_.at(sceneGraph_.size() - 1);
 
-    if (!id_factory_.FreeCap()) {
+    if (!id_factory_.UseFree()) {
         transform_pool_.AddComponent(entity.Id());
         geometry_pool_.AddComponent();
     }

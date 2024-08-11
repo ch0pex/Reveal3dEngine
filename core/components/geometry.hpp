@@ -89,6 +89,10 @@ private:
 
 class GeometryPool : public Pool<Geometry>{
 public:
+
+    //TODO: This is just a provisional fix, can't store submeshes as pointers in render layers
+    GeometryPool() { subMeshes_.reserve(4000);}
+
     Geometry AddComponent();
     Geometry AddComponent(id_t id);
     Geometry AddComponent(id_t id, Geometry::InitInfo&& initInfo);

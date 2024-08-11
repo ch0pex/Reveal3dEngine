@@ -190,9 +190,8 @@ Transform TransformPool::AddComponent(id_t id) {
 }
 
 Transform TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
-    id_t index{id::index(id)};
-
-    if (transform_data_.size() > index) {
+    id_t index = id_factory_.New();
+    if (id_factory_.UseFree()) {
         Transform::Data& data = transform_data_.at(index);
         data = initInfo;
         world_.at(index) = math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation));

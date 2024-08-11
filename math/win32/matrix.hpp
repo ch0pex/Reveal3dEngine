@@ -46,7 +46,7 @@ private:
 
 __declspec(align(16)) class mat4 {
 public:
-    INLINE mat4() {}
+    INLINE mat4() : mat4(XMMatrixIdentity()) {}
     INLINE mat4(xvec3 x, xvec3 y, xvec3 z, xvec3 w) : mat4_({
                  XMVectorSetW(x, 0.0f),
                  XMVectorSetW(y, 0.0f),

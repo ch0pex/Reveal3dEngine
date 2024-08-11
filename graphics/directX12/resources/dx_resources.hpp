@@ -24,9 +24,9 @@ namespace reveal3d::graphics::dx12 {
 struct FrameResource {
     ComPtr<ID3D12Resource> backBuffer;
     DescriptorHandle backBufferHandle;
-    UploadBuffer<ObjConstant> constantBuffer;
-    UploadBuffer<PassConstant> passBuffer;
-    UploadBuffer<render::Material>  matBuffer;
+    UploadBuffer<Constant<PerObjectData>> constantBuffer;
+    UploadBuffer<Constant<GlobalShaderData>> passBuffer;
+    UploadBuffer<Constant<render::Material>>  matBuffer;
 };
 
 }

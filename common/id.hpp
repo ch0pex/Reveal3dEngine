@@ -64,7 +64,7 @@ constexpr id_t newGeneration(id_t idx) {
 
 class Factory { 
 public:
-    INLINE bool FreeCap() {
+    INLINE bool UseFree() {
         return (freeIndices_.size() > id::maxFree);
     }
 
@@ -78,7 +78,7 @@ public:
 
     id_t New() {
         id_t id { id::invalid };
-        if (FreeCap()) {
+        if (UseFree()) {
             id = id::newGeneration(freeIndices_.front());
             freeIndices_.pop_front();
             ++generations_[id::index(id)];

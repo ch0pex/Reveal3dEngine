@@ -18,7 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
+  <PropertyGroup Label="GlobalShaderData">
     <ProjectGuid>{9F316E83-5AE5-4939-A723-305A94F48005}</ProjectGuid>
     <RootNamespace>example_win32_directx11</RootNamespace>
   </PropertyGroup>

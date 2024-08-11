@@ -21,12 +21,12 @@
 namespace reveal3d::graphics::dx12 {
 
 
-// S denotes the necesary amount of 256 bytes for alignment
+// All constant items in constant buffers must be aligned with 256 bytes so the easiest way to do that is with union
 template<typename T>
-union AlignedConstant {
-    AlignedConstant() : data() {}
+union Constant {
+    Constant() : data() {}
     T data;
-    uint8_t alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT][(sizeof(T) / 256) + 1];
+    u8 alignmentPadding[D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT][(sizeof(T) / 256) + 1];
 };
 
 //TODO: Improve Upload buffer and buffer to dynamic like heaps
@@ -47,11 +47,10 @@ public:
     INLINE D3D12_GPU_VIRTUAL_ADDRESS GpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
 
     //bool Add(const T* data, u32 count); TODO
-    void CopyData(u32 elementIndex, const AlignedConstant<T>* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
     void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
     void Release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr); DeferredRelease(buff_); }
 private:
-    AlignedConstant<T> * mappedData_ { nullptr };
+    T * mappedData_ { nullptr };
     ID3D12Resource *buff_;
     u32 capacity_ { 0 };
     u32 size_ { 0 };

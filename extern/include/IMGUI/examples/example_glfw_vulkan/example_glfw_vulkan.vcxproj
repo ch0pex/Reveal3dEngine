@@ -18,7 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
+  <PropertyGroup Label="GlobalShaderData">
     <ProjectGuid>{57E2DF5A-6FC8-45BB-99DD-91A18C646E80}</ProjectGuid>
     <RootNamespace>example_glfw_vulkan</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>

@@ -49,6 +49,7 @@ set(HEADERS
         render/material.hpp
         content/content.hpp
         core/components/pool.hpp
+        common/vector.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

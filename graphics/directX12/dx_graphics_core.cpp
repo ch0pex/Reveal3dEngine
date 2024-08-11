@@ -194,8 +194,8 @@ void Dx12::LoadAssets() {
         id_t idx = id::index(geometry.Id());
         core::Transform transform = transforms.At(idx);
         CreateRenderElement(idx);
-        AlignedConstant<ObjConstant> objConstant;
-        AlignedConstant<Material> matConstant;
+        Constant<PerObjectData> objConstant;
+        Constant<Material> matConstant;
         for (auto & frameResource : frameResources_) {
             objConstant.data.worldViewProj = transform.World();
             matConstant.data.baseColor = geometry.Material().baseColor;
@@ -225,9 +225,9 @@ void Dx12::Update(render::Camera &camera) {
     std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
 
-    AlignedConstant<PassConstant> passConstant;
-    AlignedConstant<ObjConstant> objConstant;
-    AlignedConstant<Material> matConstant;
+    Constant<GlobalShaderData> passConstant;
+    Constant<PerObjectData> objConstant;
+    Constant<Material> matConstant;
 
     // Update pass constants
     passConstant.data.viewProj = math::Transpose(camera.GetViewProjectionMatrix());

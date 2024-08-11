@@ -18,7 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
+  <PropertyGroup Label="GlobalShaderData">
     <ProjectGuid>{C624E5FF-D4FE-4D35-9164-B8A91864F98E}</ProjectGuid>
     <RootNamespace>example_win32_opengl2</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
