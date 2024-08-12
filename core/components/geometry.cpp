@@ -159,7 +159,7 @@ Geometry GeometryPool::AddComponent() {
 }
 
 Geometry GeometryPool::AddComponent(id_t id) {
-    id_t idx = id::index(id);
+    id_t idx = id_factory_.New();
     if (meshes_.size() > idx) {
         meshes_.at(idx) = render::Mesh();
         subMeshes_.at(idx) = render::SubMesh();
@@ -213,7 +213,11 @@ Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
 }
 
 void GeometryPool::RemoveComponent(id_t id) {
-
+    id_t idx { id::index(id) };
+    materials_.remove_unordered(idx);
+    meshes_.remove_unordered(idx);
+    subMeshes_.remove_unordered(idx);
+    Remove(id);
 }
 
 render::Mesh& GeometryPool::Mesh(id_t id) {

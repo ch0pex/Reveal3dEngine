@@ -29,7 +29,15 @@ public:
     std::vector<T>::iterator begin()    { return components_.begin(); };
     std::vector<T>::iterator end()      { return components_.end();   };
 
+
 protected:
+    void Remove(id_t id) {
+        id_t last { components_.at(id_factory_.Back()) };
+        id_factory_.Remove(id);
+        last = id::newIndex(last, id::index(id));
+        components_.at(id::index(id)) = id::invalid;
+    }
+
     /************* Components IDs ****************/
     id::Factory                     id_factory_;
     std::vector<T>                  components_;

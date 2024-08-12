@@ -23,7 +23,6 @@ public:
     GraphicsPso();
 
     void SetPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc);
-
     void SetInputLayout(const D3D12_INPUT_ELEMENT_DESC* inputLayout, u32 count);
     void SetRootSignature(RootSignature& rootSignature);
     void SetShaders(ID3DBlob* vs, ID3DBlob* ps);

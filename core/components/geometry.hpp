@@ -112,9 +112,9 @@ private:
 
     /************* Geometry Data ****************/
 
-    std::vector<render::Material> materials_;
-    std::vector<render::SubMesh> subMeshes_;
-    std::vector<render::Mesh> meshes_;
+    utl::vector<render::Material> materials_;
+    utl::vector<render::SubMesh> subMeshes_;
+    utl::vector<render::Mesh> meshes_;
 
     // New geometries must be uploaded to GPU
     std::queue<id_t> newGeometries_;
