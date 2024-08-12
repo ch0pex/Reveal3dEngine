@@ -86,20 +86,13 @@ public:
     INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
     INLINE Node& Root() { return sceneGraph_.at(0); }
 
-    // NOTE: references, yes this is not the best TODO fix this
-//    std::vector<Transform>& Transforms();
-//    std::vector<Geometry>& Geometries();
-
     template<component T> T::PoolType ComponentPool() noexcept;
-
-//    std::set<id_t>& DirtyTransforms();
-//    std::set<id_t>& DirtyGeometries();
-//    std::set<id_t>& DirtyLights();
 
     void Init();
     void Update(f32 dt);
 
 private:
+    void RemoveNode(id_t id);
 
     /************ Entity IDs factory ***********/
 

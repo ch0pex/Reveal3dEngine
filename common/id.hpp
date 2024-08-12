@@ -30,6 +30,7 @@
 
 #include <typeinfo>
 #include <deque>
+#include <limits>
 
 using id_t = reveal3d::u32;
 
@@ -42,7 +43,7 @@ constexpr id_t indexMask        { (id_t { 1 } << generationBits) - 1 };
 
 constexpr id_t invalid          { ~id_t{ 0 } };
 constexpr u32  maxFree          { 1024 };
-constexpr u32  maxGeneration    { std::numeric_limits<u8>::max() };
+constexpr u8  maxGeneration     { (std::numeric_limits<u8>::max)() };
 
 using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 
@@ -63,14 +64,10 @@ constexpr id_t newGeneration(id_t idx) {
     return index(idx) | (gen << indexBits);
 }
 
-constexpr id_t newIndex(id_t oldId, id_t newIndex) {
-    return index(newIndex) | generation(oldId);
-}
-
 class Factory { 
 public:
     INLINE bool UseFree() {
-        return (free_ids_.size() > id::maxFree);
+        return (freeIndices_.size() > id::maxFree);
     }
 
     bool IsAlive(id_t id) {
@@ -84,35 +81,35 @@ public:
     id_t New() {
         id_t id { id::invalid };
         if (UseFree()) {
-            id = id::newGeneration(free_ids_.front());
-            free_ids_.pop_front();
+            id = id::newGeneration(freeIndices_.front());
+            freeIndices_.pop_front();
             ++generations_[id::index(id)];
         } else {
             id = generations_.size();
             generations_.push_back(0);
         }
-        
-        ownerds_ids_.push_back(id);
+
+        ids_.push_back(id);
         return id;
     }
 
     void Remove(id_t id) {
         id_t idx { id::index(id) };
         assert(IsAlive(id));
-        owners_ids_.unordered_remove(idx);
+        ids_.unordered_remove(idx);
         if (generations_[idx] < maxGeneration) {
-            free_ids_.push_back(id);
+            freeIndices_.push_back(id);
         }
     }
 
     INLINE id_t Back() { 
-        return owners_ids_.at(owners_ids_.size() - 1);
+        return ids_.at(ids_.size() - 1);
     }
 
 private:
     utl::vector<id_t>   generations_;
-    std::deque<id_t>    free_ids_;
-    utl::vector<id_t>   owners_ids_;
+    std::deque<id_t>    freeIndices_;
+    utl::vector<id_t>   ids_;
 };
 
 }

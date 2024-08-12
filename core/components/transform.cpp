@@ -213,7 +213,7 @@ Transform TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
 }
 
 Transform TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
-    id_t index {id::index(id)};
+    id_t index { id_factory_.New() };
     if (transform_data_.size() > index) {
         transform_data_.at(index) = Transform::Data();
         world_.at(index) = math::Mat4Identity();
@@ -233,7 +233,16 @@ Transform TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
     return components_.at(index);
 }
 
+//NOTE all entities must have transform for now
 void TransformPool::RemoveComponent(id_t id) {
+//    id_t idx { id::index(id) };
+//    transform_data_.unordered_remove(idx);
+//    world_.unordered_remove(idx);
+//    invWorld_.unordered_remove(idx);
+//    dirties_.unordered_remove(idx);
+//    if (dirtyIds_.find(id) != dirtyIds_.end()) {
+//        dirtyIds_.erase(id);
+//    }
 }
 
 void TransformPool::Update() {

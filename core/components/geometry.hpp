@@ -101,6 +101,7 @@ public:
 
     INLINE u32 Count() override { return meshes_.size(); }
     Geometry PopNewGeometry();
+    Geometry PopRemovedGeometry();
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
 
 private:
@@ -116,12 +117,14 @@ private:
     utl::vector<render::SubMesh> subMeshes_;
     utl::vector<render::Mesh> meshes_;
 
-    // New geometries must be uploaded to GPU
+    // New and removed geometries must be updated on GPU
     std::queue<id_t> newGeometries_;
+    std::queue<id_t> delGeometries_;
 
     // Materials must be updated on GPU
-    std::set<id_t>                dirtyIds_;
-    std::vector<u8>               dirties_;
+
+    std::set<id_t>     dirtyIds_;
+    std::vector<u8>    dirties_;
 
 
 };

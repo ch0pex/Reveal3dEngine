@@ -77,8 +77,17 @@ Entity Scene::NewChildEntity(Entity parent) {
 
 void Scene::RemoveEntity(id_t id) {
     id_factory_.Remove(id);
+    RemoveNode(id);
     transform_pool_.RemoveComponent(id);
     geometry_pool_.RemoveComponent(id);
+}
+
+void Scene::RemoveNode(id_t id) {
+    if (!id::isValid(id)) return;
+    //TODO remove childs
+    sceneGraph_.erase(sceneGraph_.begin() + id::index(id));
+
+
 }
 
 bool Scene::IsEntityAlive(id_t id) {
@@ -121,5 +130,6 @@ Scene::~Scene() {
 //        delete script;
 //    }
 }
+
 
 }

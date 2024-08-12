@@ -87,6 +87,7 @@ private:
     WHandle window_ {};
     u32 swapChainFlags_;
     u32 presentInfo_;
+    void RemoveAsset(id_t id);
 };
 
 }

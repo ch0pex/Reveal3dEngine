@@ -117,7 +117,6 @@ void Dx12::InitConstantBuffers() {
         frameResource.constantBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
         frameResource.matBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
         frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
-//        frameResource.passHandle = frameResource.passBuffer.CreateView(device_.Get(), heaps_.cbv);
     }
 }
 
@@ -224,6 +223,10 @@ void Dx12::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_.at(Commands::FrameIndex());
     std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
+    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
+    core::Geometry new_geo = geometries.PopNewGeometry();
+    core::Geometry removed_geo = geometries.PopRemovedGeometry();
+
 
     Constant<GlobalShaderData> passConstant;
     Constant<PerObjectData> objConstant;
@@ -249,13 +252,15 @@ void Dx12::Update(render::Camera &camera) {
         currFrameRes.matBuffer.CopyData(id::index(id), &matConstant);
     }
 
-    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
-    core::Geometry geometry = geometries.PopNewGeometry();
+    // Add new meshes
+    while(new_geo.IsAlive()) {
+        LoadAsset(new_geo.Id());
+        new_geo = geometries.PopNewGeometry();
+    }
 
-    // Load new geometries
-    while(geometry.IsAlive()) {
-        LoadAsset(geometry.Id());
-        geometry = geometries.PopNewGeometry();
+    while(removed_geo.IsAlive()) {
+        RemoveAsset(removed_geo.Id());
+        removed_geo = geometries.PopRemovedGeometry();
     }
 
 }
@@ -412,6 +417,10 @@ void Dx12::CreateRenderElement(u32 index) {
         }
     }
 
+}
+
+void Dx12::RemoveAsset(id_t id) {
+    renderElements_.erase(renderElements_.begin() + id::index(id));
 }
 
 

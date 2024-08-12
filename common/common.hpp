@@ -19,7 +19,6 @@
 #include "id.hpp"
 
 
-
 namespace reveal3d {
 
 constexpr wchar_t PROJECT_DIR_L[] = L"" PROJECT_ROOT_DIR;

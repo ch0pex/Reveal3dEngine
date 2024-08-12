@@ -15,12 +15,15 @@
 #include "common/common.hpp"
 #include "math/math.hpp"
 
+#include <vector>
+
 namespace reveal3d::core {
 
-//NOTE: be careful with performance ?
+//NOTE: be careful with performance and inheritance
 template<typename T>
 class Pool {
 public:
+    virtual T AddComponent(id_t id) = 0;
     virtual void RemoveComponent(id_t id) = 0;
     virtual void Update() = 0;
     virtual u32  Count() = 0;
@@ -32,10 +35,10 @@ public:
 
 protected:
     void Remove(id_t id) {
-        id_t last { components_.at(id_factory_.Back()) };
+        id_t last { id_factory_.Back() };
         id_factory_.Remove(id);
-        last = id::newIndex(last, id::index(id));
-        components_.at(id::index(id)) = id::invalid;
+        components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
+        components_.at(id::index(id)) = T(id::invalid);
     }
 
     /************* Components IDs ****************/

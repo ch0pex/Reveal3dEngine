@@ -146,10 +146,12 @@ void Geometry::UnDirty() const {
 
 void Geometry::SetDirty() const {
     const id_t idx = id::index(id_);
-    if (Dirty() == 3)
+    if (Dirty() == 3) {
         return;
-    if (Dirty() == 0)
+   }
+    if (Dirty() == 0) {
         Pool().dirtyIds_.insert(idx);
+}
     Pool().dirties_.at(idx) = 3;
 }
 
@@ -181,7 +183,7 @@ Geometry GeometryPool::AddComponent(id_t id) {
 }
 
 Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
-    id_t idx = id::index(id);
+    id_t idx = id_factory_.New();
     if (meshes_.size() > idx) {
         meshes_.at(idx) = std::move(initInfo);
         materials_.at(idx) = {};
@@ -214,9 +216,10 @@ Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
 
 void GeometryPool::RemoveComponent(id_t id) {
     id_t idx { id::index(id) };
-    materials_.remove_unordered(idx);
-    meshes_.remove_unordered(idx);
-    subMeshes_.remove_unordered(idx);
+    materials_.unordered_remove(idx);
+    meshes_.unordered_remove(idx);
+    subMeshes_.unordered_remove(idx);
+    delGeometries_.push(id);
     Remove(id);
 }
 
@@ -245,6 +248,15 @@ Geometry GeometryPool::PopNewGeometry() {
     }
     auto geo = Geometry(newGeometries_.front());
     newGeometries_.pop();
+    return geo;
+}
+
+Geometry GeometryPool::PopRemovedGeometry() {
+    if (delGeometries_.empty()) {
+        return {};
+    }
+    auto geo = Geometry(delGeometries_.front());
+    delGeometries_.pop();
     return geo;
 }
 

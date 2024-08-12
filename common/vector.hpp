@@ -45,9 +45,9 @@ public:
     constexpr T& at(u64 index);
     constexpr void swap();
     constexpr T* const remove(u64 index);
-    constexpr T* const remove(const T* item);
+    constexpr T* const remove(T* const item);
     constexpr T* const  unordered_remove(u64 index);
-    constexpr T* const unordered_remove(const T* item);
+    constexpr T* const unordered_remove(T* const item);
     constexpr void reserve(u64 new_capacity);
     constexpr void resize(u64 new_size, const T& value);
     constexpr T* data();
@@ -140,13 +140,13 @@ constexpr void vector<T, destruct>::emplace() {
 template<typename T, bool destruct>
 template<typename... params>
 constexpr decltype(auto) vector<T, destruct>::emplace_back(params &&...value) {
-  if (size_ == capacity_) {
-      reserve(size_ + (size_ >> 1));
-  }
-
-  T *const item { new (std::addressof(data_[size_])) T(std::forward<params>(value)...) };
-  ++size_;
-  return *item;
+    if (size_ == capacity_) {
+        reserve(size_ + (size_ >> 1) + 1);
+    }
+    assert(data_);
+    T *const item { new (std::addressof(data_[size_])) T(std::forward<params>(value)...) };
+    ++size_;
+    return *item;
 
 }
 
@@ -168,7 +168,7 @@ constexpr T *const vector<T, destruct>::remove(u64 index) {
 }
 
 template<typename T, bool destruct>
-constexpr T *const vector<T, destruct>::remove(const T *item) {
+constexpr T *const vector<T, destruct>::remove(T *const item) {
     assert(data_ && item >= std::addressof(data_[0]) &&
            item < std::addressof(data_[size_]));
    if constexpr (destruct) {
@@ -183,11 +183,11 @@ constexpr T *const vector<T, destruct>::remove(const T *item) {
 template<typename T, bool destruct>
 constexpr T* const vector<T, destruct>::unordered_remove(u64 index) {
     assert(data_ && index < size_);
-    return unordered_remove(std::addressof(data_[index]));
+    return remove(std::addressof(data_[index]));
 }
 
 template<typename T, bool destruct>
-constexpr T* const vector<T, destruct>::unordered_remove(const T *item) {
+constexpr T* const vector<T, destruct>::unordered_remove(T * const item) {
     assert(data_ && item >= std::addressof(data_[0]) &&
            item < std::addressof(data_[size_]));
     if constexpr (destruct) {
@@ -201,7 +201,7 @@ constexpr T* const vector<T, destruct>::unordered_remove(const T *item) {
 
 template<typename T, bool destruct>
 constexpr void vector<T, destruct>::reserve(u64 new_capacity) {
-   if (size_ > capacity_)  {
+   if (new_capacity > capacity_)  {
       void* new_buff = realloc(data_, new_capacity * sizeof(T));
       if (new_buff != nullptr) {
           capacity_ = new_capacity;

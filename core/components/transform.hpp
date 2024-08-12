@@ -88,13 +88,13 @@ private:
 
     /************* Transform Data ****************/
 
-    std::vector<math::mat4>       world_;
-    std::vector<math::mat4>       invWorld_;
-    std::vector<Transform::Data>  transform_data_;
+    utl::vector<math::mat4>       world_;
+    utl::vector<math::mat4>       invWorld_;
+    utl::vector<Transform::Data>  transform_data_;
 
     // Transforms that must be updated on GPU
     std::set<id_t>                dirtyIds_; 
-    std::vector<u8>               dirties_;  
+    utl::vector<u8>               dirties_;
 };
 
 } // reveal3d::core namespace
