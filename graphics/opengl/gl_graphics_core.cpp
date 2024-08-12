@@ -87,12 +87,10 @@ void OpenGL::Update(render::Camera &camera) {
 //    }
 }
 
-void OpenGL::PrepareRender() {
+void OpenGL::RenderSurface() {
     glClearColor(config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
 
-void OpenGL::Draw() {
     for(u32 i = 0; i < render::Shader::count; ++i) {
         renderLayers_.Draw(renderElements_, passConstant_,i);
     }

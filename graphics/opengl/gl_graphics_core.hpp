@@ -26,8 +26,7 @@ public:
     void LoadAssets();
     void LoadAsset();
     void Update(render::Camera& camera);
-    void PrepareRender();
-    void Draw();
+    void RenderSurface();
     void Terminate();
     void Resize(const window::Resolution &res);
 

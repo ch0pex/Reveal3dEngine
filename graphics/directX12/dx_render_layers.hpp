@@ -45,6 +45,7 @@ public:
 private:
     std::array<Layer ,render::Shader::count> layers_;
     std::array<std::vector<render::SubMesh *>, render::Shader::count> meshes_;
+//    std::vector<RenderElement> renderElements_;
 };
 
 }

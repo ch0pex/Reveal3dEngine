@@ -50,6 +50,10 @@ set(HEADERS
         content/content.hpp
         core/components/pool.hpp
         common/vector.hpp
+        graphics/directX12/dx_gpass.cpp
+        graphics/directX12/dx_gpass.hpp
+        graphics/directX12/dx_surface.cpp
+        graphics/directX12/dx_surface.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

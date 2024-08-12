@@ -74,8 +74,7 @@ void Renderer<Gfx>::Update() {
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Render() {
-    graphics_.PrepareRender();
-    graphics_.Draw();
+    graphics_.RenderSurface();
 }
 
 template<graphics::HRI Gfx>

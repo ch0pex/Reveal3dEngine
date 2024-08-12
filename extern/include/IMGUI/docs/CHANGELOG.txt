@@ -2087,7 +2087,7 @@ Other Changes:
   with some Intel HD drivers, and perhaps improve performances. (#4468, #4504, #2981, #3381) [@parbo]
 - Backends: OpenGL2, Allegro5, Marmalade: Fixed mishandling of the ImDrawCmd::IdxOffset field.
   This is an old bug, but due to the way we created drawlists, it never had any visible side-effect before.
-  The new code for handling Modal and CTRL+Tab dimming/whitening recently made the bug surface. (#4790)
+  The new code for handling Modal and CTRL+Tab dimming/whitening recently made the bug surface_. (#4790)
 - Backends: Win32: Store left/right variants of Ctrl/Shift/Alt mods in KeysDown[] array. (#2625) [@thedmd]
 - Backends: DX12: Fixed DRAW_EMPTY_SCISSOR_RECTANGLE warnings. (#4775)
 - Backends: SDL_Renderer: Added support for large meshes (64k+ vertices) with 16-bit indices,
@@ -3406,7 +3406,7 @@ Other Changes:
 - Docs: Moved misc/fonts/README.txt to docs/FONTS.txt.
 - Docs: Added permanent redirect from https://www.dearimgui.com/faq to FAQ page.
 - Demo: Added simple item reordering demo in Widgets -> Drag and Drop section. (#2823, #143) [@rokups]
-- Metrics: Show wire-frame mesh and approximate surface area when hovering ImDrawCmd. [@ShironekoBen]
+- Metrics: Show wire-frame mesh and approximate surface_ area when hovering ImDrawCmd. [@ShironekoBen]
 - Metrics: Expose basic details of each window key/value state storage.
 - Examples: DX12: Using IDXGIDebug1::ReportLiveObjects() when DX12_ENABLE_DEBUG_LAYER is enabled.
 - Examples: Emscripten: Removed BINARYEN_TRAP_MODE=clamp from Makefile which was removed in Emscripten 1.39.0
@@ -4004,7 +4004,7 @@ Other Changes:
   Missing calls to End(), past the assert, should not lead to crashes or to the fallback Debug window appearing on screen.
   Those changes makes it easier to integrate dear imgui with a scripting language allowing, given asserts are redirected
   into e.g. an error log and stopping the script execution.
-- ImFontAtlas: Stb and FreeType: Atlas width is now properly based on total surface rather than glyph count (unless overridden with TexDesiredWidth).
+- ImFontAtlas: Stb and FreeType: Atlas width is now properly based on total surface_ rather than glyph count (unless overridden with TexDesiredWidth).
 - ImFontAtlas: Stb and FreeType: Fixed atlas builder so missing glyphs won't influence the atlas texture width. (#2233)
 - ImFontAtlas: Stb and FreeType: Fixed atlas builder so duplicate glyphs (when merging fonts) won't be included in the rasterized atlas.
 - ImFontAtlas: FreeType: Fixed abnormally high atlas height.
@@ -4941,7 +4941,7 @@ Other Changes:
 - ImFont: Allowing to use up to 0xFFFE glyphs in same font (increased from previous 0x8000).
 - ImFont: Added GetGlyphRangesThai() helper. [@nProtect]
 - ImFont: CalcWordWrapPositionA() fixed font scaling with fallback character.
-- ImFont: Calculate and store the approximate texture surface to get an idea of how costly each source font is.
+- ImFont: Calculate and store the approximate texture surface_ to get an idea of how costly each source font is.
 - ImFontConfig: Added GlyphOffset to explicitly offset glyphs at font build time, useful for merged fonts. Removed MergeGlyphCenterV. (BREAKING API)
 - Clarified asserts in CheckStacksSize() when there is a stack mismatch.
 - Context: Support for #define-ing GImGui and IMGUI_SET_CURRENT_CONTEXT_FUNC to enable custom thread-based hackery (#586)

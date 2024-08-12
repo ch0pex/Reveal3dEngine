@@ -26,7 +26,7 @@
 
 #include "core/scene.hpp"
 #include "render/camera.hpp"
-#include "window/window_info.hpp"
+#include "dx_surface.hpp"
 
 
 #include <array>
@@ -43,11 +43,10 @@ public:
     void LoadAssets();
     void LoadAsset(u32 id);
     void Update(render::Camera &camera);
-    void PrepareRender();
-    void Draw();
+    void RenderSurface();
     void Terminate();
     void Resize(const window::Resolution &res);
-    INLINE void SetWindow(WHandle winHandle) { window_ = winHandle; }
+    INLINE void SetWindow(WHandle& winHandle) { surface_.SetWindow(winHandle); }
     INLINE ID3D12Device* GetDevice() { return device_.Get(); }
     INLINE dx12::Heaps& GetHeaps() { return heaps_;}
 
@@ -59,6 +58,8 @@ private:
     void InitConstantBuffers();
     void SetViewport();
     void CreateRenderElement(u32 index);
+    void RemoveAsset(id_t id);
+
     /****************** Factory and Device *****************/
 
     ComPtr<IDXGIFactory5> factory_;
@@ -67,7 +68,6 @@ private:
     /****************** Frame resources, depth stencil and swapchain *****************/
 
     std::array<dx12::FrameResource, dx12::frameBufferCount> frameResources_;
-    ComPtr<IDXGISwapChain3> swapChain_;
 
     /***************** Depth stencil buffer**********************/
     ComPtr<ID3D12Resource> depthStencilBuffer_;
@@ -81,13 +81,7 @@ private:
     dx12::RenderLayers renderLayers_;
 
     /***************** Surface Info **********************/
-    window::Resolution *resolution_;
-    D3D12_VIEWPORT viewport_ {};
-    D3D12_RECT scissorRect_ {};
-    WHandle window_ {};
-    u32 swapChainFlags_;
-    u32 presentInfo_;
-    void RemoveAsset(id_t id);
+    dx12::Surface surface_;
 };
 
 }
