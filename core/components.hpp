@@ -16,6 +16,7 @@
 #include "components/transform.hpp"
 #include "components/geometry.hpp"
 #include "components/script.hpp"
+#include "components/metadata.hpp"
 #include "math/math.hpp"
 
 namespace reveal3d::core {
@@ -23,6 +24,7 @@ namespace reveal3d::core {
 template<typename T>
 concept component = requires(T component) {
 //    typename T::PoolType;
+//    check type id_
     {component.IsAlive()} -> std::same_as<bool>;
     {component.Id()} -> std::same_as<id_t>;
 };

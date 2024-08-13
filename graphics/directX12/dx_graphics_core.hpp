@@ -37,7 +37,6 @@ namespace reveal3d::graphics {
 __declspec(align(16))
 class Dx12 {
 public:
-
     explicit Dx12(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
@@ -52,11 +51,9 @@ public:
 
 private:
     void InitDXGIAdapter();
-    void CreateSwapChain();
     void InitFrameResources();
     void InitDsBuffer();
     void InitConstantBuffers();
-    void SetViewport();
     void CreateRenderElement(u32 index);
     void RemoveAsset(id_t id);
 

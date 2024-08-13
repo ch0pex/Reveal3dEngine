@@ -14,6 +14,7 @@
 #pragma once
 
 #include "pool.hpp"
+#include "common/vector.hpp"
 
 #include <functional>
 
@@ -34,6 +35,12 @@ public:
     using PoolType = ScriptPool&;
     using InitInfo = std::unique_ptr<ScriptBase>;
 
+    struct Flag { 
+        u8 begin   : 1; // Begin function active
+        u8 update  : 1; // Update function active
+        u8 destroy : 1; // Destroy function active
+    };
+
     Script() = default;
     explicit Script(id_t id);
     Script(id_t id, InitInfo script);
@@ -43,9 +50,14 @@ public:
 
     void Begin();
     void Update(f32 dt);
-    void DisableUpdate();
-    void EnableUpdate();
     void Destroyed();
+
+    void EnableUpdate();
+    void DisableUpdate();
+    void EnableBegin();
+    void DisableBegin();
+    void EnableDestroyed();
+    void DisableDestroyed();
 
 private:
     [[nodiscard]] static ScriptPool& Pool();
@@ -62,8 +74,10 @@ public:
     [[nodiscard]] INLINE u32  Count() override { return scripts_.size(); };
 
 private:
+    friend class Script;
     /******************* Scripts Data *******************/
-    std::vector<std::unique_ptr<ScriptBase>> scripts_;
+    utl::vector<std::unique_ptr<ScriptBase>> scripts_;
+    utl::vector<Script::Flag>                flags_;
 };
 
 }

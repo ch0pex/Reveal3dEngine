@@ -122,16 +122,10 @@ math::mat4 Transform::CalcWorld(id_t id){
 
 void Transform::UpdateChilds() const {
     core::Scene::Node &node = scene.GetNode(id_);
-    if (node.firstChild.IsAlive()) {
-        core::Scene::Node &currNode = scene.GetNode(node.firstChild.Id());
-        while(true) {
-            currNode.entity.Component<Transform>().SetDirty();
-            if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
-                currNode = scene.GetNode(currNode.next.Id());
-            } else {
-                break;
-            }
-        }
+    auto children = node.GetChildren();
+    for (auto child : children) {
+        child->entity.Component<Transform>().SetDirty();
+        child->entity.Component<Transform>().UpdateChilds();
     }
 }
 
@@ -214,7 +208,7 @@ Transform TransformPool::AddComponent(id_t id, Transform::Data &&initInfo) {
 
 Transform TransformPool::AddChildComponent(id_t id, math::mat4 &parentWorld) {
     id_t index { id_factory_.New() };
-    if (transform_data_.size() > index) {
+    if (id_factory_.UseFree()) {
         transform_data_.at(index) = Transform::Data();
         world_.at(index) = math::Mat4Identity();
         invWorld_.at(index) = math::Mat4Identity();

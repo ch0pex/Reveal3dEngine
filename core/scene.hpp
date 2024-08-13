@@ -65,6 +65,8 @@ private:
 class Scene {
 public:
     struct Node {
+        std::vector<Node*> GetChildren();
+
         Entity entity;
         Entity parent;
         Entity firstChild;
@@ -94,7 +96,7 @@ public:
 private:
     void RemoveNode(id_t id);
 
-    /************ Entity IDs factory ***********/
+    /************ Entities scene ***********/
 
     id::Factory                 id_factory_;
     std::vector<Scene::Node>    sceneGraph_;
@@ -105,9 +107,9 @@ private:
     TransformPool               transform_pool_;
     GeometryPool                geometry_pool_;
     ScriptPool                  script_pool_;
+    MetadataPool                metadata_pool_;
 
-//    MetadataPool              metadata_pool_;
-//    LightPool                 light_pool_;
+    //    LightPool                 light_pool_;
 
 };
 
