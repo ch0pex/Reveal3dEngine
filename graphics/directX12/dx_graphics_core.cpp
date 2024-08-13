@@ -294,10 +294,8 @@ void Dx12::Resize(const window::Resolution &res) {
     }
 
     depthStencilBuffer_.Reset();
+    surface_.Resize(res);
     InitDsBuffer();
-
-    surface_.Resolution();
-
     cmdManager_.ResetFences();
 
     for (u32 i = 0; i < frameBufferCount; ++i) {

@@ -41,6 +41,7 @@ Entity Scene::NewEntity() {
 
     if (!id_factory_.UseFree()) {
         transform_pool_.AddComponent(entity.Id());
+        metadata_pool_.AddComponent(entity.Id());
         geometry_pool_.AddComponent();
     }
 
@@ -61,9 +62,9 @@ Entity Scene::NewChildEntity(Entity parent) {
     if (parentNode.firstChild.Id() == id::invalid) {
        parentNode.firstChild = child;
     } else {
-        Node& lastchild = *parentnode.GetChildren().back();
-        currchild.next = childNode.entity;
-        childNode.prev = currChild.entity;
+        Node& lastChild = *parentNode.GetChildren().back();
+        lastChild.next = childNode.entity;
+        childNode.prev = lastChild.entity;
         childNode.next = parentNode.next;
     }
 
@@ -118,14 +119,13 @@ Scene::~Scene() {
 //    }
 }
 
-std::vector<Node*> Scene::Node::GetChildren() {
-    Node &node = scene.GetNode(id_);
+std::vector<Scene::Node*> Scene::Node::GetChildren() {
     std::vector<Node*> children;
-    if (node.firstChild.IsAlive()) {
-        Node &currNode = scene.GetNode(node.firstChild.Id());
+    if (firstChild.IsAlive()) {
+        Node &currNode = scene.GetNode(firstChild.Id());
         while(true) {
             children.push_back(&currNode);
-            if (currNode.next.IsAlive() and currNode.next.Id() != node.next.Id()) {
+            if (currNode.next.IsAlive() and currNode.next.Id() != next.Id()) {
                 currNode = scene.GetNode(currNode.next.Id());
             } else {
                 break;

@@ -13,7 +13,6 @@ include_directories(PUBLIC .)
 #set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
 #set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
 set(SOURCES
         core/scene.cpp
         core/components/geometry.cpp
@@ -28,6 +27,9 @@ set(SOURCES
         content/formats/obj/obj_parser.cpp
         window/glfw/glfw.cpp
         common/logger.cpp
+        graphics/directX12/dx_surface.cpp
+        graphics/directX12/dx_gpass.cpp
+        core/components/metadata.cpp
 )
 
 set(HEADERS
@@ -35,6 +37,7 @@ set(HEADERS
         core/components/geometry.hpp
         core/components/transform.hpp
         core/components/script.hpp
+        core/components/metadata.hpp
         render/renderer.hpp
         render/camera.hpp
         render/light.hpp
@@ -50,9 +53,7 @@ set(HEADERS
         content/content.hpp
         core/components/pool.hpp
         common/vector.hpp
-        graphics/directX12/dx_gpass.cpp
         graphics/directX12/dx_gpass.hpp
-        graphics/directX12/dx_surface.cpp
         graphics/directX12/dx_surface.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})

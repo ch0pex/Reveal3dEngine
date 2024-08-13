@@ -16,47 +16,67 @@
 #include "core/scene.hpp"
 
 namespace reveal3d::core {
+
+Metadata::Metadata(id_t id) : id_(id) { }
+
+std::string& Metadata::Name() {
+    return Pool().names_.at(id::index(id_));
+}
+
+std::string& Metadata::Comment() {
+    return Pool().comments_.at(id::index(id_));
+}
+
+std::string& Metadata::Date() {
+    return Pool().dates_.at(id::index(id_));
+}
+
+MetadataPool &Metadata::Pool(){
+    return core::scene.ComponentPool<Metadata>();
+}
+
 Metadata MetadataPool::AddComponent(id_t id) {
-    id_t id { id_factory_.New() };
-    
+    const id_t metadata_id { id_factory_.New() };
+
+    Add(id::index(id), metadata_id);
     if(id_factory_.UseFree()) {
         names_.at(id::index(id)) = "Entity" + std::to_string(id);
         comments_.at(id::index(id)) = "";
-        date.at(id::index(id)) = "10/12/2024"; //TODO
+        dates_.at(id::index(id)) = "10/12/2024"; //TODO
     } else {
         names_.emplace_back("Entity" + std::to_string(id));
         comments_.emplace_back(); 
-        date.emplace_back("10/12/2024");  //TODO
+        dates_.emplace_back("10/12/2024");  //TODO
+        comments_.at(comments_.size() - 1U).reserve(1024);
     }
-
-    return Metadata(id);
+    return Metadata(metadata_id);
 }
 
-Transform MetadataPool::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
-    id_t id { id_factory_.New() };
+Metadata MetadataPool::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
+    const id_t metadata_id { id_factory_.New() };
 
+    Add(id::index(id), metadata_id);
     if(id_factory_.UseFree()) {
-        names_.at(id::index(id)) = initInfo;
+        names_.at(id::index(id)) = std::move(initInfo);
         comments_.at(id::index(id)) = "";
-        date.at(id::index(id)) = "10/12/2024"; //TODO
+        dates_.at(id::index(id)) = "10/12/2024"; //TODO
     } else {
-        names_.emplace_back(initInfo);
+        names_.emplace_back(std::move(initInfo));
         comments_.emplace_back(); 
-        date.emplace_back("10/12/2024");  //TODO
+        dates_.emplace_back("10/12/2024");  //TODO
     }
-    return Metadata(id);
+    return Metadata(metadata_id);
 }
 
 void MetadataPool::RemoveComponent(id_t id) {
     id_t idx { id::index(id) };
-    names_.remove_unordered(idx);
-    comments_.remove_unordered(idx);
-    dates_.remove_unordered(idx);
+    names_.unordered_remove(idx);
+    comments_.unordered_remove(idx);
+    dates_.unordered_remove(idx);
     id_factory_.Remove(id);
 }
 
 void MetadataPool::Update() {
     //Nothing to update for now in metadata
 }
-
 }

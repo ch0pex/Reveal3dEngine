@@ -30,7 +30,6 @@ public:
         math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
-    using PoolType = TransformPool&;
     using InitInfo = Data;
 
     Transform() = default;
@@ -72,8 +71,8 @@ private:
 class TransformPool : public Pool<Transform> {
 public:
     Transform AddComponent(id_t id);
-    Transform AddComponent(id_t id, Transform::Data&& initInfo);
-    Transform AddChildComponent(id_t id, math::mat4 &parentWorld);
+    Transform AddComponent(id_t entityId, Transform::Data&& initInfo);
+    Transform AddChildComponent(id_t entityId, math::mat4 &parentWorld);
     void RemoveComponent(id_t id) override;
     void Update() override;
 

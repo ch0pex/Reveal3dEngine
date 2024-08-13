@@ -32,7 +32,6 @@ public:
 
 class Script {
 public:
-    using PoolType = ScriptPool&;
     using InitInfo = std::unique_ptr<ScriptBase>;
 
     struct Flag { 

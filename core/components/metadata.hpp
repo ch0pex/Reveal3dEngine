@@ -14,39 +14,46 @@
 #pragma once
 
 #include "pool.hpp"
+#include "common/common.hpp"
 
 #include <string>
 
 namespace reveal3d::core {
 
+class MetadataPool;
+
 class Metadata {
-    using PoolType = TransformPool&;
+public:
     using InitInfo = std::string;
 
-    Transform() = default;
-    explicit Transform(id_t id);
+    Metadata() = default;
+    explicit Metadata(id_t id);
+
+    std::string& Name();
+    std::string& Comment();
+    std::string& Date();
 
     [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
     [[nodiscard]] INLINE id_t Id() const { return id_; }
 private:
+    [[nodiscard]] static MetadataPool& Pool();
     id_t id_;
 };
 
 class MetadataPool : public Pool<Metadata> {
 public:
-    Metadata AddComponent(id_t id);
+    Metadata AddComponent(id_t id) override;
     Metadata AddComponent(id_t id, Metadata::InitInfo&& initInfo);
     void RemoveComponent(id_t id) override;
     void Update() override;
-
-    INLINE u32  Count()  override           { return transform_data_.size(); }
+    INLINE u32  Count() override { return names_.size(); }
 
 
 private:
     friend class Metadata;
     utl::vector<std::string> names_;
     utl::vector<std::string> comments_;
-    utl::vector<std::string> date_;
-}
+    utl::vector<std::string> dates_;
+};
 
 }

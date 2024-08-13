@@ -34,6 +34,14 @@ public:
 
 
 protected:
+    void Add(id_t index, id_t id) {
+        if (index >= components_.size()) {
+            components_.emplace_back(id);
+        } else {
+            components_.at(index) = T(id);
+        }
+    }
+
     void Remove(id_t id) {
         id_t last { id_factory_.Back() };
         id_factory_.Remove(id);

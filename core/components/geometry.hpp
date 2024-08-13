@@ -39,7 +39,6 @@ public:
         count
     };
 
-    using PoolType = GeometryPool&;
     using InitInfo = render::Mesh;
 
     Geometry();
@@ -50,19 +49,19 @@ public:
     Geometry& operator=(const Geometry& other);
     Geometry& operator=(Geometry&& other) noexcept ;
 
-    u32 VertexCount() const;
-    u32 IndexCount() const;
+    [[nodiscard]] u32 VertexCount() const;
+    [[nodiscard]] u32 IndexCount() const;
 
     // NOTE: This will need to be changed when Mesh instancing is implemented
     // For now there is no mesh instancing and only one submesh each mesh
     void AddMesh(render::Mesh& mesh);
     void AddMesh(primitive type);
 
-    std::span<render::SubMesh> SubMeshes() const;
-    std::vector<render::Vertex> &Vertices() const;
-    std::vector<u32> &Indices() const;
+    [[nodiscard]] std::span<render::SubMesh> SubMeshes() const;
+    [[nodiscard]] std::vector<render::Vertex> &Vertices() const;
+    [[nodiscard]] std::vector<u32> &Indices() const;
 
-    u32 RenderInfo() const;
+    [[nodiscard]] u32 RenderInfo() const;
     void SetRenderInfo(u32 index) const;
 
     void SetVisibility(bool visibility);
@@ -94,8 +93,8 @@ public:
     GeometryPool() { subMeshes_.reserve(4000);}
 
     Geometry AddComponent();
-    Geometry AddComponent(id_t id);
-    Geometry AddComponent(id_t id, Geometry::InitInfo&& initInfo);
+    Geometry AddComponent(id_t entityId);
+    Geometry AddComponent(id_t entityId, Geometry::InitInfo&& initInfo);
     void RemoveComponent(id_t id) override;
     void Update() override;
 

@@ -160,58 +160,59 @@ Geometry GeometryPool::AddComponent() {
     return components_.at(components_.size() - 1);
 }
 
-Geometry GeometryPool::AddComponent(id_t id) {
-    id_t idx = id_factory_.New();
-    if (meshes_.size() > idx) {
-        meshes_.at(idx) = render::Mesh();
-        subMeshes_.at(idx) = render::SubMesh();
-        materials_.at(idx) = {};
-        dirties_.at(idx) = 3;
-        dirtyIds_.insert(id);
-        newGeometries_.push(id);
+Geometry GeometryPool::AddComponent(id_t entityId) {
+    const id_t geometryId{ id_factory_.New() };
+    Add(id::index(entityId), geometryId);
+
+    if (id_factory_.UseFree()) {
+        meshes_.at(id::index(geometryId)) = render::Mesh();
+        subMeshes_.at(id::index(geometryId)) = render::SubMesh();
+        materials_.at(id::index(geometryId)) = {};
+        dirties_.at(id::index(geometryId)) = 3;
+        dirtyIds_.insert(geometryId);
+        newGeometries_.push(geometryId);
     } else {
         meshes_.emplace_back();
         subMeshes_.emplace_back();
         materials_.emplace_back();
         dirties_.emplace_back(4);
-        dirtyIds_.insert(id);
-        newGeometries_.push(id);
+        dirtyIds_.insert(geometryId);
+        newGeometries_.push(geometryId);
     }
-    components_.at(idx) = Geometry(id);
 
-    return components_.at(idx);
+    Add(id::index(entityId), geometryId);
+    return components_.at(id::index(entityId));
 }
 
-Geometry GeometryPool::AddComponent(id_t id, Geometry::InitInfo &&initInfo) {
-    id_t idx = id_factory_.New();
-    if (meshes_.size() > idx) {
-        meshes_.at(idx) = std::move(initInfo);
-        materials_.at(idx) = {};
-        dirties_.at(idx) = 3;
-        dirtyIds_.insert(id);
-        newGeometries_.push(id);
+Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
+    const id_t geometryId{ id_factory_.New() };
+    Add(id::index(entityId), geometryId);
+    if (id_factory_.UseFree()) {
+        meshes_.at(id::index(geometryId)) = std::move(initInfo);
+        materials_.at(id::index(geometryId)) = {};
+        dirties_.at(id::index(geometryId)) = 3;
+        dirtyIds_.insert(geometryId);
+        newGeometries_.push(geometryId);
     } else {
         meshes_.push_back(std::move(initInfo));
         subMeshes_.emplace_back();
         materials_.emplace_back();
         dirties_.emplace_back(4);
-        dirtyIds_.insert(id);
-        newGeometries_.push(id);
+        dirtyIds_.insert(geometryId);
+        newGeometries_.push(geometryId);
     }
 
-    components_.at(idx) = Geometry(id);
-
-    subMeshes_.at(idx) = {
-            .renderInfo = meshes_.at(idx).renderInfo,
-            .constantIndex = idx,
+    subMeshes_.at(id::index(geometryId)) = {
+            .renderInfo = meshes_.at(id::index(geometryId)).renderInfo,
+            .constantIndex = id::index(geometryId),
             .shader = render::opaque,
             .vertexPos = 0,
             .indexPos = 0,
-            .indexCount = components_.at(idx).IndexCount(),
+            .indexCount = components_.at(id::index(entityId)).IndexCount(),
             .visible = true,
     };
 
-    return components_.at(idx);
+    return components_.at(id::index(entityId));
 }
 
 void GeometryPool::RemoveComponent(id_t id) {

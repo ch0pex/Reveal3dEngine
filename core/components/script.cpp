@@ -24,11 +24,11 @@ Script::Script(id_t id, InitInfo script) {
 }
 
 void Script::Begin() {
-   Pool().scripts_->Begin(dt);
+    Pool().scripts_.at(id::index(id_))->Begin();
 }
 
 void Script::Update(float dt) {
-   Pool().scripts_->Update(dt);
+   Pool().scripts_.at(id::index(id_))->Update(dt);
 }
 
 void Script::DisableUpdate() {
