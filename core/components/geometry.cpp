@@ -220,7 +220,7 @@ void GeometryPool::RemoveComponent(id_t id) {
     materials_.unordered_remove(idx);
     meshes_.unordered_remove(idx);
     subMeshes_.unordered_remove(idx);
-    delGeometries_.push(id);
+    delGeometries_.push(id)A;
     Remove(id);
 }
 

@@ -37,12 +37,12 @@ void Surface::UpdateViewport() {
     DXGI_SWAP_CHAIN_DESC desc {};
 
     swapChain_->GetDesc(&desc)  >> utl::DxCheck;
-    viewport_.TopLeftX = 0.0f;
-    viewport_.TopLeftY = 0.0f;
+    viewport_.TopLeftX = 0.0F;
+    viewport_.TopLeftY = 0.0F;
     viewport_.Height = (f32) desc.BufferDesc.Height;
     viewport_.Width = (f32) desc.BufferDesc.Width;
-    viewport_.MaxDepth = 1.0f;
-    viewport_.MinDepth = 0.0f;
+    viewport_.MaxDepth = 1.0F;
+    viewport_.MinDepth = 0.0F;
     scissorRect_ = { 0, 0, (i32) desc.BufferDesc.Width, (i32) desc.BufferDesc.Height };
 }
 
@@ -53,8 +53,7 @@ void Surface::SetViewport(ID3D12GraphicsCommandList *cmdList) {
 
 void Surface::AllowTearing(IDXGIFactory5* factory) {
     BOOL allowTearing = FALSE;
-    if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) &&
-        allowTearing) {
+    if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(u32))) && (allowTearing != 0)) {
         presentInfo_ = DXGI_PRESENT_ALLOW_TEARING;
         swapChainFlags_ |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
