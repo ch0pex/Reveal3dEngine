@@ -217,11 +217,13 @@ Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo
 
 void GeometryPool::RemoveComponent(id_t id) {
     id_t idx { id::index(id) };
-    materials_.unordered_remove(idx);
-    meshes_.unordered_remove(idx);
-    subMeshes_.unordered_remove(idx);
-    delGeometries_.push(id)A;
-    Remove(id);
+    if (id_factory_.IsAlive(id)) {
+        materials_.unordered_remove(idx);
+        meshes_.unordered_remove(idx);
+        subMeshes_.unordered_remove(idx);
+        delGeometries_.push(id);
+        Remove(id);
+    }
 }
 
 render::Mesh& GeometryPool::Mesh(id_t id) {

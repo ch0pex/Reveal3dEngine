@@ -78,6 +78,7 @@ public:
 
     Entity NewEntity();
     Entity NewChildEntity(Entity parent);
+    Entity NewChildEntity(id_t parent);
     void   RemoveEntity(id_t id);
     bool   IsEntityAlive(id_t id);
 

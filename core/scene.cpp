@@ -48,6 +48,8 @@ Entity Scene::NewEntity() {
     return entity;
 }
 
+Entity Scene::NewChildEntity(id_t parent) { return NewChildEntity(Entity(parent)); }
+
 Entity Scene::NewChildEntity(Entity parent) {
 
     Entity child(id_factory_.New());
@@ -69,15 +71,23 @@ Entity Scene::NewChildEntity(Entity parent) {
     }
 
     sceneGraph_.push_back(childNode);
-    
+
+    if (!id_factory_.UseFree()) {
+        transform_pool_.AddComponent(child.Id());
+        metadata_pool_.AddComponent(child.Id());
+        geometry_pool_.AddComponent();
+    }
+
     return child;
 }
 
 void Scene::RemoveEntity(id_t id) {
-    id_factory_.Remove(id);
-    RemoveNode(id);
-    transform_pool_.RemoveComponent(id);
-    geometry_pool_.RemoveComponent(id);
+    if (id_factory_.IsAlive(id)) {
+        id_factory_.Remove(id);
+        RemoveNode(id);
+        transform_pool_.RemoveComponent(id);
+        geometry_pool_.RemoveComponent(id);
+    }
 }
 
 void Scene::RemoveNode(id_t id) {

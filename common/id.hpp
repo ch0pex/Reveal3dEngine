@@ -71,6 +71,9 @@ public:
     }
 
     bool IsAlive(id_t id) {
+        id_t idx {id::index(id)};
+        if (idx >= generations_.size())
+            return false;
         if (id == id::invalid)
             return false;
         if (id::generation(id) != generations_.at(id::index(id)))
