@@ -19,13 +19,14 @@
 namespace reveal3d::graphics::opengl {
 
 void RenderLayers::Init() {
-    layers_[render::Shader::opaque].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
-                                                           relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str());
-//    layers_[render::Shader::flat].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
-//                                                             relative("Engine/graphics/opengl/shaders/flatShader.frag").c_str());
+    layers_[render::Shader::opaque].shaderId =
+            CreateProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
+                          relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str());
+    //    layers_[render::Shader::unlit].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
+    //                                                             relative("Engine/graphics/opengl/shaders/flatShader.frag").c_str());
 }
 
-std::string RenderLayers::ReadShader(const char* fileName) {
+std::string RenderLayers::ReadShader(const char *fileName) {
     std::string shader_code;
     std::ifstream file(fileName, std::ios::in);
     if (!file.good()) {
@@ -34,7 +35,7 @@ std::string RenderLayers::ReadShader(const char* fileName) {
     }
 
     file.seekg(0, std::ios::end);
-    shader_code.resize((unsigned int) file.tellg());
+    shader_code.resize((unsigned int)file.tellg());
     file.seekg(0, std::ios::beg);
     file.read(shader_code.data(), shader_code.size());
     file.close();
@@ -87,41 +88,41 @@ u32 RenderLayers::CreateProgram(const char *vs, const char *fs) {
     return program;
 }
 
-void RenderLayers::AddMesh(render::SubMesh &mesh) {
-    subMeshes_[mesh.shader].push_back(&mesh);
-}
+void RenderLayers::AddMesh(render::SubMesh &mesh) { subMeshes_[mesh.shader].push_back(&mesh); }
 
-void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4& passConstants, u32 layer) {
+void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4 &passConstants, u32 layer) {
+    /*
+        const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
+        const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
+        const i32 ambient_color_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientColor");
+        const i32 ambient_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
+        const i32 sun_light_dir_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightDirection");
+        const i32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
+        const i32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
 
-    const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
-    const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
-    const i32 ambient_color_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientColor");
-    const i32 ambient_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "ambientLightIntensity");
-    const i32 sun_light_dir_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightDirection");
-    const i32 sun_light_color_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightColor");
-    const i32 sun_light_intensity_loc = glGetUniformLocation(layers_[layer].shaderId, "sunLightIntensity");
+        glUseProgram(layers_[layer].shaderId);
+        glUniform1f(ambient_light_intensity_loc, 0.7f);
+        glUniform3f(ambient_color_loc, 1.0f, 1.0f, 1.0f);
+        glUniform3f(sun_light_dir_loc, 0.0f, 0.5f, -1.0f);
+        glUniform3f(sun_light_color_loc, 1.0f, 1.0f, 1.0f);
+        glUniform1f(sun_light_intensity_loc, 0.9f);
+        glUniformMatrix4fv(vp_loc, 1, GL_FALSE, (f32 *) &passConstants);
 
-    glUseProgram(layers_[layer].shaderId);
-    glUniform1f(ambient_light_intensity_loc, 0.7f);
-    glUniform3f(ambient_color_loc, 1.0f, 1.0f, 1.0f);
-    glUniform3f(sun_light_dir_loc, 0.0f, 0.5f, -1.0f);
-    glUniform3f(sun_light_color_loc, 1.0f, 1.0f, 1.0f);
-    glUniform1f(sun_light_intensity_loc, 0.9f);
-    glUniformMatrix4fv(vp_loc, 1, GL_FALSE, (f32 *) &passConstants);
+    //    glBindTexture(GL_TEXTURE_2D, texture_);
 
-//    glBindTexture(GL_TEXTURE_2D, texture_);
-
-    for (const auto &mesh: subMeshes_[layer]) {
-        if (!mesh->visible) continue;
-        const math::mat4 world = math::Transpose(core::scene.ComponentPool<core::Transform>().At(mesh->constantIndex).World());
-        glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
-        glBindVertexArray(renderElments[mesh->renderInfo].vao);
-        glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        for (const auto &mesh: subMeshes_[layer]) {
+            if (!mesh->visible) continue;
+            const math::mat4 world =
+    math::Transpose(core::scene.ComponentPool<core::Transform>().At(mesh->constantIndex).World());
+            glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
+            glBindVertexArray(renderElments[mesh->renderInfo].vao);
+            glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        }
     }
-}
 
-
+    */
 
 };
 
+}

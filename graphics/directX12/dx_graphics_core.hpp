@@ -25,8 +25,9 @@
 #include "resources/dx_resources.hpp"
 
 #include "core/scene.hpp"
-#include "render/camera.hpp"
+#include "dx_gpass.hpp"
 #include "dx_surface.hpp"
+#include "render/camera.hpp"
 
 
 #include <array>
@@ -58,26 +59,24 @@ private:
     void RemoveAsset(id_t id);
 
     /****************** Factory and Device *****************/
-
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
 
-    /****************** Frame resources, depth stencil and swapchain *****************/
-
+    /****************** Frame resources *****************/
     std::array<dx12::FrameResource, dx12::frameBufferCount> frameResources_;
 
     /***************** Depth stencil buffer**********************/
     ComPtr<ID3D12Resource> depthStencilBuffer_;
     dx12::DescriptorHandle dsHandle_;
 
+    /******************* Gpu heaps and commands **********************/
     dx12::Heaps heaps_;
     dx12::Commands cmdManager_;
 
-    /************ Render elements and layers**********/
-    std::vector<RenderElement> renderElements_;
-    dx12::RenderLayers renderLayers_;
+    /******************* Gpass class **********************/
+    dx12::Gpass gPass_;
 
-    /***************** Surface Info **********************/
+    /***************** Surface and swapchain Info **********************/
     dx12::Surface surface_;
 };
 

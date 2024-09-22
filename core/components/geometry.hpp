@@ -61,9 +61,6 @@ public:
     [[nodiscard]] std::vector<render::Vertex> &Vertices() const;
     [[nodiscard]] std::vector<u32> &Indices() const;
 
-    [[nodiscard]] u32 RenderInfo() const;
-    void SetRenderInfo(u32 index) const;
-
     void SetVisibility(bool visibility);
     [[nodiscard]] bool IsVisible() const;
     const render::Material& Material();
@@ -93,7 +90,7 @@ public:
     GeometryPool() { subMeshes_.reserve(4000);}
 
     Geometry AddComponent();
-    Geometry AddComponent(id_t entityId);
+    Geometry AddComponent(id_t entityId) override;
     Geometry AddComponent(id_t entityId, Geometry::InitInfo&& initInfo);
     void RemoveComponent(id_t id) override;
     void Update() override;
@@ -121,7 +118,6 @@ private:
     std::queue<id_t> delGeometries_;
 
     // Materials must be updated on GPU
-
     std::set<id_t>     dirtyIds_;
     std::vector<u8>    dirties_;
 

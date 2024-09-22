@@ -91,15 +91,6 @@ std::vector<u32> &Geometry::Indices() const{
     return Pool().Mesh(id_).indices;
 }
 
-u32 Geometry::RenderInfo() const {
-    return Pool().Mesh(id_).renderInfo;
-}
-
-void Geometry::SetRenderInfo(u32 index) const {
-    Pool().Mesh(id_).renderInfo = index;
-}
-
-
 void Geometry::SetVisibility(bool visibility) {
     Pool().SubMeshes(id_)[0].visible = visibility;
 }
@@ -203,8 +194,6 @@ Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo
     }
 
     subMeshes_.at(id::index(geometryId)) = {
-            .renderInfo = meshes_.at(id::index(geometryId)).renderInfo,
-            .constantIndex = id::index(geometryId),
             .shader = render::opaque,
             .vertexPos = 0,
             .indexPos = 0,

@@ -36,15 +36,13 @@ void Dx12::LoadPipeline() {
     heaps_.rtv.Initialize(device_.Get(), dx12::frameBufferCount, false);
     heaps_.srv.Initialize(device_.Get(), 1U, true);
     heaps_.dsv.Initialize(device_.Get(), 1U, false);
-    renderElements_.reserve(4092U);
     dsHandle_ = heaps_.dsv.alloc();
     surface_.Init(cmdManager_, factory_.Get());
     InitFrameResources();
     InitDsBuffer();
     InitConstantBuffers();
     surface_.UpdateViewport();
-    renderLayers_.BuildRoots(device_.Get());
-    renderLayers_.BuildPSOs(device_.Get());
+    gPass_.Init(device_.Get());
 
 }
 
@@ -137,6 +135,10 @@ void Dx12::InitDsBuffer() {
 
     depthStencilBuffer_->SetName(L"Depth Buffer");
     device_->CreateDepthStencilView(depthStencilBuffer_.Get(), &dsvDesc, dsHandle_.cpu);
+
+    for(auto& frameResource : frameResources_) {
+        frameResource.depthBufferHandle = dsHandle_;
+    }
 }
 
 
@@ -218,8 +220,9 @@ void Dx12::Update(render::Camera &camera) {
         new_geo = geometries.PopNewGeometry();
     }
 
-    while(removed_geo.IsAlive()) {
+    while(removed_geo.IsAlive()) { //TODO
         RemoveAsset(removed_geo.Id());
+//        renderLayers_.RemoveMesh(removed_geo.SubMeshes()[0]) ;
         removed_geo = geometries.PopRemovedGeometry();
     }
 
@@ -229,7 +232,7 @@ void Dx12::RenderSurface() {
 
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
-    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
+    cmdManager_.Reset(); //Resets commands list and current frame allocator
 
 //    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
@@ -240,6 +243,7 @@ void Dx12::RenderSurface() {
             D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &targetBarrier);
 
+/*
     const f32 clearColor[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
     commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
@@ -259,12 +263,19 @@ void Dx12::RenderSurface() {
 
     renderLayers_[render::Shader::grid].Set(commandList);
     renderLayers_.DrawEffectLayer(commandList, render::Shader::grid);
+    */
+
+
+    gPass_.Render(commandList, currFrameRes);
 
     auto presentBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
             currFrameRes.backBuffer.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT );
 
+
 #ifdef IMGUI
+    ID3D12DescriptorHeap* srvDesc = heaps_.srv.Get();
+    commandList->SetDescriptorHeaps(1, &srvDesc);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
 #endif
 
@@ -321,11 +332,7 @@ void Dx12::Terminate() {
 #endif
     cmdManager_.Flush();
     heaps_.Release();
-
-    for (auto &elem : renderElements_) {
-        elem.vertexBuffer.Release();
-        elem.indexBuffer.Release();
-    }
+    gPass_.Terminate();
 
     for (auto& frameResource : frameResources_) {
         frameResource.constantBuffer.Release();
@@ -337,42 +344,47 @@ void Dx12::Terminate() {
 
 void Dx12::CreateRenderElement(u32 index) {
     auto geometry = core::scene.GetEntity(index).Component<core::Geometry>();
-    if (geometry.RenderInfo() == UINT_MAX) {
-        BufferInitInfo vertexBufferInfo = {
-                .device = device_.Get(),
-                .cmdList = cmdManager_.List(),
-                .data = geometry.Vertices().data(),
-                .count = geometry.VertexCount()
-        };
 
-        BufferInitInfo indexBufferInfo = {
-                .device = device_.Get(),
-                .cmdList = cmdManager_.List(),
-                .data = geometry.Indices().data(),
-                .count = geometry.IndexCount(),
-                .format = DXGI_FORMAT_R32_UINT
-        };
+    gPass_.AddRenderElement(geometry, cmdManager_, device_.Get());
 
-        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-        geometry.SetRenderInfo(renderElements_.size() - 1U);
-        for (auto &subMesh: geometry.SubMeshes()) {
-            subMesh.renderInfo = renderElements_.size() - 1U;
-            subMesh.constantIndex = index;
-            renderLayers_.AddMesh(subMesh);
-        }
-    }
-    else {
-        for (auto &subMesh: geometry.SubMeshes()) {
-            subMesh.renderInfo = geometry.RenderInfo();
-            subMesh.constantIndex = index;
-            renderLayers_.AddMesh(subMesh);
-        }
-    }
+//    if (geometry.RenderInfo() == UINT_MAX) {
+//        BufferInitInfo vertexBufferInfo = {
+//                .device = device_.Get(),
+//                .cmdList = cmdManager_.List(),
+//                .data = geometry.Vertices().data(),
+//                .count = geometry.VertexCount()
+//        };
+//
+//        BufferInitInfo indexBufferInfo = {
+//                .device = device_.Get(),
+//                .cmdList = cmdManager_.List(),
+//                .data = geometry.Indices().data(),
+//                .count = geometry.IndexCount(),
+//                .format = DXGI_FORMAT_R32_UINT
+//        };
+//
+//        gPass_.AddRenderElement(vertexBufferInfo, indexBufferInfo)
+//
+//        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
+//        geometry.SetRenderInfo(renderElements_.size() - 1U);
+//        for (auto &subMesh: geometry.SubMeshes()) {
+//            subMesh.renderInfo = renderElements_.size() - 1U;
+//            subMesh.constantIndex = index;
+//            renderLayers_.AddMesh(subMesh);
+//        }
+//    }
+//    else {
+//        for (auto &subMesh: geometry.SubMeshes()) {
+//            subMesh.renderInfo = geometry.RenderInfo();
+//            subMesh.constantIndex = index;
+//            renderLayers_.AddMesh(subMesh);
+//        }
+//    }
 
 }
 
 void Dx12::RemoveAsset(id_t id) {
-    renderElements_.erase(renderElements_.begin() + id::index(id));
+//    renderElements_.erase(renderElements_.begin() + id::index(id));
 }
 
 

@@ -21,8 +21,6 @@
 namespace reveal3d::render {
 
 struct SubMesh {
-    u32 renderInfo      { UINT_MAX };
-    u32 constantIndex   { 0 };
     Shader shader       { opaque };
     u32 vertexPos       { 0 };
     u32 indexPos        { 0 };
@@ -33,7 +31,6 @@ struct SubMesh {
 struct Mesh {
     std::vector<render::Vertex> vertices;
     std::vector<u32> indices;
-    u32 renderInfo { UINT_MAX }; // Vertex buffer where mesh is
 };
 
 }

@@ -53,6 +53,7 @@ public:
     template<component T> T Component();
     template<component T> T AddComponent();
     template<component T> T AddComponent(T::InitInfo&& initInfo);
+    template<component T> void RemoveComponent();
 
     INLINE u32 Id() const { return id_; }
     bool IsAlive();
@@ -137,12 +138,17 @@ T Entity::Component() {
 
 template<component T>
 T Entity::AddComponent() {
-    scene.ComponentPool<T>().AddComponent(id_);
+    return scene.ComponentPool<T>().AddComponent(id_);
 }
 
 template<component T>
 T Entity::AddComponent(T::InitInfo&& initInfo) {
     return scene.ComponentPool<T>().AddComponent(id_, std::forward<T::InitInfo>(initInfo));
+}
+
+template<component T>
+void Entity::RemoveComponent() {
+    scene.ComponentPool<T>().RemoveComponent(id_);
 }
 
 } // reveal3d::core namespace

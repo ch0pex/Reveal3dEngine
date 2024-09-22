@@ -20,7 +20,7 @@ namespace reveal3d::render {
 
 enum Shader : u8 {
     opaque = 0,
-    flat, // Not affected by lighting
+    unlit, // Not affected by lighting
     grid,
 
     count

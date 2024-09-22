@@ -11,10 +11,43 @@
 * Longer description
 */
 
+#include "common/common.hpp"
+#include "config/config.hpp"
+#include "dx_commands.hpp"
+#include "dx_common.hpp"
+#include "dx_pso.hpp"
+#include "dx_render_info.hpp"
+#include "resources/dx_resources.hpp"
+#include "core/components/geometry.hpp"
+
 namespace reveal3d::graphics::dx12 {
 
 class Gpass {
+public:
+    Gpass();
+    void Init(ID3D12Device* device);
+    void SetRenderTargets(Commands& commandMng, FrameResource& frameResource);
+    void Depth_prepass(); //TODO
+    void Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
+    void AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12Device* device);
+    void Terminate();
 
+private:
+    static const f32 clearColor_[];
+
+    void BuildPsos(ID3D12Device* device);
+    void BuildRoots(ID3D12Device* device);
+    void DrawWorldGrid(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
+
+    /**************** Render elements *****************/
+    std::vector<RenderElement>  renderElements_;
+
+    /**************** Pipeline state and root signatures *****************/
+    std::array<GraphicsPso, render::Shader::count>    pipelineStates_;
+    std::array<RootSignature, render::Shader::count>  rootSignatures_;
+
+    ID3D12RootSignature* currRootSignature_ { nullptr };
+    ID3D12PipelineState* currPipelineState_ { nullptr };
 };
 
 
