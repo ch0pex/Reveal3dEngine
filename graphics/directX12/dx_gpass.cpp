@@ -3,7 +3,9 @@
 //
 
 #include "dx_gpass.hpp"
+
 #include "core/scene.hpp"
+#include "config/config.hpp"
 
 
 namespace reveal3d::graphics::dx12 {
@@ -31,8 +33,8 @@ void Gpass::SetRenderTargets(Commands &commandMng, FrameResource& frameResource)
 }
 
 void Gpass::Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource) {
-    currRootSignature_ =  nullptr;
-    currPipelineState_ =  nullptr;
+    currRootSignature_ = nullptr;
+    currPipelineState_ = nullptr;
 
     commandList->ClearRenderTargetView(frameResource.backBufferHandle.cpu, clearColor_, 0, nullptr);
     commandList->ClearDepthStencilView(frameResource.depthBufferHandle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
@@ -43,13 +45,15 @@ void Gpass::Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameR
         auto geometry = core::scene.ComponentPool<core::Geometry>().At(renderElement.meshId);
 
         for (auto &submesh : geometry.SubMeshes()) {
-            if (currRootSignature_ != rootSignatures_[submesh.shader].Get()) {
-                currRootSignature_ = rootSignatures_[submesh.shader].Get();
+            if (!submesh.visible) continue;
+
+            if (currRootSignature_ != rootSignatures_.at(submesh.shader).Get()) {
+                currRootSignature_ = rootSignatures_.at(submesh.shader).Get();
                 commandList->SetGraphicsRootSignature(currRootSignature_);
             }
 
-            if (currPipelineState_ != pipelineStates_[submesh.shader].Get()) {
-                currPipelineState_ = pipelineStates_[submesh.shader].Get();
+            if (currPipelineState_ != pipelineStates_.at(submesh.shader).Get()) {
+                currPipelineState_ = pipelineStates_.at(submesh.shader).Get();
                 commandList->SetPipelineState(currPipelineState_);
             }
 
@@ -92,6 +96,10 @@ void Gpass::AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12De
     };
 
     renderElements_.emplace_back(geometry.Id(), vertexBufferInfo, indexBufferInfo);
+}
+
+void Gpass::RemoveRenderElement(core::Geometry geometry) {
+
 }
 
 void Gpass::Terminate() {

@@ -10,11 +10,11 @@
 *
 * Longer description
 */
+#pragma once
 
 #include "common/common.hpp"
-#include "config/config.hpp"
-#include "dx_commands.hpp"
 #include "dx_common.hpp"
+#include "dx_commands.hpp"
 #include "dx_pso.hpp"
 #include "dx_render_info.hpp"
 #include "resources/dx_resources.hpp"
@@ -30,17 +30,18 @@ public:
     void Depth_prepass(); //TODO
     void Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
     void AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12Device* device);
+    void RemoveRenderElement(core::Geometry geometry);
     void Terminate();
 
 private:
-    static const f32 clearColor_[];
-
     void BuildPsos(ID3D12Device* device);
     void BuildRoots(ID3D12Device* device);
     void DrawWorldGrid(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
 
+    static const f32 clearColor_[];
+
     /**************** Render elements *****************/
-    std::vector<RenderElement>  renderElements_;
+    reveal3d::utl::vector<RenderElement>  renderElements_;
 
     /**************** Pipeline state and root signatures *****************/
     std::array<GraphicsPso, render::Shader::count>    pipelineStates_;

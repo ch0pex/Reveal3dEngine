@@ -229,12 +229,11 @@ void Dx12::Update(render::Camera &camera) {
 }
 
 void Dx12::RenderSurface() {
-
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
+
     cmdManager_.Reset(); //Resets commands list and current frame allocator
 
-//    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
     surface_.SetViewport(commandList);
@@ -242,29 +241,6 @@ void Dx12::RenderSurface() {
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &targetBarrier);
-
-/*
-    const f32 clearColor[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
-    commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
-    commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-    commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
-    commandList->SetGraphicsRootSignature(renderLayers_[render::Shader::opaque].rootSignature.Get());
-    commandList->SetGraphicsRootConstantBufferView(2, currFrameRes.passBuffer.GpuStart());
-    ID3D12DescriptorHeap* srvDesc = heaps_.srv.Get();
-    commandList->SetDescriptorHeaps(1, &srvDesc);
-
-    renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
-
-    for (u32 i = 1; i < render::Shader::count - 1; ++i) {
-        renderLayers_[i].Set(commandList);
-        renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
-    }
-
-    renderLayers_[render::Shader::grid].Set(commandList);
-    renderLayers_.DrawEffectLayer(commandList, render::Shader::grid);
-    */
-
 
     gPass_.Render(commandList, currFrameRes);
 
@@ -384,7 +360,7 @@ void Dx12::CreateRenderElement(u32 index) {
 }
 
 void Dx12::RemoveAsset(id_t id) {
-//    renderElements_.erase(renderElements_.begin() + id::index(id));
+//    gPass_.RemoveRenderElement();
 }
 
 
