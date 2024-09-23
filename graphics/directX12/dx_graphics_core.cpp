@@ -229,9 +229,9 @@ void Dx12::Update(render::Camera &camera) {
 void Dx12::RenderSurface() {
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
+
     cmdManager_.Reset(); //Resets commands list and current frame allocator
 
-//    cmdManager_.Reset(renderLayers_[render::Shader::opaque].pso.Get()); //Resets commands list and current frame allocator
     CleanDeferredResources(heaps_); // Clean deferreds resources
 
     surface_.SetViewport(commandList);
@@ -358,7 +358,7 @@ void Dx12::CreateRenderElement(u32 index) {
 }
 
 void Dx12::RemoveAsset(id_t id) {
-//    renderElements_.erase(renderElements_.begin() + id::index(id));
+//    gPass_.RemoveRenderElement();
 }
 
 
