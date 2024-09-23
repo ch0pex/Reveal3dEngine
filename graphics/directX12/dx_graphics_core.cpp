@@ -219,7 +219,7 @@ void Dx12::Update(render::Camera &camera) {
         new_geo = geometries.PopNewGeometry();
     }
 
-    while(removed_geo.IsAlive()) { //TODO
+    while(removed_geo.IsAlive()) {
         gPass_.RemoveRenderElement(removed_geo);
         removed_geo = geometries.PopRemovedGeometry();
     }

@@ -81,18 +81,18 @@ public:
         return true;
     }
 
-    id_t New() {
-        id_t id { id::invalid };
+    id_t New(id_t index) {
+        id_t id;
         if (UseFree()) {
-            id = id::newGeneration(freeIndices_.front());
+            id = { id::newGeneration(freeIndices_.front()) };
             freeIndices_.pop_front();
-            ++generations_[id::index(id)];
-        } else {
-            id = generations_.size();
-            generations_.push_back(0);
-        }
+            ids_.at(id::index(id)) = id::generation(id) | id::index(index);
 
-        ids_.push_back(id);
+        } else {
+            id = id::index(index);
+            generations_.push_back(0);
+            ids_.push_back(id);
+        }
         return id;
     }
 
@@ -102,6 +102,7 @@ public:
         ids_.unordered_remove(idx);
         if (generations_[idx] < maxGeneration) {
             freeIndices_.push_back(id);
+            ++generations_[id::index(id)];
         }
     }
 

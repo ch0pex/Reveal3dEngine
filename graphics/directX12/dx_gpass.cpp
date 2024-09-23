@@ -98,6 +98,10 @@ void Gpass::AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12De
     renderElements_.emplace_back(geometry.Id(), vertexBufferInfo, indexBufferInfo);
 }
 
+void Gpass::RemoveRenderElement(core::Geometry geometry) {
+   renderElements_.unordered_remove(id::index(geometry.Id()));
+}
+
 void Gpass::Terminate() {
     for (auto &elem : renderElements_) {
         elem.vertexBuffer.Release();

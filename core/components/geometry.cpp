@@ -152,54 +152,38 @@ Geometry GeometryPool::AddComponent() {
 }
 
 Geometry GeometryPool::AddComponent(id_t entityId) {
-    const id_t geometryId{ id_factory_.New() };
-    Add(id::index(entityId), geometryId);
+    const id_t geometryId{ id_factory_.New(meshes_.size()) };
 
-    if (id_factory_.UseFree()) {
-        meshes_.at(id::index(geometryId)) = render::Mesh();
-        subMeshes_.at(id::index(geometryId)) = render::SubMesh();
-        materials_.at(id::index(geometryId)) = {};
-        dirties_.at(id::index(geometryId)) = 3;
-        dirtyIds_.insert(geometryId);
-        newGeometries_.push(geometryId);
-    } else {
-        meshes_.emplace_back();
-        subMeshes_.emplace_back();
-        materials_.emplace_back();
-        dirties_.emplace_back(4);
-        dirtyIds_.insert(geometryId);
-        newGeometries_.push(geometryId);
-    }
+    meshes_.emplace_back();
+    subMeshes_.emplace_back();
+    materials_.emplace_back();
+    dirties_.emplace_back(4);
+    dirtyIds_.insert(geometryId);
+    newGeometries_.push(geometryId);
 
     Add(id::index(entityId), geometryId);
     return components_.at(id::index(entityId));
 }
 
 Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
-    const id_t geometryId{ id_factory_.New() };
-    Add(id::index(entityId), geometryId);
-    if (id_factory_.UseFree()) {
-        meshes_.at(id::index(geometryId)) = std::move(initInfo);
-        materials_.at(id::index(geometryId)) = {};
-        dirties_.at(id::index(geometryId)) = 3;
-        dirtyIds_.insert(geometryId);
-        newGeometries_.push(geometryId);
-    } else {
-        meshes_.push_back(std::move(initInfo));
-        subMeshes_.emplace_back();
-        materials_.emplace_back();
-        dirties_.emplace_back(4);
-        dirtyIds_.insert(geometryId);
-        newGeometries_.push(geometryId);
-    }
+    const id_t geometryId{ id_factory_.New(meshes_.size()) };
 
-    subMeshes_.at(id::index(geometryId)) = {
+    meshes_.push_back(std::move(initInfo));
+    materials_.emplace_back();
+    dirties_.emplace_back(4);
+    dirtyIds_.insert(geometryId);
+    newGeometries_.push(geometryId);
+
+    Add(id::index(entityId), geometryId);
+
+    subMeshes_.emplace_back(render::SubMesh {
             .shader = render::opaque,
             .vertexPos = 0,
             .indexPos = 0,
             .indexCount = components_.at(id::index(entityId)).IndexCount(),
             .visible = true,
-    };
+    });
+
 
     return components_.at(id::index(entityId));
 }
@@ -263,7 +247,6 @@ render::Material &GeometryPool::Material(id_t id) {
 void GeometryPool::Update() {
     for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
         id_t idx = id::index(*it);
-//        transform_components_.at(idx).UpdateWorld();
         if (dirties_.at(idx) == 0) {
             it = dirtyIds_.erase(it);
         } else {

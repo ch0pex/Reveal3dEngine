@@ -25,7 +25,7 @@ bool Entity::IsAlive() {
 }
 
 Entity Scene::NewEntity() {
-    Entity entity(id_factory_.New());
+    Entity entity(id_factory_.New(sceneGraph_.size()));
 
     Node node {
         .entity = entity
@@ -52,7 +52,7 @@ Entity Scene::NewChildEntity(id_t parent) { return NewChildEntity(Entity(parent)
 
 Entity Scene::NewChildEntity(Entity parent) {
 
-    Entity child(id_factory_.New());
+    Entity child(id_factory_.New(sceneGraph_.size()));
 
     Node childNode {
             .entity = child,
@@ -61,7 +61,7 @@ Entity Scene::NewChildEntity(Entity parent) {
 
     Node& parentNode = sceneGraph_.at(id::index(parent.Id()));
 
-    if (parentNode.firstChild.Id() == id::invalid) {
+    if (not parentNode.firstChild.IsAlive()) {
        parentNode.firstChild = child;
     } else {
         Node& lastChild = *parentNode.GetChildren().back();

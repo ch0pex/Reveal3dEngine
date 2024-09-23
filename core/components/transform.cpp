@@ -184,23 +184,14 @@ Transform TransformPool::AddComponent(id_t id) {
 }
 
 Transform TransformPool::AddComponent(id_t entityId, Transform::Data &&initInfo) {
-    id_t transformId{ id_factory_.New() };
+    id_t transformId {id_factory_.New(transform_data_.size())};
 
-    if (id_factory_.UseFree()) {
-        Transform::Data& data = transform_data_.at(id::index(transformId));
-        data = initInfo;
-        world_.at(id::index(transformId)) = math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation));
-        invWorld_.at(id::index(transformId)) = math::Inverse(world_.at(id::index(transformId)));
-        dirties_.at(id::index(transformId)) = 4;
-        dirtyIds_.insert(transformId);
-    } else {
-        transform_data_.push_back(std::move(initInfo));
-        Transform::Data& data = transform_data_.at(Count() - 1);
-        world_.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
-        invWorld_.emplace_back(math::Inverse(world_.at(Count() - 1)));
-        dirties_.emplace_back(4);
-        dirtyIds_.insert(transformId);
-    }
+    transform_data_.push_back(std::move(initInfo));
+    Transform::Data& data = transform_data_.at(Count() - 1);
+    world_.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
+    invWorld_.emplace_back(math::Inverse(world_.at(Count() - 1)));
+    dirties_.emplace_back(4);
+    dirtyIds_.insert(transformId);
 
     Add(id::index(entityId), transformId);
 
@@ -208,21 +199,13 @@ Transform TransformPool::AddComponent(id_t entityId, Transform::Data &&initInfo)
 }
 
 Transform TransformPool::AddChildComponent(id_t entityId, math::mat4 &parentWorld) {
-    id_t transformId{ id_factory_.New() };
+    id_t transformId{ id_factory_.New(transform_data_.size()) };
 
-    if (id_factory_.UseFree()) {
-        transform_data_.at(id::index(transformId)) = Transform::Data();
-        world_.at(id::index(transformId)) = math::Mat4Identity();
-        invWorld_.at(id::index(transformId)) = math::Mat4Identity();
-        dirties_.at(id::index(transformId)) = 4;
-        dirtyIds_.insert(entityId);
-    } else {
-        transform_data_.emplace_back();
-        world_.emplace_back(parentWorld);
-        invWorld_.emplace_back(math::Inverse(parentWorld));
-        dirties_.emplace_back(4);
-        dirtyIds_.insert(transformId);
-    }
+    transform_data_.at(id::index(transformId)) = Transform::Data();
+    world_.at(id::index(transformId)) = math::Mat4Identity();
+    invWorld_.at(id::index(transformId)) = math::Mat4Identity();
+    dirties_.at(id::index(transformId)) = 4;
+    dirtyIds_.insert(entityId);
 
     Add(id::index(entityId), transformId);
     return components_.at(id::index(entityId));

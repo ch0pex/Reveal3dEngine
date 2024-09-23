@@ -36,35 +36,25 @@ MetadataPool &Metadata::Pool(){
 }
 
 Metadata MetadataPool::AddComponent(id_t id) {
-    const id_t metadata_id { id_factory_.New() };
+    const id_t metadata_id { id_factory_.New(names_.size()) };
 
+    names_.emplace_back("Entity" + std::to_string(id));
+    comments_.emplace_back();
+    dates_.emplace_back("10/12/2024");  //TODO
+    comments_.at(comments_.size() - 1U).reserve(1024);
     Add(id::index(id), metadata_id);
-    if(id_factory_.UseFree()) {
-        names_.at(id::index(id)) = "Entity" + std::to_string(id);
-        comments_.at(id::index(id)) = "";
-        dates_.at(id::index(id)) = "10/12/2024"; //TODO
-    } else {
-        names_.emplace_back("Entity" + std::to_string(id));
-        comments_.emplace_back(); 
-        dates_.emplace_back("10/12/2024");  //TODO
-        comments_.at(comments_.size() - 1U).reserve(1024);
-    }
+
     return Metadata(metadata_id);
 }
 
 Metadata MetadataPool::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
-    const id_t metadata_id { id_factory_.New() };
+    const id_t metadata_id { id_factory_.New(names_.size()) };
 
+    names_.emplace_back(std::move(initInfo));
+    comments_.emplace_back();
+    dates_.emplace_back("10/12/2024");  //TODO
     Add(id::index(id), metadata_id);
-    if(id_factory_.UseFree()) {
-        names_.at(id::index(id)) = std::move(initInfo);
-        comments_.at(id::index(id)) = "";
-        dates_.at(id::index(id)) = "10/12/2024"; //TODO
-    } else {
-        names_.emplace_back(std::move(initInfo));
-        comments_.emplace_back(); 
-        dates_.emplace_back("10/12/2024");  //TODO
-    }
+
     return Metadata(metadata_id);
 }
 
