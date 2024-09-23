@@ -12,8 +12,8 @@
  */
 
 #include "geometry.hpp"
-#include "content/primitives.hpp"
 
+#include "content/primitives.hpp"
 #include "core/scene.hpp"
 
 namespace reveal3d::core {
@@ -210,6 +210,10 @@ void GeometryPool::RemoveComponent(id_t id) {
         materials_.unordered_remove(idx);
         meshes_.unordered_remove(idx);
         subMeshes_.unordered_remove(idx);
+        dirties_.unordered_remove(idx);
+        if (dirtyIds_.find(id) != dirtyIds_.end()) {
+            dirtyIds_.erase(id);
+        }
         delGeometries_.push(id);
         Remove(id);
     }

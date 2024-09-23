@@ -71,9 +71,9 @@ private:
     i64 currTime_;
 
     u64 totalTime_;
-    u64 prevTotalFrames_;
     u64 fps_;
     u64 totalFrames_;
+    u64 prevTotalFrames_;
     bool stopped_;
 
 };

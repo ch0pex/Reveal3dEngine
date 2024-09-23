@@ -53,7 +53,7 @@ public:
     [[nodiscard]] u32 IndexCount() const;
 
     // NOTE: This will need to be changed when Mesh instancing is implemented
-    // For now there is no mesh instancing and only one submesh each mesh
+    // For now there is no mesh instancing and only one submesh each mesh and geometry
     void AddMesh(render::Mesh& mesh);
     void AddMesh(primitive type);
 
@@ -61,6 +61,7 @@ public:
     [[nodiscard]] std::vector<render::Vertex> &Vertices() const;
     [[nodiscard]] std::vector<u32> &Indices() const;
 
+    // TODO this should be for each mesh
     void SetVisibility(bool visibility);
     [[nodiscard]] bool IsVisible() const;
     const render::Material& Material();
@@ -119,7 +120,7 @@ private:
 
     // Materials must be updated on GPU
     std::set<id_t>     dirtyIds_;
-    std::vector<u8>    dirties_;
+    utl::vector<u8>    dirties_;
 
 
 };

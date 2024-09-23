@@ -230,14 +230,17 @@ Transform TransformPool::AddChildComponent(id_t entityId, math::mat4 &parentWorl
 
 //NOTE all entities must have transform for now
 void TransformPool::RemoveComponent(id_t id) {
-//    id_t idx { id::index(id) };
-//    transform_data_.unordered_remove(idx);
-//    world_.unordered_remove(idx);
-//    invWorld_.unordered_remove(idx);
-//    dirties_.unordered_remove(idx);
-//    if (dirtyIds_.find(id) != dirtyIds_.end()) {
-//        dirtyIds_.erase(id);
-//    }
+    id_t idx { id::index(id) };
+    if (id_factory_.IsAlive(id)) {
+        transform_data_.unordered_remove(idx);
+        world_.unordered_remove(idx);
+        invWorld_.unordered_remove(idx);
+        dirties_.unordered_remove(idx);
+        if (dirtyIds_.find(id) != dirtyIds_.end()) {
+            dirtyIds_.erase(id);
+        }
+        Remove(id);
+    }
 }
 
 void TransformPool::Update() {

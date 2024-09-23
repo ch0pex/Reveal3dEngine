@@ -68,7 +68,7 @@ void Timer::Tick() {
     frameTime_ = deltaTime_;
     prevTime_ = currTime_;
 
-    u64 newTotalSeconds =static_cast<u64>(floor((currTime - baseTime_) * secondPerCount_));
+    const u64 newTotalSeconds =static_cast<u64>(floor((currTime - baseTime_) * secondPerCount_));
 
     if (totalTime_ < newTotalSeconds) {
         totalTime_ = newTotalSeconds;

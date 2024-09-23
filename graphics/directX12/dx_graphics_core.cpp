@@ -84,9 +84,9 @@ void Dx12::InitFrameResources() {
 
 void Dx12::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
-        frameResource.constantBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
-        frameResource.matBuffer.Init(device_.Get(), 65536U); //TODO: hardcoded capacity 256 maximum?
-        frameResource.passBuffer.Init(device_.Get(),  1U); //TODO: hardcoded capacity
+        frameResource.constantBuffer.Init(device_.Get(), 65536U);
+        frameResource.matBuffer.Init(device_.Get(), 65536U);
+        frameResource.passBuffer.Init(device_.Get(),  1U);
     }
 }
 
@@ -189,7 +189,6 @@ void Dx12::Update(render::Camera &camera) {
     core::Geometry new_geo = geometries.PopNewGeometry();
     core::Geometry removed_geo = geometries.PopRemovedGeometry();
 
-
     Constant<GlobalShaderData> passConstant;
     Constant<PerObjectData> objConstant;
     Constant<Material> matConstant;
@@ -221,15 +220,13 @@ void Dx12::Update(render::Camera &camera) {
     }
 
     while(removed_geo.IsAlive()) { //TODO
-        RemoveAsset(removed_geo.Id());
-//        renderLayers_.RemoveMesh(removed_geo.SubMeshes()[0]) ;
+        gPass_.RemoveRenderElement(removed_geo);
         removed_geo = geometries.PopRemovedGeometry();
     }
 
 }
 
 void Dx12::RenderSurface() {
-
     auto &currFrameRes = frameResources_[Commands::FrameIndex()];
     ID3D12GraphicsCommandList* commandList = cmdManager_.List();
     cmdManager_.Reset(); //Resets commands list and current frame allocator
@@ -242,29 +239,6 @@ void Dx12::RenderSurface() {
     auto targetBarrier = CD3DX12_RESOURCE_BARRIER::Transition(currFrameRes.backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->ResourceBarrier(1, &targetBarrier);
-
-/*
-    const f32 clearColor[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
-    commandList->ClearRenderTargetView(currFrameRes.backBufferHandle.cpu, clearColor, 0, nullptr);
-    commandList->ClearDepthStencilView(dsHandle_.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-    commandList->OMSetRenderTargets(1, &currFrameRes.backBufferHandle.cpu, TRUE, &dsHandle_.cpu);
-    commandList->SetGraphicsRootSignature(renderLayers_[render::Shader::opaque].rootSignature.Get());
-    commandList->SetGraphicsRootConstantBufferView(2, currFrameRes.passBuffer.GpuStart());
-    ID3D12DescriptorHeap* srvDesc = heaps_.srv.Get();
-    commandList->SetDescriptorHeaps(1, &srvDesc);
-
-    renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, render::Shader::opaque);
-
-    for (u32 i = 1; i < render::Shader::count - 1; ++i) {
-        renderLayers_[i].Set(commandList);
-        renderLayers_.DrawLayer(commandList, currFrameRes, renderElements_, i);
-    }
-
-    renderLayers_[render::Shader::grid].Set(commandList);
-    renderLayers_.DrawEffectLayer(commandList, render::Shader::grid);
-    */
-
 
     gPass_.Render(commandList, currFrameRes);
 

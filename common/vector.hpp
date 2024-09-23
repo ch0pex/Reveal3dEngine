@@ -183,7 +183,7 @@ constexpr T *const vector<T, destruct>::remove(T *const item) {
 template<typename T, bool destruct>
 constexpr T* const vector<T, destruct>::unordered_remove(u64 index) {
     assert(data_ && index < size_);
-    return remove(std::addressof(data_[index]));
+    return unordered_remove(std::addressof(data_[index]));
 }
 
 template<typename T, bool destruct>
@@ -237,7 +237,7 @@ constexpr T* vector<T, destruct>::begin() {
 
 template<typename T, bool destruct>
 constexpr T* vector<T, destruct>::end() {
-    return &data_[size_ - 1];
+    return &data_[size_];
 }
 
 template<typename T, bool destruct>
