@@ -24,25 +24,28 @@ bool Entity::IsAlive() {
     return core::scene.IsEntityAlive(id_);
 }
 
+Scene::Scene() : lastNode_(id::invalid) {}
+
+
 Entity Scene::NewEntity() {
-    Entity entity(id_factory_.New(sceneGraph_.size()));
+    Entity entity(idFactory_.New(sceneGraph_.size()));
 
     Node node {
         .entity = entity
     };
 
-    if (lastNode_ != nullptr) {
-       node.prev = lastNode_->entity;
-       lastNode_->next = node.entity;
+    if (id::isValid(lastNode_)) {
+       node.prev = sceneGraph_.at(lastNode_).entity;
+       sceneGraph_.at(lastNode_).next = node.entity;
     }
 
     sceneGraph_.push_back(node);
-    lastNode_ = &sceneGraph_.at(sceneGraph_.size() - 1);
+    lastNode_ = sceneGraph_.size() - 1U;
 
-    if (!id_factory_.UseFree()) {
-        transform_pool_.AddComponent(entity.Id());
-        metadata_pool_.AddComponent(entity.Id());
-        geometry_pool_.AddComponent();
+    if (!idFactory_.UseFree()) {
+        transformPool_.AddComponent(entity.Id());
+        metadataPool_.AddComponent(entity.Id());
+        geometryPool_.AddComponent();
     }
 
     return entity;
@@ -52,7 +55,7 @@ Entity Scene::NewChildEntity(id_t parent) { return NewChildEntity(Entity(parent)
 
 Entity Scene::NewChildEntity(Entity parent) {
 
-    Entity child(id_factory_.New(sceneGraph_.size()));
+    Entity child(idFactory_.New(sceneGraph_.size()));
 
     Node childNode {
             .entity = child,
@@ -67,26 +70,26 @@ Entity Scene::NewChildEntity(Entity parent) {
         Node& lastChild = *parentNode.GetChildren().back();
         lastChild.next = childNode.entity;
         childNode.prev = lastChild.entity;
-        childNode.next = parentNode.next;
+//        childNode.next = parentNode.next;
     }
 
     sceneGraph_.push_back(childNode);
 
-    if (!id_factory_.UseFree()) {
-        transform_pool_.AddComponent(child.Id());
-        metadata_pool_.AddComponent(child.Id());
-        geometry_pool_.AddComponent();
+    if (!idFactory_.UseFree()) {
+        transformPool_.AddComponent(child.Id());
+        metadataPool_.AddComponent(child.Id());
+        geometryPool_.AddComponent();
     }
 
     return child;
 }
 
 void Scene::RemoveEntity(id_t id) {
-    if (id_factory_.IsAlive(id)) {
-        id_factory_.Remove(id);
+    if (idFactory_.IsAlive(id)) {
+        idFactory_.Remove(id);
         RemoveNode(id);
-        transform_pool_.RemoveComponent(id);
-        geometry_pool_.RemoveComponent(id);
+        transformPool_.RemoveComponent(id);
+        geometryPool_.RemoveComponent(id);
     }
 }
 
@@ -99,12 +102,12 @@ void Scene::RemoveNode(id_t id) {
 }
 
 bool Scene::IsEntityAlive(id_t id) {
-    return id_factory_.IsAlive(id);
+    return idFactory_.IsAlive(id);
 }
 
 void Scene::Init() {
     // Pooling Init
-    // transform_pool_.Init();
+    // transformPool_.Init();
     
     
 //    for (u32 i = 0; i < scene.entities_; ++i) {
@@ -117,10 +120,10 @@ void Scene::Init() {
 
 //Runs scripts
 void Scene::Update(f32 dt) {
-    transform_pool_.Update();
-    geometry_pool_.Update();
-    script_pool_.Update();
-    metadata_pool_.Update();
+    transformPool_.Update();
+    geometryPool_.Update();
+    scriptPool_.Update();
+    metadataPool_.Update();
 }
 
 Scene::~Scene() {
@@ -128,6 +131,7 @@ Scene::~Scene() {
 //        delete script;
 //    }
 }
+
 
 std::vector<Scene::Node*> Scene::Node::GetChildren() {
     std::vector<Node*> children;

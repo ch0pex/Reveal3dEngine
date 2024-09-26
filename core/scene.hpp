@@ -42,7 +42,6 @@
 #include <vector>
 #include <utility>
 
-
 namespace reveal3d::core {
 
 class Entity {
@@ -55,7 +54,7 @@ public:
     template<component T> T AddComponent(T::InitInfo&& initInfo);
     template<component T> void RemoveComponent();
 
-    INLINE u32 Id() const { return id_; }
+    [[nodiscard]] INLINE u32 Id() const { return id_; }
     bool IsAlive();
 
 private:
@@ -74,7 +73,7 @@ public:
         Entity next;
         Entity prev;
     };
-    Scene() = default;
+    Scene();
     ~Scene();
 
     Entity NewEntity();
@@ -101,16 +100,16 @@ private:
 
     /************ Entities scene ***********/
 
-    id::Factory                 id_factory_;
+    id::Factory                 idFactory_;
     std::vector<Scene::Node>    sceneGraph_;
-    Node*                       lastNode_;
+    id_t                        lastNode_;
 
     /*********** Components Pools  *************/
 
-    TransformPool               transform_pool_;
-    GeometryPool                geometry_pool_;
-    ScriptPool                  script_pool_;
-    MetadataPool                metadata_pool_;
+    TransformPool               transformPool_;
+    GeometryPool                geometryPool_;
+    ScriptPool                  scriptPool_;
+    MetadataPool                metadataPool_;
 
     //    LightPool                 light_pool_;
 
@@ -119,13 +118,13 @@ private:
 template<component T>
 decltype(auto) Scene::ComponentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
-        return (transform_pool_);
+        return (transformPool_);
     } else if constexpr (std::is_same<T, Script>()) {
-        return (script_pool_);
+        return (scriptPool_);
     } else if constexpr (std::is_same<T, Metadata>()) {
-        return (metadata_pool_);
+        return (metadataPool_);
     } else {
-        return (geometry_pool_);
+        return (geometryPool_);
     }
 }
 
