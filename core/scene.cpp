@@ -67,9 +67,10 @@ Entity Scene::NewChildEntity(Entity parent) {
     if (not parentNode.firstChild.IsAlive()) {
        parentNode.firstChild = child;
     } else {
-        Node& lastChild = *parentNode.GetChildren().back();
-        lastChild.next = childNode.entity;
-        childNode.prev = lastChild.entity;
+        Node& firstChild = GetNode(parentNode.firstChild.Id());
+        firstChild.prev = childNode.entity;
+        childNode.next = parentNode.firstChild;
+        parentNode.firstChild = childNode.entity;
 //        childNode.next = parentNode.next;
     }
 
@@ -133,13 +134,13 @@ Scene::~Scene() {
 }
 
 
-std::vector<Scene::Node*> Scene::Node::GetChildren() {
-    std::vector<Node*> children;
+std::vector<id_t> Scene::Node::GetChildren() {
+    std::vector<id_t> children;
     if (firstChild.IsAlive()) {
         Node &currNode = scene.GetNode(firstChild.Id());
         while(true) {
-            children.push_back(&currNode);
-            if (currNode.next.IsAlive() and currNode.next.Id() != next.Id()) {
+            children.push_back(currNode.entity.Id());
+            if (currNode.next.IsAlive()) {
                 currNode = scene.GetNode(currNode.next.Id());
             } else {
                 break;

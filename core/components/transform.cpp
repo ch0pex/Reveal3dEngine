@@ -123,9 +123,10 @@ math::mat4 Transform::CalcWorld(id_t id){
 void Transform::UpdateChilds() const {
     core::Scene::Node &node = scene.GetNode(id_);
     auto children = node.GetChildren();
-    for (auto child : children) {
-        child->entity.Component<Transform>().SetDirty();
-        child->entity.Component<Transform>().UpdateChilds();
+    for (auto child_id : children) {
+        Entity child = Entity(child_id);
+        child.Component<Transform>().SetDirty();
+        child.Component<Transform>().UpdateChilds();
     }
 }
 

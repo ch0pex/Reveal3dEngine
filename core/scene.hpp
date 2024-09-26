@@ -65,7 +65,7 @@ private:
 class Scene {
 public:
     struct Node {
-        std::vector<Node*> GetChildren();
+        std::vector<id_t> GetChildren();
 
         Entity entity;
         Entity parent;
