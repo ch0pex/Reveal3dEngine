@@ -41,7 +41,7 @@ public:
     explicit Dx12(window::Resolution *res);
     void LoadPipeline();
     void LoadAssets();
-    void LoadAsset(u32 id);
+    void LoadAsset(core::Entity id);
     void Update(render::Camera &camera);
     void RenderSurface();
     void Terminate();
@@ -55,7 +55,6 @@ private:
     void InitFrameResources();
     void InitDsBuffer();
     void InitConstantBuffers();
-    void CreateRenderElement(u32 index);
     void RemoveAsset(id_t id);
 
     /****************** Factory and Device *****************/

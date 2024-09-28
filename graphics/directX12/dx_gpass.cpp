@@ -42,7 +42,8 @@ void Gpass::Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameR
 
     for (auto& renderElement : renderElements_) {
 
-        auto geometry = core::scene.ComponentPool<core::Geometry>().At(renderElement.meshId);
+        auto geometry = renderElement.entity.Component<core::Geometry>();
+        auto transform = renderElement.entity.Component<core::Transform>();
 
         for (auto &submesh : geometry.SubMeshes()) {
             if (!submesh.visible) continue;
@@ -57,8 +58,8 @@ void Gpass::Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameR
                 commandList->SetPipelineState(currPipelineState_);
             }
 
-            commandList->SetGraphicsRootConstantBufferView(0, frameResource.constantBuffer.GpuPos(id::index(renderElement.meshId)));
-            commandList->SetGraphicsRootConstantBufferView(1, frameResource.matBuffer.GpuPos(id::index(renderElement.meshId)));
+            commandList->SetGraphicsRootConstantBufferView(0, frameResource.constantBuffer.GpuPos(id::index(transform.Id())));
+            commandList->SetGraphicsRootConstantBufferView(1, frameResource.matBuffer.GpuPos(id::index(geometry.Id())));
             commandList->SetGraphicsRootConstantBufferView(2, frameResource.passBuffer.GpuStart());
 
             commandList->IASetVertexBuffers(0, 1, renderElement.vertexBuffer.View());
@@ -79,7 +80,8 @@ void Gpass::DrawWorldGrid(ID3D12GraphicsCommandList *commandList, FrameResource&
 }
 
 //NOTE change geometry to mesh when content module update
-void Gpass::AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12Device* device) {
+void Gpass::AddRenderElement(core::Entity entity, Commands& cmdMng, ID3D12Device* device) {
+    core::Geometry geometry = entity.Component<core::Geometry>();
     BufferInitInfo vertexBufferInfo = {
             .device = device,
             .cmdList = cmdMng.List(),
@@ -95,7 +97,7 @@ void Gpass::AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12De
             .format = DXGI_FORMAT_R32_UINT
     };
 
-    renderElements_.emplace_back(geometry.Id(), vertexBufferInfo, indexBufferInfo);
+    renderElements_.emplace_back(entity, vertexBufferInfo, indexBufferInfo);
 }
 
 void Gpass::RemoveRenderElement(core::Geometry geometry) {

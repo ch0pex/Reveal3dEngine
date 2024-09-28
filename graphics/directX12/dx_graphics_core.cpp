@@ -149,12 +149,13 @@ void Dx12::LoadAssets() {
     // auto& geometries = core::scene.ComponentPool<Geometry>();
     core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
 
-    core::Geometry geometry = geometries.PopNewGeometry();
+    auto entity = core::Entity(geometries.PopNew());
+    auto geometry = entity.Component<core::Geometry>();
 
     while(geometry.IsAlive()) {
         id_t idx = id::index(geometry.Id());
-        core::Transform transform = transforms.At(idx);
-        CreateRenderElement(idx);
+        auto transform = entity.Component<core::Transform>();
+        gPass_.AddRenderElement(entity, cmdManager_, device_.Get());
         Constant<PerObjectData> objConstant;
         Constant<Material> matConstant;
         for (auto & frameResource : frameResources_) {
@@ -164,7 +165,8 @@ void Dx12::LoadAssets() {
             frameResource.matBuffer.CopyData(idx, &matConstant, 1);
         }
 
-        geometry = geometries.PopNewGeometry();
+        entity = core::Entity(geometries.PopNew());
+        geometry = entity.Component<core::Geometry>();
     }
 
     cmdManager_.List()->Close();
@@ -173,9 +175,9 @@ void Dx12::LoadAssets() {
 
 }
 
-void Dx12::LoadAsset(u32 id) {
+void Dx12::LoadAsset(core::Entity entity) {
     cmdManager_.Reset(nullptr);
-    CreateRenderElement(id);
+    gPass_.AddRenderElement(entity, cmdManager_, device_.Get());
     cmdManager_.List()->Close();
     cmdManager_.Execute();
     cmdManager_.WaitForGPU();
@@ -186,8 +188,8 @@ void Dx12::Update(render::Camera &camera) {
     std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
     core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
-    core::Geometry new_geo = geometries.PopNewGeometry();
-    core::Geometry removed_geo = geometries.PopRemovedGeometry();
+    auto entityWithNewGeo = core::Entity(geometries.PopNew());
+    auto entityWithRemovedGeo = core::Entity(geometries.PopRemoved());
 
     Constant<GlobalShaderData> passConstant;
     Constant<PerObjectData> objConstant;
@@ -199,7 +201,7 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update object constants
     for (auto id : dirtyTransforms) {
-        core::Transform trans = core::scene.ComponentPool<core::Transform>().At(id);
+        core::Transform trans { id };
         objConstant.data.worldViewProj = trans.World();
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
@@ -207,21 +209,21 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update material constants
     for (auto id : dirtyMats) {
-        core::Geometry geo = core::scene.ComponentPool<core::Geometry>().At(id);
+        core::Geometry geo { id } ;
         matConstant.data.baseColor = geo.Material().baseColor;
         geo.UnDirty();
         currFrameRes.matBuffer.CopyData(id::index(id), &matConstant);
     }
 
     // Add new meshes
-    while(new_geo.IsAlive()) {
-        LoadAsset(new_geo.Id());
-        new_geo = geometries.PopNewGeometry();
+    while(entityWithNewGeo.IsAlive()) {
+        LoadAsset(entityWithNewGeo);
+        entityWithNewGeo = core::Entity(geometries.PopNew());
     }
 
-    while(removed_geo.IsAlive()) {
-        gPass_.RemoveRenderElement(removed_geo);
-        removed_geo = geometries.PopRemovedGeometry();
+    while(entityWithRemovedGeo.IsAlive()) {
+        gPass_.RemoveRenderElement(entityWithRemovedGeo.Component<core::Geometry>());
+        entityWithRemovedGeo = core::Entity(geometries.PopRemoved());
     }
 
 }
@@ -314,47 +316,6 @@ void Dx12::Terminate() {
         frameResource.matBuffer.Release();
     }
     CleanDeferredResources(heaps_);
-}
-
-void Dx12::CreateRenderElement(u32 index) {
-    auto geometry = core::scene.GetEntity(index).Component<core::Geometry>();
-
-    gPass_.AddRenderElement(geometry, cmdManager_, device_.Get());
-
-//    if (geometry.RenderInfo() == UINT_MAX) {
-//        BufferInitInfo vertexBufferInfo = {
-//                .device = device_.Get(),
-//                .cmdList = cmdManager_.List(),
-//                .data = geometry.Vertices().data(),
-//                .count = geometry.VertexCount()
-//        };
-//
-//        BufferInitInfo indexBufferInfo = {
-//                .device = device_.Get(),
-//                .cmdList = cmdManager_.List(),
-//                .data = geometry.Indices().data(),
-//                .count = geometry.IndexCount(),
-//                .format = DXGI_FORMAT_R32_UINT
-//        };
-//
-//        gPass_.AddRenderElement(vertexBufferInfo, indexBufferInfo)
-//
-//        renderElements_.emplace_back(vertexBufferInfo, indexBufferInfo);
-//        geometry.SetRenderInfo(renderElements_.size() - 1U);
-//        for (auto &subMesh: geometry.SubMeshes()) {
-//            subMesh.renderInfo = renderElements_.size() - 1U;
-//            subMesh.constantIndex = index;
-//            renderLayers_.AddMesh(subMesh);
-//        }
-//    }
-//    else {
-//        for (auto &subMesh: geometry.SubMeshes()) {
-//            subMesh.renderInfo = geometry.RenderInfo();
-//            subMesh.constantIndex = index;
-//            renderLayers_.AddMesh(subMesh);
-//        }
-//    }
-
 }
 
 void Dx12::RemoveAsset(id_t id) {

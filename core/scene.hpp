@@ -132,22 +132,26 @@ extern Scene scene;
 
 template<component T>
 T Entity::Component() {
+    if (not IsAlive()) return T();
     return scene.ComponentPool<T>().At(id_);
 }
 
 template<component T>
 T Entity::AddComponent() {
+    if (not IsAlive()) return T();
     return scene.ComponentPool<T>().AddComponent(id_);
 }
 
 template<component T>
 T Entity::AddComponent(T::InitInfo&& initInfo) {
+    if (not IsAlive()) return T();
     return scene.ComponentPool<T>().AddComponent(id_, std::forward<T::InitInfo>(initInfo));
 }
 
 template<component T>
 void Entity::RemoveComponent() {
-    scene.ComponentPool<T>().RemoveComponent(id_);
+    if (IsAlive())
+        scene.ComponentPool<T>().RemoveComponent(id_);
 }
 
 } // reveal3d::core namespace

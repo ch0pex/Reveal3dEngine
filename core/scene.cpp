@@ -71,7 +71,6 @@ Entity Scene::NewChildEntity(Entity parent) {
         firstChild.prev = childNode.entity;
         childNode.next = parentNode.firstChild;
         parentNode.firstChild = childNode.entity;
-//        childNode.next = parentNode.next;
     }
 
     sceneGraph_.push_back(childNode);

@@ -159,7 +159,7 @@ Geometry GeometryPool::AddComponent(id_t entityId) {
     materials_.emplace_back();
     dirties_.emplace_back(4);
     dirtyIds_.insert(geometryId);
-    newGeometries_.push(geometryId);
+    newGeometries_.push(entityId);
 
     Add(id::index(entityId), geometryId);
     return components_.at(id::index(entityId));
@@ -172,7 +172,7 @@ Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo
     materials_.emplace_back();
     dirties_.emplace_back(4);
     dirtyIds_.insert(geometryId);
-    newGeometries_.push(geometryId);
+    newGeometries_.push(entityId);
 
     Add(id::index(entityId), geometryId);
 
@@ -217,27 +217,22 @@ std::span<render::SubMesh> GeometryPool::SubMeshes(id_t id) {
     return std::span {subMeshes_.begin() + idx, subMeshes_.begin() + idx + 1};
 }
 
-id_t GeometryPool::PopNewGeometry(id_t id) {
-    return 0;
-}
-
-
-Geometry GeometryPool::PopNewGeometry() {
+id_t GeometryPool::PopNew() {
     if (newGeometries_.empty()) {
-        return {};
+        return id::invalid;
     }
-    auto geo = Geometry(newGeometries_.front());
+    const auto id = newGeometries_.front();
     newGeometries_.pop();
-    return geo;
+    return id;
 }
 
-Geometry GeometryPool::PopRemovedGeometry() {
+id_t GeometryPool::PopRemoved() {
     if (delGeometries_.empty()) {
-        return {};
+        return id::invalid;
     }
-    auto geo = Geometry(delGeometries_.front());
+    const auto id = delGeometries_.front();
     delGeometries_.pop();
-    return geo;
+    return id;
 }
 
 render::Material &GeometryPool::Material(id_t id) {

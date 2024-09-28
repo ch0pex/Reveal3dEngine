@@ -97,15 +97,14 @@ public:
     void Update() override;
 
     INLINE u32 Count() override { return meshes_.size(); }
-    Geometry PopNewGeometry();
-    Geometry PopRemovedGeometry();
+    id_t PopNew();
+    id_t PopRemoved();
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
 
 private:
     friend class Geometry;
     render::Mesh& Mesh(id_t id);
     std::span<render::SubMesh> SubMeshes(id_t id);
-    id_t PopNewGeometry(id_t id);
     render::Material& Material(id_t id);
 
     /************* Geometry Data ****************/

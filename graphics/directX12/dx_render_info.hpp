@@ -14,15 +14,16 @@
 #pragma once
 
 #include "resources/dx_resources.hpp"
+#include "core/scene.hpp"
 
 namespace reveal3d::graphics {
 
 struct RenderElement {
-    RenderElement(u32 id, dx12::BufferInitInfo &vertexInfo, dx12::BufferInitInfo &indexInfo);
+    RenderElement(core::Entity entity, dx12::BufferInitInfo &vertexInfo, dx12::BufferInitInfo &indexInfo);
     D3D_PRIMITIVE_TOPOLOGY topology { D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
     dx12::VertexBuffer vertexBuffer;
     dx12::IndexBuffer indexBuffer;
-    u32 meshId;
+    core::Entity entity;
 //    u32 constantIndex;
 };
 

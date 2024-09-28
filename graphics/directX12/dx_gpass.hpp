@@ -13,12 +13,13 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "dx_common.hpp"
+#include "core/components/geometry.hpp"
+#include "core/scene.hpp"
 #include "dx_commands.hpp"
+#include "dx_common.hpp"
 #include "dx_pso.hpp"
 #include "dx_render_info.hpp"
 #include "resources/dx_resources.hpp"
-#include "core/components/geometry.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
@@ -29,7 +30,7 @@ public:
     void SetRenderTargets(Commands& commandMng, FrameResource& frameResource);
     void Depth_prepass(); //TODO
     void Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
-    void AddRenderElement(core::Geometry geometry, Commands& cmdMng, ID3D12Device* device);
+    void AddRenderElement(core::Entity entity, Commands& cmdMng, ID3D12Device* device);
     void RemoveRenderElement(core::Geometry geometry);
     void Terminate();
 
