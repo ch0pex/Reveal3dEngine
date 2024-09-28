@@ -1,7 +1,0 @@
-- [x] Update camera
-- [x] Input system
-- [ ] Fix shader paths
-- [x] Load models
-- [x] Scene, transform, and geometry
-- [x] CPass
-- [x] Depth buffer
