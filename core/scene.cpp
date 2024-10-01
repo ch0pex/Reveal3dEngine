@@ -24,23 +24,33 @@ bool Entity::IsAlive() {
     return core::scene.IsEntityAlive(id_);
 }
 
-Scene::Scene() : lastNode_(id::invalid) {}
+Scene::Scene() : rootNode_(id::invalid), lastNode_(id::invalid) {}
 
 
 Entity Scene::NewEntity() {
-    Entity entity(idFactory_.New(sceneGraph_.size()));
+    Entity entity(idFactory_.New());
 
     Node node {
         .entity = entity
     };
+
+    if (not id::isValid(rootNode_)) {
+        rootNode_ = 0;
+    }
 
     if (id::isValid(lastNode_)) {
        node.prev = sceneGraph_.at(lastNode_).entity;
        sceneGraph_.at(lastNode_).next = node.entity;
     }
 
-    sceneGraph_.push_back(node);
+    if (id::index(entity.Id()) < sceneGraph_.size()) {
+        sceneGraph_.at(id::index(entity.Id())) = node;
+    } else {
+        sceneGraph_.push_back(node);
+    }
+
     lastNode_ = sceneGraph_.size() - 1U;
+    ++aliveCount_;
 
     if (!idFactory_.UseFree()) {
         transformPool_.AddComponent(entity.Id());
@@ -55,7 +65,7 @@ Entity Scene::NewChildEntity(id_t parent) { return NewChildEntity(Entity(parent)
 
 Entity Scene::NewChildEntity(Entity parent) {
 
-    Entity child(idFactory_.New(sceneGraph_.size()));
+    Entity child(idFactory_.New());
 
     Node childNode {
             .entity = child,
@@ -73,7 +83,11 @@ Entity Scene::NewChildEntity(Entity parent) {
         parentNode.firstChild = childNode.entity;
     }
 
-    sceneGraph_.push_back(childNode);
+    if (id::index(child.Id()) < sceneGraph_.size()) {
+        sceneGraph_.at(id::index(child.Id())) = childNode;
+    } else {
+        sceneGraph_.push_back(childNode);
+    }
 
     if (!idFactory_.UseFree()) {
         transformPool_.AddComponent(child.Id());
@@ -81,24 +95,52 @@ Entity Scene::NewChildEntity(Entity parent) {
         geometryPool_.AddComponent();
     }
 
+    ++aliveCount_;
     return child;
 }
 
-void Scene::RemoveEntity(id_t id) {
+Entity Scene::RemoveEntity(id_t id) {
+    Entity entity { id };
+    Entity nextOrPrev = {};
     if (idFactory_.IsAlive(id)) {
-        idFactory_.Remove(id);
+        if (IsEntityAlive(GetNode(id).next.Id())) nextOrPrev = GetNode(id).next;
+        else if (IsEntityAlive(GetNode(id).prev.Id())) nextOrPrev = GetNode(id).prev;
+        idFactory_.Remove<false>(id);
         RemoveNode(id);
         transformPool_.RemoveComponent(id);
         geometryPool_.RemoveComponent(id);
+        --aliveCount_;
     }
+    return nextOrPrev;
 }
 
 void Scene::RemoveNode(id_t id) {
     if (!id::isValid(id)) return;
-    //TODO remove childs
-    sceneGraph_.erase(sceneGraph_.begin() + id::index(id));
+//    TODO remove childs
+//    sceneGraph_.erase(sceneGraph_.begin() + id::index(id));
+    Node& node = GetNode(id);
 
+    if (node.prev.IsAlive()) {
+        Node& prevNode = GetNode(node.prev.Id());
+        prevNode.next = node.next;
+    } else {
+       //Change root node
+       rootNode_ = node.next.IsAlive() ? node.next.Id() : id::invalid;
+    }
 
+    if (node.next.IsAlive()) {
+        Node& nextNode = GetNode(node.next.Id());
+        nextNode.prev = node.prev;
+    } else {
+        lastNode_ = node.prev.IsAlive() ? node.prev.Id() : id::invalid;
+    }
+
+    if (node.firstChild.IsAlive()) {
+        auto children = node.GetChildren();
+        for (auto child : children) {
+            RemoveNode(child);
+        }
+    }
 }
 
 bool Scene::IsEntityAlive(id_t id) {

@@ -185,7 +185,7 @@ Transform TransformPool::AddComponent(id_t id) {
 }
 
 Transform TransformPool::AddComponent(id_t entityId, Transform::Data &&initInfo) {
-    id_t transformId {id_factory_.New(transform_data_.size())};
+    id_t transformId {id_factory_.New()};
 
     transform_data_.push_back(std::move(initInfo));
     Transform::Data& data = transform_data_.at(Count() - 1);
@@ -200,7 +200,7 @@ Transform TransformPool::AddComponent(id_t entityId, Transform::Data &&initInfo)
 }
 
 Transform TransformPool::AddChildComponent(id_t entityId, math::mat4 &parentWorld) {
-    id_t transformId{ id_factory_.New(transform_data_.size()) };
+    id_t transformId{ id_factory_.New() };
 
     transform_data_.at(id::index(transformId)) = Transform::Data();
     world_.at(id::index(transformId)) = math::Mat4Identity();
@@ -214,16 +214,16 @@ Transform TransformPool::AddChildComponent(id_t entityId, math::mat4 &parentWorl
 
 //NOTE all entities must have transform for now
 void TransformPool::RemoveComponent(id_t id) {
-    id_t idx { id::index(id) };
+    id_t transform_id { components_.at(id::index(id)).Id() };
     if (id_factory_.IsAlive(id)) {
-        transform_data_.unordered_remove(idx);
-        world_.unordered_remove(idx);
-        invWorld_.unordered_remove(idx);
-        dirties_.unordered_remove(idx);
-        if (dirtyIds_.find(id) != dirtyIds_.end()) {
-            dirtyIds_.erase(id);
+        transform_data_.unordered_remove(id::index(transform_id));
+        world_.unordered_remove(id::index(transform_id));
+        invWorld_.unordered_remove(id::index(transform_id));
+        dirties_.unordered_remove(id::index(transform_id));
+        if (dirtyIds_.find(transform_id) != dirtyIds_.end()) {
+            dirtyIds_.erase(transform_id);
         }
-        Remove(id);
+        Remove(transform_id);
     }
 }
 

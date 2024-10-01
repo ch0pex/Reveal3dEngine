@@ -36,7 +36,7 @@ MetadataPool &Metadata::Pool(){
 }
 
 Metadata MetadataPool::AddComponent(id_t id) {
-    const id_t metadata_id { id_factory_.New(names_.size()) };
+    const id_t metadata_id { id_factory_.New() };
 
     names_.emplace_back("Entity" + std::to_string(id));
     comments_.emplace_back();
@@ -48,7 +48,7 @@ Metadata MetadataPool::AddComponent(id_t id) {
 }
 
 Metadata MetadataPool::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
-    const id_t metadata_id { id_factory_.New(names_.size()) };
+    const id_t metadata_id { id_factory_.New() };
 
     names_.emplace_back(std::move(initInfo));
     comments_.emplace_back();

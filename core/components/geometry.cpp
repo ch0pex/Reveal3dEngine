@@ -152,7 +152,7 @@ Geometry GeometryPool::AddComponent() {
 }
 
 Geometry GeometryPool::AddComponent(id_t entityId) {
-    const id_t geometryId{ id_factory_.New(meshes_.size()) };
+    const id_t geometryId{ id_factory_.New() };
 
     meshes_.emplace_back();
     subMeshes_.emplace_back();
@@ -166,7 +166,7 @@ Geometry GeometryPool::AddComponent(id_t entityId) {
 }
 
 Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
-    const id_t geometryId{ id_factory_.New(meshes_.size()) };
+    const id_t geometryId{ id_factory_.New() };
 
     meshes_.push_back(std::move(initInfo));
     materials_.emplace_back();
@@ -189,17 +189,17 @@ Geometry GeometryPool::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo
 }
 
 void GeometryPool::RemoveComponent(id_t id) {
-    id_t idx { id::index(id) };
+    id_t geometry_id { components_.at(id::index(id)).Id() };
     if (id_factory_.IsAlive(id)) {
-        materials_.unordered_remove(idx);
-        meshes_.unordered_remove(idx);
-        subMeshes_.unordered_remove(idx);
-        dirties_.unordered_remove(idx);
-        if (dirtyIds_.find(id) != dirtyIds_.end()) {
-            dirtyIds_.erase(id);
+        materials_.unordered_remove(id::index(geometry_id));
+        meshes_.unordered_remove(id::index(geometry_id));
+        subMeshes_.unordered_remove(id::index(geometry_id));
+        dirties_.unordered_remove(id::index(geometry_id));
+        if (dirtyIds_.find(geometry_id) != dirtyIds_.end()) {
+            dirtyIds_.erase(geometry_id);
         }
-        delGeometries_.push(id);
-        Remove(id);
+        delGeometries_.push(geometry_id);
+        Remove(geometry_id);
     }
 }
 

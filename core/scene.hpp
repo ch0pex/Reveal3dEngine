@@ -66,7 +66,6 @@ class Scene {
 public:
     struct Node {
         std::vector<id_t> GetChildren();
-
         Entity entity;
         Entity parent;
         Entity firstChild;
@@ -79,15 +78,15 @@ public:
     Entity NewEntity();
     Entity NewChildEntity(Entity parent);
     Entity NewChildEntity(id_t parent);
-    void   RemoveEntity(id_t id);
+    Entity RemoveEntity(id_t id);
     bool   IsEntityAlive(id_t id);
 
     /******************************* Scene Graph methods ******************************/
     [[nodiscard]] INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
-    [[nodiscard]] INLINE u32 NumEntities() const { return sceneGraph_.size(); }
+    [[nodiscard]] INLINE u32 Count() const { return aliveCount_; }
     INLINE Entity GetEntity(id_t id) { return sceneGraph_.at(id::index(id)).entity; }
     INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
-    INLINE Node& Root() { return sceneGraph_.at(0); }
+    INLINE Node& Root() { return sceneGraph_.at(rootNode_); }
 
     template<component T>
     decltype(auto) ComponentPool() noexcept;
@@ -102,7 +101,9 @@ private:
 
     id::Factory                 idFactory_;
     std::vector<Scene::Node>    sceneGraph_;
-    id_t                        lastNode_;
+    u32                         rootNode_;
+    u32                         lastNode_;
+    u32 aliveCount_;
 
     /*********** Components Pools  *************/
 

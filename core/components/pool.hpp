@@ -24,7 +24,7 @@ template<typename T>
 class Pool {
 public:
     virtual T AddComponent(id_t id) = 0;
-    virtual void RemoveComponent(id_t id) = 0;
+    virtual void RemoveComponent(id_t entity_id) = 0;
     virtual void Update() = 0;
     virtual u32  Count() = 0;
 
@@ -43,10 +43,12 @@ protected:
     }
 
     void Remove(id_t id) {
-        id_t last { id_factory_.Back() };
-        id_factory_.Remove(id);
-        components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
+        auto last = id_factory_.Back();
+        if (last != id) {
+            components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
+        }
         components_.at(id::index(id)) = T(id::invalid);
+        id_factory_.Remove(id);
     }
 
     /************* Components IDs ****************/
