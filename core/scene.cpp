@@ -141,6 +141,7 @@ void Scene::RemoveNode(id_t id) {
             RemoveNode(child);
         }
     }
+    node.entity = {};
 }
 
 bool Scene::IsEntityAlive(id_t id) {

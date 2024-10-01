@@ -30,7 +30,7 @@ std::string RenderLayers::ReadShader(const char *fileName) {
     std::string shader_code;
     std::ifstream file(fileName, std::ios::in);
     if (!file.good()) {
-        log(logERROR) << "Could not read Shader...";
+        logger(logERROR) << "Could not read Shader...";
         std::terminate();
     }
 
@@ -56,7 +56,7 @@ u32 RenderLayers::CreateShader(GLenum shaderType, std::string &source, const cha
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
         std::vector<char> shader_log(info_log_length);
         glGetShaderInfoLog(shader, info_log_length, NULL, shader_log.data());
-        log(logDEBUG) << "Error compiling Shader: " << shader_log.data();
+        logger(logDEBUG) << "Error compiling Shader: " << shader_log.data();
         return 0;
     }
     return shader;

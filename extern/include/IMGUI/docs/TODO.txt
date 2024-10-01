@@ -82,12 +82,12 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - input text: allow centering/positioning text so that ctrl+clicking Drag or Slider keeps the textual value at the same pixel position.
  - input text: decorrelate display layout from inputs with custom template - e.g. what's the easiest way to implement a nice IP/Mac address input editor?
  - input text: global callback system so user can plug in an expression evaluator easily. (#1691)
- - input text: force scroll to end or scroll to a given line/contents (so user can implement a log or a search feature)
+ - input text: force scroll to end or scroll to a given line/contents (so user can implement a logger or a search feature)
  - input text: a way to preview completion (e.g. disabled text completing from the cursor)
  - input text: a side bar that could e.g. preview where errors are. probably left to the user to draw but we'd need to give them the info there.
  - input text: a way for the user to provide syntax coloring.
  - input text: Shift+TAB with ImGuiInputTextFlags_AllowTabInput could eat preceding blanks, up to tab_count.
- - input text multi-line: don't directly call AddText() which does an unnecessary vertex reserve for character count prior to clipping. and/or more line-based clipping to AddText(). and/or reorganize TextUnformatted/RenderText for more efficiency for large text (e.g TextUnformatted could clip and log separately, etc).
+ - input text multi-line: don't directly call AddText() which does an unnecessary vertex reserve for character count prior to clipping. and/or more line-based clipping to AddText(). and/or reorganize TextUnformatted/RenderText for more efficiency for large text (e.g TextUnformatted could clip and logger separately, etc).
  - input text multi-line: support for copy/cut without selection (copy/cut current line?)
  - input text multi-line: line numbers? status bar? (follow up on #200)
  - input text multi-line: behave better when user changes input buffer while editing is active (even though it is illegal behavior). namely, the change of buffer can create a scrollbar glitch (#725)
@@ -236,13 +236,13 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - style: gradients fill (#1223) ~ 2 bg colors for each fill? tricky with rounded shapes and using textures for corners.
  - style editor: color child window height expressed in multiple of line height.
 
- - log: improve logging of ArrowButton, ListBox, TabItem
- - log: carry on indent / tree depth when opening a child window
- - log: enabling log ends up pushing and growing vertices buffers because we don't distinguish layout vs render clipping
- - log: have more control over the log scope (e.g. stop logging when leaving current tree node scope)
- - log: be able to log anything (e.g. right-click on a window/tree-node, shows context menu? log into tty/file/clipboard)
- - log: let user copy any window content to clipboard easily (CTRL+C on windows? while moving it? context menu?). code is commented because it fails with multiple Begin/End pairs.
- - log: obsolete LogButtons().... (was: LogButtons() options for specifying depth and/or hiding depth slider)
+ - logger: improve logging of ArrowButton, ListBox, TabItem
+ - logger: carry on indent / tree depth when opening a child window
+ - logger: enabling logger ends up pushing and growing vertices buffers because we don't distinguish layout vs render clipping
+ - logger: have more control over the logger scope (e.g. stop logging when leaving current tree node scope)
+ - logger: be able to logger anything (e.g. right-click on a window/tree-node, shows context menu? logger into tty/file/clipboard)
+ - logger: let user copy any window content to clipboard easily (CTRL+C on windows? while moving it? context menu?). code is commented because it fails with multiple Begin/End pairs.
+ - logger: obsolete LogButtons().... (was: LogButtons() options for specifying depth and/or hiding depth slider)
 
  - filters: set a current filter that certains items (e.g. tree node) can automatically query to hide themselves
  - filters: handle wild-cards (with implicit leading/trailing *), reg-exprs

@@ -18,6 +18,9 @@
 #include <iostream>
 #include <sstream>
 
+namespace reveal3d {
+
+}
 
 enum LogLevel {
     logERROR = 0,
@@ -49,7 +52,7 @@ private:
 
 extern LogLevel loglevel;
 
-#define log(level) \
+#define logger(level) \
 if (level > loglevel) ; \
 else Logger(level)
 

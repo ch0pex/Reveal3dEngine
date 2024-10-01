@@ -53,7 +53,7 @@ Other changes:
  VERSION 1.90.7 (Released 2024-05-27)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.7
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.7
 
 Breaking changes:
 
@@ -169,7 +169,7 @@ Docking+Viewports Branch:
  VERSION 1.90.6 (Released 2024-05-08)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.6
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.6
 
 Breaking changes:
 
@@ -239,7 +239,7 @@ Docking+Viewports Branch:
  VERSION 1.90.5 (Released 2024-04-11)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.5
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.5
 
 Breaking changes:
 
@@ -300,7 +300,7 @@ Docking+Viewports Branch:
  VERSION 1.90.4 (Released 2024-02-22)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.4
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.4
 
 Other changes:
 
@@ -340,7 +340,7 @@ Docking+Viewports Branch:
  VERSION 1.90.3 (Released 2024-02-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.3
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.3
 
 Breaking changes:
 
@@ -375,7 +375,7 @@ Other changes:
  VERSION 1.90.2 (Released 2024-02-09)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.2
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.2
 
 Breaking changes:
 
@@ -440,7 +440,7 @@ Docking+Viewports Branch:
  VERSION 1.90.1 (Released 2024-01-10)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.1
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90.1
 
 Breaking changes:
 
@@ -497,12 +497,12 @@ Other changes:
   - Added io.ConfigDebugIsDebuggerPresent option. When enabled, this adds buttons in various
     locations of Metrics/Debugger to manually request a debugger break:
     - Request a debug break in a Begin() call.
-    - Request a debug break in a ItemAdd() call via debug log and hovering 0xXXXXXX identifiers.
+    - Request a debug break in a ItemAdd() call via debug logger and hovering 0xXXXXXX identifiers.
     - Request a debug break in a BeginTable() call.
     - Request a debug break in a SetShortcutRouting()/Shortcut() call. [Internal]
   - Metrics: Reorganize Tools menu.
   - Added DebugFlashStyleColor() to identify a style color. Added to Style Editor.
-  - Debug Log: Hide its own clipper log to reduce noise in the output. (#5855)
+  - Debug Log: Hide its own clipper logger to reduce noise in the output. (#5855)
   - Debug Log: Clicking any filter with SHIFT held enables it for 2 frames only,
     making it easier when dealing with spammy logs. (#5855)
 - Settings: Fixed an issue marking settings as dirty when merely clicking on a border or resize
@@ -553,7 +553,7 @@ Docking+Viewports Branch:
  VERSION 1.90.0 (Released 2023-11-15)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.90
 
 Breaking changes:
 
@@ -725,7 +725,7 @@ Other changes:
 - IO: Add extra keys to ImGuiKey enum: ImGuiKey_F13 to ImGuiKey_F24. (#6891, #4921)
 - IO: Add extra keys to ImGuiKey enum: ImGuiKey_AppBack, ImGuiKey_AppForward. (#4921)
 - IO: Setting io.WantSetMousePos ignores incoming MousePos events. (#6837, #228) [@bertaye]
-- Debug Tools: Metrics: Added log of recent alloc/free calls.
+- Debug Tools: Metrics: Added logger of recent alloc/free calls.
 - Debug Tools: Metrics: Added "Show groups rectangles" in tools.
 - ImDrawList: Added AddEllipse(), AddEllipseFilled(), PathEllipticalArcTo(). (#2743) [@Doohl]
 - ImVector: Added find_index() helper.
@@ -789,7 +789,7 @@ Docking+Viewports Branch:
  VERSION 1.89.9 (Released 2023-09-04)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.9
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.9
 
 Breaking changes:
 
@@ -851,7 +851,7 @@ Docking+Viewports Branch:
  VERSION 1.89.8 (Released 2023-08-01)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.8
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.8
 
 Breaking changes:
 
@@ -929,7 +929,7 @@ Docking+Viewports Branch:
  VERSION 1.89.7 (Released 2023-07-04)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.7
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.7
 
 Breaking changes:
 
@@ -1041,7 +1041,7 @@ Docking+Viewports Branch:
  VERSION 1.89.6 (Released 2023-05-31)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.6
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.6
 
 Breaking changes:
 
@@ -1127,7 +1127,7 @@ Docking+Viewports Branch:
  VERSION 1.89.5 (Released 2023-04-13)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.5
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.5
 
 Other changes:
 
@@ -1209,7 +1209,7 @@ Docking+Viewports Branch:
  VERSION 1.89.4 (Released 2023-03-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.4
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.4
 
 Breaking Changes:
 
@@ -1282,7 +1282,7 @@ Other changes:
  VERSION 1.89.3 (Released 2023-02-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.3
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.3
 
 Breaking Changes:
 
@@ -1387,7 +1387,7 @@ Docking+Viewports Branch:
  VERSION 1.89.2 (Released 2023-01-05)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.2
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.2
 
 All changes:
 
@@ -1448,7 +1448,7 @@ Docking+Viewports Branch:
  VERSION 1.89.1 (Released 2022-11-24)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.1
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89.1
 
 Other changes:
 
@@ -1481,7 +1481,7 @@ Docking+Viewports Branch:
  VERSION 1.89 (Released 2022-11-15)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.89
 
 Breaking changes:
 
@@ -1689,7 +1689,7 @@ Docking+Viewports Branch:
  VERSION 1.88 (Released 2022-06-21)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.88
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.88
 
 Breaking changes:
 
@@ -1777,7 +1777,7 @@ Other Changes:
 - DrawList: Fixed texture-based anti-aliasing path with RGBA textures (#5132, #3245) [@cfillion]
 - DrawList: Fixed divide-by-zero or glitches with Radius/Rounding values close to zero. (#5249, #5293, #3491)
 - DrawList: Circle with a radius smaller than 0.5f won't appear, to be consistent with other primitives. [@thedmd]
-- Debug Tools: Debug Log: Added ShowDebugLogWindow() showing an opt-in synthetic log of principal events
+- Debug Tools: Debug Log: Added ShowDebugLogWindow() showing an opt-in synthetic logger of principal events
   (focus, popup, active id changes) helping to diagnose issues.
 - Debug Tools: Added DebugTextEncoding() function to facilitate diagnosing issues when not sure about
   whether you have a UTF-8 text encoding issue or a font loading issue. [@LaMarche05, @ocornut]
@@ -1843,7 +1843,7 @@ Docking+Viewports Branch:
  VERSION 1.87 (Released 2022-02-07)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.87
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.87
 
 Breaking Changes:
 
@@ -2008,7 +2008,7 @@ Docking+Viewports Branch:
  VERSION 1.86 (Released 2021-12-22)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.86
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.86
 
 Breaking Changes:
 
@@ -2124,7 +2124,7 @@ Docking+Viewports Branch:
  VERSION 1.85 (Released 2021-10-12)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.85
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.85
 
 This is the last release officially supporting C++03 and Visual Studio 2008/2010. (#4537)
 We expect that the next release will require a subset of the C++11 language (VS 2012~, GCC 4.8.1, Clang 3.3).
@@ -2242,7 +2242,7 @@ Docking+Viewports Branch:
  VERSION 1.84.2 (Released 2021-08-23)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84.2
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84.2
 
 - Disabled: Fixed nested BeginDisabled()/EndDisabled() calls. (#211, #4452, #4453, #4462) [@Legulysse]
 - Backends: OpenGL3: OpenGL: Fixed ES 3.0 shader ("#version 300 es") to use normal precision
@@ -2253,7 +2253,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.84.1 (Released 2021-08-20)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84.1
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84.1
 
 - Disabled: Fixed BeginDisabled(false) - BeginDisabled(true) was working. (#211, #4452, #4453)
 
@@ -2262,7 +2262,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.84 (Released 2021-08-20)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.84
 
 Breaking Changes:
 
@@ -2397,7 +2397,7 @@ Docking+Viewports Branch:
  VERSION 1.83 (Released 2021-05-24)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.83
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.83
 
 Breaking Changes:
 
@@ -2497,7 +2497,7 @@ Docking+Viewports Branch:
  VERSION 1.82 (Released 2021-02-15)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.82
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.82
 
 Breaking Changes:
 
@@ -2599,7 +2599,7 @@ Docking+Viewports Branch:
  VERSION 1.81 (Released 2021-02-10)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.81
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.81
 
 Breaking Changes:
 
@@ -2691,7 +2691,7 @@ Docking+Viewports Branch:
  VERSION 1.80 (Released 2021-01-21)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.80
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.80
 
 Breaking Changes:
 
@@ -2818,7 +2818,7 @@ Docking+Viewports Branch:
  VERSION 1.79 (Released 2020-10-08)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.79
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.79
 
 Breaking Changes:
 
@@ -2927,7 +2927,7 @@ Docking+Viewports Branch:
  VERSION 1.78 (Released 2020-08-18)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.78
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.78
 
 Breaking Changes:
 
@@ -3045,7 +3045,7 @@ Docking+Viewports Branch:
  VERSION 1.77 (Released 2020-06-29)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.77
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.77
 
 Breaking Changes:
 
@@ -3147,7 +3147,7 @@ Docking+Viewports Branch:
  VERSION 1.76 (Released 2020-04-12)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.76
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.76
 
 Other Changes:
 
@@ -3233,7 +3233,7 @@ Docking+Viewports Branch:
  VERSION 1.75 (Released 2020-02-10)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.75
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.75
 
 Breaking Changes:
 
@@ -3346,7 +3346,7 @@ Docking+Viewports Branch:
  VERSION 1.74 (Released 2019-11-25)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.74
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.74
 
 Breaking Changes:
 
@@ -3433,7 +3433,7 @@ Docking+Viewports Branch:
  VERSION 1.73 (Released 2019-09-24)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.73
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.73
 
 Other Changes:
 
@@ -3517,7 +3517,7 @@ Docking+Viewports Branch:
  VERSION 1.72b (Released 2019-07-31)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.72b
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.72b
 
 Other Changes:
 
@@ -3534,7 +3534,7 @@ Other Changes:
  VERSION 1.72 (Released 2019-07-27)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.72
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.72
 
 Breaking Changes:
 
@@ -3638,7 +3638,7 @@ Docking+Viewports Branch:
  VERSION 1.71 (Released 2019-06-12)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.71
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.71
 
 Breaking Changes:
 
@@ -3693,7 +3693,7 @@ Other Changes:
 - Style: Added style.WindowMenuButtonPosition (left/right, defaults to ImGuiDir_Left) to move the
   collapsing/docking button to the other side of the title bar.
 - Style: Made window close button cross slightly smaller.
-- Log/Capture: Fixed BeginTabItem() label not being included in a text log/capture.
+- Log/Capture: Fixed BeginTabItem() label not being included in a text logger/capture.
 - ImDrawList: Added ImDrawCmd::VtxOffset value to support large meshes (64k+ vertices) using 16-bit indices.
   The renderer backend needs to set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset' to enable
   this, and honor the ImDrawCmd::VtxOffset field. Otherwise the value will always be zero. (#2591)
@@ -3722,7 +3722,7 @@ Other Changes:
  VERSION 1.70 (Released 2019-05-06)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.70
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.70
 
 Breaking Changes:
 
@@ -3813,7 +3813,7 @@ Other Changes:
  VERSION 1.69 (Released 2019-03-13)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.69
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.69
 
 Breaking Changes:
 
@@ -3891,7 +3891,7 @@ Other Changes:
  VERSION 1.68 (Released 2019-02-19)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.68
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.68
 
 Breaking Changes:
 
@@ -3961,7 +3961,7 @@ Other Changes:
  VERSION 1.67 (Released 2019-01-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.67
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.67
 
 Breaking Changes:
 
@@ -4003,7 +4003,7 @@ Other Changes:
   to the user call site (instead of being reported in EndFrame). Past the assert, they don't lead to crashes any more. (#1651)
   Missing calls to End(), past the assert, should not lead to crashes or to the fallback Debug window appearing on screen.
   Those changes makes it easier to integrate dear imgui with a scripting language allowing, given asserts are redirected
-  into e.g. an error log and stopping the script execution.
+  into e.g. an error logger and stopping the script execution.
 - ImFontAtlas: Stb and FreeType: Atlas width is now properly based on total surface_ rather than glyph count (unless overridden with TexDesiredWidth).
 - ImFontAtlas: Stb and FreeType: Fixed atlas builder so missing glyphs won't influence the atlas texture width. (#2233)
 - ImFontAtlas: Stb and FreeType: Fixed atlas builder so duplicate glyphs (when merging fonts) won't be included in the rasterized atlas.
@@ -4027,7 +4027,7 @@ Other Changes:
  VERSION 1.66b (Released 2018-12-01)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.66b
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.66b
 
 Other Changes:
 
@@ -4046,7 +4046,7 @@ Other Changes:
  VERSION 1.66 (Released 2018-11-22)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.66
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.66
 
 Breaking Changes:
 
@@ -4107,7 +4107,7 @@ Other Changes:
  VERSION 1.65 (Released 2018-09-06)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.65
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.65
 
 Breaking Changes:
 
@@ -4133,7 +4133,7 @@ Other Changes:
  VERSION 1.64 (Released 2018-08-31)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.64
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.64
 
 Changes:
 
@@ -4157,7 +4157,7 @@ Changes:
  VERSION 1.63 (Released 2018-08-29)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.63
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.63
 
 Breaking Changes:
 
@@ -4251,7 +4251,7 @@ Other Changes:
  VERSION 1.62 (Released 2018-06-22)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.62
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.62
 
 Breaking Changes:
 
@@ -4332,7 +4332,7 @@ Other Changes:
  VERSION 1.61 (Released 2018-05-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.61
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.61
 
 Breaking Changes:
 
@@ -4408,7 +4408,7 @@ Other Changes:
  VERSION 1.60 (Released 2018-04-07)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.60
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.60
 
 The gamepad/keyboard navigation branch (which has been in the work since July 2016) has been merged.
 Gamepad/keyboard navigation is still marked as Beta and has to be enabled explicitly.
@@ -4574,7 +4574,7 @@ Other Changes:
  VERSION 1.53 (Released 2017-12-25)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.53
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.53
 
 Breaking Changes:
 
@@ -4713,7 +4713,7 @@ Other Changes:
  VERSION 1.52 (2017-10-27)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.52
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.52
 
 Breaking Changes:
 
@@ -4819,7 +4819,7 @@ Beta Navigation Branch:
  VERSION 1.51 (2017-08-24)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.51
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.51
 
 Breaking Changes:
 
@@ -4883,7 +4883,7 @@ Other Changes:
  VERSION 1.50 (2017-06-02)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.50
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.50
 
 Breaking Changes:
 
@@ -4979,7 +4979,7 @@ Other Changes:
  VERSION 1.49 (2016-05-09)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.49
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.49
 
 Breaking Changes:
 
@@ -5057,7 +5057,7 @@ Other changes:
  VERSION 1.48 (2016-04-09)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.48
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.48
 
 Breaking Changes:
 
@@ -5127,7 +5127,7 @@ Other Changes:
  VERSION 1.47 (2015-12-25)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.47
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.47
 
 Changes:
 
@@ -5180,7 +5180,7 @@ Changes:
  VERSION 1.46 (2015-10-18)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.46
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.46
 
 Changes:
 
@@ -5232,7 +5232,7 @@ Changes:
  VERSION 1.45 (2015-09-01)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.45
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.45
 
 Breaking Changes:
 
@@ -5275,7 +5275,7 @@ Other Changes:
 - InputText(): ignore character input when ctrl/alt are held. (Normally those text input are ignored by most wrappers.) (#279).
 - Demo: Fixed incorrectly formed string passed to Combo (#298).
 - Demo: Added simple Log demo.
-- Demo: Added horizontal scrolling example + enabled in console, log and child examples (#246).
+- Demo: Added horizontal scrolling example + enabled in console, logger and child examples (#246).
 - Style: made scrollbars rounded by default. Because nice. Minor menu bar background alpha tweak. (#246)
 - Metrics: display indices along with triangles count (#299) and some internal state.
 - ImGuiTextFilter::PassFilter() supports string range. Added [] helper to ImGuiTextBuffer.
@@ -5292,7 +5292,7 @@ Other Changes:
  VERSION 1.44 (2015-08-08)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.44
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.44
 
 Breaking Changes:
 
@@ -5336,7 +5336,7 @@ Other Changes:
  VERSION 1.43 (2015-07-17)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.43
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.43
 
 Breaking Changes:
 
@@ -5408,7 +5408,7 @@ Other Changes:
  VERSION 1.42 (2015-07-08)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.42
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.42
 
 Breaking Changes:
 
@@ -5453,7 +5453,7 @@ Other Changes:
  VERSION 1.41 (2015-06-26)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.41
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.41
 
 Breaking Changes:
 
@@ -5497,7 +5497,7 @@ Other Changes:
  VERSION 1.40 (2015-05-31)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.40
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.40
 
 Breaking Changes:
 
@@ -5589,7 +5589,7 @@ Other Changes:
  VERSION 1.38 (2015-04-20)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.38
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.38
 
 Breaking Changes:
 
@@ -5607,7 +5607,7 @@ Other Changes:
 - Added ImFontAtlas::AddFontFromCompressedTTF() helper + binary_to_compressed_c.cpp tool to compress a file and create a .c array from it.
 - Added PushId() GetId() variants that takes string range to avoid user making unnecessary copies.
 - Added IsItemVisible().
-- Fixed IsRectClipped() incorrectly returning false when log is enabled.
+- Fixed IsRectClipped() incorrectly returning false when logger is enabled.
 - Slider: visual fix in the unlikely that style.GrabMinSize is larger than a slider.
 - SliderFloat: removed support for unbound slider (using FLT_MAX), caused various inconsistency. Use InputFloat()/DragFloat().
 - ColorEdit4: hide components prefix if there's no space for them.
@@ -5635,7 +5635,7 @@ Other Changes:
  VERSION 1.37 (2015-03-26)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.37
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.37
 
 Other Changes:
 
@@ -5685,7 +5685,7 @@ Other Changes:
  VERSION 1.36 (2015-03-18)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.36
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.36
 
 Other Changes:
 
@@ -5707,7 +5707,7 @@ Other Changes:
 - Sliders: Fast-path when power=1.0f, also makes code easier to read.
 - Sliders: Fixed parsing of decimal precision back from format string when using %%.
 - Sliders: Fixed hovering bounding test excluding padding between outer frame and grab (there was a few pixels dead-zone).
-- Separator() logs itself as text when passing through text log.
+- Separator() logs itself as text when passing through text logger.
 - Optimisation: TreeNodeV() early out if SkipItems is set without formatting.
 - Moved various static buffers into state. Increase the formatted string buffer from 1K to 3K.
 - Examples: Example console keeps focus on input box at all times.
@@ -5723,7 +5723,7 @@ Other Changes:
  VERSION 1.35 (2015-03-09)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.35
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.35
 
 Other Changes:
 
@@ -5755,7 +5755,7 @@ Other Changes:
  VERSION 1.34 (2015-03-02)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.34
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.34
 
 Other Changes:
 
@@ -5778,7 +5778,7 @@ Other Changes:
  VERSION 1.33b (2015-02-23)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.33b
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.33b
 
 Other Changes:
 
@@ -5789,7 +5789,7 @@ Other Changes:
  VERSION 1.33 (2015-02-22)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.33
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.33
 
 Other Changes:
 
@@ -5814,7 +5814,7 @@ Other Changes:
  VERSION 1.32 (2015-02-11)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.32
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.32
 
 Other Changes:
 
@@ -5837,7 +5837,7 @@ Other Changes:
  VERSION 1.31 (2015-02-08)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.31
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.31
 
 Other Changes:
 
@@ -5862,7 +5862,7 @@ Other Changes:
  VERSION 1.30 (2015-02-01)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.30
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.30
 
 Breaking Changes:
 
@@ -5915,7 +5915,7 @@ Other Changes:
  VERSION 1.20 (2015-01-07)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.20
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.20
 
 - Fixed InputInt() InputFloat() label not declaring their width, breaking usage of SameLine().
 - Fixed hovering of combo boxes that extend beyond the parent window limits.
@@ -5934,7 +5934,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.19 (2014-12-30)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.19
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.19
 
 - Tightening default style a little.
 - Added ImGuiStyleVar_WindowRounding enum for PushStyleVar() API.
@@ -5943,7 +5943,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
 - Fixed crashing with zero sized frame-buffer.
 - Fixed ImGui::Combo() not registering its size properly when clipped out of screen.
 - Renamed second parameter to Begin() to 'bool* p_opened' to be a little more self-explanatory. Added more comments on the use of Begin().
-- Logging: Added LogText() to pass text straight to the log output (tty/clipboard/file) without rendering it.
+- Logging: Added LogText() to pass text straight to the logger output (tty/clipboard/file) without rendering it.
 - Logging: Added LogFinish() to stop logging at an arbitrary point.
 - Logging: Log depth padding relative to start depth.
 - Logging: Tree nodes and headers looking better when logged to text.
@@ -5957,7 +5957,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.18 (2014-12-11)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.18
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.18
 
 - Added ImGuiWindowFlags_NoScrollWithMouse, disable mouse wheel scrolling on a window.
 - Added ImGuiWindowFlags_NoSavedSettings, disable loading/saving window state to .ini file.
@@ -5978,7 +5978,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.17 (2014-12-03)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.17
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.17
 
 - Added ImGuiWindowFlags_AlwaysAutoResize + example app.
 - Calling ImGui::SetWindowSize(0,0) force an autofit without zero-sizing first.
@@ -5999,7 +5999,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.16b (2014-11-21)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.16b
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.16b
 
 - Fix broken PopStyleVar() crashing.
 
@@ -6008,7 +6008,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.16 (2014-11-21)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.16
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.16
 
 - General fixing of Columns API to allow filling a cell with multiple widgets before switching to the next column.
 - Added documentation INDEX to top of imgui.cpp.
@@ -6028,7 +6028,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.15 (2014-11-07)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.15
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.15
 
 - Renamed IsHovered() to IsItemHovered().
 - Added word-wrapping API: TextWrapped(), PushTextWrapPos(), PopTextWrapPos().
@@ -6048,7 +6048,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.14 (2014-10-25)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.14
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.14
 
 - Comments and fixes.
 - Added SetKeyboardFocusHere() to set input focus from code.
@@ -6061,7 +6061,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.13 (2014-09-30)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.13
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.13
 
 - Added support for UTF-8 for international text display and text edition/input (if the font supports it).
 - Added sample "M+ font" by Coji Morishita in extra_fonts/ to display Japanese text.
@@ -6075,7 +6075,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.12 (2014-09-24)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.12
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.12
 
 - Added IO.FontBaseScale value for easy scaling of all windows.
 - Added IsMouseHoveringWindow(), IsMouseHoveringAnyWindow(), IsPosHoveringAnyWindow() helpers.
@@ -6090,7 +6090,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.11 (2014-09-10)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.11
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.11
 
 - Added more comments in the code.
 - Made radio buttons render ascii when logged into tty/file/clipboard.
@@ -6103,7 +6103,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.10 (2014-08-31)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.10
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.10
 
 - User can override memory allocators by #define-ing IM_MALLOC, IM_FREE, IM_REALLOC,
 - Added SetCursorPosX(), SetCursorPosY() shortcuts.
@@ -6117,7 +6117,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.09 (2014-08-28)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.09
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.09
 
 Breaking Changes:
 
@@ -6134,7 +6134,7 @@ Other Changes:
  VERSION 1.08 (2014-08-25)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.08
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.08
 
 - Fixed ImGuiTextFilter trimming of leading/trailing blanks.
 - Fixed file descriptor leak on LoadSettings() failure.
@@ -6149,7 +6149,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.07 (2014-08-18)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.07
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.07
 
 - Added InputFloat4(), SliderFloat4() helpers.
 - Added global Alpha in ImGuiStyle structure. When Alpha=0.0, ImGui skips most of logic and all rendering processing.
@@ -6164,7 +6164,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.06 (2014-08-15)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.06
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.06
 
 - Added BeginTooltip()/EndTooltip() helpers to create tooltips with custom contents.
 - Added TextColored() helper.
@@ -6182,7 +6182,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.05 (2014-08-14)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.05
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.05
 
 - Added default clipboard functions for Windows + "private" clipboard on other systems (user can still override).
 - Fixed logarithmic sliders and HSV conversions on Mac/Linux.
@@ -6196,7 +6196,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.04 (2014-08-13)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.04
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.04
 
 - Fixes (v1.03 introduced a bug with combo box & scissoring bug OpenGL sample).
 - Added ImGui::InputFloat2() and ImGui::SliderFloat2() functions.
@@ -6206,7 +6206,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.03 (2014-08-13)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.03
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.03
 
 - OpenGL example now use the fixed function-pipeline + cleanups, down by 150 lines.
 - Added quick & dirty Makefiles for MacOSX and Linux.
@@ -6218,7 +6218,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.02 (2014-08-12)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.02
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.02
 
 - Comments.
 - Portability fixes.
@@ -6231,7 +6231,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.01 (2014-08-11)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.01
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.01
 
 - Added PixelCenterOffset for OpenGL/DirectX compatibility.
 - Commented and tweaked samples.
@@ -6242,7 +6242,7 @@ Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v
  VERSION 1.00 (2014-08-10)
 -----------------------------------------------------------------------
 
-Decorated log and release notes: https://github.com/ocornut/imgui/releases/tag/v1.00
+Decorated logger and release notes: https://github.com/ocornut/imgui/releases/tag/v1.00
 
 - Initial release.
 

@@ -103,7 +103,7 @@ private:
     std::vector<Scene::Node>    sceneGraph_;
     u32                         rootNode_;
     u32                         lastNode_;
-    u32 aliveCount_;
+    u32                         aliveCount_;
 
     /*********** Components Pools  *************/
 

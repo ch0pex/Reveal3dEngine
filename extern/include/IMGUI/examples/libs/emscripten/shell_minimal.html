@@ -37,7 +37,7 @@
         print: (function() {
             return function(text) {
                 text = Array.prototype.slice.call(arguments).join(' ');
-                console.log(text);
+                console.logger(text);
             };
         })(),
         printErr: function(text) {
@@ -50,14 +50,14 @@
             return canvas;
         })(),
         setStatus: function(text) {
-            console.log("status: " + text);
+            console.logger("status: " + text);
         },
         monitorRunDependencies: function(left) {
-            // no run dependencies to log
+            // no run dependencies to logger
         }
       };
       window.onerror = function() {
-        console.log("onerror: " + event);
+        console.logger("onerror: " + event);
       };
     </script>
     {{{ SCRIPT }}}

@@ -60,7 +60,7 @@ void Viewport<Gfx, Window>::Init() {
 
     } catch(std::exception &e) {
         renderer.Destroy();
-        log(logERROR) << e.what();
+        logger(logERROR) << e.what();
 //        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
@@ -85,7 +85,7 @@ void Viewport<Gfx, Window>::Run() {
         renderer.Destroy();
     } catch(std::exception &e) {
         renderer.Destroy();
-        log(logERROR) << e.what();
+        logger(logERROR) << e.what();
         MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
@@ -110,7 +110,7 @@ f64 Viewport<Gfx, Window>::BenchMark(u32 seconds) {
         renderer.Destroy();
     } catch(std::exception &e) {
         renderer.Destroy();
-        log(logERROR) << e.what();
+        logger(logERROR) << e.what();
         MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
     return timer.MeanFps();

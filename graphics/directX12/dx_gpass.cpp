@@ -126,10 +126,12 @@ void Gpass::BuildPsos(ID3D12Device* device) {
 
     //TODO Config file for assets path
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
@@ -155,10 +157,12 @@ void Gpass::BuildPsos(ID3D12Device* device) {
 
     //TODO Config file for assets path
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
     D3D12_INPUT_ELEMENT_DESC flatElementsDesc[] = {
@@ -182,10 +186,12 @@ void Gpass::BuildPsos(ID3D12Device* device) {
     pipelineStates_[render::Shader::unlit].Finalize(device);
 
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
-    if (errors != nullptr) log(logDEBUG) << (char *) errors->GetBufferPointer();
+    if (errors != nullptr)
+        logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
     D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;

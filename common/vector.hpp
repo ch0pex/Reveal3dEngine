@@ -8,7 +8,7 @@
  * @date 06/03/2024
  * @brief Vector class
  *
- * My own vector class
+ * My own vector class with unordered_remove implementation
  *
  */
 
@@ -168,7 +168,7 @@ constexpr T *const vector<T, destruct>::remove(u64 index) {
 }
 
 template<typename T, bool destruct>
-constexpr T *const vector<T, destruct>::remove(T *const item) {
+constexpr T * const vector<T, destruct>::remove(T *const item) {
     assert(data_ && item >= std::addressof(data_[0]) &&
            item < std::addressof(data_[size_]));
    if constexpr (destruct) {

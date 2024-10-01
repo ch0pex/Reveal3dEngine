@@ -60,10 +60,10 @@ void Renderer<Gfx>::Init(WHandle wHandle) {
     f32 time = timer_.TotalTime();
     graphics_.SetWindow(wHandle);
     graphics_.LoadPipeline();
-    log(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
+    logger(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
     time = timer_.TotalTime();
     graphics_.LoadAssets();
-    log(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
+    logger(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
@@ -79,7 +79,7 @@ void Renderer<Gfx>::Render() {
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::Destroy() {
-    log(logDEBUG) << "Cleaning pipeline...[" << timer_.TotalTime()  <<"]";
+    logger(logDEBUG) << "Cleaning pipeline...[" << timer_.TotalTime()  <<"]";
     graphics_.Terminate();
 }
 
