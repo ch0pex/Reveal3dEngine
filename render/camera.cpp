@@ -22,23 +22,24 @@ Camera::Camera(const window::Resolution &res) :
         moveSpeed_(5.0f), front_(1,0,0),
         worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
 {
-    inputSys_.AddHandlerDown(input::action::camera_up, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(input::action::camera_down, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(input::action::camera_fwd, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(input::action::camera_left, {&Camera::Move, nullptr,  this});
-    inputSys_.AddHandlerDown(input::action::camera_right, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(input::action::camera_backwd, {&Camera::Move, nullptr, this});
+    using namespace input;
+    inputSys_.AddHandlerDown(action::camera_up, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerDown(action::camera_down, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerDown(action::camera_fwd, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerDown(action::camera_left, {&Camera::Move, nullptr,  this});
+    inputSys_.AddHandlerDown(action::camera_right, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerDown(action::camera_backwd, {&Camera::Move, nullptr, this});
 
-    inputSys_.AddHandlerUp(input::action::camera_up, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_down, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_fwd, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_left, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_right, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_backwd, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_up, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_down, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_fwd, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_left, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_right, {&Camera::Move, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_backwd, {&Camera::Move, nullptr, this});
 
-    inputSys_.AddHandlerDown(input::action::camera_look, {&Camera::SetLooking, nullptr, this});
-    inputSys_.AddHandlerUp(input::action::camera_look, {&Camera::SetLooking, nullptr, this});
-    inputSys_.AddMouseHandler(input::action::camera_look, {nullptr, &Camera::SetNewMousePos, this});
+    inputSys_.AddHandlerDown(action::camera_look, {&Camera::SetLooking, nullptr, this});
+    inputSys_.AddHandlerUp(action::camera_look, {&Camera::SetLooking, nullptr, this});
+    inputSys_.AddMouseHandler(action::camera_look, {nullptr, &Camera::SetNewMousePos, this});
 }
 
 

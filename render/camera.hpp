@@ -52,7 +52,7 @@ private:
     math::mat4 viewProjectionMatrix_;
 
     math::scalar moveSpeed_;
-    input::System<Camera> inputSys_;
+    input::System inputSys_;
 
     /********* Input handling ************/ //NOTE: Maybe move this to some mouse class?
     enum dir : u8 { fwd, bckwd, up, down, right, left, count };

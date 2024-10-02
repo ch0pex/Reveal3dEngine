@@ -21,7 +21,10 @@
 #include "common/common.hpp"
 #include "math/math.hpp"
 #include <unordered_map>
+#include <utility>
 #include <vector>
+
+#include <functional>
 
 namespace reveal3d::input {
 
@@ -177,11 +180,9 @@ enum type {
     down,
 };
 
-template<typename T>
 struct Binding {
-    void (T::*callback) (input::action, input::type);
-    void (T::*mouseCallback) (input::action, math::vec2);
-    T* instance;
+    std::function<void(input::action, input::type)> callback;
+    std::function<void(input::action, math::vec2)> mouse_callback;
 };
 
 
@@ -192,72 +193,13 @@ void KeyUp(u8 keycode, math::vec2 pos);
 void MouseMove(u8 keycode, math::vec2 pos);
 void BindKey(code keycode, action action);
 void Unbind(code keycode);
+void AddMouseHandler(action action, Binding& binding);
+void AddHandlerUp(action action, Binding& binding);
+void AddHandlerDown(action action, Binding& binding);
 
-class BaseSystem {
-public:
-    virtual void OnEventDown(action act, input::type type) = 0;
-    virtual void OnEventUp(action act, input::type type) = 0;
-    virtual void OnMouseMove(action act, math::vec2 value) = 0;
-    virtual void OnMouseDown(action act, math::vec2 value) = 0;
-    virtual void OnMouseUp(action act, math::vec2 value) = 0;
-protected:
-    BaseSystem();
-    ~BaseSystem();
 
-};
 
-template<typename T>
-class System : BaseSystem {
-public:
-    void AddHandlerUp(action action, Binding<T> binding) {
-        handlersUp[action] = binding;
-    }
-
-    void AddHandlerDown(action action, Binding<T> binding) {
-        handlersDown[action] = binding;
-    }
-
-    void AddMouseHandler(action action, Binding<T> binding) {
-       mouseHandler[action] = binding;
-    }
-
-    void OnEventUp(action act, input::type type) override {
-        if (handlersUp.find(act) != handlersUp.end()) {
-            (handlersUp[act].instance->*handlersUp[act].callback)(act, type);
-        }
-    }
-
-    void OnEventDown(action act, input::type type) override {
-        if (handlersDown.find(act) != handlersDown.end()) {
-            (handlersDown[act].instance->*handlersDown[act].callback)(act, type);
-        }
-    }
-
-    void OnMouseDown(action act, math::vec2 value) override {
-        if (handlersDown.find(act) != handlersDown.end()) {
-            (handlersDown[act].instance->*handlersDown[act].mouseCallback)(act, value);
-        }
-    }
-
-    void OnMouseUp(action act, math::vec2 value) override {
-        if (handlersUp.find(act) != handlersUp.end()) {
-            (handlersUp[act].instance->*handlersUp[act].mouseCallback)(act, value);
-        }
-    }
-
-    void OnMouseMove(action act, math::vec2 value) override{
-        if (mouseHandler.find(act) != mouseHandler.end()) {
-            (mouseHandler[act].instance->*mouseHandler[act].mouseCallback)(act, value);
-        }
-    }
-
-private:
-    std::unordered_map<action, Binding<T>> handlersDown;
-    std::unordered_map<action, Binding<T>> handlersUp;
-    std::unordered_map<action, Binding<T>> mouseHandler;
-};
-
-struct cursor {
+struct Cursor {
     static math::vec2 pos;
     static bool shouldClip;
     static math::vec2 lastUnclipedPos;

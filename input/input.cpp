@@ -15,7 +15,59 @@
 
 namespace reveal3d::input  {
 
-std::vector<BaseSystem *> inputSystems;
+class System {
+public:
+    System();
+    ~System();
+
+    void AddHandlerUp(action action, Binding binding) {
+        handlersUp[action] = std::move(binding);
+    }
+
+    void AddHandlerDown(action action, Binding binding) {
+        handlersDown[action] = std::move(binding);
+    }
+
+    void AddMouseHandler(action action, Binding binding) {
+        mouseHandler[action] = std::move(binding);
+    }
+
+    void OnEventUp(action act, input::type type) {
+        if (handlersUp.find(act) != handlersUp.end()) {
+            handlersUp.at(act).callback(act, type);
+        }
+    }
+
+    void OnEventDown(action act, input::type type) {
+        if (handlersDown.find(act) != handlersDown.end()) {
+            handlersDown.at(act).callback(act, type);
+        }
+    }
+
+    void OnMouseDown(action act, math::vec2 value) {
+        if (handlersDown.find(act) != handlersDown.end()) {
+            handlersDown.at(act).mouse_callback(act, value);
+        }
+    }
+
+    void OnMouseUp(action act, math::vec2 value) {
+        if (handlersUp.find(act) != handlersUp.end()) {
+            handlersUp.at(act).mouse_callback(act, value);
+        }
+    }
+
+    void OnMouseMove(action act, math::vec2 value) {
+        if (mouseHandler.find(act) != mouseHandler.end()) {
+            mouseHandler.at(act).mouse_callback(act, value);
+        }
+    }
+
+private:
+    std::unordered_map<action, Binding> handlersDown;
+    std::unordered_map<action, Binding> handlersUp;
+    std::unordered_map<action, Binding> mouseHandler;
+};
+
 std::unordered_map<u8, action> bindings = {
         {code::key_escape, action::window_close},
         {code::mouse_middle, action::camera_look},
@@ -30,10 +82,22 @@ std::unordered_map<u8, action> bindings = {
         {code::key_p, action::scene_pause}
 };
 
-bool cursor::shouldClip = false;
-math::vec2 cursor::pos = {};
-math::vec2 cursor::lastUnclipedPos = {};
+bool Cursor::shouldClip = false;
+math::vec2 Cursor::pos = {};
+math::vec2 Cursor::lastUnclipedPos = {};
+System inputSystem_;
 
+void AddHandlerUp(action action, Binding& binding) {
+    inputSystem_.AddHandlerUp(action, binding);
+}
+
+void AddHandlerDown(action action, Binding& binding) {
+    inputSystem_.AddHandlerDown(action, binding);
+}
+
+void AddMouseHandler(action action, Binding& binding) {
+    inputSystem_.AddMouseHandler(action, binding);
+}
 
 void KeyDown(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
@@ -86,15 +150,6 @@ void BindKey(code keycode, action action) {
 
 void Unbind(code keycode) {
    bindings.erase(keycode);
-}
-
-BaseSystem::BaseSystem() {
-    inputSystems.emplace_back(this);
-}
-
-BaseSystem::~BaseSystem() {
-    auto it = std::find(inputSystems.begin(), inputSystems.end(), this);
-    inputSystems.erase(it);
 }
 
 }

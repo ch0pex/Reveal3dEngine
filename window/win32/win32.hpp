@@ -42,7 +42,6 @@ private:
     template<graphics::HRI Gfx>
     static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-    input::System<Win32> inputSystem_;
     InitInfo info_;
     MSG msg_ {};
     WCallback callback_ { nullptr };
@@ -104,8 +103,8 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             return 0;
         case WM_MBUTTONDOWN:
         {
-            input::cursor::shouldClip = true;
-            input::cursor::lastUnclipedPos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
+            input::Cursor::shouldClip = true;
+            input::Cursor::lastUnclipedPos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
             SetCapture(hwnd);
             SetCursor(NULL);
             input::KeyDown(input::code::mouse_middle);
@@ -113,18 +112,18 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         }
         case WM_MBUTTONUP:
         {
-            input::cursor::shouldClip = false;
+            input::Cursor::shouldClip = false;
             input::KeyUp(input::code::mouse_middle);
             RECT window_rect;
             GetWindowRect(hwnd, &window_rect);
-            SetCursorPos(input::cursor::lastUnclipedPos.x + window_rect.left, input::cursor::lastUnclipedPos.y + window_rect.top);
+            SetCursorPos(input::Cursor::lastUnclipedPos.x + window_rect.left, input::Cursor::lastUnclipedPos.y + window_rect.top);
             ReleaseCapture();
             return 0;
         }
         case WM_MOUSEMOVE:
         {
-            input::cursor::pos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
-            input::MouseMove(wParam, input::cursor::pos);
+            input::Cursor::pos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
+            input::MouseMove(wParam, input::Cursor::pos);
             return 0;
         }
         case WM_RBUTTONDOWN:
@@ -175,26 +174,26 @@ void Win32::Create(render::Renderer<Gfx> &renderer) {
 
 template<graphics::HRI Gfx>
 void Win32::ClipMouse(render::Renderer<Gfx> &renderer) {
-    if (!input::cursor::shouldClip) return;
+    if (!input::Cursor::shouldClip) return;
 
-    if (input::cursor::pos.x < 2) {
-        input::cursor::pos.x = info_.res.width - 3;
+    if (input::Cursor::pos.x < 2) {
+        input::Cursor::pos.x = info_.res.width - 3;
         renderer.CameraResetMouse();
     }
-    else if (input::cursor::pos.x >= info_.res.width - 2) {
-        input::cursor::pos.x = 3;
+    else if (input::Cursor::pos.x >= info_.res.width - 2) {
+        input::Cursor::pos.x = 3;
         renderer.CameraResetMouse();
     }
-    if (input::cursor::pos.y < 2) {
-        input::cursor::pos.y = info_.res.height - 3;
+    if (input::Cursor::pos.y < 2) {
+        input::Cursor::pos.y = info_.res.height - 3;
         renderer.CameraResetMouse();
     }
-    else if (input::cursor::pos.y >= info_.res.height - 2) {
-        input::cursor::pos.y = 3;
+    else if (input::Cursor::pos.y >= info_.res.height - 2) {
+        input::Cursor::pos.y = 3;
         renderer.CameraResetMouse();
     }
 
-    POINT pt = {static_cast<LONG>(input::cursor::pos.x), static_cast<LONG>(input::cursor::pos.y)};
+    POINT pt = {static_cast<LONG>(input::Cursor::pos.x), static_cast<LONG>(input::Cursor::pos.y)};
     ClientToScreen(info_.handle.hwnd, &pt);
     SetCursorPos(pt.x, pt.y);
 }

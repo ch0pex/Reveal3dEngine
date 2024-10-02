@@ -57,7 +57,7 @@ private:
     }
 
 #endif
-    input::System<Timer> inputSystem_;
+    input::System inputSystem_;
 
     f64 secondPerCount_;
     i64 countsPerSecond_;
