@@ -17,7 +17,7 @@ namespace reveal3d::window {
 
 Win32::Win32(InitInfo &info) : info_(info)
 {
-    inputSystem_.AddHandlerDown(input::action::window_close, {&Win32::CloseWindow, nullptr, this});
+    input::AddHandlerDown(input::action::window_close, { [this](input::action act, input::type type){CloseWindow(act, type); } } );
 }
 
 void Win32::Show() {

@@ -22,7 +22,7 @@ Timer::Timer() :
     QueryFrequency(countsPerSecond_);
     secondPerCount_ = 1.0 / (f64)countsPerSecond_;
 
-    inputSystem_.AddHandlerUp(input::action::scene_pause, {[this](input::action act, input::type type){ Pause(act, type); }});
+    input::AddHandlerUp(input::action::scene_pause, {[this](input::action act, input::type type){ Pause(act, type); }});
 }
 
 

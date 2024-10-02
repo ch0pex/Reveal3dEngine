@@ -23,23 +23,23 @@ Camera::Camera(const window::Resolution &res) :
         worldUp_(0,0,1), up_(0,0,1), right_(0,-1,0)
 {
     using namespace input;
-    inputSys_.AddHandlerDown(action::camera_up, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(action::camera_down, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(action::camera_fwd, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(action::camera_left, {&Camera::Move, nullptr,  this});
-    inputSys_.AddHandlerDown(action::camera_right, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerDown(action::camera_backwd, {&Camera::Move, nullptr, this});
+    AddHandlerDown(action::camera_up, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerDown(action::camera_down, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerDown(action::camera_fwd, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerDown(action::camera_left, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerDown(action::camera_right, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerDown(action::camera_backwd, { [this](action act, type t){ Move(act, t); } });
 
-    inputSys_.AddHandlerUp(action::camera_up, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_down, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_fwd, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_left, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_right, {&Camera::Move, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_backwd, {&Camera::Move, nullptr, this});
+    AddHandlerUp(action::camera_up, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerUp(action::camera_down, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerUp(action::camera_fwd, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerUp(action::camera_left, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerUp(action::camera_right, { [this](action act, type t){ Move(act, t); } });
+    AddHandlerUp(action::camera_backwd, { [this](action act, type t){ Move(act, t); } });
 
-    inputSys_.AddHandlerDown(action::camera_look, {&Camera::SetLooking, nullptr, this});
-    inputSys_.AddHandlerUp(action::camera_look, {&Camera::SetLooking, nullptr, this});
-    inputSys_.AddMouseHandler(action::camera_look, {nullptr, &Camera::SetNewMousePos, this});
+    AddHandlerDown(action::camera_look, { [this](action act, type t){ SetLooking(act, t); } });
+    AddHandlerUp(action::camera_look, { [this](action act, type t){ SetLooking(act, t); } });
+    AddMouseHandler(action::camera_look, { .mouse_callback = [this](action act, math::vec2 pos){ SetNewMousePos(act, pos); } });
 }
 
 
@@ -61,7 +61,7 @@ void Camera::Move(const input::action dir, const input::type value) {
 
 void Camera::SetLooking(const input::action action, const input::type value) {
 //    input::cursor::shouldClip = (value == input::type::up) ? false : true;
-    isLooking_ = value;
+    isLooking_ = (value != 0);
     if (value == input::type::up) {
         firstMouse_ = true;
     }

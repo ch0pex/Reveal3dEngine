@@ -39,7 +39,6 @@ public:
 private:
     template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
 
-    input::System<Glfw> inputSystem_;
     InitInfo info_;
     GLFWwindow* winPtr_;
 

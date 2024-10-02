@@ -193,11 +193,9 @@ void KeyUp(u8 keycode, math::vec2 pos);
 void MouseMove(u8 keycode, math::vec2 pos);
 void BindKey(code keycode, action action);
 void Unbind(code keycode);
-void AddMouseHandler(action action, Binding& binding);
-void AddHandlerUp(action action, Binding& binding);
-void AddHandlerDown(action action, Binding& binding);
-
-
+void AddMouseHandler(action action, Binding&& binding);
+void AddHandlerUp(action action, Binding&& binding);
+void AddHandlerDown(action action, Binding&& binding);
 
 struct Cursor {
     static math::vec2 pos;
@@ -206,4 +204,5 @@ struct Cursor {
     //    static bool isLooking;
     //    static bool fistMouse;
 };
+
 }

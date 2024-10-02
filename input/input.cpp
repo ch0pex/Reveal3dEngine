@@ -17,18 +17,15 @@ namespace reveal3d::input  {
 
 class System {
 public:
-    System();
-    ~System();
-
-    void AddHandlerUp(action action, Binding binding) {
+    void AddHandlerUp(action action, Binding& binding) {
         handlersUp[action] = std::move(binding);
     }
 
-    void AddHandlerDown(action action, Binding binding) {
+    void AddHandlerDown(action action, Binding& binding) {
         handlersDown[action] = std::move(binding);
     }
 
-    void AddMouseHandler(action action, Binding binding) {
+    void AddMouseHandler(action action, Binding& binding) {
         mouseHandler[action] = std::move(binding);
     }
 
@@ -85,62 +82,52 @@ std::unordered_map<u8, action> bindings = {
 bool Cursor::shouldClip = false;
 math::vec2 Cursor::pos = {};
 math::vec2 Cursor::lastUnclipedPos = {};
-System inputSystem_;
+System inputSystem;
 
-void AddHandlerUp(action action, Binding& binding) {
-    inputSystem_.AddHandlerUp(action, binding);
+void AddHandlerUp(action action, Binding&& binding) {
+    inputSystem.AddHandlerUp(action, binding);
 }
 
-void AddHandlerDown(action action, Binding& binding) {
-    inputSystem_.AddHandlerDown(action, binding);
+void AddHandlerDown(action action, Binding&& binding) {
+    inputSystem.AddHandlerDown(action, binding);
 }
 
-void AddMouseHandler(action action, Binding& binding) {
-    inputSystem_.AddMouseHandler(action, binding);
+void AddMouseHandler(action action, Binding&& binding) {
+    inputSystem.AddMouseHandler(action, binding);
 }
 
 void KeyDown(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
-        for(auto *inputSys : inputSystems) {
-            inputSys->OnEventDown(act, type::down);
-        }
+        inputSystem.OnEventDown(act, type::down);
     }
 }
 
 void KeyDown(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
-        for(auto *inputSys : inputSystems) {
-            inputSys->OnMouseDown(act, pos);
-        }
+        inputSystem.OnMouseDown(act, pos);
     }
 }
 
 void KeyUp(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
-        for (auto *inputSys: inputSystems) {
-            inputSys->OnEventUp(act, type::up);
-        }
+        inputSystem.OnEventUp(act, type::up);
     }
 }
 
 void KeyUp(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
-        for (auto *inputSys: inputSystems) {
-            inputSys->OnMouseUp(act, pos);
-        }
+        inputSystem.OnEventDown(act, type::down);
     }
 }
 
 void MouseMove(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
         const action act = bindings[keycode];
-        for (auto *inputSys: inputSystems) {
-            inputSys->OnMouseMove(act, pos);
-        }
+        inputSystem.OnMouseMove(act, pos);
     }
 }
 

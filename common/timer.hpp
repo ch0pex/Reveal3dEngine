@@ -57,8 +57,6 @@ private:
     }
 
 #endif
-    input::System inputSystem_;
-
     f64 secondPerCount_;
     i64 countsPerSecond_;
     f64 deltaTime_; // Affected by pause
