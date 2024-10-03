@@ -189,7 +189,7 @@ void Dx12::Update(render::Camera &camera) {
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
     core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
     auto entityWithNewGeo = core::Entity(geometries.PopNew());
-    auto entityWithRemovedGeo = core::Entity(geometries.PopRemoved());
+    auto entityWithRemovedGeo = geometries.PopRemoved();
 
     Constant<GlobalShaderData> passConstant;
     Constant<PerObjectData> objConstant;
@@ -201,7 +201,7 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update object constants
     for (auto id : dirtyTransforms) {
-        core::Transform trans { id };
+        auto trans = core::Entity(id).Component<core::Transform>();
         objConstant.data.worldViewProj = trans.World();
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
@@ -209,10 +209,10 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update material constants
     for (auto id : dirtyMats) {
-        core::Geometry geo { id } ;
+        auto geo = core::Entity(id).Component<core::Geometry>();
         matConstant.data.baseColor = geo.Material().baseColor;
         geo.UnDirty();
-        currFrameRes.matBuffer.CopyData(id::index(id), &matConstant);
+        currFrameRes.matBuffer.CopyData(id::index(geo.Id()), &matConstant);
     }
 
     // Add new meshes
@@ -221,9 +221,9 @@ void Dx12::Update(render::Camera &camera) {
         entityWithNewGeo = core::Entity(geometries.PopNew());
     }
 
-    while(entityWithRemovedGeo.IsAlive()) {
-        gPass_.RemoveRenderElement(entityWithRemovedGeo.Component<core::Geometry>());
-        entityWithRemovedGeo = core::Entity(geometries.PopRemoved());
+    while(entityWithRemovedGeo != id::invalid) {
+        gPass_.RemoveRenderElement(entityWithRemovedGeo);
+        entityWithRemovedGeo = geometries.PopRemoved();
     }
 
 }

@@ -130,7 +130,7 @@ void Transform::UpdateChilds() const {
     }
 }
 
-void Transform::UpdateWorld() {
+void Transform::UpdateWorld() const {
     if (Pool().dirties_.at(id::index(id_)) != 4) return;
 
     Transform::Data& transform = Pool().Data(id_);
@@ -163,11 +163,11 @@ void Transform::UnDirty() const {
 }
 
 void Transform::SetDirty() const {
-    const id_t idx = id::index(id_);
+    const id_t idx = id::index(Pool().GetMappedId(id_));
     if (Dirty() == 4)
         return;
     if (Dirty() == 0)
-        Pool().dirtyIds_.insert(idx);
+        Pool().dirtyIds_.insert(id_);
     UpdateChilds();
     Pool().dirties_.at(idx) = 4;
 }

@@ -50,7 +50,7 @@ public:
     void SetWorldPosition(math::xvec3 pos);
     void SetWorldScale(math::xvec3 scale);
     void SetWorldRotation(math::xvec3 rot);
-    void UpdateWorld();
+    void UpdateWorld() const;
 
     [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
     [[nodiscard]] INLINE id_t Id() const { return id_; }

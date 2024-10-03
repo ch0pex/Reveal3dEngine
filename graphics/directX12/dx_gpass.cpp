@@ -100,8 +100,8 @@ void Gpass::AddRenderElement(core::Entity entity, Commands& cmdMng, ID3D12Device
     renderElements_.emplace_back(entity, vertexBufferInfo, indexBufferInfo);
 }
 
-void Gpass::RemoveRenderElement(core::Geometry geometry) {
-   renderElements_.unordered_remove(id::index(geometry.Id()));
+void Gpass::RemoveRenderElement(u32 idx) {
+   renderElements_.unordered_remove(idx);
 }
 
 void Gpass::Terminate() {

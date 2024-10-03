@@ -88,34 +88,23 @@ public:
             ++generations_[id];
             id |=  (generations_.at(freeIndices_.front()) << indexBits);
             freeIndices_.pop_front();
-            mappedIds_.push_back(id);
         } else {
             id = id::index(mappedIds_.size());
             generations_.push_back(0);
-            mappedIds_.push_back(id);
         }
         return id;
     }
 
-    template<bool removeMapping = true>
     void Remove(id_t id) {
-        id_t idx { mappedIds_.at(id::index(id)) };
         assert(IsAlive(id));
         if (generations_[mappedIds_.at(idx)] < maxGeneration) {
            freeIndices_.push_back(idx);
         }
-        if constexpr (removeMapping)
-            mappedIds_.remove(mappedIds_.size() - 1);
-    }
-
-    INLINE id_t Back() {
-        return mappedIds_.at(mappedIds_.size() - 1);
     }
 
 private:
     utl::vector<id_t>   generations_;
     std::deque<id_t>    freeIndices_;
-    utl::vector<id_t>   mappedIds_;
 };
 
 }

@@ -31,19 +31,24 @@ public:
     T At(id_t id)                       { return components_.at(id::index(id)); }
     std::vector<T>::iterator begin()    { return components_.begin(); };
     std::vector<T>::iterator end()      { return components_.end();   };
+    INLINE u32 GetMappedId(id_t componentId) { return id_factory_.MappedId(id::index(componentId)); }
 
 
 protected:
     void Add(id_t index, id_t id) {
         if (index >= components_.size()) {
             components_.emplace_back(id);
+            owner_ids_.push_back(id);
+            mappedIdx_.push_back(index);
         } else {
             components_.at(index) = T(id);
+            owner_ids_.push_back(id);
+            mappedIdx_.at(id::index(id)) = index;
         }
     }
 
     void Remove(id_t id) {
-        auto last = id_factory_.Back();
+        auto last = owner_ids_.back();
         if (last != id) {
             components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
         }
@@ -54,6 +59,8 @@ protected:
     /************* Components IDs ****************/
     id::Factory                     id_factory_;
     std::vector<T>                  components_;
+    std::vector<id_t>               mappedIdx_; // mappedIdx[componentId] == component index in components
+    std::vector<id_t>               owner_ids_; // IDs that has geometries
 };
 
 }
