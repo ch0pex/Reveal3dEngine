@@ -16,6 +16,8 @@
 #include "math/math.hpp"
 
 #include <vector>
+#include <queue>
+#include <set>
 
 namespace reveal3d::core {
 
@@ -23,18 +25,28 @@ namespace reveal3d::core {
 template<typename T>
 class Pool {
 public:
-    virtual T AddComponent(id_t id) = 0;
-    virtual void RemoveComponent(id_t entity_id) = 0;
-    virtual void Update() = 0;
-    virtual u32  Count() = 0;
+    T AddComponent();
+    T AddComponent(id_t id);
+    T AddComponent(id_t entityId, T::InitInfo&& initInfo);
+    void RemoveComponent(id_t entity_id);
+    void Update();
+    u32  Count() { data_.Count(); }
 
     T At(id_t id)                       { return components_.at(id::index(id)); }
     std::vector<T>::iterator begin()    { return components_.begin(); };
     std::vector<T>::iterator end()      { return components_.end();   };
-    INLINE u32 GetMappedId(id_t componentId) { return id_factory_.MappedId(id::index(componentId)); }
+    INLINE u32 GetMappedId(id_t componentId) { return mappedIdx_.at(id::index(componentId)); }
+    id_t PopNew();
+    id_t PopRemoved();
+    INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
+    T::Data& Data() { return data_; }
+
+    std::set<id_t>& DirtyIds() { return dirtyIds_; }
+    utl::vector<u8>&  Dirties() { return dirties_; }
 
 
 protected:
+
     void Add(id_t index, id_t id) {
         if (index >= components_.size()) {
             components_.emplace_back(id);
@@ -55,12 +67,62 @@ protected:
         components_.at(id::index(id)) = T(id::invalid);
         id_factory_.Remove(id);
     }
+    /************* Component Data ****************/
+    T::Data data_;
 
     /************* Components IDs ****************/
     id::Factory                     id_factory_;
     std::vector<T>                  components_;
     std::vector<id_t>               mappedIdx_; // mappedIdx[componentId] == component index in components
     std::vector<id_t>               owner_ids_; // IDs that has geometries
+
+    std::queue<id_t> newComponents_;
+    std::queue<id_t> deletedComponents_;
+
+    // Materials must be updated on GPU
+    std::set<id_t>     dirtyIds_;
+    utl::vector<u8>    dirties_;
 };
+
+template<typename T>
+id_t Pool<T>::PopNew() {
+    if (newComponents_.empty()) {
+        return id::invalid;
+    }
+    const auto id = newComponents_.front();
+    newComponents_.pop();
+    return id;
+}
+
+template<typename T>
+id_t Pool<T>::PopRemoved() {
+    if (deletedComponents_.empty()) {
+        return id::invalid;
+    }
+    const auto id = deletedComponents_.front();
+    deletedComponents_.pop();
+    return id;
+}
+
+template<typename T>
+T Pool<T>::AddComponent() {
+        components_.emplace_back();
+        dirties_.emplace_back(4);
+        return components_.at(components_.size() - 1);
+}
+
+template<typename T>
+void Pool<T>::Update() {
+    for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
+        id_t idx = id::index(*it);
+        components_.at(idx).UpdateWorld();
+        if (dirties_.at(idx) == 0) {
+            it = dirtyIds_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 
 }

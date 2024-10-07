@@ -20,17 +20,27 @@
 
 namespace reveal3d::core {
 
-class TransformPool;
-
 class Transform {
 public:
-    struct Data {
+    struct Info {
         math::xvec3 position    { 0.f, 0.f, 0.f };
         math::xvec3 rotation    { 0.f, 0.f, 0.f };
         math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
-    using InitInfo = Data;
+    /************* Transform Data ****************/
+    struct Data {
+        math::mat4& World(id_t id)       { return world.at(id::index(id)); }
+        math::mat4& InvWorld(id_t id)    { return invWorld.at(id::index(id)); }
+        Transform::Info& Info(id_t id)   { return info.at(id::index(id)); }
+        const u32 Count()                { return info.size(); }
+
+        utl::vector<math::mat4>         world;
+        utl::vector<math::mat4>         invWorld;
+        utl::vector<Transform::Info>    info;
+    };
+
+    using InitInfo = Info;
 
     Transform() = default;
     explicit Transform(id_t id);
@@ -61,41 +71,48 @@ public:
 
 
 private:
-    [[nodiscard]] static TransformPool& Pool();
+    [[nodiscard]] static Pool<Transform>& Pool();
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
 
     id_t id_ { id::invalid };
 };
 
-class TransformPool : public Pool<Transform> {
-public:
-    Transform AddComponent(id_t id);
-    Transform AddComponent(id_t entityId, Transform::Data&& initInfo);
-    Transform AddChildComponent(id_t entityId, math::mat4 &parentWorld);
-    void RemoveComponent(id_t id) override;
-    void Update() override;
+template<>
+Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&initInfo) {
+    id_t transformId {id_factory_.New()};
 
-    INLINE u32  Count()  override           { return transform_data_.size(); }
-    INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
+    data_.info.push_back(std::move(initInfo));
+    Transform::Info& data = data_.info.at(Count() - 1);
+    data_.world.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
+    data_.invWorld.emplace_back(math::Inverse(data_.world.at(Count() - 1)));
+    Dirties().emplace_back(4);
+    DirtyIds().insert(entityId);
 
-private:
-    friend class Transform;
-    INLINE math::mat4& World(id_t id)       { return world_.at(id::index(id)); }
-    INLINE math::mat4& InvWorld(id_t id)    { return invWorld_.at(id::index(id)); }
-    INLINE Transform::Data& Data(id_t id)   { return transform_data_.at(id::index(id)); }
+    Add(id::index(entityId), transformId);
 
-    /************* Transform Data ****************/
+    return components_.at(id::index(entityId));
+}
 
-    utl::vector<math::mat4>       world_;
-    utl::vector<math::mat4>       invWorld_;
-    utl::vector<Transform::Data>  transform_data_;
+template<>
+Transform Pool<Transform>::AddComponent(id_t id) {
+    return AddComponent(id, {});
+}
 
-    // Transforms that must be updated on GPU
-    std::set<id_t>                dirtyIds_; 
-    utl::vector<u8>               dirties_;
-};
-
+template<>
+void Pool<Transform>::RemoveComponent(id_t id) {
+    id_t transform_id { components_.at(id::index(id)).Id() };
+    if (id_factory_.IsAlive(id)) {
+        data_.info.unordered_remove(id::index(transform_id));
+        data_.world.unordered_remove(id::index(transform_id));
+        data_.invWorld.unordered_remove(id::index(transform_id));
+        Dirties().at(id::index(id)) = 0;
+        if (DirtyIds().find(transform_id) != DirtyIds().end()) {
+            DirtyIds().erase(transform_id);
+        }
+        Remove(transform_id);
+    }
+}
 } // reveal3d::core namespace
 
 

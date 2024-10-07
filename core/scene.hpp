@@ -89,7 +89,7 @@ public:
     INLINE Node& Root() { return sceneGraph_.at(rootNode_); }
 
     template<component T>
-    decltype(auto) ComponentPool() noexcept;
+    Pool<T>& ComponentPool() noexcept;
 
     void Init();
     void Update(f32 dt);
@@ -107,8 +107,8 @@ private:
 
     /*********** Components Pools  *************/
 
-    TransformPool               transformPool_;
-    GeometryPool                geometryPool_;
+    Pool<core::Transform>       transformPool_;
+    Pool<core::Geometry>        geometryPool_;
     ScriptPool                  scriptPool_;
     MetadataPool                metadataPool_;
 
@@ -117,7 +117,7 @@ private:
 };
 
 template<component T>
-decltype(auto) Scene::ComponentPool() noexcept {
+Pool<T>& Scene::ComponentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
         return (transformPool_);
     } else if constexpr (std::is_same<T, Script>()) {
