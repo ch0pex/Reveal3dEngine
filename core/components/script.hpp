@@ -21,8 +21,6 @@
 
 namespace reveal3d::core {
 
-class ScriptPool;
-
 class ScriptBase {
 public:
     virtual void Begin() = 0;
@@ -40,6 +38,12 @@ public:
         u8 destroy : 1; // Destroy function active
     };
 
+    struct Data {
+        u32 Count() { return scripts.size(); }
+        utl::vector<Flag> flags;
+        utl::vector<std::unique_ptr<ScriptBase>> scripts;
+    };
+
     Script() = default;
     explicit Script(id_t id);
     Script(id_t id, InitInfo script);
@@ -48,7 +52,7 @@ public:
     [[nodiscard]] INLINE id_t Id() const { return id_; }
 
     void Begin();
-    void Update(f32 dt);
+    void Update();
     void Destroyed();
 
     void EnableUpdate();
@@ -59,25 +63,24 @@ public:
     void DisableDestroyed();
 
 private:
-    [[nodiscard]] static ScriptPool& Pool();
+    [[nodiscard]] static Pool<Script>& Pool();
     id_t id_ { id::invalid };
 };
 
-class ScriptPool : public Pool<Script> {
-public:
-    Script AddComponent(id_t id);
-    Script AddComponent(id_t id, Script::InitInfo initInfo);
-    void RemoveComponent(id_t id) override;
-    void Update() override;
+template<>
+Script Pool<Script>::AddComponent(id_t id) {
+    return Script();
+}
 
-    [[nodiscard]] INLINE u32  Count() override { return scripts_.size(); };
+template<>
+Script Pool<Script>::AddComponent(id_t id, Script::InitInfo&& initInfo) {
+    return Script();
+}
 
-private:
-    friend class Script;
-    /******************* Scripts Data *******************/
-    utl::vector<std::unique_ptr<ScriptBase>> scripts_;
-    utl::vector<Script::Flag>                flags_;
-};
+template<>
+void Pool<Script>::RemoveComponent(id_t id) {
+
+}
 
 }
 

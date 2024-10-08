@@ -14,13 +14,13 @@
 
 #pragma once
 
-#include <functional>
 #include "camera.hpp"
 #include "core/scene.hpp"
 #include "graphics/gfx.hpp"
 
 #include "IMGUI/backends/imgui_impl_win32.h"
 #include "IMGUI/backends/imgui_impl_dx12.h"
+#include <functional>
 
 namespace reveal3d::render {
 

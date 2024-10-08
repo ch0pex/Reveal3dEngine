@@ -10,6 +10,7 @@
 *
 * Longer description
 */
+#pragma once
 
 #include "dx_common.hpp"
 #include "window/window_info.hpp"

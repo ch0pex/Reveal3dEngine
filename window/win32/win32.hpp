@@ -16,9 +16,9 @@
 #include "render/renderer.hpp"
 #include "window/window_info.hpp"
 #include "input/input.hpp"
-#include <WindowsX.h>
 
-#include "backends/imgui_impl_win32.h"
+#include <WindowsX.h>
+#include <backends/imgui_impl_win32.h>
 
 
 namespace reveal3d::window {

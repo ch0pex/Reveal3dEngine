@@ -34,7 +34,7 @@ math::xvec3 Transform::Position() const {
 }
 
 math::xvec3 Transform::Scale() const {
-    return Pool().Data().Info(id_).at(id::index(id_)).scale;
+    return Pool().Data().Info(id_).scale;
 }
 
 math::xvec3 Transform::Rotation() const {
@@ -130,7 +130,7 @@ void Transform::UpdateChilds() const {
     }
 }
 
-void Transform::UpdateWorld() const {
+void Transform::Update() const {
     if (Pool().Dirties().at(id::index(id_)) != 4) return;
 
     Transform::Info& transform = Pool().Data().Info(id_);
@@ -142,7 +142,7 @@ void Transform::UpdateWorld() const {
             math::mat4 parentWorld = Pool().Data().World(parent_id);
             World() = parentWorld * CalcWorld(parent_id);
         } else {
-            currNode.parent.Component<Transform>().UpdateWorld();
+            currNode.parent.Component<Transform>().Update();
             math::mat4 parentWorld = Pool().Data().World(parent_id);
             World() = parentWorld * CalcWorld(id_);
         }

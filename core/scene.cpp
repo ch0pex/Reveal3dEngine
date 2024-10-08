@@ -105,7 +105,7 @@ Entity Scene::RemoveEntity(id_t id) {
     if (idFactory_.IsAlive(id)) {
         if (IsEntityAlive(GetNode(id).next.Id())) nextOrPrev = GetNode(id).next;
         else if (IsEntityAlive(GetNode(id).prev.Id())) nextOrPrev = GetNode(id).prev;
-        idFactory_.Remove<false>(id);
+        idFactory_.Remove(id);
         RemoveNode(id);
         transformPool_.RemoveComponent(id);
         geometryPool_.RemoveComponent(id);

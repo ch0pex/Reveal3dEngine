@@ -24,12 +24,9 @@ Script::Script(id_t id, InitInfo script) {
 }
 
 void Script::Begin() {
-    Pool().scripts_.at(id::index(id_))->Begin();
+    Pool().Data().scripts.at(id::index(id_))->Begin();
 }
 
-void Script::Update(float dt) {
-   Pool().scripts_.at(id::index(id_))->Update(dt);
-}
 
 void Script::DisableUpdate() {
 
@@ -43,24 +40,15 @@ void Script::Destroyed() {
 
 }
 
-Script ScriptPool::AddComponent(id_t id) {
-    return Script();
-}
 
-ScriptPool& Script::Pool() {
+Pool<Script>& Script::Pool() {
     return core::scene.ComponentPool<Script>();
 }
 
-Script ScriptPool::AddComponent(id_t id, Script::InitInfo initInfo) {
-    return Script();
+void Script::Update() {
+    Pool().Data().scripts.at(id::index(id_))->Update(0.3f);
 }
 
-void ScriptPool::RemoveComponent(id_t id) {
 
-}
-
-void ScriptPool::Update() {
-
-}
 
 }

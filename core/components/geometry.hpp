@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include "render/mesh.hpp"
 #include "pool.hpp"
+#include "render/mesh.hpp"
 
 #include <queue>
 #include <span>
@@ -22,8 +22,6 @@
 #include <set>
 
 namespace reveal3d::core {
-
-class GeometryPool;
 
 class Geometry {
 public:
@@ -89,6 +87,7 @@ public:
     [[nodiscard]] u8 Dirty() const;
     void UnDirty() const;
     void SetDirty() const;
+    void Update();
 
 private:
     [[nodiscard]] static Pool<Geometry>& Pool();

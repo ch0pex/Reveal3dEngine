@@ -60,7 +60,7 @@ public:
     void SetWorldPosition(math::xvec3 pos);
     void SetWorldScale(math::xvec3 scale);
     void SetWorldRotation(math::xvec3 rot);
-    void UpdateWorld() const;
+    void Update() const;
 
     [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
     [[nodiscard]] INLINE id_t Id() const { return id_; }
@@ -113,6 +113,7 @@ void Pool<Transform>::RemoveComponent(id_t id) {
         Remove(transform_id);
     }
 }
+
 } // reveal3d::core namespace
 
 

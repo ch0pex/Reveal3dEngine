@@ -30,8 +30,6 @@ bool Win32::ShouldClose() {
     return !(isRunning_ );
 }
 
-
-
 void Win32::CloseWindow(input::action act, input::type type) {
     PostMessage(info_.handle.hwnd, WM_CLOSE, 0, 0);
 }

@@ -11,6 +11,8 @@
  * Longer description
  */
 
+#pragma once
+
 #include "core/components/geometry.hpp"
 
 namespace reveal3d::content {

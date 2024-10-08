@@ -94,6 +94,7 @@ std::vector<u32> &Geometry::Indices() const { return Pool().Data().Mesh(id_).ind
 void Geometry::SetVisibility(bool visibility) { Pool().Data().SubMeshes(id_)[0].visible = visibility; }
 
 bool Geometry::IsVisible() const { return Pool().Data().SubMeshes(id_)[0].visible; }
+
 const render::Material &Geometry::Material() { return Pool().Data().Material(id_); }
 
 void Geometry::SetDiffuseColor(math::vec4 color) {
@@ -139,6 +140,9 @@ void Geometry::SetDirty() const {
     Pool().Dirties().at(idx) = 3;
 }
 
+void Geometry::Update() {
+
+}
 
 
 }

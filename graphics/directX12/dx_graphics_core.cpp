@@ -144,10 +144,11 @@ void Dx12::InitDsBuffer() {
 
 void Dx12::LoadAssets() {
     cmdManager_.Reset(nullptr);
+    using namespace core;
 
-    core::TransformPool& transforms = core::scene.ComponentPool<core::Transform>();
+    Pool<Transform>& transforms = core::scene.ComponentPool<core::Transform>();
     // auto& geometries = core::scene.ComponentPool<Geometry>();
-    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
+    Pool<Geometry>& geometries = core::scene.ComponentPool<core::Geometry>();
 
     auto entity = core::Entity(geometries.PopNew());
     auto geometry = entity.Component<core::Geometry>();
@@ -187,7 +188,7 @@ void Dx12::Update(render::Camera &camera) {
     auto &currFrameRes = frameResources_.at(Commands::FrameIndex());
     std::set<id_t>& dirtyTransforms = core::scene.ComponentPool<core::Transform>().DirtyElements();
     std::set<id_t>& dirtyMats = core::scene.ComponentPool<core::Geometry>().DirtyElements();
-    core::GeometryPool& geometries = core::scene.ComponentPool<core::Geometry>();
+    core::Pool<core::Geometry>& geometries = core::scene.ComponentPool<core::Geometry>();
     auto entityWithNewGeo = core::Entity(geometries.PopNew());
     auto entityWithRemovedGeo = geometries.PopRemoved();
 

@@ -30,7 +30,7 @@ public:
     T AddComponent(id_t entityId, T::InitInfo&& initInfo);
     void RemoveComponent(id_t entity_id);
     void Update();
-    u32  Count() { data_.Count(); }
+    u32  Count() { return data_.Count(); }
 
     T At(id_t id)                       { return components_.at(id::index(id)); }
     std::vector<T>::iterator begin()    { return components_.begin(); };
@@ -115,7 +115,7 @@ template<typename T>
 void Pool<T>::Update() {
     for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
         id_t idx = id::index(*it);
-        components_.at(idx).UpdateWorld();
+        components_.at(idx).Update();
         if (dirties_.at(idx) == 0) {
             it = dirtyIds_.erase(it);
         } else {

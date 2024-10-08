@@ -109,8 +109,8 @@ private:
 
     Pool<core::Transform>       transformPool_;
     Pool<core::Geometry>        geometryPool_;
-    ScriptPool                  scriptPool_;
-    MetadataPool                metadataPool_;
+    Pool<core::Script>          scriptPool_;
+    Pool<core::Metadata>        metadataPool_;
 
     //    LightPool                 light_pool_;
 
