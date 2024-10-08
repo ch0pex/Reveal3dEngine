@@ -15,7 +15,7 @@
 
 namespace reveal3d::window {
 
-Win32::Win32(InitInfo &info) : info_(info)
+Win32::Win32(Config &info) : info_(info)
 {
     input::AddHandlerDown(input::action::window_close, { [this](input::action act, input::type type){CloseWindow(act, type); } } );
 }

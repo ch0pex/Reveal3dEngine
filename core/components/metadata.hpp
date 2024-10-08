@@ -14,7 +14,6 @@
 #pragma once
 
 #include "pool.hpp"
-#include "common/common.hpp"
 
 #include <string>
 
@@ -47,7 +46,7 @@ private:
 };
 
 template<>
-Metadata Pool<Metadata>::AddComponent(id_t id) {
+inline Metadata Pool<Metadata>::AddComponent(id_t id) {
     const id_t metadata_id { id_factory_.New() };
 
     data_.names.emplace_back("Entity" + std::to_string(id));
@@ -60,7 +59,7 @@ Metadata Pool<Metadata>::AddComponent(id_t id) {
 }
 
 template<>
-Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
+inline Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
     const id_t metadata_id { id_factory_.New() };
 
     data_.names.emplace_back(std::move(initInfo));
@@ -72,7 +71,7 @@ Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
 }
 
 template<>
-void Pool<Metadata>::RemoveComponent(id_t id) {
+inline void Pool<Metadata>::RemoveComponent(id_t id) {
     id_t idx { id::index(id) };
     data_.names.unordered_remove(idx);
     data_.comments.unordered_remove(idx);

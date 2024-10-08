@@ -96,7 +96,7 @@ private:
 };
 
 template<>
-Geometry Pool<Geometry>::AddComponent(id_t entityId) {
+inline Geometry Pool<Geometry>::AddComponent(id_t entityId) {
     const id_t geometryId{ id_factory_.New() };
 
     data_.meshes.emplace_back();
@@ -111,7 +111,7 @@ Geometry Pool<Geometry>::AddComponent(id_t entityId) {
 }
 
 template<>
-Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
+inline Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
     const id_t geometryId{ id_factory_.New() };
 
     data_.meshes.push_back(std::move(initInfo));
@@ -135,7 +135,7 @@ Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &&initIn
 }
 
 template<>
-void Pool<Geometry>::RemoveComponent(id_t id) {
+inline void Pool<Geometry>::RemoveComponent(id_t id) {
     id_t geometry_id { components_.at(id::index(id)).Id() };
     if (id_factory_.IsAlive(id)) {
         data_.materials.unordered_remove(id::index(geometry_id));

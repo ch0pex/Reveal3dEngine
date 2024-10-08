@@ -27,7 +27,7 @@ class Win32 {
 public:
     using WCallback = LRESULT(*)(HWND, UINT, WPARAM, LPARAM);
 
-    Win32(InitInfo &info);
+    Win32(Config &info);
 
     template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
     template<graphics::HRI Gfx> void Update(render::Renderer<Gfx> &renderer);
@@ -42,7 +42,7 @@ private:
     template<graphics::HRI Gfx>
     static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-    InitInfo info_;
+    Config info_;
     MSG msg_ {};
     WCallback callback_ { nullptr };
     bool isRunning_ { false };

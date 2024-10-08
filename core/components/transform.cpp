@@ -12,10 +12,7 @@
  */
 
 #include "transform.hpp"
-#include "../scene.hpp"
-
-#include <vector>
-#include <set>
+#include "core/scene.hpp"
 
 namespace reveal3d::core {
 

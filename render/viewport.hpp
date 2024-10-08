@@ -40,7 +40,7 @@ namespace reveal3d::render {
 
 template<graphics::HRI Gfx, window::Mng<Gfx> Window>
 struct Viewport {
-    explicit Viewport(window::InitInfo &windowInfo) : window(windowInfo), renderer(&window.GetRes(), timer) { }
+    explicit Viewport(window::Config &windowInfo) : window(windowInfo), renderer(&window.GetRes(), timer) { }
     void Init();
     void Run();
     f64 BenchMark(u32 seconds);

@@ -33,7 +33,6 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "content/primitives.hpp"
 #include "render/light.hpp"
 #include "components.hpp"
 

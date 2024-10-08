@@ -15,7 +15,6 @@
 #pragma once
 
 #include "camera.hpp"
-#include "core/scene.hpp"
 #include "graphics/gfx.hpp"
 
 #include "IMGUI/backends/imgui_impl_win32.h"

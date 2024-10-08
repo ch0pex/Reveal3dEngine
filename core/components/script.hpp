@@ -16,8 +16,6 @@
 #include "pool.hpp"
 #include "common/vector.hpp"
 
-#include <functional>
-
 
 namespace reveal3d::core {
 
@@ -68,17 +66,17 @@ private:
 };
 
 template<>
-Script Pool<Script>::AddComponent(id_t id) {
+inline Script Pool<Script>::AddComponent(id_t id) {
     return Script();
 }
 
 template<>
-Script Pool<Script>::AddComponent(id_t id, Script::InitInfo&& initInfo) {
+inline Script Pool<Script>::AddComponent(id_t id, Script::InitInfo&& initInfo) {
     return Script();
 }
 
 template<>
-void Pool<Script>::RemoveComponent(id_t id) {
+inline void Pool<Script>::RemoveComponent(id_t id) {
 
 }
 
