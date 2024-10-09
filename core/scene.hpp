@@ -83,8 +83,8 @@ public:
 
     /******************************* Scene Graph methods ******************************/
     [[nodiscard]] INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
-    [[nodiscard]] INLINE u32 Count() const { return aliveCount_; }
-    INLINE Entity GetEntity(id_t id) { return sceneGraph_.at(id::index(id)).entity; }
+    [[nodiscard]] INLINE u32 Count() const { return sceneGraph_.size() - idFactory_.FreeCount(); }
+    INLINE Entity GetEntity(id_t id) const { return sceneGraph_.at(id::index(id)).entity; }
     INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
     INLINE Node& Root() { return sceneGraph_.at(rootNode_); }
 
@@ -103,7 +103,6 @@ private:
     std::vector<Scene::Node>    sceneGraph_;
     u32                         rootNode_;
     u32                         lastNode_;
-    u32                         aliveCount_;
 
     /*********** Components Pools  *************/
 

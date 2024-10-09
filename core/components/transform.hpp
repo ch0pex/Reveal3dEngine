@@ -79,7 +79,7 @@ private:
 };
 
 template<>
-Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&initInfo) {
+inline Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&initInfo) {
     id_t transformId {id_factory_.New()};
 
     data_.info.push_back(std::move(initInfo));
@@ -95,12 +95,12 @@ Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&ini
 }
 
 template<>
-Transform Pool<Transform>::AddComponent(id_t id) {
+inline Transform Pool<Transform>::AddComponent(id_t id) {
     return AddComponent(id, {});
 }
 
 template<>
-void Pool<Transform>::RemoveComponent(id_t id) {
+inline void Pool<Transform>::RemoveComponent(id_t id) {
     id_t transform_id { components_.at(id::index(id)).Id() };
     if (id_factory_.IsAlive(id)) {
         data_.info.unordered_remove(id::index(transform_id));

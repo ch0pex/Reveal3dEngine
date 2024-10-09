@@ -71,6 +71,10 @@ public:
         return (freeIndices_.size() > id::maxFree);
     }
 
+    u32 FreeCount() const{
+        return freeIndices_.size();
+    }
+
     bool IsAlive(id_t id) {
         id_t idx {id::index(id)};
         if (idx >= generations_.size()) {
