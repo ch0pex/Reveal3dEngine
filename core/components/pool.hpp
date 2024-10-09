@@ -54,12 +54,13 @@ private:
         }
     }
 
-    void Remove(id_t id) {
+    void Remove(id_t id) { // TODO This is bugged
         auto last = id_factory_.Back();
+        u32 idx { id_factory_.Mapped(id) };
         if (last != id) {
             components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
         }
-        components_.at(id::index(id)) = T(id::invalid);
+        components_.at(idx) = {};
         id_factory_.Remove(id);
     }
     /************* Component Data ****************/

@@ -104,10 +104,8 @@ Entity Scene::RemoveEntity(id_t id) {
         if (IsEntityAlive(GetNode(id).next.Id())) nextOrPrev = GetNode(id).next;
         else if (IsEntityAlive(GetNode(id).prev.Id())) nextOrPrev = GetNode(id).prev;
         RemoveNode(id);
-        transformPool_.RemoveComponent(id);
-        geometryPool_.RemoveComponent(id);
     }
-    return nextOrPrev;
+    return {}; //TODO fix this can't return nextOrPrev when deleting nested nodes
 }
 
 void Scene::RemoveNode(id_t id) {
@@ -115,6 +113,9 @@ void Scene::RemoveNode(id_t id) {
     Node& node = GetNode(id);
 //    idFactory_.Remove(id);
     freeNodes_.push_back(node.entity.Id());
+    transformPool_.RemoveComponent(id);
+    metadataPool_.RemoveComponent(id);
+    geometryPool_.RemoveComponent(id);
 
     if (node.prev.IsAlive()) {
         Node& prevNode = GetNode(node.prev.Id());

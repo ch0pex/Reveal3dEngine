@@ -102,7 +102,7 @@ inline Transform Pool<Transform>::AddComponent(id_t id) {
 template<>
 inline void Pool<Transform>::RemoveComponent(id_t id) {
     id_t transform_id { components_.at(id::index(id)).Id() };
-    if (id_factory_.IsAlive(id)) {
+    if (id_factory_.IsAlive(transform_id)) {
         data_.info.unordered_remove(id::index(transform_id));
         data_.world.unordered_remove(id::index(transform_id));
         data_.invWorld.unordered_remove(id::index(transform_id));

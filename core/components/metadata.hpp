@@ -72,11 +72,12 @@ inline Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initI
 
 template<>
 inline void Pool<Metadata>::RemoveComponent(id_t id) {
-    id_t idx { id::index(id) };
+    const id_t metadata_id { components_.at(id::index(id)).Id() };
+    const u32 idx { id::index(metadata_id) };
     data_.names.unordered_remove(idx);
     data_.comments.unordered_remove(idx);
     data_.dates.unordered_remove(idx);
-    id_factory_.Remove(id);
+    Remove(metadata_id);
 }
 
 }
