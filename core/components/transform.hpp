@@ -80,14 +80,14 @@ private:
 
 template<>
 inline Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&initInfo) {
-    id_t transformId {id_factory_.New()};
+    id_t transformId {id_factory_.New(id::index(entityId))};
 
     data_.info.push_back(std::move(initInfo));
     Transform::Info& data = data_.info.at(Count() - 1);
     data_.world.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
     data_.invWorld.emplace_back(math::Inverse(data_.world.at(Count() - 1)));
     Dirties().emplace_back(4);
-    DirtyIds().insert(entityId);
+    DirtyIds().insert(transformId);
 
     Add(id::index(entityId), transformId);
 

@@ -35,7 +35,7 @@ public:
     T At(id_t id)                       { return components_.at(id::index(id)); }
     std::vector<T>::iterator begin()    { return components_.begin(); };
     std::vector<T>::iterator end()      { return components_.end();   };
-    INLINE u32 GetMappedId(id_t componentId) { return mappedIdx_.at(id::index(componentId)); }
+    INLINE u32 GetMappedId(id_t componentId) { return id_factory_.Mapped(id::index(componentId)); }
     id_t PopNew();
     id_t PopRemoved();
     INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
@@ -45,22 +45,17 @@ public:
     utl::vector<u8>&  Dirties() { return dirties_; }
 
 
-protected:
-
+private:
     void Add(id_t index, id_t id) {
         if (index >= components_.size()) {
             components_.emplace_back(id);
-            owner_ids_.push_back(id);
-            mappedIdx_.push_back(index);
         } else {
             components_.at(index) = T(id);
-            owner_ids_.push_back(id);
-            mappedIdx_.at(id::index(id)) = index;
         }
     }
 
     void Remove(id_t id) {
-        auto last = owner_ids_.back();
+        auto last = id_factory_.Back();
         if (last != id) {
             components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
         }
@@ -71,13 +66,11 @@ protected:
     T::Data data_;
 
     /************* Components IDs ****************/
-    id::Factory                     id_factory_;
-    std::vector<T>                  components_;
-    std::vector<id_t>               mappedIdx_; // mappedIdx[componentId] == component index in components
-    std::vector<id_t>               owner_ids_; // IDs that has geometries
+    id::Factory       id_factory_;
+    std::vector<T>    components_;
 
-    std::queue<id_t> newComponents_;
-    std::queue<id_t> deletedComponents_;
+    std::queue<id_t>  newComponents_;
+    std::queue<id_t>  deletedComponents_;
 
     // Materials must be updated on GPU
     std::set<id_t>     dirtyIds_;
@@ -114,9 +107,10 @@ T Pool<T>::AddComponent() {
 template<typename T>
 void Pool<T>::Update() {
     for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
-        id_t idx = id::index(*it);
-        components_.at(idx).Update();
-        if (dirties_.at(idx) == 0) {
+//        id_t idx = id::index(*it);
+        T component { *it };
+        component.Update();
+        if (dirties_.at(id::index(*it)) == 0) {
             it = dirtyIds_.erase(it);
         } else {
             ++it;

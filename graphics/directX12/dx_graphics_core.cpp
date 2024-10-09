@@ -202,7 +202,7 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update object constants
     for (auto id : dirtyTransforms) {
-        auto trans = core::Entity(id).Component<core::Transform>();
+        core::Transform trans { id } ;
         objConstant.data.worldViewProj = trans.World();
         trans.UnDirty();
         currFrameRes.constantBuffer.CopyData(id::index(id), &objConstant);
@@ -210,7 +210,7 @@ void Dx12::Update(render::Camera &camera) {
 
     // Update material constants
     for (auto id : dirtyMats) {
-        auto geo = core::Entity(id).Component<core::Geometry>();
+        core::Geometry geo { id } ;
         matConstant.data.baseColor = geo.Material().baseColor;
         geo.UnDirty();
         currFrameRes.matBuffer.CopyData(id::index(geo.Id()), &matConstant);

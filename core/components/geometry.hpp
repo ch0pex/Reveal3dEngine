@@ -112,12 +112,12 @@ inline Geometry Pool<Geometry>::AddComponent(id_t entityId) {
 
 template<>
 inline Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &&initInfo) {
-    const id_t geometryId{ id_factory_.New() };
+    const id_t geometryId{ id_factory_.New(id::index(entityId)) };
 
     data_.meshes.push_back(std::move(initInfo));
     data_.materials.emplace_back();
     dirties_.emplace_back(4);
-    dirtyIds_.insert(entityId);
+    dirtyIds_.insert(geometryId);
     newComponents_.push(entityId);
 
     Add(id::index(entityId), geometryId);

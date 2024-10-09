@@ -120,7 +120,7 @@ void Geometry::SetRoughness(f32 roughness) {
 u8 Geometry::Dirty() const { return Pool().Dirties().at(id::index(id_)); }
 
 void Geometry::UnDirty() const {
-    const id_t idx = id::index(Pool().GetMappedId(id_));
+    const id_t idx = id::index(id_);
     if (Pool().Dirties().at(idx) != 0) {
         --Pool().Dirties().at(idx);
     }
@@ -130,14 +130,13 @@ void Geometry::UnDirty() const {
 }
 
 void Geometry::SetDirty() const {
-    const id_t idx = id::index(Pool().GetMappedId(id_));
     if (Dirty() == 3) {
         return;
     }
     if (Dirty() == 0) {
-        Pool().DirtyIds().insert(idx);
+        Pool().DirtyIds().insert(id_);
     }
-    Pool().Dirties().at(idx) = 3;
+    Pool().Dirties().at(id::index(id_)) = 3;
 }
 
 void Geometry::Update() {

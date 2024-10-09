@@ -93,7 +93,7 @@ void Transform::SetWorldScale(const math::xvec3 size) {
     }
     Pool().Data().InvWorld(id_) = math::Inverse(Pool().Data().World(id_));
     Pool().Dirties().at(id::index(id_)) = 3;
-    Pool().DirtyIds().insert(id::index(id_));
+    Pool().DirtyIds().insert(id_);
     UpdateChilds();
 }
 
@@ -108,7 +108,7 @@ void Transform::SetWorldRotation(const math::xvec3 rot) {
     }
     Pool().Data().InvWorld(id_) = math::Inverse(Pool().Data().World(id_));
     Pool().Dirties().at(id::index(id_)) = 3;
-    Pool().DirtyIds().insert(id::index(id_));
+    Pool().DirtyIds().insert(id_);
     UpdateChilds();
 }
 
@@ -160,13 +160,12 @@ void Transform::UnDirty() const {
 }
 
 void Transform::SetDirty() const {
-    const id_t idx = id::index(Pool().GetMappedId(id_));
     if (Dirty() == 4)
         return;
     if (Dirty() == 0)
         Pool().DirtyIds().insert(id_);
     UpdateChilds();
-    Pool().Dirties().at(idx) = 4;
+    Pool().Dirties().at(id::index(id_)) = 4;
 }
 
 u8 Transform::Dirty() const {
