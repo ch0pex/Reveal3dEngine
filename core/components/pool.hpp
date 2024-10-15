@@ -113,6 +113,8 @@ void Pool<T>::Update() {
             ++it;
         }
     }
+#undef _DEBUG
+//#define _DEBUG
 #ifdef _DEBUG
     std::set<id_t> comps_;
     for (auto comp : components_) {
