@@ -273,6 +273,10 @@ void Dx12::Resize(const window::Resolution &res) {
         return;
     }
 
+    if (res.width == 0 and res.height == 0) {
+        return;
+    }
+
     cmdManager_.WaitForGPU();
 
     cmdManager_.Reset(nullptr);
