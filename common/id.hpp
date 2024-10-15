@@ -40,7 +40,7 @@ namespace reveal3d::id {
 constexpr u32 generationBits    { 8 };
 constexpr u32 indexBits         { sizeof(id_t) * 8 - generationBits };
 constexpr id_t generationMask   { (id_t { 1 } << generationBits) - 1 };
-constexpr id_t indexMask        { (id_t { 1 } << generationBits) - 1 };
+constexpr id_t indexMask        { (id_t { 1 } << indexBits) - 1 };
 
 constexpr id_t invalid          { ~id_t{ 0 } };
 constexpr u32  maxFree          { 1024 };
