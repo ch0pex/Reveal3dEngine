@@ -42,7 +42,7 @@ public:
 
     using InitInfo = Info;
 
-    Transform() = default;
+    Transform() : id_(id::invalid) {}
     explicit Transform(id_t id);
 
     [[nodiscard]] math::mat4& World() const;
@@ -90,6 +90,8 @@ inline Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInf
     DirtyIds().insert(transformId);
 
     Add(id::index(entityId), transformId);
+
+    assert(id::index(transformId) < data_.Count());
 
     return components_.at(id::index(entityId));
 }

@@ -46,6 +46,7 @@ Entity Scene::NewEntity() {
 
     if (id::index(entity.Id()) < sceneGraph_.size()) {
         sceneGraph_.at(id::index(entity.Id())) = node;
+        freeNodes_.pop_front();
     } else {
         sceneGraph_.push_back(node);
         geometryPool_.AddComponent();
@@ -111,7 +112,6 @@ Entity Scene::RemoveEntity(id_t id) {
 void Scene::RemoveNode(id_t id) {
     if (!id::isValid(id)) return;
     Node& node = GetNode(id);
-//    idFactory_.Remove(id);
     freeNodes_.push_back(node.entity.Id());
     transformPool_.RemoveComponent(id);
     metadataPool_.RemoveComponent(id);
@@ -166,6 +166,8 @@ void Scene::Update(f32 dt) {
     geometryPool_.Update();
     scriptPool_.Update();
     metadataPool_.Update();
+    assert(transformPool_.Count() == Count());
+    assert(metadataPool_.Count() == Count());
 }
 
 Scene::~Scene() {

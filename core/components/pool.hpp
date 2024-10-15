@@ -21,7 +21,6 @@
 
 namespace reveal3d::core {
 
-//NOTE: be careful with performance and inheritance
 template<typename T>
 class Pool {
 public:
@@ -43,8 +42,6 @@ public:
 
     std::set<id_t>& DirtyIds() { return dirtyIds_; }
     utl::vector<u8>&  Dirties() { return dirties_; }
-
-
 private:
     void Add(id_t index, id_t id) {
         if (index >= components_.size()) {
@@ -55,10 +52,10 @@ private:
     }
 
     void Remove(id_t id) { // TODO This is bugged
-        auto last = id_factory_.Back();
+        auto last = components_.at(id_factory_.Back()).Id();
         u32 idx { id_factory_.Mapped(id) };
         if (last != id) {
-            components_.at(id::index(last)) = T(id::index(id) | id::generation(last));
+            components_.at(id::index(GetMappedId(last))) = T(id::index(id) | id::generation(last));
         }
         components_.at(idx) = {};
         id_factory_.Remove(id);
@@ -73,7 +70,6 @@ private:
     std::queue<id_t>  newComponents_;
     std::queue<id_t>  deletedComponents_;
 
-    // Materials must be updated on GPU
     std::set<id_t>     dirtyIds_;
     utl::vector<u8>    dirties_;
 };
@@ -117,6 +113,18 @@ void Pool<T>::Update() {
             ++it;
         }
     }
+#ifdef _DEBUG
+    std::set<id_t> comps_;
+    for (auto comp : components_) {
+       if (comp.Id() == id::invalid)  continue;
+
+        if (comps_.find(comp.Id()) != comps_.end()) {
+            assert(false);
+        }
+        comps_.insert(comp.Id());
+    }
+#endif
+
 }
 
 

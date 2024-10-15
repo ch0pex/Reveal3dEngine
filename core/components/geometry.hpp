@@ -97,7 +97,7 @@ private:
 
 template<>
 inline Geometry Pool<Geometry>::AddComponent(id_t entityId) {
-    const id_t geometryId{ id_factory_.New() };
+    const id_t geometryId{ id_factory_.New(id::index(entityId)) };
 
     data_.meshes.emplace_back();
     data_.subMeshes.emplace_back();
@@ -129,7 +129,6 @@ inline Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &
             .indexCount = components_.at(id::index(entityId)).IndexCount(),
             .visible = true,
     });
-
 
     return components_.at(id::index(entityId));
 }

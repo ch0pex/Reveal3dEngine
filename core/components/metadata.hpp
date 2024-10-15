@@ -22,7 +22,6 @@ namespace reveal3d::core {
 class Metadata {
 public:
     using InitInfo = std::string;
-
     struct Data {
         u32 Count() { return names.size(); }
         utl::vector<std::string> names;
@@ -30,7 +29,7 @@ public:
         utl::vector<std::string> dates;
     };
 
-    Metadata() = default;
+    Metadata() : id_(id::invalid) {}
     explicit Metadata(id_t id);
 
     std::string& Name();
@@ -60,12 +59,14 @@ inline Metadata Pool<Metadata>::AddComponent(id_t id) {
 
 template<>
 inline Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
-    const id_t metadata_id { id_factory_.New() };
+    const id_t metadata_id { id_factory_.New(id::index(id)) };
 
     data_.names.emplace_back(std::move(initInfo));
     data_.comments.emplace_back();
     data_.dates.emplace_back("10/12/2024");  //TODO
     Add(id::index(id), metadata_id);
+
+    assert(id::index(metadata_id) < data_.Count());
 
     return Metadata(metadata_id);
 }

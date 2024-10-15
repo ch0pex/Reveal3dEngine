@@ -90,7 +90,7 @@ public:
         return true;
     }
 
-    id_t New() {
+    id_t New(u32 index) {
         id_t id;
         if (UseFree()) {
             id = freeIndices_.front();
@@ -98,29 +98,12 @@ public:
             id |=  (generations_.at(freeIndices_.front()) << indexBits);
             freeIndices_.pop_front();
         } else {
-            id = id::index(generations_.size());
-            generations_.push_back(0);
-            mappedIdx_.push_back(id::index(id));
-        }
-        owner_ids_.push_back(id);
-        mappedIdx_.at(id::index(id)) = id::index(id);
-        return id;
-    }
-
-    id_t New(u32 index) {
-        id_t id;
-        if (UseFree()) {
-            id = id::index(owner_ids_.size());
-            ++generations_[id];
-            id |=  (generations_.at(freeIndices_.front()) << indexBits);
-            freeIndices_.pop_front();
-        } else {
-            id = id::index(owner_ids_.size());
+            id = id::index(ownerIdx_.size());
             generations_.push_back(0);
             mappedIdx_.push_back(id::index(id));
         }
 
-        owner_ids_.emplace_back(id::index(id));
+        ownerIdx_.emplace_back(index);
         mappedIdx_.at(id::index(id)) = index;
 
         return id;
@@ -128,12 +111,11 @@ public:
 
     void Remove(id_t id) {
         assert(IsAlive(id));
-        id_t index { mappedIdx_.at(id::index(id))};
-        auto last = Back();
+        id_t index { mappedIdx_.at(id::index(ownerIdx_.size() - 1))};
 
-        owner_ids_.unordered_remove(id::index(id));
         mappedIdx_.at(id::index(id)) = index;
-        mappedIdx_.at(id::index(last)) = id::invalid;
+        mappedIdx_.at(ownerIdx_.size() - 1) = id::invalid;
+        ownerIdx_.unordered_remove(id::index(id));
 
         if (generations_.at(index) < maxGeneration) {
             freeIndices_.push_back(index);
@@ -141,19 +123,18 @@ public:
     }
 
     id_t Back() {
-       return owner_ids_.back();
+       return ownerIdx_.back();
     }
 
     id_t Mapped(id_t id) {
        return mappedIdx_.at(id::index(id));
     }
 
-
 private:
     std::vector<id_t>   generations_;
     std::deque<id_t>    freeIndices_;
     std::vector<id_t>   mappedIdx_; // mappedIdx[componentId] == component index
-    utl::vector<id_t>   owner_ids_; // ownerIds[dataIndex] == component id
+    utl::vector<id_t>   ownerIdx_; // ownerIds[dataIndex] == component index
 };
 
 }
