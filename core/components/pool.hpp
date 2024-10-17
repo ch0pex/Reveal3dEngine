@@ -22,6 +22,12 @@
 namespace reveal3d::core {
 
 template<typename T>
+concept component = requires(T component) {
+    {component.IsAlive()} -> std::same_as<bool>;
+    {component.Id()} -> std::same_as<id_t>;
+};
+
+template<component T>
 class Pool {
 public:
     T AddComponent();
@@ -74,7 +80,7 @@ private:
     utl::vector<u8>    dirties_;
 };
 
-template<typename T>
+template<component T>
 id_t Pool<T>::PopNew() {
     if (newComponents_.empty()) {
         return id::invalid;
@@ -84,7 +90,7 @@ id_t Pool<T>::PopNew() {
     return id;
 }
 
-template<typename T>
+template<component T>
 id_t Pool<T>::PopRemoved() {
     if (deletedComponents_.empty()) {
         return id::invalid;
@@ -94,14 +100,14 @@ id_t Pool<T>::PopRemoved() {
     return id;
 }
 
-template<typename T>
+template<component T>
 T Pool<T>::AddComponent() {
         components_.emplace_back();
         dirties_.emplace_back(4);
         return components_.at(components_.size() - 1);
 }
 
-template<typename T>
+template<component T>
 void Pool<T>::Update() {
     for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
 //        id_t idx = id::index(*it);

@@ -34,6 +34,8 @@ public:
         math::mat4& InvWorld(id_t id)    { return invWorld.at(id::index(id)); }
         Transform::Info& Info(id_t id)   { return info.at(id::index(id)); }
         const u32 Count()                { return info.size(); }
+        void Remove(u32 index)           {
+        }
 
         utl::vector<math::mat4>         world;
         utl::vector<math::mat4>         invWorld;
@@ -71,7 +73,6 @@ public:
 
 
 private:
-    [[nodiscard]] static Pool<Transform>& Pool();
     static math::mat4 CalcWorld(id_t id);
     void UpdateChilds() const;
 

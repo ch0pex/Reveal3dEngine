@@ -90,7 +90,6 @@ public:
     void Update();
 
 private:
-    [[nodiscard]] static Pool<Geometry>& Pool();
 
     id_t id_;
 };

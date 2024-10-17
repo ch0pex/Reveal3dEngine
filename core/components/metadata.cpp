@@ -17,22 +17,22 @@
 
 namespace reveal3d::core {
 
+Pool<Metadata>& pool() {
+    return core::scene.ComponentPool<Metadata>();
+}
+
 Metadata::Metadata(id_t id) : id_(id) { }
 
 std::string& Metadata::Name() {
-    return Pool().Data().names.at(id::index(id_));
+    return pool().Data().names.at(id::index(id_));
 }
 
 std::string& Metadata::Comment() {
-    return Pool().Data().comments.at(id::index(id_));
+    return pool().Data().comments.at(id::index(id_));
 }
 
 std::string& Metadata::Date() {
-    return Pool().Data().dates.at(id::index(id_));
-}
-
-Pool<Metadata>& Metadata::Pool(){
-    return core::scene.ComponentPool<Metadata>();
+    return pool().Data().dates.at(id::index(id_));
 }
 
 void Metadata::Update() {

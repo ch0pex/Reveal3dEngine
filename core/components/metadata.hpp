@@ -40,7 +40,6 @@ public:
     [[nodiscard]] INLINE id_t Id() const { return id_; }
     void Update();
 private:
-    [[nodiscard]] static Pool<Metadata>& Pool();
     id_t id_;
 };
 

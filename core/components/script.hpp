@@ -61,7 +61,6 @@ public:
     void DisableDestroyed();
 
 private:
-    [[nodiscard]] static Pool<Script>& Pool();
     id_t id_ { id::invalid };
 };
 

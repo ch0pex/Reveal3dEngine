@@ -18,6 +18,8 @@
 
 namespace reveal3d::core {
 
+static Pool<core::Geometry>& pool() { return core::scene.ComponentPool<Geometry>(); }
+
 Geometry::Geometry() : id_{id::invalid} {}
 
 Geometry::Geometry(id_t id) : id_{id} {}
@@ -39,7 +41,7 @@ Geometry &Geometry::operator=(Geometry &&other) noexcept {
 // instead of appending it
 void Geometry::AddMesh(render::Mesh &mesh) {
     render::SubMesh subMesh;
-    Pool().Data().Mesh(id_) = std::move(mesh);
+    pool().Data().Mesh(id_) = std::move(mesh);
 
     subMesh.vertexPos = VertexCount();
     subMesh.indexPos = 0;
@@ -49,7 +51,7 @@ void Geometry::AddMesh(render::Mesh &mesh) {
 
 void Geometry::AddMesh(Geometry::Primitive type) {
 
-    render::SubMesh &subMesh = Pool().Data().SubMeshes(id_)[0]; // Only one submesh for now
+    render::SubMesh &subMesh = pool().Data().SubMeshes(id_)[0]; // Only one submesh for now
 
     subMesh.vertexPos = VertexCount();
     subMesh.indexPos = IndexCount();
@@ -57,75 +59,74 @@ void Geometry::AddMesh(Geometry::Primitive type) {
 
     switch (type) {
         case cube:
-            content::GetCubeData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetCubeData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
         case plane:
-            content::GetPlaneData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetPlaneData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
         case cylinder:
-            content::GetCylinderData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetCylinderData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
         case sphere:
-            content::GetSphereData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetSphereData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
         case cone:
-            content::GetConeData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetConeData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
         case torus:
-            content::GetTorusData(Pool().Data().Mesh(id_).vertices, Pool().Data().Mesh(id_).indices);
+            content::GetTorusData(pool().Data().Mesh(id_).vertices, pool().Data().Mesh(id_).indices);
             break;
     }
 
     subMesh.indexCount = IndexCount() - subMesh.indexCount;
 }
 
-Pool<core::Geometry> &Geometry::Pool() { return core::scene.ComponentPool<Geometry>(); }
 
-u32 Geometry::VertexCount() const { return Pool().Data().Mesh(id_).vertices.size(); }
+u32 Geometry::VertexCount() const { return pool().Data().Mesh(id_).vertices.size(); }
 
-u32 Geometry::IndexCount() const { return Pool().Data().Mesh(id_).indices.size(); }
+u32 Geometry::IndexCount() const { return pool().Data().Mesh(id_).indices.size(); }
 
-std::span<render::SubMesh> Geometry::SubMeshes() const { return Pool().Data().SubMeshes(id_); }
+std::span<render::SubMesh> Geometry::SubMeshes() const { return pool().Data().SubMeshes(id_); }
 
-std::vector<render::Vertex> &Geometry::Vertices() const { return Pool().Data().Mesh(id_).vertices; }
+std::vector<render::Vertex> &Geometry::Vertices() const { return pool().Data().Mesh(id_).vertices; }
 
-std::vector<u32> &Geometry::Indices() const { return Pool().Data().Mesh(id_).indices; }
+std::vector<u32> &Geometry::Indices() const { return pool().Data().Mesh(id_).indices; }
 
-void Geometry::SetVisibility(bool visibility) { Pool().Data().SubMeshes(id_)[0].visible = visibility; }
+void Geometry::SetVisibility(bool visibility) { pool().Data().SubMeshes(id_)[0].visible = visibility; }
 
-bool Geometry::IsVisible() const { return Pool().Data().SubMeshes(id_)[0].visible; }
+bool Geometry::IsVisible() const { return pool().Data().SubMeshes(id_)[0].visible; }
 
-const render::Material &Geometry::Material() { return Pool().Data().Material(id_); }
+const render::Material &Geometry::Material() { return pool().Data().Material(id_); }
 
 void Geometry::SetDiffuseColor(math::vec4 color) {
-    Pool().Data().Material(id_).baseColor = color;
+    pool().Data().Material(id_).baseColor = color;
     SetDirty();
 }
 
 void Geometry::SetFresnel(math::vec3 fresnel) {
-    Pool().Data().Material(id_).fresnel = fresnel;
+    pool().Data().Material(id_).fresnel = fresnel;
     SetDirty();
 }
 
 void Geometry::SetMatTransform(math::mat4 transform) {
-    Pool().Data().Material(id_).matTransform = transform;
+    pool().Data().Material(id_).matTransform = transform;
     SetDirty();
 }
 
 void Geometry::SetRoughness(f32 roughness) {
-    Pool().Data().Material(id_).roughness = roughness;
+    pool().Data().Material(id_).roughness = roughness;
     SetDirty();
 }
 
-u8 Geometry::Dirty() const { return Pool().Dirties().at(id::index(id_)); }
+u8 Geometry::Dirty() const { return pool().Dirties().at(id::index(id_)); }
 
 void Geometry::UnDirty() const {
     const id_t idx = id::index(id_);
-    if (Pool().Dirties().at(idx) != 0) {
-        --Pool().Dirties().at(idx);
+    if (pool().Dirties().at(idx) != 0) {
+        --pool().Dirties().at(idx);
     }
     else {
-        Pool().Dirties().at(idx) = 0;
+        pool().Dirties().at(idx) = 0;
     }
 }
 
@@ -134,9 +135,9 @@ void Geometry::SetDirty() const {
         return;
     }
     if (Dirty() == 0) {
-        Pool().DirtyIds().insert(id_);
+        pool().DirtyIds().insert(id_);
     }
-    Pool().Dirties().at(id::index(id_)) = 3;
+    pool().Dirties().at(id::index(id_)) = 3;
 }
 
 void Geometry::Update() {
