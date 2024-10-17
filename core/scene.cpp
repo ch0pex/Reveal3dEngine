@@ -44,7 +44,7 @@ Entity Scene::NewEntity() {
        sceneGraph_.at(lastNode_).next = node.entity;
     }
 
-    if (id::index(entity.Id()) < sceneGraph_.size()) {
+    if (id::maxFree < freeNodes_.size()) {
         sceneGraph_.at(id::index(entity.Id())) = node;
         freeNodes_.pop_front();
     } else {
@@ -84,7 +84,7 @@ Entity Scene::NewChildEntity(Entity parent) {
         parentNode.firstChild = childNode.entity;
     }
 
-    if (id::index(child.Id()) < sceneGraph_.size()) {
+    if (id::maxFree < freeNodes_.size()) {
         sceneGraph_.at(id::index(child.Id())) = childNode;
         freeNodes_.pop_front();
     } else {
