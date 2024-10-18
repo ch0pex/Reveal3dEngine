@@ -48,7 +48,7 @@ public:
     RootSignature(u32 numParams = 0);
     void Reset(u32 numRootParams);
     void Finalize(ID3D12Device *device);
-    INLINE ID3D12RootSignature* Get() { return signature_.Get(); }
+    inline ID3D12RootSignature* Get() { return signature_.Get(); }
 
     CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex );
     const CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex ) const;

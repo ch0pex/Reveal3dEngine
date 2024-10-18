@@ -30,7 +30,7 @@ public:
     void Terminate();
     void Resize(const window::Resolution &res);
 
-    INLINE void SetWindow(WHandle wHandle) { window_ = wHandle; }
+    inline void SetWindow(WHandle wHandle) { window_ = wHandle; }
 
 private:
     void CreateContext();

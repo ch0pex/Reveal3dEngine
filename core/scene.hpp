@@ -54,7 +54,7 @@ public:
     template<component T> void RemoveComponent();
     Entity AddChild();
 
-    [[nodiscard]] INLINE u32 Id() const { return id_; }
+    [[nodiscard]] inline u32 Id() const { return id_; }
     bool IsAlive() const;
 
 private:
@@ -82,11 +82,11 @@ public:
     bool   IsEntityAlive(id_t id);
 
     /******************************* Scene Graph methods ******************************/
-    [[nodiscard]] INLINE const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
-    [[nodiscard]] INLINE u32 Count() const { return sceneGraph_.size() - freeNodes_.size(); }
-    INLINE Entity GetEntity(id_t id) const { return sceneGraph_.at(id::index(id)).entity; }
-    INLINE Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
-    INLINE Node& Root() { return sceneGraph_.at(rootNode_); }
+    [[nodiscard]] inline const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
+    [[nodiscard]] inline u32 Count() const { return sceneGraph_.size() - freeNodes_.size(); }
+    inline Entity GetEntity(id_t id) const { return sceneGraph_.at(id::index(id)).entity; }
+    inline Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
+    inline Node& Root() { return sceneGraph_.at(rootNode_); }
 
     template<component T>
     Pool<T>& ComponentPool() noexcept;

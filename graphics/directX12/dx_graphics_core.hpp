@@ -46,9 +46,9 @@ public:
     void RenderSurface();
     void Terminate();
     void Resize(const window::Resolution &res);
-    INLINE void SetWindow(WHandle& winHandle) { surface_.SetWindow(winHandle); }
-    INLINE ID3D12Device* GetDevice() { return device_.Get(); }
-    INLINE dx12::Heaps& GetHeaps() { return heaps_;}
+    inline void SetWindow(WHandle& winHandle) { surface_.SetWindow(winHandle); }
+    inline ID3D12Device* GetDevice() { return device_.Get(); }
+    inline dx12::Heaps& GetHeaps() { return heaps_;}
 
 private:
     void InitDXGIAdapter();

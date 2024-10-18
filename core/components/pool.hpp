@@ -21,14 +21,56 @@
 
 namespace reveal3d::core {
 
+namespace detail {
+
+template<bool UseGPUSync>
+struct GPUSyncronizer {};
+
+template<>
+class GPUSyncronizer<true> {
+public:
+    id_t PopNew() {
+        if (newComponents_.empty()) {
+            return id::invalid;
+        }
+        const auto id = newComponents_.front();
+        newComponents_.pop();
+        return id;
+    }
+    id_t PopRemoved() {
+        if (deletedComponents_.empty()) {
+            return id::invalid;
+        }
+        const auto id = deletedComponents_.front();
+        deletedComponents_.pop();
+        return id;
+    }
+    inline std::set<id_t>&  DirtyElements() { return dirtyIds_; }
+    std::set<id_t>& DirtyIds() { return dirtyIds_; }
+    utl::vector<u8>&  Dirties() { return dirties_; }
+
+protected:
+    std::queue<id_t>  newComponents_;
+    std::queue<id_t>  deletedComponents_;
+
+    std::set<id_t>     dirtyIds_;
+    utl::vector<u8>    dirties_;
+};
+
+}
+
 template<typename T>
 concept component = requires(T component) {
     {component.IsAlive()} -> std::same_as<bool>;
     {component.Id()} -> std::same_as<id_t>;
+    {component.Update()} -> std::same_as<void>;
+    {T::OnGPU} -> std::convertible_to<bool>;
+    typename T::Data;
+    typename T::InitInfo;
 };
 
 template<component T>
-class Pool {
+        class Pool : public detail::GPUSyncronizer<T::OnGPU> {
 public:
     T AddComponent();
     T AddComponent(id_t id);
@@ -40,32 +82,12 @@ public:
     T At(id_t id)                       { return components_.at(id::index(id)); }
     std::vector<T>::iterator begin()    { return components_.begin(); };
     std::vector<T>::iterator end()      { return components_.end();   };
-    INLINE u32 GetMappedId(id_t componentId) { return id_factory_.Mapped(id::index(componentId)); }
-    id_t PopNew();
-    id_t PopRemoved();
-    INLINE std::set<id_t>&  DirtyElements() { return dirtyIds_; }
+    inline u32 GetMappedId(id_t componentId) { return id_factory_.Mapped(id::index(componentId)); }
     T::Data& Data() { return data_; }
-
-    std::set<id_t>& DirtyIds() { return dirtyIds_; }
-    utl::vector<u8>&  Dirties() { return dirties_; }
 private:
-    void Add(id_t index, id_t id) {
-        if (index >= components_.size()) {
-            components_.emplace_back(id);
-        } else {
-            components_.at(index) = T(id);
-        }
-    }
+    void Add(id_t index, id_t id);
 
-    void Remove(id_t id) { // TODO This is bugged
-        auto last = components_.at(id_factory_.Back()).Id();
-        u32 idx { id_factory_.Mapped(id) };
-        if (last != id) {
-            components_.at(id::index(GetMappedId(last))) = T(id::index(id) | id::generation(last));
-        }
-        components_.at(idx) = {};
-        id_factory_.Remove(id);
-    }
+    void Remove(id_t id);
     /************* Component Data ****************/
     T::Data data_;
 
@@ -73,51 +95,52 @@ private:
     id::Factory       id_factory_;
     std::vector<T>    components_;
 
-    std::queue<id_t>  newComponents_;
-    std::queue<id_t>  deletedComponents_;
-
-    std::set<id_t>     dirtyIds_;
-    utl::vector<u8>    dirties_;
 };
 
 template<component T>
-id_t Pool<T>::PopNew() {
-    if (newComponents_.empty()) {
-        return id::invalid;
+void Pool<T>::Add(id_t index, id_t id) {
+    if (index >= components_.size()) {
+        components_.emplace_back(id);
+    } else {
+        components_.at(index) = T(id);
     }
-    const auto id = newComponents_.front();
-    newComponents_.pop();
-    return id;
-}
-
-template<component T>
-id_t Pool<T>::PopRemoved() {
-    if (deletedComponents_.empty()) {
-        return id::invalid;
-    }
-    const auto id = deletedComponents_.front();
-    deletedComponents_.pop();
-    return id;
 }
 
 template<component T>
 T Pool<T>::AddComponent() {
         components_.emplace_back();
-        dirties_.emplace_back(4);
+        if constexpr (T::OnGPU) {
+            this->dirties_.emplace_back(4);
+        }
         return components_.at(components_.size() - 1);
 }
 
 template<component T>
+void Pool<T>::Remove(id_t id) {
+    auto last = components_.at(id_factory_.Back()).Id();
+    u32 idx { id_factory_.Mapped(id) };
+    if (last != id) {
+        components_.at(id::index(GetMappedId(last))) = T(id::index(id) | id::generation(last));
+    }
+    components_.at(idx) = {};
+    id_factory_.Remove(id);
+}
+
+template<component T>
 void Pool<T>::Update() {
-    for (auto it = dirtyIds_.begin(); it != dirtyIds_.end();) {
+    if constexpr (T::OnGPU) {
+        for (auto it = this->dirtyIds_.begin(); it != this->dirtyIds_.end();) {
 //        id_t idx = id::index(*it);
-        T component { *it };
-        component.Update();
-        if (dirties_.at(id::index(*it)) == 0) {
-            it = dirtyIds_.erase(it);
-        } else {
-            ++it;
+            T component { *it };
+            component.Update();
+            if (this->dirties_.at(id::index(*it)) == 0) {
+                it = this->dirtyIds_.erase(it);
+            } else {
+                ++it;
+            }
         }
+    } else {
+       //  TODO
     }
 //    std::set<id_t> comps_;
 //    for (auto comp : components_) {

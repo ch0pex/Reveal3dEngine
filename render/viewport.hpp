@@ -44,7 +44,7 @@ struct Viewport {
     void Init();
     void Run();
     f64 BenchMark(u32 seconds);
-    INLINE Timer& Time() { return timer; }
+    inline Timer& Time() { return timer; }
 
     Window window;
     Renderer<Gfx> renderer;

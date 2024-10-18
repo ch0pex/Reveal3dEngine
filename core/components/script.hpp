@@ -29,6 +29,7 @@ public:
 class Script {
 public:
     using InitInfo = std::unique_ptr<ScriptBase>;
+    constexpr static bool OnGPU = false;
 
     struct Flag { 
         u8 begin   : 1; // Begin function active
@@ -46,8 +47,8 @@ public:
     explicit Script(id_t id);
     Script(id_t id, InitInfo script);
 
-    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] INLINE id_t Id() const { return id_; }
+    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t Id() const { return id_; }
 
     void Begin();
     void Update();

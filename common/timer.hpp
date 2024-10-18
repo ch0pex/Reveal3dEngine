@@ -46,11 +46,11 @@ public:
 private:
 
 #ifdef _WIN32
-    static INLINE void QueryFrequency(i64 &time) { QueryPerformanceFrequency((LARGE_INTEGER *) &time); }
-    static INLINE void QueryCounter(i64 &time) { QueryPerformanceCounter((LARGE_INTEGER *) &time); }
+    static inline void QueryFrequency(i64 &time) { QueryPerformanceFrequency((LARGE_INTEGER *) &time); }
+    static inline void QueryCounter(i64 &time) { QueryPerformanceCounter((LARGE_INTEGER *) &time); }
 #else
-    static INLINE void QueryFrequency(i64 &time) { time = 1000000000; }
-    static INLINE void QueryCounter(i64 &time) {
+    static inline void QueryFrequency(i64 &time) { time = 1000000000; }
+    static inline void QueryCounter(i64 &time) {
         auto now = std::chrono::high_resolution_clock::now();
         auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
         ime = now_ns.time_since_epoch().count();

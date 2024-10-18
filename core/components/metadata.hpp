@@ -22,6 +22,7 @@ namespace reveal3d::core {
 class Metadata {
 public:
     using InitInfo = std::string;
+    constexpr static bool OnGPU = false;
     struct Data {
         u32 Count() { return names.size(); }
         utl::vector<std::string> names;
@@ -36,8 +37,8 @@ public:
     std::string& Comment();
     std::string& Date();
 
-    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] INLINE id_t Id() const { return id_; }
+    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t Id() const { return id_; }
     void Update();
 private:
     id_t id_;

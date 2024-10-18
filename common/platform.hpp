@@ -20,7 +20,7 @@
 #include <windows.h>
 
 
-#define INLINE __forceinline
+//#define inline __forceinline
 using namespace DirectX;
 
 struct WHandle {
@@ -35,7 +35,7 @@ struct WHandle {
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#define INLINE inline
+#define inline inline
 
 using WHandle = GLFWwindow*;
 

@@ -41,8 +41,8 @@ public:
     void DrawLayer(ID3D12GraphicsCommandList* cmdList, FrameResource& frame, std::vector<RenderElement> &elements, u32 layer);
     void DrawEffectLayer(ID3D12GraphicsCommandList* cmdList, u32 layer);
 
-    INLINE Layer& operator[] (u32 index) { return layers_.at(index); }
-    INLINE const Layer& operator[] (u32 index) const { return layers_.at(index); }
+    inline Layer& operator[] (u32 index) { return layers_.at(index); }
+    inline const Layer& operator[] (u32 index) const { return layers_.at(index); }
 private:
     std::array<Layer ,render::Shader::count> layers_;
     std::array<std::vector<render::SubMesh *>, render::Shader::count> meshes_;

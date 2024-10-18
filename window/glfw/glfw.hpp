@@ -34,8 +34,8 @@ public:
     void CloseWindow(input::action act, input::type type);
     bool ShouldClose();
 
-    [[nodiscard]] INLINE Resolution& GetRes() { return info_.res; }
-    [[nodiscard]] INLINE WHandle GetHandle() const { return info_.handle; }
+    [[nodiscard]] inline Resolution& GetRes() { return info_.res; }
+    [[nodiscard]] inline WHandle GetHandle() const { return info_.handle; }
 private:
     template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
 

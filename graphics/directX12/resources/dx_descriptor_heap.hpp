@@ -45,14 +45,14 @@ public:
     DescriptorHeap& operator=(DescriptorHeap&&) = delete;
     ~DescriptorHeap() = default;
 
-    //INLINE D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
-    INLINE ID3D12DescriptorHeap* Get() { return heap_; };
-    INLINE D3D12_CPU_DESCRIPTOR_HANDLE CpuStart() { return cpuStart_; }
-    INLINE D3D12_GPU_DESCRIPTOR_HANDLE GpuStart() { return gpuStart_; }
-    INLINE u32 Capacity() { return capacity_; }
-    INLINE u32 Size() { return size_; }
-    INLINE u32 DescriptorSize() { return capacity_; }
-    INLINE bool IsShaderVisible() { return gpuStart_.ptr != 0; }
+    //inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
+    inline ID3D12DescriptorHeap* Get() { return heap_; };
+    inline D3D12_CPU_DESCRIPTOR_HANDLE CpuStart() { return cpuStart_; }
+    inline D3D12_GPU_DESCRIPTOR_HANDLE GpuStart() { return gpuStart_; }
+    inline u32 Capacity() { return capacity_; }
+    inline u32 Size() { return size_; }
+    inline u32 DescriptorSize() { return capacity_; }
+    inline bool IsShaderVisible() { return gpuStart_.ptr != 0; }
 
     bool Initialize(ID3D12Device *device, u32 capacity, bool isShaderVisible);
     [[nodiscard]] DescriptorHandle alloc();

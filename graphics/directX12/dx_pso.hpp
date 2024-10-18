@@ -37,7 +37,7 @@ public:
     void SetDSVFormat(const DXGI_FORMAT dsvFormat);
 
     void Finalize(ID3D12Device *device);
-    INLINE ID3D12PipelineState* Get() { return pipelineState_.Get(); }
+    inline ID3D12PipelineState* Get() { return pipelineState_.Get(); }
 
 
 private:

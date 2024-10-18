@@ -50,6 +50,7 @@ public:
     };
 
     using InitInfo = render::Mesh;
+    constexpr static bool OnGPU = true;
 
     Geometry();
     Geometry(Geometry& other);
@@ -81,8 +82,8 @@ public:
     void SetFresnel(math::vec3 fresnel);
     void SetMatTransform(math::mat4 transform);
 
-    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] INLINE id_t Id() const { return id_; }
+    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t Id() const { return id_; }
 
     [[nodiscard]] u8 Dirty() const;
     void UnDirty() const;

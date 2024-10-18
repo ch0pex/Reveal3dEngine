@@ -28,8 +28,8 @@ public:
     void AddMesh(render::SubMesh &mesh);
     void Draw(std::vector<RenderElement>& renderElments, math::mat4 &passConstants, u32 layer);
 
-    INLINE Layer& operator[] (u32 index) { return layers_[index]; }
-    INLINE const Layer& operator[] (u32 index) const { return layers_[index]; }
+    inline Layer& operator[] (u32 index) { return layers_[index]; }
+    inline const Layer& operator[] (u32 index) const { return layers_[index]; }
 
 private:
     static std::string ReadShader(const char* fileName);

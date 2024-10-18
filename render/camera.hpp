@@ -27,16 +27,16 @@ public:
     void Resize(const window::Resolution &res);
     // TODO: Frustum
 
-    [[nodiscard]] INLINE math::mat4 GetProjectionMatrix() const { return projectionMatrix_; }
-    [[nodiscard]] INLINE math::mat4 const GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
-    [[nodiscard]] INLINE math::mat4 GetViewMatrix() const { return viewMatrix_; }
+    [[nodiscard]] inline math::mat4 GetProjectionMatrix() const { return projectionMatrix_; }
+    [[nodiscard]] inline math::mat4 const GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
+    [[nodiscard]] inline math::mat4 GetViewMatrix() const { return viewMatrix_; }
 
     /********* Input handling ************/
     void Move(input::action dir, input::type value);
     void SetLooking(input::action action, input::type value);
     void SetNewMousePos(input::action action, math::vec2 mousePos);
 
-    INLINE void ResetMouse() { firstMouse_ = true; }
+    inline void ResetMouse() { firstMouse_ = true; }
 
 private:
     void UpdatePos(math::scalar dt);

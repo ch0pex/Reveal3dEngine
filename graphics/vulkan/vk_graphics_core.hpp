@@ -28,8 +28,8 @@ public:
     void Update(render::Camera &camera) {}
     void SetWindow(WHandle winHandle) {}
 
-    [[nodiscard]] INLINE u32 GetWidth() const { return width_; }
-    [[nodiscard]] INLINE u32 GetHeight() const { return height_; }
+    [[nodiscard]] inline u32 GetWidth() const { return width_; }
+    [[nodiscard]] inline u32 GetHeight() const { return height_; }
 
 
 private:

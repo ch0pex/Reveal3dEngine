@@ -43,6 +43,7 @@ public:
     };
 
     using InitInfo = Info;
+    constexpr static bool OnGPU = true;
 
     Transform() : id_(id::invalid) {}
     explicit Transform(id_t id);
@@ -64,8 +65,8 @@ public:
     void SetWorldRotation(math::xvec3 rot);
     void Update() const;
 
-    [[nodiscard]] INLINE bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] INLINE id_t Id() const { return id_; }
+    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t Id() const { return id_; }
 
     [[nodiscard]] u8 Dirty() const;
     void UnDirty() const;
