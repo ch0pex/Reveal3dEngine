@@ -84,9 +84,9 @@ void Dx12::InitFrameResources() {
 
 void Dx12::InitConstantBuffers() {
     for(auto& frameResource : frameResources_) {
-        frameResource.constantBuffer.Init(device_.Get(), 65536U);
-        frameResource.matBuffer.Init(device_.Get(), 65536U);
-        frameResource.passBuffer.Init(device_.Get(),  1U);
+        frameResource.constantBuffer.Init(device_.Get(), 100'000);
+        frameResource.matBuffer.Init(device_.Get(), 100'000);
+        frameResource.passBuffer.Init(device_.Get(), 1U)   ;
     }
 }
 

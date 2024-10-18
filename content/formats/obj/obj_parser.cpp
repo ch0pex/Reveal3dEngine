@@ -64,13 +64,13 @@ static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 
-u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u32 GetDataFromObj(const std::string_view path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
 #ifndef WIN32
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::string path_str = converter.to_bytes(path);
     std::ifstream file(path_str);
 #else
-    std::ifstream file(path);
+    std::ifstream file(path.data());
 #endif
     std::vector<math::vec3> positions;
     std::vector<math::vec3> normals;
@@ -128,7 +128,7 @@ u32 GetDataFromObj(const wchar_t *path, std::vector<render::Vertex> &vertices, s
     return index;
 }
 
-render::Mesh ImportObj(const wchar_t *path) {
+render::Mesh ImportObj(const std::string_view path) {
    render::Mesh mesh;
    GetDataFromObj(path, mesh.vertices, mesh.indices);
    return std::move(mesh);

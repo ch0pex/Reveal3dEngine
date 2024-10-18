@@ -48,13 +48,13 @@ public:
     Entity() : id_(id::invalid) {}
     explicit Entity(id_t id);
 
-    template<component T> T Component();
+    template<component T> T Component() const;
     template<component T> T AddComponent();
     template<component T> T AddComponent(T::InitInfo&& initInfo);
     template<component T> void RemoveComponent();
 
     [[nodiscard]] INLINE u32 Id() const { return id_; }
-    bool IsAlive();
+    bool IsAlive() const;
 
 private:
     id_t id_;
@@ -64,7 +64,7 @@ private:
 class Scene {
 public:
     struct Node {
-        std::vector<id_t> GetChildren();
+        std::vector<id_t> GetChildren() const;
         Entity entity;
         Entity parent;
         Entity firstChild;
@@ -102,6 +102,7 @@ private:
     u32                         rootNode_;
     u32                         lastNode_;
     std::deque<u32>             freeNodes_;
+//    std::deque<u32>             nodeIndex_;
 
     /*********** Components Pools  *************/
 
@@ -130,7 +131,7 @@ Pool<T>& Scene::ComponentPool() noexcept {
 extern Scene scene;
 
 template<component T>
-T Entity::Component() {
+T Entity::Component() const {
     if (not IsAlive()) return T();
     return scene.ComponentPool<T>().At(id_);
 }

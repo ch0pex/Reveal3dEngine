@@ -20,7 +20,7 @@ Scene scene;
 
 Entity::Entity(u32 id) : id_ {id} { }
 
-bool Entity::IsAlive() {
+bool Entity::IsAlive() const {
     return core::scene.IsEntityAlive(id_);
 }
 
@@ -56,6 +56,7 @@ Entity Scene::NewEntity() {
     metadataPool_.AddComponent(entity.Id());
 
     lastNode_ = id::index(entity.Id());
+//    nodeIndex_.push_back(id::index(entity.Id()));
 
     return entity;
 }
@@ -94,6 +95,7 @@ Entity Scene::NewChildEntity(Entity parent) {
 
     transformPool_.AddComponent(child.Id());
     metadataPool_.AddComponent(child.Id());
+//    nodeIndex_.push_back(id::index(child.Id()));
 
     return child;
 }
@@ -116,6 +118,7 @@ void Scene::RemoveNode(id_t id) {
     transformPool_.RemoveComponent(id);
     metadataPool_.RemoveComponent(id);
     geometryPool_.RemoveComponent(id);
+
 
     if (node.prev.IsAlive()) {
         Node& prevNode = GetNode(node.prev.Id());
@@ -177,14 +180,14 @@ Scene::~Scene() {
 }
 
 
-std::vector<id_t> Scene::Node::GetChildren() {
+std::vector<id_t> Scene::Node::GetChildren() const {
     std::vector<id_t> children;
     if (firstChild.IsAlive()) {
-        Node &currNode = scene.GetNode(firstChild.Id());
+        Node *currNode = &scene.GetNode(firstChild.Id());
         while(true) {
-            children.push_back(currNode.entity.Id());
-            if (currNode.next.IsAlive()) {
-                currNode = scene.GetNode(currNode.next.Id());
+            children.push_back(currNode->entity.Id());
+            if (currNode->next.IsAlive()) {
+                currNode = &scene.GetNode(currNode->next.Id());
             } else {
                 break;
             }

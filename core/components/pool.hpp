@@ -119,19 +119,15 @@ void Pool<T>::Update() {
             ++it;
         }
     }
-#undef _DEBUG
-//#define _DEBUG
-#ifdef _DEBUG
-    std::set<id_t> comps_;
-    for (auto comp : components_) {
-       if (comp.Id() == id::invalid)  continue;
-
-        if (comps_.find(comp.Id()) != comps_.end()) {
-            assert(false);
-        }
-        comps_.insert(comp.Id());
-    }
-#endif
+//    std::set<id_t> comps_;
+//    for (auto comp : components_) {
+//       if (comp.Id() == id::invalid)  continue;
+//
+//        if (comps_.find(comp.Id()) != comps_.end()) {
+//            assert(false);
+//        }
+//        comps_.insert(comp.Id());
+//    }
 
 }
 
