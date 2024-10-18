@@ -55,6 +55,8 @@ set(HEADERS
         common/vector.hpp
         graphics/directX12/dx_gpass.hpp
         graphics/directX12/dx_surface.hpp
+        common/string_literals.hpp
+        common/string_literals.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
@@ -70,7 +72,7 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "/O2")
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
-    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
+#    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
     target_link_libraries(Reveal3d PRIVATE d3d12 dxgi d3dcompiler ${OPENGL_LIBRARY} ${EXTERN}/glew.lib ${EXTERN}/glfw3.lib)
 
     aux_source_directory(graphics/directX12 GRAPHICS)

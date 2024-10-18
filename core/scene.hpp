@@ -52,6 +52,7 @@ public:
     template<component T> T AddComponent();
     template<component T> T AddComponent(T::InitInfo&& initInfo);
     template<component T> void RemoveComponent();
+    Entity AddChild();
 
     [[nodiscard]] INLINE u32 Id() const { return id_; }
     bool IsAlive() const;

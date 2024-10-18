@@ -24,6 +24,10 @@ bool Entity::IsAlive() const {
     return core::scene.IsEntityAlive(id_);
 }
 
+Entity Entity::AddChild() {
+    return core::scene.NewChildEntity(id_);
+}
+
 Scene::Scene() : rootNode_(id::invalid), lastNode_(id::invalid) {}
 
 
