@@ -136,7 +136,7 @@ inline Geometry Pool<Geometry>::AddComponent(id_t entityId, Geometry::InitInfo &
 template<>
 inline void Pool<Geometry>::RemoveComponent(id_t id) {
     id_t geometry_id { components_.at(id::index(id)).Id() };
-    if (id_factory_.IsAlive(id)) {
+    if (id_factory_.IsAlive(geometry_id)) {
         data_.materials.unordered_remove(id::index(geometry_id));
         data_.meshes.unordered_remove(id::index(geometry_id));
         data_.subMeshes.unordered_remove(id::index(geometry_id));

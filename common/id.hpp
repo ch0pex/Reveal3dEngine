@@ -117,8 +117,8 @@ public:
         mappedIdx_.at(ownerIdx_.size() - 1) = id::invalid;
         ownerIdx_.unordered_remove(id::index(id));
 
-        if (generations_.at(index) < maxGeneration) {
-            freeIndices_.push_back(index);
+        if (generations_.at(id::index(id)) < maxGeneration) {
+            freeIndices_.push_back(id::index(id));
         }
     }
 

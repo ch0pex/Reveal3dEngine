@@ -48,7 +48,7 @@ template<>
 inline Metadata Pool<Metadata>::AddComponent(id_t id) {
     const id_t metadata_id { id_factory_.New(id::index(id)) };
 
-    data_.names.emplace_back("Entity" + std::to_string(id));
+    data_.names.emplace_back("Entity_" + std::to_string(id));
     data_.comments.emplace_back();
     data_.dates.emplace_back("10/12/2024");  //TODO
     data_.comments.at(data_.comments.size() - 1U).reserve(1024);

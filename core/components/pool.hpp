@@ -27,7 +27,7 @@ template<bool UseGPUSync>
 struct GPUSyncronizer {};
 
 template<>
-class GPUSyncronizer<true> {
+class GPUSyncronizer<true> { // TODO consider this as posible bottleneck in a future
 public:
     id_t PopNew() {
         if (newComponents_.empty()) {
@@ -70,7 +70,7 @@ concept component = requires(T component) {
 };
 
 template<component T>
-        class Pool : public detail::GPUSyncronizer<T::OnGPU> {
+class Pool : public detail::GPUSyncronizer<T::OnGPU> {
 public:
     T AddComponent();
     T AddComponent(id_t id);
@@ -86,8 +86,8 @@ public:
     T::Data& Data() { return data_; }
 private:
     void Add(id_t index, id_t id);
-
     void Remove(id_t id);
+
     /************* Component Data ****************/
     T::Data data_;
 
