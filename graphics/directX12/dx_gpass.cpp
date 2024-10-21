@@ -10,244 +10,243 @@
 
 namespace reveal3d::graphics::dx12 {
 
-const f32 Gpass::clearColor_[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
+const f32 Gpass::clear_color_[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
 
 Gpass::Gpass() {
-    rootSignatures_[render::Shader::opaque].Reset(4);
-    rootSignatures_[render::Shader::unlit].Reset(4);
-    rootSignatures_[render::Shader::grid].Reset(4);
+    root_signatures_[render::Shader::opaque].reset(4);
+    root_signatures_[render::Shader::unlit].reset(4);
+    root_signatures_[render::Shader::grid].reset(4);
 }
 
-void Gpass::Init(ID3D12Device* device) {
-    BuildRoots(device);
-    BuildPsos(device);
+void Gpass::init(ID3D12Device *device) {
+    buildRoots(device);
+    buildPsos(device);
 }
 
-void Gpass::SetRenderTargets(Commands &commandMng, FrameResource& frameResource) {
-    ID3D12GraphicsCommandList* commandList = commandMng.List();
+void Gpass::setRenderTargets(Commands &command_mng, FrameResource &frame_resource) {
+    ID3D12GraphicsCommandList*command_list = command_mng.list();
 
-    commandList->ClearRenderTargetView(frameResource.backBufferHandle.cpu, clearColor_, 0, nullptr);
-    commandList->ClearDepthStencilView(frameResource.depthBufferHandle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-    commandList->OMSetRenderTargets(1, &frameResource.backBufferHandle.cpu, TRUE, &frameResource.depthBufferHandle.cpu);
+    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_, 0, nullptr);
+    command_list->ClearDepthStencilView(frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+    command_list->OMSetRenderTargets(1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu);
 
 }
 
-void Gpass::Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource) {
-    currRootSignature_ = nullptr;
-    currPipelineState_ = nullptr;
+void Gpass::render(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource) {
+    curr_root_signature_ = nullptr;
+    curr_pipeline_state_ = nullptr;
 
-    commandList->ClearRenderTargetView(frameResource.backBufferHandle.cpu, clearColor_, 0, nullptr);
-    commandList->ClearDepthStencilView(frameResource.depthBufferHandle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-    commandList->OMSetRenderTargets(1, &frameResource.backBufferHandle.cpu, TRUE, &frameResource.depthBufferHandle.cpu);
+    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_, 0, nullptr);
+    command_list->ClearDepthStencilView(frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+    command_list->OMSetRenderTargets(1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu);
 
-    for (auto& renderElement : renderElements_) {
+    for (auto&render_element: render_elements_) {
 
-        auto geometry = renderElement.entity.Component<core::Geometry>();
-        auto transform = renderElement.entity.Component<core::Transform>();
+        auto geometry = render_element.entity.component<core::Geometry>();
+        auto transform = render_element.entity.component<core::Transform>();
 
-        for (auto &submesh : geometry.SubMeshes()) {
+        for (auto &submesh : geometry.subMeshes()) {
             if (!submesh.visible) continue;
 
-            if (currRootSignature_ != rootSignatures_.at(submesh.shader).Get()) {
-                currRootSignature_ = rootSignatures_.at(submesh.shader).Get();
-                commandList->SetGraphicsRootSignature(currRootSignature_);
+            if (curr_root_signature_ != root_signatures_.at(submesh.shader).get()) {
+                curr_root_signature_ = root_signatures_.at(submesh.shader).get();
+                command_list->SetGraphicsRootSignature(curr_root_signature_);
             }
 
-            if (currPipelineState_ != pipelineStates_.at(submesh.shader).Get()) {
-                currPipelineState_ = pipelineStates_.at(submesh.shader).Get();
-                commandList->SetPipelineState(currPipelineState_);
+            if (curr_pipeline_state_ != pipeline_states_.at(submesh.shader).get()) {
+                curr_pipeline_state_ = pipeline_states_.at(submesh.shader).get();
+                command_list->SetPipelineState(curr_pipeline_state_);
             }
 
-            commandList->SetGraphicsRootConstantBufferView(0, frameResource.constantBuffer.GpuPos(id::index(transform.Id())));
-            commandList->SetGraphicsRootConstantBufferView(1, frameResource.matBuffer.GpuPos(id::index(geometry.Id())));
-            commandList->SetGraphicsRootConstantBufferView(2, frameResource.passBuffer.GpuStart());
+            command_list->SetGraphicsRootConstantBufferView(0, frame_resource.constant_buffer.gpuPos(id::index(transform.id())));
+            command_list->SetGraphicsRootConstantBufferView(1,
+                                                            frame_resource.mat_buffer.gpuPos(id::index(geometry.id())));
+            command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
 
-            commandList->IASetVertexBuffers(0, 1, renderElement.vertexBuffer.View());
-            commandList->IASetIndexBuffer(renderElement.indexBuffer.View());
-            commandList->IASetPrimitiveTopology(renderElement.topology);
-            commandList->DrawIndexedInstanced(submesh.indexCount, 1, submesh.indexPos, submesh.vertexPos, 0);
+            command_list->IASetVertexBuffers(0, 1, render_element.vertex_buffer.view());
+            command_list->IASetIndexBuffer(render_element.index_buffer.view());
+            command_list->IASetPrimitiveTopology(render_element.topology);
+            command_list->DrawIndexedInstanced(submesh.index_count, 1, submesh.index_pos, submesh.vertex_pos, 0);
         }
     }
-    DrawWorldGrid(commandList, frameResource);
+    drawWorldGrid(command_list, frame_resource);
 }
 
-void Gpass::DrawWorldGrid(ID3D12GraphicsCommandList *commandList, FrameResource& frameResource) {
-    commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandList->SetGraphicsRootSignature(rootSignatures_[render::Shader::grid].Get());
-    commandList->SetPipelineState(pipelineStates_[render::Shader::grid].Get());
-    commandList->SetGraphicsRootConstantBufferView(2, frameResource.passBuffer.GpuStart());
-    commandList->DrawInstanced(6, 1, 0, 0);
+void Gpass::drawWorldGrid(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource) {
+    command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::grid].get());
+    command_list->SetPipelineState(pipeline_states_[render::Shader::grid].get());
+    command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
+    command_list->DrawInstanced(6, 1, 0, 0);
 }
 
 //NOTE change geometry to mesh when content module update
-void Gpass::AddRenderElement(core::Entity entity, Commands& cmdMng, ID3D12Device* device) {
-    core::Geometry geometry = entity.Component<core::Geometry>();
-    BufferInitInfo vertexBufferInfo = {
+void Gpass::addRenderElement(core::Entity entity, Commands &cmd_mng, ID3D12Device *device) {
+    core::Geometry geometry = entity.component<core::Geometry>();
+    BufferInitInfo vertex_buffer_info = {
             .device = device,
-            .cmdList = cmdMng.List(),
-            .data = geometry.Vertices().data(),
-            .count = geometry.VertexCount()
+            .cmd_list = cmd_mng.list(),
+            .data = geometry.vertices().data(),
+            .count = geometry.vertexCount()
     };
 
-    BufferInitInfo indexBufferInfo = {
+    BufferInitInfo index_buffer_info = {
             .device = device,
-            .cmdList = cmdMng.List(),
-            .data = geometry.Indices().data(),
-            .count = geometry.IndexCount(),
+            .cmd_list = cmd_mng.list(),
+            .data = geometry.indices().data(),
+            .count = geometry.indexCount(),
             .format = DXGI_FORMAT_R32_UINT
     };
 
-    renderElements_.emplace_back(entity, vertexBufferInfo, indexBufferInfo);
+    render_elements_.emplace_back(entity, vertex_buffer_info, index_buffer_info);
 }
 
-void Gpass::RemoveRenderElement(u32 idx) {
-   renderElements_.unordered_remove(idx);
+void Gpass::removeRenderElement(u32 idx) { render_elements_.unordered_remove(idx);
 }
 
-void Gpass::Terminate() {
-    for (auto &elem : renderElements_) {
-        elem.vertexBuffer.Release();
-        elem.indexBuffer.Release();
+void Gpass::terminate() {
+    for (auto &elem : render_elements_) {
+        elem.vertex_buffer.release();
+        elem.index_buffer.release();
     }
 }
 
-void Gpass::BuildPsos(ID3D12Device* device) {
-    ComPtr<ID3DBlob> vertexShader;
-    ComPtr<ID3DBlob> pixelShader;
+void Gpass::buildPsos(ID3D12Device *device) {
+    ComPtr<ID3DBlob> vertex_shader;
+    ComPtr<ID3DBlob> pixel_shader;
     ComPtr<ID3DBlob> errors;
 
 #if defined(_DEBUG)
     // Enable better Shader debugging with the graphics debugging tools.
-    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    UINT compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
     UINT compileFlags = 0;
 #endif
     HRESULT hr = S_OK;
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0, &pixel_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
+    D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    pipelineStates_[render::Shader::opaque].SetInputLayout(inputElementDescs, _countof(inputElementDescs));
-    pipelineStates_[render::Shader::opaque].SetRootSignature(rootSignatures_[render::Shader::opaque]);
-    pipelineStates_[render::Shader::opaque].SetShaders(vertexShader.Get(), pixelShader.Get());
-    pipelineStates_[render::Shader::opaque].SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipelineStates_[render::Shader::opaque].SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    pipelineStates_[render::Shader::opaque].SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipelineStates_[render::Shader::opaque].SetSampleMask(UINT_MAX);
-    pipelineStates_[render::Shader::opaque].SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipelineStates_[render::Shader::opaque].SetNumRenderTargets(1U);
-    pipelineStates_[render::Shader::opaque].SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipelineStates_[render::Shader::opaque].SetSampleDescCount(1U); //TODO: Support x4
-    pipelineStates_[render::Shader::opaque].SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::opaque].setInputLayout(input_element_descs, _countof(input_element_descs));
+    pipeline_states_[render::Shader::opaque].setRootSignature(root_signatures_[render::Shader::opaque]);
+    pipeline_states_[render::Shader::opaque].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::opaque].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::opaque].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::opaque].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::opaque].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::opaque].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::opaque].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::opaque].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::opaque].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::opaque].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipelineStates_[render::Shader::opaque].Finalize(device);
+    pipeline_states_[render::Shader::opaque].finalize(device);
 
     //TODO Config file for assets path
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0, &pixel_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
-    D3D12_INPUT_ELEMENT_DESC flatElementsDesc[] = {
+    D3D12_INPUT_ELEMENT_DESC flat_elements_desc[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    pipelineStates_[render::Shader::unlit].SetInputLayout(flatElementsDesc, _countof(flatElementsDesc));
-    pipelineStates_[render::Shader::unlit].SetRootSignature(rootSignatures_[render::Shader::opaque]);
-    pipelineStates_[render::Shader::unlit].SetShaders(vertexShader.Get(), pixelShader.Get());
-    pipelineStates_[render::Shader::unlit].SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipelineStates_[render::Shader::unlit].SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    pipelineStates_[render::Shader::unlit].SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipelineStates_[render::Shader::unlit].SetSampleMask(UINT_MAX);
-    pipelineStates_[render::Shader::unlit].SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipelineStates_[render::Shader::unlit].SetNumRenderTargets(1U);
-    pipelineStates_[render::Shader::unlit].SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipelineStates_[render::Shader::unlit].SetSampleDescCount(1U); //TODO: Support x4
-    pipelineStates_[render::Shader::unlit].SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::unlit].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+    pipeline_states_[render::Shader::unlit].setRootSignature(root_signatures_[render::Shader::opaque]);
+    pipeline_states_[render::Shader::unlit].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::unlit].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::unlit].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::unlit].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::unlit].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::unlit].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::unlit].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::unlit].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::unlit].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::unlit].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipelineStates_[render::Shader::unlit].Finalize(device);
+    pipeline_states_[render::Shader::unlit].finalize(device);
 
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compileFlags, 0, &vertexShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
-    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compileFlags, 0, &pixelShader, &errors);
+    hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0, &pixel_shader, &errors);
     if (errors != nullptr)
         logger(logDEBUG) << (char *) errors->GetBufferPointer();
     hr >> utl::DxCheck;
 
-    D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
-    transparencyBlendDesc.BlendEnable = true;
-    transparencyBlendDesc.LogicOpEnable = false;
-    transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-    transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-    transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-    transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-    transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-    transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-    transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
-    transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+    D3D12_RENDER_TARGET_BLEND_DESC transparency_blend_desc;
+    transparency_blend_desc.BlendEnable = true;
+    transparency_blend_desc.LogicOpEnable = false;
+    transparency_blend_desc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+    transparency_blend_desc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+    transparency_blend_desc.BlendOp = D3D12_BLEND_OP_ADD;
+    transparency_blend_desc.SrcBlendAlpha = D3D12_BLEND_ONE;
+    transparency_blend_desc.DestBlendAlpha = D3D12_BLEND_ZERO;
+    transparency_blend_desc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+    transparency_blend_desc.LogicOp = D3D12_LOGIC_OP_NOOP;
+    transparency_blend_desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     D3D12_BLEND_DESC blend_desc = {
-            .RenderTarget = transparencyBlendDesc
-    };
+            .RenderTarget = transparency_blend_desc};
 
-    pipelineStates_[render::Shader::grid].SetInputLayout(flatElementsDesc, _countof(flatElementsDesc));
-    pipelineStates_[render::Shader::grid].SetRootSignature(rootSignatures_[render::Shader::grid]);
-    pipelineStates_[render::Shader::grid].SetShaders(vertexShader.Get(), pixelShader.Get());
-    pipelineStates_[render::Shader::grid].SetRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipelineStates_[render::Shader::grid].SetBlendState(blend_desc);
-    pipelineStates_[render::Shader::grid].SetDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipelineStates_[render::Shader::grid].SetSampleMask(UINT_MAX);
-    pipelineStates_[render::Shader::grid].SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipelineStates_[render::Shader::grid].SetNumRenderTargets(1U);
-    pipelineStates_[render::Shader::grid].SetRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipelineStates_[render::Shader::grid].SetSampleDescCount(1U); //TODO: Support x4
-    pipelineStates_[render::Shader::grid].SetDSVFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::grid].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+    pipeline_states_[render::Shader::grid].setRootSignature(root_signatures_[render::Shader::grid]);
+    pipeline_states_[render::Shader::grid].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::grid].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::grid].setBlendState(blend_desc);
+    pipeline_states_[render::Shader::grid].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::grid].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::grid].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::grid].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::grid].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::grid].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::grid].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipelineStates_[render::Shader::grid].Finalize(device);
+    pipeline_states_[render::Shader::grid].finalize(device);
 
 //    auto gridMesh = new render::SubMesh();
 //    gridMesh->indexCount = 6;
 //    meshes_[render::Shader::grid].push_back(gridMesh);
 }
 
-void Gpass::BuildRoots(ID3D12Device* device) {
-    rootSignatures_[render::Shader::opaque][0].InitAsConstantBufferView(0);
-    rootSignatures_[render::Shader::opaque][1].InitAsConstantBufferView(1);
-    rootSignatures_[render::Shader::opaque][2].InitAsConstantBufferView(2);
-    rootSignatures_[render::Shader::opaque][3].InitAsShaderResourceView(3);
-    rootSignatures_[render::Shader::opaque].Finalize(device);
+void Gpass::buildRoots(ID3D12Device *device) {
+    root_signatures_[render::Shader::opaque][0].InitAsConstantBufferView(0);
+    root_signatures_[render::Shader::opaque][1].InitAsConstantBufferView(1);
+    root_signatures_[render::Shader::opaque][2].InitAsConstantBufferView(2);
+    root_signatures_[render::Shader::opaque][3].InitAsShaderResourceView(3);
+    root_signatures_[render::Shader::opaque].finalize(device);
 
-    rootSignatures_[render::Shader::unlit][0].InitAsConstantBufferView(0);
-    rootSignatures_[render::Shader::unlit][1].InitAsConstantBufferView(1);
-    rootSignatures_[render::Shader::unlit][2].InitAsConstantBufferView(2);
-    rootSignatures_[render::Shader::unlit][3].InitAsShaderResourceView(3);
-    rootSignatures_[render::Shader::unlit].Finalize(device);
-    //    worldGridLayer_.rootSignature.Reset(1);
-    rootSignatures_[render::Shader::grid][0].InitAsConstantBufferView(0);
-    rootSignatures_[render::Shader::grid][1].InitAsConstantBufferView(1);
-    rootSignatures_[render::Shader::grid][2].InitAsConstantBufferView(2);
-    rootSignatures_[render::Shader::grid][3].InitAsShaderResourceView(3);
-    rootSignatures_[render::Shader::grid].Finalize(device);
+    root_signatures_[render::Shader::unlit][0].InitAsConstantBufferView(0);
+    root_signatures_[render::Shader::unlit][1].InitAsConstantBufferView(1);
+    root_signatures_[render::Shader::unlit][2].InitAsConstantBufferView(2);
+    root_signatures_[render::Shader::unlit][3].InitAsShaderResourceView(3);
+    root_signatures_[render::Shader::unlit].finalize(device);
+    //    worldGridLayer_.rootSignature.reset(1);
+    root_signatures_[render::Shader::grid][0].InitAsConstantBufferView(0);
+    root_signatures_[render::Shader::grid][1].InitAsConstantBufferView(1);
+    root_signatures_[render::Shader::grid][2].InitAsConstantBufferView(2);
+    root_signatures_[render::Shader::grid][3].InitAsShaderResourceView(3);
+    root_signatures_[render::Shader::grid].finalize(device);
 
 
 }

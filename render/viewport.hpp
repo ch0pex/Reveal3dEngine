@@ -17,7 +17,7 @@
  *                  -----------------------------------------
  *                  |                                       |
  *              ----------                              ----------
- *             | Renderer |                           | Window Mng |
+ *             | Renderer |                           | Window Manager |
  *              ----------                              ----------
  *                  |                                       |
  *         -------------------                   -------------------------
@@ -38,81 +38,81 @@
 
 namespace reveal3d::render {
 
-template<graphics::HRI Gfx, window::Mng<Gfx> Window>
+template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 struct Viewport {
-    explicit Viewport(window::Config &windowInfo) : window(windowInfo), renderer(&window.GetRes(), timer) { }
-    void Init();
-    void Run();
-    f64 BenchMark(u32 seconds);
-    inline Timer& Time() { return timer; }
+    explicit Viewport(window::Config &windowInfo) : window(windowInfo), renderer(&window.getRes(), timer) { }
+    void init();
+    void run();
+    f64 benchMark(u32 seconds);
+    inline Timer& time() { return timer; }
 
     Window window;
     Renderer<Gfx> renderer;
     Timer timer;
 };
 
-template<graphics::HRI Gfx, window::Mng<Gfx> Window>
-void Viewport<Gfx, Window>::Init() {
+template<graphics::HRI Gfx, window::Manager<Gfx> Window>
+void Viewport<Gfx, Window>::init() {
     try {
-        window.Create(renderer);
-        renderer.Init(window.GetHandle());
-        window.Show();
+        window.create(renderer);
+        renderer.init(window.getHandle());
+        window.show();
 
     } catch(std::exception &e) {
-        renderer.Destroy();
+        renderer.destroy();
         logger(logERROR) << e.what();
-//        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+//        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
 
-template<graphics::HRI Gfx, window::Mng<Gfx> Window>
-void Viewport<Gfx, Window>::Run() {
+template<graphics::HRI Gfx, window::Manager<Gfx> Window>
+void Viewport<Gfx, Window>::run() {
     try {
-        timer.Reset();
-        while(!window.ShouldClose()) {
-            timer.Tick();
-            window.ClipMouse(renderer);
-            renderer.Update();
-            core::scene.Update(timer.DeltaTime());
+        timer.reset();
+        while(!window.shouldClose()) {
+            timer.tick();
+            window.clipMouse(renderer);
+            renderer.update();
+            core::scene.update(timer.deltaTime());
 #ifdef WIN32
             if constexpr (not std::same_as<Window, window::Win32>)
-                renderer.Render();
+                renderer.render();
 #else
             renderer.Render();
 #endif
-            window.Update();
+            window.update();
         }
-        renderer.Destroy();
+        renderer.destroy();
     } catch(std::exception &e) {
-        renderer.Destroy();
+        renderer.destroy();
         logger(logERROR) << e.what();
-        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
 
-template<graphics::HRI Gfx, window::Mng<Gfx> Window>
-f64 Viewport<Gfx, Window>::BenchMark(u32 seconds) {
+template<graphics::HRI Gfx, window::Manager<Gfx> Window>
+f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
     try {
-        timer.Reset();
-        while(!window.ShouldClose()) {
-            if (timer.TotalTime() > seconds)
+        timer.reset();
+        while(!window.shouldClose()) {
+            if (timer.totalTime() > seconds)
                 break;
-            timer.Tick();
-            window.ClipMouse(renderer);
-            renderer.Update();
-            core::scene.Update(timer.DeltaTime());
+            timer.tick();
+            window.clipMouse(renderer);
+            renderer.update();
+            core::scene.update(timer.deltaTime());
 #ifdef WIN32
             if constexpr (not std::same_as<Window, window::Win32>)
-                renderer.Render();
+                renderer.render();
 #endif
-            window.Update();
+            window.update();
         }
-        renderer.Destroy();
+        renderer.destroy();
     } catch(std::exception &e) {
-        renderer.Destroy();
+        renderer.destroy();
         logger(logERROR) << e.what();
-        MessageBoxA(window.GetHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
-    return timer.MeanFps();
+    return timer.meanFps();
 }
 } // reveal3d

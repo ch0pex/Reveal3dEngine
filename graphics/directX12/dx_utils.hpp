@@ -38,13 +38,13 @@ struct Error {
 
 void operator>>(Error, Checker);
 
-void EnableCpuLayer(u32 &factoryFlag);
-void EnableGpuLayer();
-void QueueInfo(ID3D12Device *device, BOOL enable);
-void LogAdapters();
-void SetReporter(ID3D12Device *device);
-void GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter);
-void ReportLiveDeviceObjs();
-void DisplayFps();
+void enable_cpu_layer(u32 &factory_flag);
+void enable_gpu_layer();
+void queue_info(ID3D12Device *device, BOOL enable);
+void log_adapters();
+void set_reporter(ID3D12Device *device);
+void get_hardware_adapter(IDXGIFactory1 *p_factory, IDXGIAdapter1 **pp_adapter);
+void report_live_device_objs();
+void display_fps();
 
 }

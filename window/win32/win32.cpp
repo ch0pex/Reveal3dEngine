@@ -17,20 +17,21 @@ namespace reveal3d::window {
 
 Win32::Win32(Config &info) : info_(info)
 {
-    input::AddHandlerDown(input::action::window_close, { [this](input::action act, input::type type){CloseWindow(act, type); } } );
+    input::add_handler_down(input::Action::WindowClose,
+                            {[this](input::Action act, input::type type) { closeWindow(act, type); }});
 }
 
-void Win32::Show() {
+void Win32::show() {
     ShowWindow(info_.handle.hwnd, SW_SHOW);
     UpdateWindow(info_.handle.hwnd);
-    isRunning_ = true;
+    is_running_ = true;
 }
 
-bool Win32::ShouldClose() {
-    return !(isRunning_ );
+bool Win32::shouldClose() {
+    return !(is_running_);
 }
 
-void Win32::CloseWindow(input::action act, input::type type) {
+void Win32::closeWindow(input::Action act, input::type type) {
     PostMessage(info_.handle.hwnd, WM_CLOSE, 0, 0);
 }
 

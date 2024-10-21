@@ -2155,7 +2155,7 @@ inline ID3D12CommandList * const * CommandListCast(t_CommandListType * const * p
 }
 
 //------------------------------------------------------------------------------------------------
-// D3D12 exports a new method for serializing root signatures in the Windows 10 Anniversary Update.
+// D3D12 exports a new method for serializing root signatures in the Windows 10 Anniversary update.
 // To help enable root signature 1.1 features when they are available and not require maintaining
 // two code paths for building root signatures, this helper method reconstructs a 1.0 signature when
 // 1.1 is not supported.
@@ -3127,7 +3127,7 @@ inline bool operator==( const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC &a, const D3D
 // Helper classes for creating new style state objects out of an arbitrary set of subobjects.
 // Uses STL
 //
-// Start by instantiating CD3DX12_STATE_OBJECT_DESC (see it's public methods).
+// start by instantiating CD3DX12_STATE_OBJECT_DESC (see it's public methods).
 // One of its methods is CreateSubobject(), which has a comment showing a couple of options for
 // defining subobjects using the helper classes for each subobject (CD3DX12_DXIL_LIBRARY_SUBOBJECT
 // etc.). The subobject helpers each have methods specific to the subobject for configuring it's

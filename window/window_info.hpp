@@ -6,7 +6,7 @@
  * @file window_info.hpp
  * @version 1.0
  * @date 09/03/2024
- * @brief Window Info 
+ * @brief Window info
  *
  * Window initialization info
  */
@@ -21,11 +21,10 @@ using WCallback = uint8_t *;
 
 struct Resolution {
     Resolution(u32 width, u32 height) :
-        width(width), height(height) ,
-        aspectRatio(static_cast<f32>(width) / static_cast<f32>(height)) {}
+        width(width), height(height) , aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) {}
     u32 width;
     u32 height;
-    f32 aspectRatio;
+    f32 aspect_ratio;
 };
 
 

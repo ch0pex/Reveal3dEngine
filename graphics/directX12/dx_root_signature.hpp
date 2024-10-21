@@ -27,7 +27,7 @@ public:
             Clear();
         }
 
-        void Clear();
+        void clear();
         void InitAsConstants( u32 reg, u32 words, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL, u32 Space = 0 );
         void InitAsConstantBuffer( u32 reg, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL, u32 Space = 0 );
         void InitAsBufferSRV( u32 reg, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL, u32 Space = 0 );
@@ -45,17 +45,17 @@ private:
 
 class RootSignature {
 public:
-    RootSignature(u32 numParams = 0);
-    void Reset(u32 numRootParams);
-    void Finalize(ID3D12Device *device);
-    inline ID3D12RootSignature* Get() { return signature_.Get(); }
+    RootSignature(u32 num_root_params = 0);
+    void reset(u32 num_root_params);
+    void finalize(ID3D12Device *device);
+    inline ID3D12RootSignature* get() { return signature_.Get(); }
 
-    CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex );
-    const CD3DX12_ROOT_PARAMETER& operator[] ( size_t EntryIndex ) const;
+    CD3DX12_ROOT_PARAMETER& operator[] ( size_t entry_index);
+    const CD3DX12_ROOT_PARAMETER& operator[] ( size_t entry_index) const;
 
 private:
-    std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
-    u32 numParameters_ { 0 };
+    static std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> getStaticSamplers();
+    u32 num_parameters_{ 0 };
     std::unique_ptr<CD3DX12_ROOT_PARAMETER[]> parameters_;
     ComPtr<ID3D12RootSignature> signature_;
 };

@@ -19,9 +19,9 @@ namespace reveal3d::graphics::dx12 {
 
 struct Heaps;
 
-void SetDeferredFlag();
-void DeferredRelease(IUnknown* resource);
-void CleanDeferredResources(Heaps& heaps);
+void set_deferred_flag();
+void deferred_release(IUnknown *resource);
+void clean_deferred_resources(Heaps &heaps);
 
 }
 

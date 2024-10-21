@@ -22,28 +22,28 @@ class GraphicsPso {
 public:
     GraphicsPso();
 
-    void SetPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc);
-    void SetInputLayout(const D3D12_INPUT_ELEMENT_DESC* inputLayout, u32 count);
-    void SetRootSignature(RootSignature& rootSignature);
-    void SetShaders(ID3DBlob* vs, ID3DBlob* ps);
-    void SetRasterizerCullMode (const D3D12_CULL_MODE mode);
-    void SetBlendState(const D3D12_BLEND_DESC &blendDesc);
-    void SetDepthStencil(const D3D12_DEPTH_STENCIL_DESC& dsDesc);
-    void SetSampleMask(const u32 mask);
-    void SetPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive);
-    void SetNumRenderTargets(const u32 number);
-    void SetRtvFormats(const u32 index, const DXGI_FORMAT format);
-    void SetSampleDescCount(const u32 sampleCount);
-    void SetDSVFormat(const DXGI_FORMAT dsvFormat);
+    void setPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc);
+    void setInputLayout(const D3D12_INPUT_ELEMENT_DESC *input_layout, u32 count);
+    void setRootSignature(RootSignature &root_signature);
+    void setShaders(ID3DBlob *vs, ID3DBlob *ps);
+    void setRasterizerCullMode(const D3D12_CULL_MODE mode);
+    void setBlendState(const D3D12_BLEND_DESC &blend_desc);
+    void setDepthStencil(const D3D12_DEPTH_STENCIL_DESC &ds_desc);
+    void setSampleMask(const u32 mask);
+    void setPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive);
+    void setNumRenderTargets(const u32 number);
+    void setRtvFormats(const u32 index, const DXGI_FORMAT format);
+    void setSampleDescCount(const u32 sample_count);
+    void setDsvFormat(const DXGI_FORMAT dsv_format);
 
-    void Finalize(ID3D12Device *device);
-    inline ID3D12PipelineState* Get() { return pipelineState_.Get(); }
+    void finalize(ID3D12Device *device);
+    inline ID3D12PipelineState* get() { return pipeline_state_.Get(); }
 
 
 private:
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    RootSignature* rootSignature_;
-    ComPtr<ID3D12PipelineState> pipelineState_;
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc_ = {};
+    RootSignature* root_signature_;
+    ComPtr<ID3D12PipelineState> pipeline_state_;
 };
 
 }

@@ -8,16 +8,16 @@
  * @date 11/03/2024
  * @brief ECS  
  *
- * Entity component system main header file. 
+ * Entity is_component system main header file.
  * In Reveal3D componentes just holds and ID that points to the real data.
  * Real data is compacted to avoid cache misses, this logic is handled by components pools
  *
  * *********************************************** Components pool *****************************************************
- * ************************** IDs **************************************************** Data ****************************
+ * ************************** IDs **************************************************** data ****************************
  *                                                          *                                                          *
  * Enity IDs        |  00   | 01    |  02   |  03  | ...    * Enity IDs        |  00   | 01    |  02   |  03  | ...    * 
  *                                                          *                                                          *
- * --------------------- Components IDs-------------------- * ------------------- Components Data -------------------- *
+ * --------------------- Components IDs-------------------- * ------------------- Components data -------------------- *
  *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
  * Transform IDs   |   00  |  01   |  FF   |  02  |  ...    * Transforms      |       |       |       |  ...           *
  *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
@@ -48,14 +48,14 @@ public:
     Entity() : id_(id::invalid) {}
     explicit Entity(id_t id);
 
-    template<component T> T Component() const;
-    template<component T> T AddComponent();
-    template<component T> T AddComponent(T::InitInfo&& initInfo);
-    template<component T> void RemoveComponent();
-    Entity AddChild();
+    template<is_component T> T component() const;
+    template<is_component T> T addComponent();
+    template<is_component T> T addComponent(T::InitInfo&&init_info);
+    template<is_component T> void removeComponent();
+    Entity addChild();
 
-    [[nodiscard]] inline u32 Id() const { return id_; }
-    bool IsAlive() const;
+    [[nodiscard]] inline u32 id() const { return id_; }
+    bool isAlive() const;
 
 private:
     id_t id_;
@@ -65,94 +65,94 @@ private:
 class Scene {
 public:
     struct Node {
-        std::vector<id_t> GetChildren() const;
+        std::vector<id_t> getChildren() const;
         Entity entity;
         Entity parent;
-        Entity firstChild;
+        Entity first_child;
         Entity next;
         Entity prev;
     };
     Scene();
     ~Scene();
 
-    Entity NewEntity();
-    Entity NewChildEntity(Entity parent);
-    Entity NewChildEntity(id_t parent);
-    Entity RemoveEntity(id_t id);
-    bool   IsEntityAlive(id_t id);
+    Entity newEntity();
+    Entity newChildEntity(Entity parent);
+    Entity newChildEntity(id_t parent);
+    Entity removeEntity(id_t id);
+    bool isEntityAlive(id_t id);
 
     /******************************* Scene Graph methods ******************************/
-    [[nodiscard]] inline const std::vector<Scene::Node>& Graph() const { return sceneGraph_; }
-    [[nodiscard]] inline u32 Count() const { return sceneGraph_.size() - freeNodes_.size(); }
-    inline Entity GetEntity(id_t id) const { return sceneGraph_.at(id::index(id)).entity; }
-    inline Node& GetNode(id_t id) { return sceneGraph_.at(id::index(id)); }
-    inline Node& Root() { return sceneGraph_.at(rootNode_); }
+    [[nodiscard]] inline const std::vector<Scene::Node>& Graph() const { return scene_graph_; }
+    [[nodiscard]] inline u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
+    inline Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
+    inline Node& getNode(id_t id) { return scene_graph_.at(id::index(id)); }
+    inline Node& root() { return scene_graph_.at(root_node_); }
 
-    template<component T>
-    Pool<T>& ComponentPool() noexcept;
+    template<is_component T>
+    Pool<T>& componentPool() noexcept;
 
-    void Init();
-    void Update(f32 dt);
+    void init();
+    void update(f32 dt);
 
 private:
-    void RemoveNode(id_t id);
+    void removeNode(id_t id);
 
     /************ Entities scene ***********/
 
-    std::vector<Scene::Node>    sceneGraph_;
-    u32                         rootNode_;
-    u32                         lastNode_;
-    std::deque<u32>             freeNodes_;
+    std::vector<Scene::Node>    scene_graph_;
+    u32                         root_node_;
+    u32                         last_node_;
+    std::deque<u32>             free_nodes_;
 //    std::deque<u32>             nodeIndex_;
 
     /*********** Components Pools  *************/
 
-    Pool<core::Transform>       transformPool_;
-    Pool<core::Geometry>        geometryPool_;
-    Pool<core::Script>          scriptPool_;
-    Pool<core::Metadata>        metadataPool_;
+    Pool<core::Transform>       transform_pool_;
+    Pool<core::Geometry>        geometry_pool_;
+    Pool<core::Script>          script_pool_;
+    Pool<core::Metadata>        metadata_pool_;
 
     //    LightPool                 light_pool_;
 
 };
 
-template<component T>
-Pool<T>& Scene::ComponentPool() noexcept {
+template<is_component T>
+Pool<T>& Scene::componentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
-        return (transformPool_);
+        return (transform_pool_);
     } else if constexpr (std::is_same<T, Script>()) {
-        return (scriptPool_);
+        return (script_pool_);
     } else if constexpr (std::is_same<T, Metadata>()) {
-        return (metadataPool_);
+        return (metadata_pool_);
     } else {
-        return (geometryPool_);
+        return (geometry_pool_);
     }
 }
 
 extern Scene scene;
 
-template<component T>
-T Entity::Component() const {
-    if (not IsAlive()) return T();
-    return scene.ComponentPool<T>().At(id_);
+template<is_component T>
+T Entity::component() const {
+    if (not isAlive()) return T();
+    return scene.componentPool<T>().at(id_);
 }
 
-template<component T>
-T Entity::AddComponent() {
-    if (not IsAlive()) return T();
-    return scene.ComponentPool<T>().AddComponent(id_);
+template<is_component T>
+T Entity::addComponent() {
+    if (not isAlive()) return T();
+    return scene.componentPool<T>().addComponent(id_);
 }
 
-template<component T>
-T Entity::AddComponent(T::InitInfo&& initInfo) {
-    if (not IsAlive()) return T();
-    return scene.ComponentPool<T>().AddComponent(id_, std::forward<T::InitInfo>(initInfo));
+template<is_component T>
+T Entity::addComponent(T::InitInfo&& init_info) {
+    if (not isAlive()) { return T(); }
+    return scene.componentPool<T>().addComponent(id_, std::forward<T::InitInfo>(init_info));
 }
 
-template<component T>
-void Entity::RemoveComponent() {
-    if (IsAlive())
-        scene.ComponentPool<T>().RemoveComponent(id_);
+template<is_component T>
+void Entity::removeComponent() {
+    if (isAlive())
+        scene.componentPool<T>().removeComponent(id_);
 }
 
 } // reveal3d::core namespace

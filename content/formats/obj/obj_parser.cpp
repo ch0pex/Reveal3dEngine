@@ -27,20 +27,20 @@ struct FaceElem {
     struct Hash {
         size_t operator()(const FaceElem& p) const
         {
-            return ((p.posIndex << 16U) | (p.uvIndex));
+            return ((p.pos_index << 16U) | (p.uv_index));
         }
     };
     bool operator==(const FaceElem& p) const
     {
-        return posIndex == p.posIndex && uvIndex == p.uvIndex && normalIndex == p.normalIndex;
+        return pos_index == p.pos_index && uv_index == p.uv_index && normal_index == p.normal_index;
     }
 
-    u32 posIndex;
-    u32 uvIndex;
-    u32 normalIndex;
+    u32 pos_index;
+    u32 uv_index;
+    u32 normal_index;
 };
 
-static void GetPoly(std::string &line, std::vector<FaceElem> &primitives) {
+static void getPoly(std::string &line, std::vector<FaceElem> &primitives) {
     u32 elem[4][3];
     sscanf(line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u %u/%u/%u",
            &elem[0][0], &elem[0][1], &elem[0][2],
@@ -52,7 +52,7 @@ static void GetPoly(std::string &line, std::vector<FaceElem> &primitives) {
     }
 }
 
-static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
+static void getTriangle(std::string &line, std::vector<FaceElem> &primitives) {
     u32 elem[3][3];
     sscanf(line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u",
            &elem[0][0], &elem[0][1], &elem[0][2],
@@ -64,7 +64,7 @@ static void GetTriangle(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 
-u32 GetDataFromObj(const std::string_view path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u32 getDataFromObj(const std::string_view path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
 #ifndef WIN32
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::string path_str = converter.to_bytes(path);
@@ -103,7 +103,7 @@ u32 GetDataFromObj(const std::string_view path, std::vector<render::Vertex> &ver
                 positions.push_back(pos);
             }
         } else if (line[0] == 'f'){
-            GetTriangle(line, primitives);
+            getTriangle(line, primitives);
         }
     }
 
@@ -112,8 +112,8 @@ u32 GetDataFromObj(const std::string_view path, std::vector<render::Vertex> &ver
     std::unordered_map<FaceElem, u32, FaceElem::Hash> cache;
     for(u64 i = 0; i < primitives.size(); ++i) {
         if (cache.find(primitives[i]) == cache.end()) {
-            vert.pos = positions[primitives[i].posIndex - 1U];
-            vert.normal = normals[primitives[i].normalIndex - 1U];
+            vert.pos = positions[primitives[i].pos_index - 1U];
+            vert.normal = normals[primitives[i].normal_index - 1U];
 //            vert.uv = uvs[primitives[i].uvIndex - 1U];
 //            vert.color = { 0.8f, 0.0f, 0.0f, 0.0f };
             vertices.push_back(vert);
@@ -128,9 +128,9 @@ u32 GetDataFromObj(const std::string_view path, std::vector<render::Vertex> &ver
     return index;
 }
 
-render::Mesh ImportObj(const std::string_view path) {
+render::Mesh importObj(const std::string_view path) {
    render::Mesh mesh;
-   GetDataFromObj(path, mesh.vertices, mesh.indices);
+   getDataFromObj(path, mesh.vertices, mesh.indices);
    return std::move(mesh);
 }
 

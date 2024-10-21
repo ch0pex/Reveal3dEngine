@@ -15,44 +15,44 @@
 #include "../dx_commands.hpp"
 #include "dx_descriptor_heap.hpp"
 
+#include <array>
 
 
 namespace reveal3d::graphics::dx12 {
 
-std::vector<IUnknown*> deferredReleases[frameBufferCount];
-u32 deferredReleasesFlags[frameBufferCount];
+std::array<std::vector<IUnknown*>, frameBufferCount> deferredReleases;
+std::array<u32, frameBufferCount> deferredReleasesFlags;
 
-void SetDeferredFlag() {
-    deferredReleasesFlags[Commands::FrameIndex()] = 1;
+void set_deferred_flag() { deferredReleasesFlags[Commands::frameIndex()] = 1;
 }
 
-void DeferredRelease(IUnknown* resource) {
+void deferred_release(IUnknown *resource) {
     if (resource != nullptr) {
-        deferredReleases[Commands::FrameIndex()].push_back(resource);
-        deferredReleasesFlags[Commands::FrameIndex()] = 1;
+        deferredReleases[Commands::frameIndex()].push_back(resource);
+        deferredReleasesFlags[Commands::frameIndex()] = 1;
         resource = nullptr;
     }
 }
 
-void CleanDeferredResources(Heaps& heaps) {
+void clean_deferred_resources(Heaps &heaps) {
     // Will need mutex __declspec(noinline)
-    const u8 frameIndex = Commands::FrameIndex();
+    const u8 frame_index = Commands::frameIndex();
 
-    if (deferredReleasesFlags[frameIndex]) {
+    if (deferredReleasesFlags[frame_index]) {
 
-        deferredReleasesFlags[frameIndex] = 0;
+        deferredReleasesFlags[frame_index] = 0;
 
-        heaps.rtv.CleanDeferreds();
-        heaps.dsv.CleanDeferreds();
-        //heaps.cbv.CleanDeferreds();
-        // uavHeap.CleanDeferreds();
-        // uavHeap.CleanDeferreds();
+        heaps.rtv.cleanDeferreds();
+        heaps.dsv.cleanDeferreds();
+        //heaps.cbv.cleanDeferreds();
+        // uavHeap.cleanDeferreds();
+        // uavHeap.cleanDeferreds();
 
-        if (!deferredReleases[frameIndex].empty()) {
-            for (auto* resource : deferredReleases[Commands::FrameIndex()]) {
+        if (!deferredReleases[frame_index].empty()) {
+            for (auto* resource : deferredReleases[Commands::frameIndex()]) {
                 utl::release(resource);
             }
-            deferredReleases[frameIndex].clear();
+            deferredReleases[frame_index].clear();
         }
     }
 }

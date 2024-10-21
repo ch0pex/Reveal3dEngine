@@ -29,41 +29,40 @@ public:
 
     Win32(Config &info);
 
-    template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
-    template<graphics::HRI Gfx> void Update(render::Renderer<Gfx> &renderer);
-    void Show();
-    void CloseWindow(input::action act, input::type type);
-    bool ShouldClose();
+    template<graphics::HRI Gfx> void create(render::Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void update(render::Renderer<Gfx> &renderer);
+    void show();
+    void closeWindow(input::Action act, input::type type);
+    bool shouldClose();
 
-    [[nodiscard]] inline Resolution& GetRes() { return info_.res; }
-    [[nodiscard]] inline WHandle GetHandle() const { return info_.handle; }
+    [[nodiscard]] inline Resolution&getRes() { return info_.res; }
+    [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
 private:
-    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
-    template<graphics::HRI Gfx>
-    static LRESULT DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+    template<graphics::HRI Gfx> void clipMouse(render::Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> static LRESULT defaultProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param);
 
     Config info_;
     MSG msg_ {};
     WCallback callback_ { nullptr };
-    bool isRunning_ { false };
+    bool is_running_{ false };
 };
 
 template<graphics::HRI Gfx>
-void Win32::Update(render::Renderer<Gfx> &renderer) {
+void Win32::update(render::Renderer<Gfx> &renderer) {
     while (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg_);
         DispatchMessage(&msg_);
-        isRunning_ &= (msg_.message != WM_QUIT);
+        is_running_ &= (msg_.message != WM_QUIT);
     }
-    ClipMouse(renderer);
+    clipMouse(renderer);
 }
 
 template<graphics::HRI Gfx>
-LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT Win32::defaultProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) {
 
 #ifdef IMGUI
     extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-    if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wParam, lParam))
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, message, w_param, l_param))
         return true;
 #endif
     auto* renderer = reinterpret_cast<render::Renderer<Gfx>*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -71,18 +70,18 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     switch (message) {
         case WM_CREATE:
         {
-            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+            LPCREATESTRUCT p_create_struct = reinterpret_cast<LPCREATESTRUCT>(l_param);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(p_create_struct->lpCreateParams));
             return 0;
         }
         case WM_ENTERSIZEMOVE:
         case WM_EXITSIZEMOVE:
         case WM_SIZE:
         {
-            RECT clientRect;
-            GetClientRect(hwnd, &clientRect);
-            const window::Resolution res(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
-            renderer->Resize(res);
+            RECT client_rect;
+            GetClientRect(hwnd, &client_rect);
+            const window::Resolution res(client_rect.right - client_rect.left, client_rect.bottom - client_rect.top);
+            renderer->resize(res);
             return 0;
         }
         case WM_DESTROY:
@@ -95,76 +94,73 @@ LRESULT Win32::DefaultProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (io.WantCaptureMouse)
                 return 0;
 #endif
-            input::KeyDown(wParam);
+            input::key_down(w_param);
             return 0;
         }
         case WM_KEYUP:
-            input::KeyUp(wParam);
+            input::key_up(w_param);
             return 0;
         case WM_MBUTTONDOWN:
         {
-            input::Cursor::shouldClip = true;
-            input::Cursor::lastUnclipedPos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
+            input::Cursor::should_clip = true;
+            input::Cursor::last_uncliped_pos = {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)};
             SetCapture(hwnd);
             SetCursor(NULL);
-            input::KeyDown(input::code::mouse_middle);
+            input::key_down(input::Code::MouseMiddle);
             return 0;
         }
         case WM_MBUTTONUP:
         {
-            input::Cursor::shouldClip = false;
-            input::KeyUp(input::code::mouse_middle);
+            input::Cursor::should_clip = false;
+            input::key_up(input::Code::MouseMiddle);
             RECT window_rect;
             GetWindowRect(hwnd, &window_rect);
-            SetCursorPos(input::Cursor::lastUnclipedPos.x + window_rect.left, input::Cursor::lastUnclipedPos.y + window_rect.top);
+            SetCursorPos(input::Cursor::last_uncliped_pos.x + window_rect.left, input::Cursor::last_uncliped_pos.y + window_rect.top);
             ReleaseCapture();
             return 0;
         }
         case WM_MOUSEMOVE:
         {
-            input::Cursor::pos = {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)};
-            input::MouseMove(wParam, input::Cursor::pos);
+            input::Cursor::pos = {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)};
+            input::mouse_move(w_param, input::Cursor::pos);
             return 0;
         }
         case WM_RBUTTONDOWN:
-            input::KeyDown(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::key_down(input::Code::MouseRight, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
             return 0;
         case WM_RBUTTONUP:
-            input::KeyUp(input::code::mouse_right, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::key_up(input::Code::MouseRight, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
             return 0;
         case WM_LBUTTONDOWN:
-            input::KeyDown(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::key_down(input::Code::MouseLeft, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
             return 0;
         case WM_LBUTTONUP:
-            input::KeyUp(input::code::mouse_left, {(f32)GET_X_LPARAM(lParam), (f32)GET_Y_LPARAM(lParam)});
+            input::key_up(input::Code::MouseLeft, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
             return 0;
 
     }
-    return DefWindowProcW(hwnd, message, wParam, lParam);
+    return DefWindowProcW(hwnd, message, w_param, l_param);
 }
 
 template<graphics::HRI Gfx>
-void Win32::Create(render::Renderer<Gfx> &renderer) {
-    WNDCLASSEXW windowClass = {
+void Win32::create(render::Renderer<Gfx> &renderer) {
+    WNDCLASSEXW window_class = {
             .cbSize = sizeof(WNDCLASSEX),
             .style = CS_HREDRAW | CS_VREDRAW,
-            .lpfnWndProc = callback_ ? callback_ : DefaultProc<Gfx>,
+            .lpfnWndProc = callback_ ? callback_ : defaultProc<Gfx>,
             .hInstance = GetModuleHandle(NULL),
             .hCursor = LoadCursor(NULL, IDC_ARROW),
             .lpszClassName = L"Reveal3dClass"
     };
-    RegisterClassExW(&windowClass);
+    RegisterClassExW(&window_class);
 
-    RECT windowRect = {0, 0, static_cast<LONG>(info_.res.width), static_cast<LONG>(info_.res.height)};
-    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+    RECT window_rect = {0, 0, static_cast<LONG>(info_.res.width), static_cast<LONG>(info_.res.height)};
+    AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, FALSE);
 
     info_.handle.hwnd = CreateWindowExW(
-            0,
-            windowClass.lpszClassName,
+            0, window_class.lpszClassName,
             info_.name,
-            WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-            windowRect.right - windowRect.left,
-            windowRect.bottom - windowRect.top,
+            WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top,
             nullptr,
             nullptr,
             GetModuleHandle(nullptr),
@@ -173,24 +169,24 @@ void Win32::Create(render::Renderer<Gfx> &renderer) {
 }
 
 template<graphics::HRI Gfx>
-void Win32::ClipMouse(render::Renderer<Gfx> &renderer) {
-    if (!input::Cursor::shouldClip) return;
+void Win32::clipMouse(render::Renderer<Gfx> &renderer) {
+    if (!input::Cursor::should_clip) return;
 
     if (input::Cursor::pos.x < 2) {
         input::Cursor::pos.x = info_.res.width - 3;
-        renderer.CameraResetMouse();
+        renderer.cameraResetMouse();
     }
     else if (input::Cursor::pos.x >= info_.res.width - 2) {
         input::Cursor::pos.x = 3;
-        renderer.CameraResetMouse();
+        renderer.cameraResetMouse();
     }
     if (input::Cursor::pos.y < 2) {
         input::Cursor::pos.y = info_.res.height - 3;
-        renderer.CameraResetMouse();
+        renderer.cameraResetMouse();
     }
     else if (input::Cursor::pos.y >= info_.res.height - 2) {
         input::Cursor::pos.y = 3;
-        renderer.CameraResetMouse();
+        renderer.cameraResetMouse();
     }
 
     POINT pt = {static_cast<LONG>(input::Cursor::pos.x), static_cast<LONG>(input::Cursor::pos.y)};

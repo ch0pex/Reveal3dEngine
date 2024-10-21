@@ -1492,7 +1492,7 @@ Breaking changes:
   - Instead, please submit an item:
       Begin(...) + SetCursorScreenPos(GetCursorScreenPos() + ImVec2(200,200)) + Dummy(ImVec2(0,0)) + End();
   - Alternative:
-      Begin(...) + Dummy(ImVec2(200,200)) + End();
+      begin(...) + Dummy(ImVec2(200,200)) + End();
   Content size is now only extended when submitting an item.
   With '#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS' this will now be detected and assert.
   Without '#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS' this will silently be fixed until we obsolete it.

@@ -241,7 +241,7 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - logger: enabling logger ends up pushing and growing vertices buffers because we don't distinguish layout vs render clipping
  - logger: have more control over the logger scope (e.g. stop logging when leaving current tree node scope)
  - logger: be able to logger anything (e.g. right-click on a window/tree-node, shows context menu? logger into tty/file/clipboard)
- - logger: let user copy any window content to clipboard easily (CTRL+C on windows? while moving it? context menu?). code is commented because it fails with multiple Begin/End pairs.
+ - logger: let user copy any window content to clipboard easily (CTRL+C on windows? while moving it? context menu?). code is commented because it fails with multiple begin/End pairs.
  - logger: obsolete LogButtons().... (was: LogButtons() options for specifying depth and/or hiding depth slider)
 
  - filters: set a current filter that certains items (e.g. tree node) can automatically query to hide themselves

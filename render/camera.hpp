@@ -23,43 +23,43 @@ class Camera {
 public:
     explicit Camera(const window::Resolution &res);
 
-    void Update(const Timer& timer);
-    void Resize(const window::Resolution &res);
+    void update(const Timer &timer);
+    void resize(const window::Resolution &res);
     // TODO: Frustum
 
-    [[nodiscard]] inline math::mat4 GetProjectionMatrix() const { return projectionMatrix_; }
-    [[nodiscard]] inline math::mat4 const GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
-    [[nodiscard]] inline math::mat4 GetViewMatrix() const { return viewMatrix_; }
+    [[nodiscard]] inline math::mat4 getProjectionMatrix() const { return projection_matrix_; }
+    [[nodiscard]] inline math::mat4 const getViewProjectionMatrix() const { return view_projection_matrix_; }
+    [[nodiscard]] inline math::mat4 getViewMatrix() const { return view_matrix_; }
 
     /********* Input handling ************/
-    void Move(input::action dir, input::type value);
-    void SetLooking(input::action action, input::type value);
-    void SetNewMousePos(input::action action, math::vec2 mousePos);
+    void move(const input::Action dir, const input::type value);
+    void setLooking(const input::Action action, const input::type value);
+    void setNewMousePos(const input::Action action, const math::vec2 mouse_pos);
 
-    inline void ResetMouse() { firstMouse_ = true; }
+    inline void resetMouse() { first_mouse_ = true; }
 
 private:
-    void UpdatePos(math::scalar dt);
-    void UpdateFront();
+    void updatePos(math::scalar dt);
+    void updateFront();
 
     math::xvec3 position_;
     math::xvec3 front_;
     math::xvec3 up_;
     math::xvec3 right_;
-    math::xvec3 worldUp_;
-    math::mat4 projectionMatrix_;
-    math::mat4 viewMatrix_;
-    math::mat4 viewProjectionMatrix_;
+    math::xvec3 world_up_;
+    math::mat4 projection_matrix_;
+    math::mat4 view_matrix_;
+    math::mat4 view_projection_matrix_;
 
-    math::scalar moveSpeed_;
+    math::scalar move_speed_;
 
     /********* Input handling ************/ //NOTE: Maybe move this to some mouse class?
-    enum dir : u8 { fwd, bckwd, up, down, right, left, count };
-    std::array<bool, dir::count> isMoving_ { false };
-    bool isLooking_{ false };
-    bool firstMouse_ { true };
-    math::vec2 lastPos_ {0.0f, 0.0f};
-    math::vec2 newPos_ {0.0f, 0.0f};
+    enum Dir : u8 { Fwd, Bckwd, Up, Down, Right, Left, Count };
+    std::array<bool, Dir::Count> is_moving_{ false };
+    bool is_looking_{ false };
+    bool first_mouse_{ true };
+    math::vec2 last_pos_{0.0f, 0.0f};
+    math::vec2 new_pos_{0.0f, 0.0f};
     f32 yaw_ { 0.0f };
     f32 pitch_ { 0.0f };
 };

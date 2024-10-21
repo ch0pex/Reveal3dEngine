@@ -35,18 +35,18 @@ struct StringLiteral {
 };
 
 
-constexpr StringLiteral project_dir {PROJECT_ROOT_DIR};
-constexpr wchar_t project_dir_l[] = L"" PROJECT_ROOT_DIR;
+constexpr StringLiteral projectDir{PROJECT_ROOT_DIR};
+constexpr wchar_t projectDirL[] = L"" PROJECT_ROOT_DIR;
 
 
 inline std::wstring relative(const std::wstring_view path) {
-    const std::wstring p = project_dir_l;
+    const std::wstring p = projectDirL;
     const std::wstring s { path };
     return (p + L"/Source/Reveal3d/" + s); //TODO: fix relative paths
 }
 
 inline std::string relative(const std::string_view path) {
-    const std::string p = project_dir;
+    const std::string p = projectDir;
     const std::string s { path };
     return (p + "/Source/Reveal3d/" + s); //TODO: fix relative paths
 }

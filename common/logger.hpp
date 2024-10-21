@@ -31,7 +31,7 @@ enum LogLevel {
 class Logger
 {
 public:
-    Logger(LogLevel logLevel = logERROR);
+    Logger(LogLevel log_level = logERROR);
 
     template <typename T>
     Logger & operator<<(T const & value)
@@ -40,8 +40,8 @@ public:
         return *this;
     }
 
-    static void Clear(LogLevel logLevel);
-    static std::string Log(LogLevel logLevel);
+    static void clear(LogLevel log_level);
+    static std::string log(LogLevel log_level);
     ~Logger();
 
 private:

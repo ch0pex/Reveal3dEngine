@@ -20,161 +20,161 @@ Scene scene;
 
 Entity::Entity(u32 id) : id_ {id} { }
 
-bool Entity::IsAlive() const {
-    return core::scene.IsEntityAlive(id_);
+bool Entity::isAlive() const {
+    return core::scene.isEntityAlive(id_);
 }
 
-Entity Entity::AddChild() {
-    return core::scene.NewChildEntity(id_);
+Entity Entity::addChild() {
+    return core::scene.newChildEntity(id_);
 }
 
-Scene::Scene() : rootNode_(id::invalid), lastNode_(id::invalid) {}
+Scene::Scene() : root_node_(id::invalid), last_node_(id::invalid) {}
 
 
-Entity Scene::NewEntity() {
-    const id_t id = id::maxFree < freeNodes_.size() ? id::newGeneration(freeNodes_.front()) : sceneGraph_.size();
+Entity Scene::newEntity() {
+    const id_t id = id::maxFree < free_nodes_.size() ? id::newGeneration(free_nodes_.front()) : scene_graph_.size();
     Entity entity(id);
 
     Node node {
         .entity = entity
     };
 
-    if (rootNode_ == id::invalid) {
-       rootNode_ = id::index(entity.Id());
+    if (root_node_ == id::invalid) {
+        root_node_ = id::index(entity.id());
     }
 
-    if (id::isValid(lastNode_)) {
-       node.prev = sceneGraph_.at(lastNode_).entity;
-       sceneGraph_.at(lastNode_).next = node.entity;
+    if (id::isValid(last_node_)) {
+       node.prev = scene_graph_.at(last_node_).entity;
+       scene_graph_.at(last_node_).next = node.entity;
     }
 
-    if (id::maxFree < freeNodes_.size()) {
-        sceneGraph_.at(id::index(entity.Id())) = node;
-        freeNodes_.pop_front();
+    if (id::maxFree < free_nodes_.size()) {
+        scene_graph_.at(id::index(entity.id())) = node;
+        free_nodes_.pop_front();
     } else {
-        sceneGraph_.push_back(node);
-        geometryPool_.AddComponent();
+        scene_graph_.push_back(node);
+        geometry_pool_.addComponent();
     }
 
-    transformPool_.AddComponent(entity.Id());
-    metadataPool_.AddComponent(entity.Id());
+    transform_pool_.addComponent(entity.id());
+    metadata_pool_.addComponent(entity.id());
 
-    lastNode_ = id::index(entity.Id());
-//    nodeIndex_.push_back(id::index(entity.Id()));
+    last_node_ = id::index(entity.id());
+//    nodeIndex_.push_back(id::index(entity.id()));
 
     return entity;
 }
 
-Entity Scene::NewChildEntity(id_t parent) { return NewChildEntity(Entity(parent)); }
+Entity Scene::newChildEntity(id_t parent) { return newChildEntity(Entity(parent)); }
 
-Entity Scene::NewChildEntity(Entity parent) {
-    assert(parent.IsAlive());
+Entity Scene::newChildEntity(Entity parent) {
+    assert(parent.isAlive());
 
-    const id_t id = id::maxFree < freeNodes_.size() ? id::newGeneration(freeNodes_.front()) : sceneGraph_.size();
+    const id_t id = id::maxFree < free_nodes_.size() ? id::newGeneration(free_nodes_.front()) : scene_graph_.size();
     Entity child(id);
 
-    Node childNode {
+    Node child_node{
             .entity = child,
             .parent = parent
     };
 
-    Node& parentNode = GetNode(parent.Id());
+    Node&parent_node = getNode(parent.id());
 
-    if (not parentNode.firstChild.IsAlive()) {
-       parentNode.firstChild = child;
+    if (not parent_node.first_child.isAlive()) {
+        parent_node.first_child = child;
     } else {
-        Node& firstChild = GetNode(parentNode.firstChild.Id());
-        firstChild.prev = childNode.entity;
-        childNode.next = parentNode.firstChild;
-        parentNode.firstChild = childNode.entity;
+        Node&first_child = getNode(parent_node.first_child.id());
+        first_child.prev = child_node.entity;
+        child_node.next = parent_node.first_child;
+        parent_node.first_child = child_node.entity;
     }
 
-    if (id::maxFree < freeNodes_.size()) {
-        sceneGraph_.at(id::index(child.Id())) = childNode;
-        freeNodes_.pop_front();
+    if (id::maxFree < free_nodes_.size()) {
+        scene_graph_.at(id::index(child.id())) = child_node;
+        free_nodes_.pop_front();
     } else {
-        sceneGraph_.push_back(childNode);
-        geometryPool_.AddComponent();
+        scene_graph_.push_back(child_node);
+        geometry_pool_.addComponent();
     }
 
-    transformPool_.AddComponent(child.Id());
-    metadataPool_.AddComponent(child.Id());
-//    nodeIndex_.push_back(id::index(child.Id()));
+    transform_pool_.addComponent(child.id());
+    metadata_pool_.addComponent(child.id());
+//    nodeIndex_.push_back(id::index(child.id()));
 
     return child;
 }
 
-Entity Scene::RemoveEntity(id_t id) {
+Entity Scene::removeEntity(id_t id) {
     Entity entity { id };
     Entity nextOrPrev = {};
-    if (IsEntityAlive(id)) {
-        if (IsEntityAlive(GetNode(id).next.Id())) nextOrPrev = GetNode(id).next;
-        else if (IsEntityAlive(GetNode(id).prev.Id())) nextOrPrev = GetNode(id).prev;
-        RemoveNode(id);
+    if (isEntityAlive(id)) {
+        if (isEntityAlive(getNode(id).next.id())) nextOrPrev = getNode(id).next;
+        else if (isEntityAlive(getNode(id).prev.id())) nextOrPrev = getNode(id).prev;
+        removeNode(id);
     }
     return {}; //TODO fix this can't return nextOrPrev when deleting nested nodes
 }
 
-void Scene::RemoveNode(id_t id) {
+void Scene::removeNode(id_t id) {
     if (!id::isValid(id)) return;
-    Node& node = GetNode(id);
-    freeNodes_.push_back(node.entity.Id());
-    transformPool_.RemoveComponent(id);
-    metadataPool_.RemoveComponent(id);
-    geometryPool_.RemoveComponent(id);
+    Node& node = getNode(id);
+    free_nodes_.push_back(node.entity.id());
+    transform_pool_.removeComponent(id);
+    metadata_pool_.removeComponent(id);
+    geometry_pool_.removeComponent(id);
 
 
-    if (node.prev.IsAlive()) {
-        Node& prevNode = GetNode(node.prev.Id());
-        prevNode.next = node.next;
-    } else if (not node.parent.IsAlive()){
+    if (node.prev.isAlive()) {
+        Node& prev_node = getNode(node.prev.id());
+        prev_node.next = node.next;
+    } else if (not node.parent.isAlive()){
        //Change root node
-       rootNode_ = node.next.IsAlive() ? node.next.Id() : id::invalid;
+       root_node_ = node.next.isAlive() ? node.next.id() : id::invalid;
     }
 
-    if (node.next.IsAlive()) {
-        Node& nextNode = GetNode(node.next.Id());
-        nextNode.prev = node.prev;
-    } else if (not node.parent.IsAlive()){
-        lastNode_ = node.prev.IsAlive() ? node.prev.Id() : id::invalid;
+    if (node.next.isAlive()) {
+        Node& next_node = getNode(node.next.id());
+        next_node.prev = node.prev;
+    } else if (not node.parent.isAlive()){
+        last_node_ = node.prev.isAlive() ? node.prev.id() : id::invalid;
     }
 
-    if (node.firstChild.IsAlive()) {
-        auto children = node.GetChildren();
+    if (node.first_child.isAlive()) {
+        auto children = node.getChildren();
         for (auto child : children) {
-            RemoveNode(child);
+            removeNode(child);
         }
     }
     node.entity = {};
 }
 
-bool Scene::IsEntityAlive(id_t id) {
+bool Scene::isEntityAlive(id_t id) {
     if (id == id::invalid) return false;
-    if (id::index(id) >= sceneGraph_.size()) return false;
-    return GetNode(id).entity.Id() != id::invalid;
+    if (id::index(id) >= scene_graph_.size()) return false;
+    return getNode(id).entity.id() != id::invalid;
 }
 
-void Scene::Init() {
-    // Pooling Init
-    // transformPool_.Init();
+void Scene::init() {
+    // Pooling init
+    // transformPool_.init();
     
     
 //    for (u32 i = 0; i < scene.entities_; ++i) {
 //        if (scripts_[i] != nullptr) {
-//            Entity entity = GetEntity(i);
-//            scripts_[i]->Begin(entity);
+//            Entity entity = getEntity(i);
+//            scripts_[i]->begin(entity);
 //        }
 //    }
 }
 
 //Runs scripts
-void Scene::Update(f32 dt) {
-    transformPool_.Update();
-    geometryPool_.Update();
-    scriptPool_.Update();
-    metadataPool_.Update();
-    assert(transformPool_.Count() == Count());
-    assert(metadataPool_.Count() == Count());
+void Scene::update(f32 dt) {
+    transform_pool_.update();
+    geometry_pool_.update();
+    script_pool_.update();
+    metadata_pool_.update();
+    assert(transform_pool_.count() == count());
+    assert(metadata_pool_.count() == count());
 }
 
 Scene::~Scene() {
@@ -184,14 +184,14 @@ Scene::~Scene() {
 }
 
 
-std::vector<id_t> Scene::Node::GetChildren() const {
+std::vector<id_t> Scene::Node::getChildren() const {
     std::vector<id_t> children;
-    if (firstChild.IsAlive()) {
-        Node *currNode = &scene.GetNode(firstChild.Id());
+    if (first_child.isAlive()) {
+        Node *curr_node = &scene.getNode(first_child.id());
         while(true) {
-            children.push_back(currNode->entity.Id());
-            if (currNode->next.IsAlive()) {
-                currNode = &scene.GetNode(currNode->next.Id());
+            children.push_back(curr_node->entity.id());
+            if (curr_node->next.isAlive()) {
+                curr_node = &scene.getNode(curr_node->next.id());
             } else {
                 break;
             }

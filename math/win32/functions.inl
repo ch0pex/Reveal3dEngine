@@ -12,6 +12,7 @@
  */
 
 #include <concepts>
+#include "math/unix/functions.inl"
 
 namespace reveal3d::math {
 
@@ -23,96 +24,96 @@ concept vectorizable = requires(T t) {
     {t} -> std::convertible_to<xvec4>;
 };
 
-template<vectorizable T> T Sqrt(T s) { return XMVectorSqrt(s); }
-template<vectorizable T> T Recip(T s) { return T(XMVectorReciprocal(s)); }
-template<vectorizable T> T RecipSqrt(T s) { return T(XMVectorReciprocalSqrt(s)); }
-template<vectorizable T> T Floor(T s) { return T(XMVectorFloor(s)); }
-template<vectorizable T> T Ceiling(T s) { return T(XMVectorCeiling(s)); }
-template<vectorizable T> T Round(T s) { return T(XMVectorRound(s)); }
-template<vectorizable T> T Abs(T s) { return T(XMVectorAbs(s)); }
-template<vectorizable T> T Exp(T s) { return T(XMVectorExp(s)); }
-template<vectorizable T> T Pow(T b, T e) { return T(XMVectorPow(b, e)); }
-template<vectorizable T> T Log(T s) { return T(XMVectorLog(s)); }
-template<vectorizable T> T Sin(T s) { return T(XMVectorSin(s)); }
-template<vectorizable T> T Cos(T s) { return T(XMVectorCos(s)); }
-template<vectorizable T> T Tan(T s) { return T(XMVectorTan(s)); }
-template<vectorizable T> T ASin(T s) { return T(XMVectorASin(s)); }
-template<vectorizable T> T ACos(T s) { return T(XMVectorACos(s)); }
-template<vectorizable T> T ATan(T s) { return T(XMVectorATan(s)); }
-template<vectorizable T> T ATan2(T y, T x) { return T(XMVectorATan2(y, x)); }
-template<vectorizable T> T Lerp(T a, T b, T t) { return T(XMVectorLerpV(a, b, t)); }
-template<vectorizable T> T Lerp(T a, T b, f32 t ) { return T(XMVectorLerp(a, b, t)); }
-template<vectorizable T> T Max(T a, T b) { return T(XMVectorMax(a, b)); }
-template<vectorizable T> T Min(T a, T b) { return T(XMVectorMin(a, b)); }
-template<vectorizable T> T Clamp(T v, T a, T b) { return Min(Max(v, a), b); }
+template<vectorizable T> T sqrt(T s) { return XMVectorSqrt(s); }
+template<vectorizable T> T recip(T s) { return T(XMVectorReciprocal(s)); }
+template<vectorizable T> T recip_sqrt(T s) { return T(XMVectorReciprocalSqrt(s)); }
+template<vectorizable T> T floor(T s) { return T(XMVectorFloor(s)); }
+template<vectorizable T> T ceiling(T s) { return T(XMVectorCeiling(s)); }
+template<vectorizable T> T round(T s) { return T(XMVectorRound(s)); }
+template<vectorizable T> T abs(T s) { return T(XMVectorAbs(s)); }
+template<vectorizable T> T exp(T s) { return T(XMVectorExp(s)); }
+template<vectorizable T> T pow(T b, T e) { return T(XMVectorPow(b, e)); }
+template<vectorizable T> T log(T s) { return T(XMVectorLog(s)); }
+template<vectorizable T> T sin(T s) { return T(XMVectorSin(s)); }
+template<vectorizable T> T cos(T s) { return T(XMVectorCos(s)); }
+template<vectorizable T> T tan(T s) { return T(XMVectorTan(s)); }
+template<vectorizable T> T a_sin(T s) { return T(XMVectorASin(s)); }
+template<vectorizable T> T a_cos(T s) { return T(XMVectorACos(s)); }
+template<vectorizable T> T a_tan(T s) { return T(XMVectorATan(s)); }
+template<vectorizable T> T a_tan2(T y, T x) { return T(XMVectorATan2(y, x)); }
+template<vectorizable T> T lerp(T a, T b, T t) { return T(XMVectorLerpV(a, b, t)); }
+template<vectorizable T> T lerp(T a, T b, f32 t ) { return T(XMVectorLerp(a, b, t)); }
+template<vectorizable T> T max_(T a, T b) { return T(XMVectorMax(a, b)); }
+template<vectorizable T> T min_(T a, T b) { return T(XMVectorMin(a, b)); }
+template<vectorizable T> T clamp(T v, T a, T b) { return min_(max_(v, a), b); }
 template<vectorizable T> BoolVector operator<  (T lhs, T rhs) { return XMVectorLess(lhs, rhs); }
 template<vectorizable T> BoolVector operator<= (T lhs, T rhs) { return XMVectorLessOrEqual(lhs, rhs); }
 template<vectorizable T> BoolVector operator>  (T lhs, T rhs) { return XMVectorGreater(lhs, rhs); }
 template<vectorizable T> BoolVector operator>= (T lhs, T rhs) { return XMVectorGreaterOrEqual(lhs, rhs); }
 template<vectorizable T> BoolVector operator== (T lhs, T rhs) { return XMVectorEqual(lhs, rhs); }
-template<vectorizable T> T Select(T lhs, T rhs, BoolVector mask) { return T(XMVectorSelect(lhs, rhs, mask)); }
+template<vectorizable T> T select(T lhs, T rhs, BoolVector mask) { return T(XMVectorSelect(lhs, rhs, mask)); }
 
-inline f32 Sqrt(f32 s) { return Sqrt(scalar(s)); }
-inline f32 Recip(f32 s) { return Recip(scalar(s)); }
-inline f32 RecipSqrt(f32 s) { return RecipSqrt(scalar(s)); }
-inline f32 Floor(f32 s) { return Floor(scalar(s)); }
-inline f32 Ceiling( f32 s) { return Ceiling(scalar(s)); }
-inline f32 Round(f32 s) { return Round(scalar(s)); }
-inline f32 Abs(f32 s) { return s < 0.0f ? -s : s; }
-inline f32 Exp(f32 s) { return Exp(scalar(s)); }
-inline f32 Pow(f32 b, f32 e) { return Pow(scalar(b), scalar(e)); }
-inline f32 Log(f32 s) { return Log(scalar(s)); }
-inline f32 Sin(f32 s) { return Sin(scalar(s)); }
-inline f32 Cos(f32 s) { return Cos(scalar(s)); }
-inline f32 Tan(f32 s) { return Tan(scalar(s)); }
-inline f32 ASin(f32 s) { return ASin(scalar(s)); }
-inline f32 ACos(f32 s) { return ACos(scalar(s)); }
-inline f32 ATan(f32 s) { return ATan(scalar(s)); }
-inline f32 ATan2(f32 y, f32 x) { return ATan2(scalar(y), scalar(x)); }
-inline f32 Lerp(f32 a, f32 b, f32 t) { return a + (b - a) * t; }
-inline f32 Max(f32 a, f32 b) { return a > b ? a : b; }
-inline f32 Min(f32 a, f32 b) { return a < b ? a : b; }
-inline f32 Clamp(f32 v, f32 a, f32 b) { return Min(Max(v, a), b); }
-inline f32 Radians(f32 s) { return  XMConvertToRadians(s); }
+inline f32 sqrt(f32 s) { return sqrt(scalar(s)); }
+inline f32 recip(f32 s) { return recip(scalar(s)); }
+inline f32 recipSqrt(f32 s) { return recip_sqrt(scalar(s)); }
+inline f32 floor(f32 s) { return floor(scalar(s)); }
+inline f32 ceiling( f32 s) { return ceiling(scalar(s)); }
+inline f32 round(f32 s) { return round(scalar(s)); }
+inline f32 abs(f32 s) { return s < 0.0f ? -s : s; }
+inline f32 exp(f32 s) { return exp(scalar(s)); }
+inline f32 pow(f32 b, f32 e) { return pow(scalar(b), scalar(e)); }
+inline f32 log(f32 s) { return log(scalar(s)); }
+inline f32 sin(f32 s) { return sin(scalar(s)); }
+inline f32 cos(f32 s) { return cos(scalar(s)); }
+inline f32 tan(f32 s) { return tan(scalar(s)); }
+inline f32 a_sin(f32 s) { return a_sin(scalar(s)); }
+inline f32 a_cos(f32 s) { return a_cos(scalar(s)); }
+inline f32 a_tan(f32 s) { return a_tan(scalar(s)); }
+inline f32 a_ta2(f32 y, f32 x) { return a_tan2(scalar(y), scalar(x)); }
+inline f32 lerp(f32 a, f32 b, f32 t) { return a + (b - a) * t; }
+inline f32 max_(f32 a, f32 b) { return a > b ? a : b; }
+inline f32 min_(f32 a, f32 b) { return a < b ? a : b; }
+inline f32 clamp(f32 v, f32 a, f32 b) { return min_(max_(v, a), b); }
+inline f32 radians(f32 s) { return  XMConvertToRadians(s); }
 
-inline scalar Length(xvec3 v) { return scalar(XMVector3Length(v)); }
-inline scalar LengthSquare(xvec3 v) { return scalar(XMVector3LengthSq(v)); }
-inline scalar LengthRecip(xvec3 v) { return scalar(XMVector3ReciprocalLength(v)); }
-inline scalar Dot(xvec3 v1, xvec3 v2) { return scalar(XMVector3Dot(v1, v2)); }
-inline scalar Dot(xvec4 v1, xvec4 v2) { return scalar(XMVector4Dot(v1, v2)); }
-inline xvec3 Cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
-inline xvec3 Normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
-inline xvec4 Normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
-inline xvec3 VecToRadians(xvec3 v) { return { XMConvertToRadians(v.GetX()), XMConvertToRadians(v.GetY()), XMConvertToRadians(v.GetZ()) }; }
-inline xvec3 VecToDegrees(xvec3 v) { return { XMConvertToDegrees(v.GetX()), XMConvertToDegrees(v.GetY()), XMConvertToDegrees(v.GetZ()) }; }
-inline mat3 Transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
-inline mat4 Transpose(const mat4 & mat) { return mat4(XMMatrixTranspose(mat)); }
-inline mat4 LookAt(xvec3 position, xvec3 focusPoint, xvec3 upDir) { return XMMatrixLookAtLH(position, focusPoint, upDir); }
-inline mat4 PerspectiveFov(f32 fov, f32 aspectRatio, f32 nearPlane, f32 farPlane) {return XMMatrixPerspectiveFovLH(Radians(fov), aspectRatio, nearPlane, farPlane);}
+inline scalar length(xvec3 v) { return scalar(XMVector3Length(v)); }
+inline scalar lengthSquare(xvec3 v) { return scalar(XMVector3LengthSq(v)); }
+inline scalar lengthRecip(xvec3 v) { return scalar(XMVector3ReciprocalLength(v)); }
+inline scalar dot(xvec3 v1, xvec3 v2) { return scalar(XMVector3Dot(v1, v2)); }
+inline scalar dot(xvec4 v1, xvec4 v2) { return scalar(XMVector4Dot(v1, v2)); }
+inline xvec3 cross(xvec3 v1, xvec3 v2) { return xvec3(XMVector3Cross(v1, v2)); }
+inline xvec3 normalize(xvec3 v) { return xvec3(XMVector3Normalize(v)); }
+inline xvec4 normalize(xvec4 v) { return xvec4(XMVector4Normalize(v)); }
+inline xvec3 vec_to_radians(xvec3 v) { return { XMConvertToRadians(v.x()), XMConvertToRadians(v.y()), XMConvertToRadians(v.z()) }; }
+inline xvec3 vec_to_degrees(xvec3 v) { return { XMConvertToDegrees(v.x()), XMConvertToDegrees(v.y()), XMConvertToDegrees(v.z()) }; }
+inline mat3 transpose(const mat3 & mat) { return mat3(XMMatrixTranspose(mat)); }
+inline mat4 transpose(const mat4 & mat) { return mat4(XMMatrixTranspose(mat)); }
+inline mat4 look_at(xvec3 position, xvec3 focus_point, xvec3 up_dir) { return XMMatrixLookAtLH(position, focus_point, up_dir); }
+inline mat4 perspective_fov(f32 fov, f32 aspect_ratio, f32 near_plane, f32 far_plane) {return XMMatrixPerspectiveFovLH(radians(fov), aspect_ratio, near_plane, far_plane);}
 //inline mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixAffineTransformation(scale, {0.0f, 0.0f, 0.0f}, XMQuaternionRotationRollPitchYawFromVector(rotation), position);}
-inline mat4 AffineTransformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation) * XMMatrixTranslationFromVector(position); }
-inline mat4 Inverse(const mat4& mat) { return XMMatrixInverse(nullptr, mat); }
-inline mat4 Mat4Identity() { return XMMatrixIdentity(); }
+inline mat4 affine_transformation(const xvec3 position, const xvec3 scale, const xvec3 rotation ) { return XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation) * XMMatrixTranslationFromVector(position); }
+inline mat4 inverse(const mat4& mat) { return XMMatrixInverse(nullptr, mat); }
+inline mat4 mat4_identity() { return XMMatrixIdentity(); }
 
-inline mat3 InverseTranspose(const mat3 & mat)
+inline mat3 inverse_transpose(const mat3 & mat)
 {
-    const xvec3 x = mat.GetX();
-    const xvec3 y = mat.GetY();
-    const xvec3 z = mat.GetZ();
+    const xvec3 x = mat.x();
+    const xvec3 y = mat.y();
+    const xvec3 z = mat.z();
 
-    const xvec3 inv0 = Cross(y, z);
-    const xvec3 inv1 = Cross(z, x);
-    const xvec3 inv2 = Cross(x, y);
-    const scalar rDet = Recip(Dot(z, inv2));
+    const xvec3 inv0 = cross(y, z);
+    const xvec3 inv1 = cross(z, x);
+    const xvec3 inv2 = cross(x, y);
+    const scalar r_det = recip(dot(z, inv2));
 
     // Return the adjoint / determinant
-    return mat3(inv0, inv1, inv2) * rDet;
+    return mat3(inv0, inv1, inv2) * r_det;
 }
 
-inline mat4 OrthoInvert(const mat4 & xform)
+inline mat4 ortho_invert(const mat4 &xform)
 {
-    mat3 basis = Transpose(xform.Get3x3());
-    xvec3 translate = basis * -xvec3(xform.GetW());
+    mat3 basis = transpose(xform.get3x3());
+    xvec3 translate = basis * -xvec3(xform.w());
     return mat4(basis, translate);
 }
 

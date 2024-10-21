@@ -17,85 +17,85 @@
 
 namespace reveal3d::graphics::dx12 {
 
-u8 Commands::frameIndex_ = 0;
+u8 Commands::frame_index_ = 0;
 
-void Commands::Init(ID3D12Device *device) {
-    const D3D12_COMMAND_QUEUE_DESC queueDesc {
+void Commands::init(ID3D12Device *device) {
+    const D3D12_COMMAND_QUEUE_DESC queue_desc{
             .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
             .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
             .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0
     };
-    ResetFences();
-    device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)) >> utl::DxCheck;
+    resetFences();
+    device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utl::DxCheck;
 
     device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
-    fenceEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-    if (fenceEvent_ == nullptr) {
+    fence_event_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+    if (fence_event_ == nullptr) {
         GetLastError() >> utl::DxCheck;
         throw std::runtime_error("Failed to create fence event");
     }
 
-    for(auto & commandAllocator : commandAllocators_) {
-        device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator)) >> utl::DxCheck;
+    for(auto &command_allocator: command_allocators_) {
+        device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator)) >> utl::DxCheck;
     }
 
-    device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators_[frameIndex_].Get(),
-                               nullptr, IID_PPV_ARGS(&commandList_)) >> utl::DxCheck;
-    commandList_->Close();
+    device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_allocators_[frame_index_].Get(),
+                               nullptr, IID_PPV_ARGS(&command_list_)) >> utl::DxCheck;
+    command_list_->Close();
 }
 
-void Commands::Reset(ID3D12PipelineState *pso) {
-    commandAllocators_[frameIndex_]->Reset() >> utl::DxCheck;
-    commandList_->Reset(commandAllocators_[frameIndex_].Get(), pso) >> utl::DxCheck;
+void Commands::reset(ID3D12PipelineState *pso) {
+    command_allocators_[frame_index_]->Reset() >> utl::DxCheck;
+    command_list_->Reset(command_allocators_[frame_index_].Get(), pso) >> utl::DxCheck;
 }
 
-void Commands::WaitForGPU() {
-    fenceValues_[frameIndex_]++;
-    commandQueue_->Signal(fence_.Get(), fenceValues_[frameIndex_]) >> utl::DxCheck;
-    auto lastCompleted = fence_->GetCompletedValue();
-    if ( lastCompleted < fenceValues_[frameIndex_])
+void Commands::waitForGpu() {
+    fence_values_[frame_index_]++;
+    command_queue_->Signal(fence_.Get(), fence_values_[frame_index_]) >> utl::DxCheck;
+    auto last_completed = fence_->GetCompletedValue();
+    if (last_completed < fence_values_[frame_index_])
     {
-        fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
-        if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
+        fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
+        if (WaitForSingleObject(fence_event_, INFINITE) == WAIT_FAILED) {
             GetLastError() >> utl::DxCheck;
         }
     }
 }
 
-void Commands::MoveToNextFrame() {
-    const u64 currentFenceVal = fenceValues_[frameIndex_];
+void Commands::moveToNextFrame() {
+    const u64 current_fence_val = fence_values_[frame_index_];
 
-    commandQueue_->Signal(fence_.Get(), currentFenceVal) >> utl::DxCheck;
+    command_queue_->Signal(fence_.Get(), current_fence_val) >> utl::DxCheck;
 
-    frameIndex_ = ++frameIndex_ % bufferCount_;
+    frame_index_ = ++frame_index_ % buffer_count_;
 
-    if (fence_->GetCompletedValue() < fenceValues_[frameIndex_])
+    if (fence_->GetCompletedValue() < fence_values_[frame_index_])
     {
-        fence_->SetEventOnCompletion(fenceValues_[frameIndex_], fenceEvent_) >> utl::DxCheck;
-        if (WaitForSingleObject(fenceEvent_, INFINITE) == WAIT_FAILED) {
+        fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
+        if (WaitForSingleObject(fence_event_, INFINITE) == WAIT_FAILED) {
             GetLastError() >> utl::DxCheck;
         }
     }
 
-    fenceValues_[frameIndex_] = currentFenceVal + 1;
+    fence_values_[frame_index_] = current_fence_val + 1;
 }
-void Commands::Execute() {
-    ID3D12CommandList* ppCommandLists[] = { commandList_.Get() };
-    commandQueue_->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+void Commands::execute() {
+    ID3D12CommandList*pp_command_lists[] = {command_list_.Get() };
+    command_queue_->ExecuteCommandLists(_countof(pp_command_lists), pp_command_lists);
 }
-void Commands::Flush() {
-    WaitForGPU();
-    CloseHandle(fenceEvent_);
-}
-
-void Commands::ResetFences() {
-    frameIndex_ = 0;
-    fenceValues_[1] = 0;
-    fenceValues_[2] = 0;
+void Commands::flush() {
+    waitForGpu();
+    CloseHandle(fence_event_);
 }
 
-void Commands::AddGraphicsList(ID3D12GraphicsCommandList *list) {
+void Commands::resetFences() {
+    frame_index_ = 0;
+    fence_values_[1] = 0;
+    fence_values_[2] = 0;
+}
+
+void Commands::addGraphicsList(ID3D12GraphicsCommandList *list) {
 
 }
 

@@ -22,23 +22,23 @@ namespace reveal3d::graphics {
 class OpenGL {
 public:
     explicit OpenGL(window::Resolution *res);
-    void LoadPipeline();
-    void LoadAssets();
-    void LoadAsset();
-    void Update(render::Camera& camera);
-    void RenderSurface();
-    void Terminate();
-    void Resize(const window::Resolution &res);
+    void loadPipeline();
+    void loadAssets();
+    void loadAsset();
+    void update(render::Camera &camera);
+    void renderSurface();
+    void terminate();
+    void resize(const window::Resolution &res);
 
-    inline void SetWindow(WHandle wHandle) { window_ = wHandle; }
+    inline void initWindow(WHandle w_handle) { window_ = w_handle; }
 
 private:
-    void CreateContext();
-    void SwapBuffer();
-    void TerminateContext();
-    math::mat4 passConstant_;
-    std::vector<opengl::RenderElement> renderElements_;
-    opengl::RenderLayers renderLayers_;
+    void createContext();
+    void swapBuffer();
+    void terminateContext();
+    math::mat4 pass_constant_;
+    std::vector<opengl::RenderElement> render_elements_;
+    opengl::RenderLayers render_layers_;
     WHandle window_ {};
 };
 

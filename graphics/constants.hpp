@@ -19,22 +19,22 @@ namespace reveal3d::graphics {
 
 struct GlobalShaderData {
     math::mat4 view;
-    math::mat4 invView;
+    math::mat4 inv_view;
     math::mat4 proj;
-    math::mat4 invProj;
-    math::mat4 viewProj;
-    math::mat4 invViewProj;
-    math::vec2 cbPerObjectPad1;
-    math::vec2 renderTargetSize;
+    math::mat4 inv_proj;
+    math::mat4 view_proj;
+    math::mat4 inv_view_proj;
+    math::vec2 cb_per_object_pad_1;
+    math::vec2 render_target_size;
     f32 nearZ;
-    f32 farZ;
-    f32 totalTime;
-    f32 deltaTime;
+    f32 far_z;
+    f32 total_time;
+    f32 delta_time;
 };
 
 struct PerObjectData {
-    PerObjectData() : worldViewProj(math::Mat4Identity()) {}
-    math::mat4 worldViewProj;
+    PerObjectData() : world_view_proj(math::mat4_identity()) {}
+    math::mat4 world_view_proj;
 };
 
 

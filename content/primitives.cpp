@@ -17,7 +17,7 @@
 
 namespace reveal3d::content {
 
-u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
             { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
@@ -46,7 +46,7 @@ u16 GetCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices
     return 7;
 }
 
-u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { -1.0f, 1.0f, 0.0f },  { 0.2f, 0.2f, 0.2f, 0.0f } },
@@ -65,19 +65,19 @@ u16 GetPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indice
     return 3;
 }
 
-u16 GetSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 GetTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 getTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 

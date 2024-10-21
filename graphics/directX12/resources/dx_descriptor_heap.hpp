@@ -15,6 +15,8 @@
 
 #include "dx_deferring_system.hpp"
 
+#include <array>
+
 namespace reveal3d::graphics::dx12 {
 
 struct DescriptorHandle {
@@ -46,29 +48,29 @@ public:
     ~DescriptorHeap() = default;
 
     //inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
-    inline ID3D12DescriptorHeap* Get() { return heap_; };
-    inline D3D12_CPU_DESCRIPTOR_HANDLE CpuStart() { return cpuStart_; }
-    inline D3D12_GPU_DESCRIPTOR_HANDLE GpuStart() { return gpuStart_; }
-    inline u32 Capacity() { return capacity_; }
-    inline u32 Size() { return size_; }
-    inline u32 DescriptorSize() { return capacity_; }
-    inline bool IsShaderVisible() { return gpuStart_.ptr != 0; }
+    inline ID3D12DescriptorHeap* get() { return heap_; };
+    inline D3D12_CPU_DESCRIPTOR_HANDLE cpuStart() { return cpu_start_; }
+    inline D3D12_GPU_DESCRIPTOR_HANDLE gpuStart() { return gpu_start_; }
+    inline u32 capacity() { return capacity_; }
+    inline u32 size() { return size_; }
+    inline u32 descriptorSize() { return capacity_; }
+    inline bool isShaderVisible() { return gpu_start_.ptr != 0; }
 
-    bool Initialize(ID3D12Device *device, u32 capacity, bool isShaderVisible);
+    bool initialize(ID3D12Device *constdevice, u32 capacity, bool is_shader_visible);
     [[nodiscard]] DescriptorHandle alloc();
     void free(DescriptorHandle& handle);
-    void CleanDeferreds();
-    void Release();
+    void cleanDeferreds();
+    void release();
 
 private:
     ID3D12DescriptorHeap *heap_ { nullptr };
-    D3D12_CPU_DESCRIPTOR_HANDLE cpuStart_ {};
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuStart_ {};
-    std::unique_ptr<u32[]> freeHandles_ {};
-    std::vector<u32> deferredIndices_[frameBufferCount];
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_{};
+    D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_{};
+    std::unique_ptr<u32[]> free_handles_{};
+    std::array<std::vector<u32>, frameBufferCount> deferred_indices_;
     u32 capacity_ { 0 };
     u32 size_ { 0 };
-    u32 descriptorSize_ {};
+    u32 descriptor_size_{};
     D3D12_DESCRIPTOR_HEAP_TYPE type_;
 
     //std::mutexmutex in future
@@ -79,7 +81,7 @@ struct Heaps {
 
 public:
     Heaps();
-    void Release();
+    void release();
 
     /******************** Descriptor Heaps *************************/
     DescriptorHeap rtv;

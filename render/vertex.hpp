@@ -8,7 +8,7 @@
  * @date 06/04/2024
  * @brief Vertex  
  *
- * Mesh vertex definition
+ * mesh vertex definition
  * 
  */
 

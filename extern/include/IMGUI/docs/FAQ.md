@@ -210,19 +210,19 @@ ctx->RSSetScissorRects(1, &r);
 <td><img src="https://github.com/ocornut/imgui/assets/8225057/76eb9467-74d1-4e95-9f56-be81c6dd029d"></td>
 <td>
 <pre lang="cpp">
-ImGui::Begin("Incorrect!");
+ImGui::begin("Incorrect!");
 ImGui::DragFloat2("My value", &objects[0]->pos.x);
 ImGui::DragFloat2("My value", &objects[1]->pos.x);
 ImGui::DragFloat2("My value", &objects[2]->pos.x);
 ImGui::End();
 &nbsp;
-ImGui::Begin("Correct!");
+ImGui::begin("Correct!");
 ImGui::DragFloat2("My value", &objects[0]->pos.x);
 ImGui::DragFloat2("My value##2", &objects[1]->pos.x);
 ImGui::DragFloat2("My value##3", &objects[2]->pos.x);
 ImGui::End();
 &nbsp;
-ImGui::Begin("Also Correct!");
+ImGui::begin("Also Correct!");
 for (int n = 0; n < 3; n++)
 {
     ImGui::PushID(n);
@@ -250,14 +250,14 @@ Since Dear ImGui 1.85, you can use `Demo>Tools>ID Stack Tool` or call `ImGui::Sh
 
 - Unique ID are often derived from a string label and at minimum scoped within their host window:
 ```cpp
-Begin("MyWindow");
+begin("MyWindow");
 Button("OK");          // Label = "OK",     ID = hash of ("MyWindow", "OK")
 Button("Cancel");      // Label = "Cancel", ID = hash of ("MyWindow", "Cancel")
 End();
 ```
 - Other elements such as tree nodes, etc. also pushes to the ID stack:
 ```cpp
-Begin("MyWindow");
+begin("MyWindow");
 if (TreeNode("MyTreeNode"))
 {
     Button("OK");      // Label = "OK",     ID = hash of ("MyWindow", "MyTreeNode", "OK")
@@ -267,20 +267,20 @@ End();
 ```
 - Two items labeled "OK" in different windows or different tree locations won't collide:
 ```cpp
-Begin("MyFirstWindow");
+begin("MyFirstWindow");
 Button("OK");          // Label = "OK",     ID = hash of ("MyFirstWindow", "OK")
 End();
-Begin("MyOtherWindow");
+begin("MyOtherWindow");
 Button("OK");          // Label = "OK",     ID = hash of ("MyOtherWindow", "OK")
 End();
 ```
 
 - If you have a same ID twice in the same location, you'll have a conflict:
 ```cpp
-Begin("MyWindow");
+begin("MyWindow");
 Button("OK");
 Button("OK");      // ERROR: ID collision with the first button! Interacting with either button will trigger the first one.
-Button("");        // ERROR: ID collision with Begin("MyWindow")!
+Button("");        // ERROR: ID collision with begin("MyWindow")!
 End();
 ```
 Fear not! This is easy to solve and there are many ways to solve it!
@@ -291,7 +291,7 @@ Use "##" to pass a complement to the ID that won't be visible to the end-user.
 This helps solve the simple collision cases when you know e.g. at compilation time which items
 are going to be created:
 ```cpp
-Begin("MyWindow");
+begin("MyWindow");
 Button("Play");        // Label = "Play",   ID = hash of ("MyWindow", "Play")
 Button("Play##foo1");  // Label = "Play",   ID = hash of ("MyWindow", "Play##foo1")  // Different from other buttons
 Button("Play##foo2");  // Label = "Play",   ID = hash of ("MyWindow", "Play##foo2")  // Different from other buttons
@@ -310,7 +310,7 @@ Button("Hello###ID");  // Label = "Hello",  ID = hash of (..., "###ID")
 Button("World###ID");  // Label = "World",  ID = hash of (..., "###ID")  // Same ID, different label
 
 sprintf(buf, "My game (%f FPS)###MyGame", fps);
-Begin(buf);            // Variable title,   ID = hash of "MyGame"
+begin(buf);            // Variable title,   ID = hash of "MyGame"
 ```
 - Solving ID conflict in a more general manner:
 Use `PushID()` / `PopID()` to create scopes and manipulate the ID stack, as to avoid ID conflicts
@@ -320,7 +320,7 @@ You can push a pointer, a string, or an integer value into the ID stack.
 Remember that IDs are formed from the concatenation of _everything_ pushed into the ID stack.
 At each level of the stack, we store the seed used for items at this level of the ID stack.
 ```cpp
-Begin("Window");
+begin("Window");
 for (int i = 0; i < 100; i++)
 {
   PushID(i);           // Push i to the id tack
@@ -501,7 +501,7 @@ provide similar or better string helpers.
 
 - You can use the low-level `ImDrawList` api to render shapes within a window.
 ```cpp
-ImGui::Begin("My shapes");
+ImGui::begin("My shapes");
 
 ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -525,7 +525,7 @@ ImGui::End();
 - To generate colors: you can use the macro `IM_COL32(255,255,255,255)` to generate them at compile time, or use `ImGui::GetColorU32(IM_COL32(255,255,255,255))` or `ImGui::GetColorU32(ImVec4(1.0f,1.0f,1.0f,1.0f))` to generate a color that is multiplied by the current value of `style.Alpha`.
 - Math operators: if you have setup `IM_VEC2_CLASS_EXTRA` in `imconfig.h` to bind your own math types, you can use your own math types and their natural operators instead of ImVec2. ImVec2 by default doesn't export any math operators in the public API. You may use `#define IMGUI_DEFINE_MATH_OPERATORS` `#include "imgui.h"` to use our math operators, but instead prefer using your own math library and set it up in `imconfig.h`.
 - You can use `ImGui::GetBackgroundDrawList()` or `ImGui::GetForegroundDrawList()` to access draw lists which will be displayed behind and over every other Dear ImGui window (one bg/fg drawlist per viewport). This is very convenient if you need to quickly display something on the screen that is not associated with a Dear ImGui window.
-- You can also create your own empty window and draw inside it. Call Begin() with the NoBackground | NoDecoration | NoSavedSettings | NoInputs flags (The `ImGuiWindowFlags_NoDecoration` flag itself is a shortcut for NoTitleBar | NoResize | NoScrollbar | NoCollapse). Then you can retrieve the ImDrawList* via `GetWindowDrawList()` and draw to it in any way you like.
+- You can also create your own empty window and draw inside it. Call begin() with the NoBackground | NoDecoration | NoSavedSettings | NoInputs flags (The `ImGuiWindowFlags_NoDecoration` flag itself is a shortcut for NoTitleBar | NoResize | NoScrollbar | NoCollapse). Then you can retrieve the ImDrawList* via `GetWindowDrawList()` and draw to it in any way you like.
 - You can create your own ImDrawList instance. You'll need to initialize them with `ImGui::GetDrawListSharedData()`, or create your own instancing `ImDrawListSharedData`, and then call your renderer function with your own ImDrawList or ImDrawData data.
 - Looking for fun? The [ImDrawList coding party 2020](https://github.com/ocornut/imgui/issues/3606) thread is full of "don't do this at home" extreme uses of the ImDrawList API.
 
@@ -549,12 +549,12 @@ Applications in the `examples/` folder are not DPI aware partly because they are
 
 The reason DPI is not auto-magically solved in stock examples is that we don't yet have a satisfying solution for the "multi-dpi" problem (using the `docking` branch: when multiple viewport windows are over multiple monitors using different DPI scales). The current way to handle this on the application side is:
 - Create and maintain one font atlas per active DPI scale (e.g. by iterating `platform_io.Monitors[]` before `NewFrame()`).
-- Hook `platform_io.OnChangedViewport()` to detect when a `Begin()` call makes a Dear ImGui window change monitor (and therefore DPI).
+- Hook `platform_io.OnChangedViewport()` to detect when a `begin()` call makes a Dear ImGui window change monitor (and therefore DPI).
 - In the hook: swap atlas, swap style with correctly sized one, and remap the current font from one atlas to the other (you may need to maintain a remapping table of your fonts at varying DPI scales).
 
 This approach is relatively easy and functional but comes with two issues:
-- It's not possibly to reliably size or position a window ahead of `Begin()` without knowing on which monitor it'll land.
-- Style override may be lost during the `Begin()` call crossing monitor boundaries. You may need to do some custom scaling mumbo-jumbo if you want your `OnChangedViewport()` handler to preserve style overrides.
+- It's not possibly to reliably size or position a window ahead of `begin()` without knowing on which monitor it'll land.
+- Style override may be lost during the `begin()` call crossing monitor boundaries. You may need to do some custom scaling mumbo-jumbo if you want your `OnChangedViewport()` handler to preserve style overrides.
 
 Please note that if you are not using multi-viewports with multi-monitors using different DPI scales, you can ignore that and use the simpler technique recommended at the top.
 

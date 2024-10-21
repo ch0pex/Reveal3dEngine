@@ -20,7 +20,7 @@
 
 namespace reveal3d::core {
 
-class Transform {
+class Transform : GpuStored {
 public:
     struct Info {
         math::xvec3 position    { 0.f, 0.f, 0.f };
@@ -28,93 +28,100 @@ public:
         math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
-    /************* Transform Data ****************/
-    struct Data {
-        math::mat4& World(id_t id)       { return world.at(id::index(id)); }
-        math::mat4& InvWorld(id_t id)    { return invWorld.at(id::index(id)); }
-        Transform::Info& Info(id_t id)   { return info.at(id::index(id)); }
-        const u32 Count()                { return info.size(); }
+    /************* Transform data ****************/
+    struct Pool {
+        math::mat4& World(id_t id)       { return world_mat.at(id::index(id)); }
+        math::mat4& invWorld(id_t id)    { return inv_world.at(id::index(id)); }
+        Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
+        const u32 count()                { return pos_rot_scale.size(); }
         void Remove(u32 index)           {
         }
 
-        utl::vector<math::mat4>         world;
-        utl::vector<math::mat4>         invWorld;
-        utl::vector<Transform::Info>    info;
+        utl::vector<math::mat4>         world_mat;
+        utl::vector<math::mat4>         inv_world;
+        utl::vector<Transform::Info>    pos_rot_scale;
+    };
+
+    struct Data {
+        Data(math::mat4& world, math::mat4& inv_world, Transform::Info& info)
+            : world(world), invWorld(inv_world), info(info) {}
+        math::mat4& world;
+        math::mat4&  invWorld;
+        Transform::Info& info;
     };
 
     using InitInfo = Info;
-    constexpr static bool OnGPU = true;
 
     Transform() : id_(id::invalid) {}
     explicit Transform(id_t id);
 
-    [[nodiscard]] math::mat4& World() const;
-    [[nodiscard]] math::mat4& InvWorld() const;
-    [[nodiscard]] math::xvec3 Position() const;
-    [[nodiscard]] math::xvec3 Scale() const;
-    [[nodiscard]] math::xvec3 Rotation() const;
-    [[nodiscard]] math::xvec3 WorldPosition() const;
-    [[nodiscard]] math::xvec3 WorldScale() const;
-    [[nodiscard]] math::xvec3 WorldRotation() const;
+    [[nodiscard]] math::mat4& world() const;
+    [[nodiscard]] math::mat4& invWorld() const;
+    [[nodiscard]] math::xvec3 position() const;
+    [[nodiscard]] math::xvec3 scale() const;
+    [[nodiscard]] math::xvec3 rotation() const;
+    [[nodiscard]] math::xvec3 worldPosition() const;
+    [[nodiscard]] math::xvec3 worldScale() const;
+    [[nodiscard]] math::xvec3 worldRotation() const;
 
-    void SetPosition(math::xvec3 pos) const;
-    void SetScale(math::xvec3 size) const;
-    void SetRotation(math::xvec3 rot) const;
-    void SetWorldPosition(math::xvec3 pos);
-    void SetWorldScale(math::xvec3 scale);
-    void SetWorldRotation(math::xvec3 rot);
-    void Update() const;
+    void position(math::xvec3 pos) const;
+    void scale(math::xvec3 size) const;
+    void rotation(math::xvec3 rot) const;
+    void worldPosition(math::xvec3 pos);
+    void worldScale(math::xvec3 scale);
+    void worldRotation(math::xvec3 rot);
+    void update() const;
 
-    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t Id() const { return id_; }
+    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t id() const { return id_; }
 
-    [[nodiscard]] u8 Dirty() const;
-    void UnDirty() const;
-    void SetDirty() const;
-
+    [[nodiscard]] u8 dirty() const;
+    void unDirty() const;
+    void setDirty() const;
+    Data data();
 
 private:
-    static math::mat4 CalcWorld(id_t id);
-    void UpdateChilds() const;
+    static math::mat4 calcWorld(id_t id);
+    void updateChilds() const;
 
     id_t id_ { id::invalid };
 };
 
 template<>
-inline Transform Pool<Transform>::AddComponent(id_t entityId, Transform::InitInfo &&initInfo) {
-    id_t transformId {id_factory_.New(id::index(entityId))};
+inline Transform Pool<Transform>::addComponent(id_t entity_id, Transform::InitInfo &&init_info) {
+    id_t transform_id{id_factory_.New(id::index(entity_id))};
 
-    data_.info.push_back(std::move(initInfo));
-    Transform::Info& data = data_.info.at(Count() - 1);
-    data_.world.emplace_back(math::Transpose(math::AffineTransformation(data.position, data.scale, data.rotation)));
-    data_.invWorld.emplace_back(math::Inverse(data_.world.at(Count() - 1)));
-    Dirties().emplace_back(4);
-    DirtyIds().insert(transformId);
+    data_.pos_rot_scale.push_back(std::move(init_info));
+    Transform::Info& data = data_.pos_rot_scale.at(count() - 1);
+    data_.world_mat.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
+    data_.inv_world.emplace_back(math::inverse(data_.world_mat.at(count() - 1)));
+    dirties().emplace_back(4);
+    dirtyIds().insert(transform_id);
 
-    Add(id::index(entityId), transformId);
+    add(id::index(entity_id), transform_id);
 
-    assert(id::index(transformId) < data_.Count());
+    assert(id::index(transform_id) < data_.count());
 
-    return components_.at(id::index(entityId));
+    return components_.at(id::index(entity_id));
 }
 
 template<>
-inline Transform Pool<Transform>::AddComponent(id_t id) {
-    return AddComponent(id, {});
+inline Transform Pool<Transform>::addComponent(id_t id) {
+    return addComponent(id, {});
 }
 
 template<>
-inline void Pool<Transform>::RemoveComponent(id_t id) {
-    id_t transform_id { components_.at(id::index(id)).Id() };
-    if (id_factory_.IsAlive(transform_id)) {
-        data_.info.unordered_remove(id::index(transform_id));
-        data_.world.unordered_remove(id::index(transform_id));
-        data_.invWorld.unordered_remove(id::index(transform_id));
-        Dirties().at(id::index(id)) = 0;
-        if (DirtyIds().find(transform_id) != DirtyIds().end()) {
-            DirtyIds().erase(transform_id);
+inline void Pool<Transform>::removeComponent(id_t id) {
+    id_t transform_id {components_.at(id::index(id)).id() };
+    if (id_factory_.isAlive(transform_id)) {
+        data_.pos_rot_scale.unordered_remove(id::index(transform_id));
+        data_.world_mat.unordered_remove(id::index(transform_id));
+        data_.inv_world.unordered_remove(id::index(transform_id));
+        dirties().at(id::index(id)) = 0;
+        if (dirtyIds().find(transform_id) != dirtyIds().end()) {
+            dirtyIds().erase(transform_id);
         }
-        Remove(transform_id);
+        remove(transform_id);
     }
 }
 

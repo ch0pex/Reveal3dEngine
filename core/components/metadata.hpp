@@ -22,63 +22,70 @@ namespace reveal3d::core {
 class Metadata {
 public:
     using InitInfo = std::string;
-    constexpr static bool OnGPU = false;
-    struct Data {
-        u32 Count() { return names.size(); }
+
+    struct Pool {
+        u32 count() { return names.size(); }
         utl::vector<std::string> names;
         utl::vector<std::string> comments;
         utl::vector<std::string> dates;
     };
 
+    struct Data {
+        std::string_view name;
+        std::string_view comment;
+        std::string_view date;
+    };
+
     Metadata() : id_(id::invalid) {}
     explicit Metadata(id_t id);
 
-    std::string& Name();
-    std::string& Comment();
-    std::string& Date();
+    std::string& name();
+    std::string& comment();
+    std::string& date();
 
-    [[nodiscard]] inline bool IsAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t Id() const { return id_; }
-    void Update();
+    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] inline id_t id() const { return id_; }
+    void update();
+    Data data();
 private:
     id_t id_;
 };
 
 template<>
-inline Metadata Pool<Metadata>::AddComponent(id_t id) {
+inline Metadata Pool<Metadata>::addComponent(id_t id) {
     const id_t metadata_id { id_factory_.New(id::index(id)) };
 
     data_.names.emplace_back("Entity_" + std::to_string(id));
     data_.comments.emplace_back();
     data_.dates.emplace_back("10/12/2024");  //TODO
     data_.comments.at(data_.comments.size() - 1U).reserve(1024);
-    Add(id::index(id), metadata_id);
+    add(id::index(id), metadata_id);
 
     return Metadata(metadata_id);
 }
 
 template<>
-inline Metadata Pool<Metadata>::AddComponent(id_t id, Metadata::InitInfo &&initInfo) {
+inline Metadata Pool<Metadata>::addComponent(id_t id, Metadata::InitInfo &&init_info) {
     const id_t metadata_id { id_factory_.New(id::index(id)) };
 
-    data_.names.emplace_back(std::move(initInfo));
+    data_.names.emplace_back(std::move(init_info));
     data_.comments.emplace_back();
     data_.dates.emplace_back("10/12/2024");  //TODO
-    Add(id::index(id), metadata_id);
+    add(id::index(id), metadata_id);
 
-    assert(id::index(metadata_id) < data_.Count());
+    assert(id::index(metadata_id) < data_.count());
 
     return Metadata(metadata_id);
 }
 
 template<>
-inline void Pool<Metadata>::RemoveComponent(id_t id) {
-    const id_t metadata_id { components_.at(id::index(id)).Id() };
+inline void Pool<Metadata>::removeComponent(id_t id) {
+    const id_t metadata_id {components_.at(id::index(id)).id() };
     const u32 idx { id::index(metadata_id) };
     data_.names.unordered_remove(idx);
     data_.comments.unordered_remove(idx);
     data_.dates.unordered_remove(idx);
-    Remove(metadata_id);
+    remove(metadata_id);
 }
 
 }

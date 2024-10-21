@@ -26,30 +26,30 @@ namespace reveal3d::graphics::dx12 {
 class Gpass {
 public:
     Gpass();
-    void Init(ID3D12Device* device);
-    void SetRenderTargets(Commands& commandMng, FrameResource& frameResource);
-    void Depth_prepass(); //TODO
-    void Render(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
-    void AddRenderElement(core::Entity entity, Commands& cmdMng, ID3D12Device* device);
-    void RemoveRenderElement(u32 idx);
-    void Terminate();
+    void init(ID3D12Device *device);
+    void setRenderTargets(Commands &command_mng, FrameResource &frame_resource);
+    void depthPrepass(); //TODO
+    void render(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource);
+    void addRenderElement(core::Entity entity, Commands &cmd_mng, ID3D12Device *device);
+    void removeRenderElement(u32 idx);
+    void terminate();
 
 private:
-    void BuildPsos(ID3D12Device* device);
-    void BuildRoots(ID3D12Device* device);
-    void DrawWorldGrid(ID3D12GraphicsCommandList* commandList, FrameResource& frameResource);
+    void buildPsos(ID3D12Device *device);
+    void buildRoots(ID3D12Device *device);
+    void drawWorldGrid(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource);
 
-    static const f32 clearColor_[];
+    static const f32 clear_color_[];
 
-    /**************** Render elements *****************/
-    reveal3d::utl::vector<RenderElement>  renderElements_;
+    /**************** render elements *****************/
+    reveal3d::utl::vector<RenderElement> render_elements_;
 
     /**************** Pipeline state and root signatures *****************/
-    std::array<GraphicsPso, render::Shader::count>    pipelineStates_;
-    std::array<RootSignature, render::Shader::count>  rootSignatures_;
+    std::array<GraphicsPso, render::Shader::count> pipeline_states_;
+    std::array<RootSignature, render::Shader::count> root_signatures_;
 
-    ID3D12RootSignature* currRootSignature_ { nullptr };
-    ID3D12PipelineState* currPipelineState_ { nullptr };
+    ID3D12RootSignature*curr_root_signature_{ nullptr };
+    ID3D12PipelineState*curr_pipeline_state_{ nullptr };
 };
 
 

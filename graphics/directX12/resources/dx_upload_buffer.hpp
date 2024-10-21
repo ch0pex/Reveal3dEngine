@@ -39,17 +39,18 @@ public:
     explicit UploadBuffer(UploadBuffer&&) = delete;
     UploadBuffer& operator=(UploadBuffer&&) = delete;
 
-    void Init(ID3D12Device *device, u32 count);
-    DescriptorHandle CreateView(ID3D12Device *device, DescriptorHeap &heap);
-    inline ID3D12Resource *Get() { return buff_; };
-    inline u32 Size() { return capacity_; };
-    inline D3D12_GPU_VIRTUAL_ADDRESS GpuStart() { return buff_->GetGPUVirtualAddress(); }
-    inline D3D12_GPU_VIRTUAL_ADDRESS GpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
+    void init(ID3D12Device *device, u32 count);
+    DescriptorHandle createView(ID3D12Device *device, DescriptorHeap &heap);
+    inline ID3D12Resource *get() { return buff_; };
+    inline u32 size() { return capacity_; };
+    inline D3D12_GPU_VIRTUAL_ADDRESS gpuStart() { return buff_->GetGPUVirtualAddress(); }
+    inline D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
 
-    void CopyData(u32 elementIndex, const T* data, u32 count = 1) { memcpy(&mappedData_[elementIndex], data, sizeof(T) * count); }
-    void Release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr); DeferredRelease(buff_); }
+    void copyData(u32 element_index, const T *data, u32 count = 1) { memcpy(&mapped_data_[element_index], data, sizeof(T) * count); }
+    void release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr);
+        deferred_release(buff_); }
 private:
-    T * mappedData_ { nullptr };
+    T *mapped_data_{ nullptr };
     ID3D12Resource *buff_;
     u32 capacity_ { 0 };
     u32 size_ { 0 };
@@ -57,28 +58,28 @@ private:
 
 
 template<typename T>
-void UploadBuffer<T>::Init(ID3D12Device *device, u32 count) {
+void UploadBuffer<T>::init(ID3D12Device *device, u32 count) {
     capacity_ = sizeof(T) * count;
-    auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
+    auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto res_desc = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
 
     device->CreateCommittedResource(
-            &heapProperties,
+            &heap_properties,
             D3D12_HEAP_FLAG_NONE,
-            &resDesc,
+            &res_desc,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
             IID_PPV_ARGS(&buff_)) >> utl::DxCheck;
 
     // TODO: add option to hide this to cpu with range(0,0)
-    buff_->Map(0, nullptr, reinterpret_cast<void**>(&mappedData_));
+    buff_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_data_));
 }
 
 template<typename T>
-DescriptorHandle UploadBuffer<T>::CreateView(ID3D12Device *device, DescriptorHeap &heap) {
-    const u64 buffAddress = GpuStart() + (sizeof(T) * size_++);
+DescriptorHandle UploadBuffer<T>::createView(ID3D12Device *device, DescriptorHeap &heap) {
+    const u64 buff_address = gpuStart() + (sizeof(T) * size_++);
     const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {
-            .BufferLocation = buffAddress,
+            .BufferLocation = buff_address,
             .SizeInBytes = sizeof(T)
     };
 

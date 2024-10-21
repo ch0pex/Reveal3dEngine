@@ -20,26 +20,26 @@ namespace reveal3d::graphics::dx12 {
 
 class Surface {
 public:
-    Surface(window::Resolution& resolution, u32 swapChainFlags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH, u32 present_info = 0);
-    void Init(Commands& cmdManager, IDXGIFactory5* factory);
-    void UpdateViewport();
-    void SetViewport(ID3D12GraphicsCommandList *cmdList);
-    void SetWindow(WHandle& winHandle);
-    void AllowTearing(IDXGIFactory5* factory);
-    const window::Resolution& Resolution();
-    void Present();
-    void Resize(const window::Resolution& res);
-    void GetBuffer(u32 index, ComPtr<ID3D12Resource>& buffer);
+    Surface(window::Resolution& resolution, u32 swap_chain_flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH, u32 present_info = 0);
+    void init(Commands &cmd_manager, IDXGIFactory5 *factory);
+    void updateViewport();
+    void setViewport(ID3D12GraphicsCommandList *cmd_list);
+    void setWindow(WHandle &win_handle);
+    void allowTearing(IDXGIFactory5 *factory);
+    const window::Resolution&resolution();
+    void present();
+    void resize(const window::Resolution &res);
+    void getBuffer(u32 index, ComPtr<ID3D12Resource> &buffer);
 
 private:
-    ComPtr<IDXGISwapChain3> swapChain_;
-    u32 swapChainFlags_;
-    u32 presentInfo_;
+    ComPtr<IDXGISwapChain3> swap_chain_;
+    u32 swap_chain_flags_;
+    u32 present_info_;
 
     window::Resolution *resolution_;
     WHandle window_ {};
     D3D12_VIEWPORT viewport_ {};
-    D3D12_RECT scissorRect_ {};
+    D3D12_RECT scissor_rect_{};
 };
 
 }

@@ -14,7 +14,7 @@
 #include "vk_graphics_core.hpp"
 
 
-namespace reveal3d::graphics::Vk {
+namespace reveal3d::graphics{
 
 
 }

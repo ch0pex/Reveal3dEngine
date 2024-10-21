@@ -17,7 +17,7 @@
 namespace reveal3d::core {
 
 Pool<Script>& pool() {
-    return core::scene.ComponentPool<Script>();
+    return core::scene.componentPool<Script>();
 }
 
 Script::Script(id_t id) : id_(id) { }
@@ -26,27 +26,25 @@ Script::Script(id_t id, InitInfo script) {
 
 }
 
-void Script::Begin() {
-    pool().Data().scripts.at(id::index(id_))->Begin();
+void Script::begin() { pool().data().scripts.at(id::index(id_))->begin();
 }
 
 
-void Script::DisableUpdate() {
+void Script::disableUpdate() {
 
 }
 
-void Script::EnableUpdate() {
+void Script::enableUpdate() {
 
 }
 
-void Script::Destroyed() {
+void Script::destroyed() {
 
 }
 
 
 
-void Script::Update() {
-    pool().Data().scripts.at(id::index(id_))->Update(0.3f);
+void Script::update() { pool().data().scripts.at(id::index(id_))->update(0.3f);
 }
 
 

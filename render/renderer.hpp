@@ -6,7 +6,7 @@
  * @file renderer.hpp
  * @version 1.0
  * @date 25/02/2024
- * @brief Render class 
+ * @brief render class
  *
  * Renderer template class, abstracts at a very high level the HRI (Hardware render interface)
  * 
@@ -27,17 +27,17 @@ template<graphics::HRI Gfx>
 class Renderer {
 public:
     Renderer(window::Resolution *res, Timer &timer);
-    void Init(WHandle wHandle);
-    void Update();
-    void Render();
-    void Destroy();
-    void Resize(const window::Resolution &res);
+    void init(WHandle w_handle);
+    void update();
+    void render();
+    void destroy();
+    void resize(const window::Resolution &res);
 
-    Gfx& Graphics() { return graphics_; }
+    Gfx& graphics() { return graphics_; }
 
-    inline f32 DeltaTime() const { return timer_.DeltaTime(); }
-    inline  void CameraResetMouse() { camera_.ResetMouse(); }
-    inline Timer& Time() { return timer_; }
+    inline f32 deltaTime() const { return timer_.deltaTime(); }
+    inline  void cameraResetMouse() { camera_.resetMouse(); }
+    inline Timer& time() { return timer_; }
 
 private:
     Gfx graphics_;
@@ -55,36 +55,36 @@ Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Init(WHandle wHandle) {
-    f32 time = timer_.TotalTime();
-    graphics_.SetWindow(wHandle);
-    graphics_.LoadPipeline();
-    logger(logDEBUG) << "Initializing Pipeline...[" << timer_.Diff(time) * 1000 <<"ms]";
-    time = timer_.TotalTime();
-    graphics_.LoadAssets();
-    logger(logDEBUG) << "Loading assets...[" << timer_.Diff(time) * 1000 <<"ms]";
+void Renderer<Gfx>::init(WHandle w_handle) {
+    f32 time = timer_.totalTime();
+    graphics_.initWindow(w_handle);
+    graphics_.loadPipeline();
+    logger(logDEBUG) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 <<"ms]";
+    time = timer_.totalTime();
+    graphics_.loadAssets();
+    logger(logDEBUG) << "Loading assets...[" << timer_.diff(time) * 1000 <<"ms]";
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Update() {
-    camera_.Update(timer_);
-    graphics_.Update(camera_);
+void Renderer<Gfx>::update() {
+    camera_.update(timer_);
+    graphics_.update(camera_);
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Render() {
-    graphics_.RenderSurface();
+void Renderer<Gfx>::render() {
+    graphics_.renderSurface();
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Destroy() {
-    logger(logDEBUG) << "Cleaning pipeline...[" << timer_.TotalTime()  <<"]";
-    graphics_.Terminate();
+void Renderer<Gfx>::destroy() {
+    logger(logDEBUG) << "Cleaning pipeline...[" << timer_.totalTime()  <<"]";
+    graphics_.terminate();
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::Resize(const window::Resolution &res) {
-    camera_.Resize(res);
-    graphics_.Resize(res);
+void Renderer<Gfx>::resize(const window::Resolution &res) {
+    camera_.resize(res);
+    graphics_.resize(res);
 }
 }

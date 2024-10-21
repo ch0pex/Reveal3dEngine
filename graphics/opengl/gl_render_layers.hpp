@@ -24,20 +24,20 @@ struct Layer {
 
 class RenderLayers  {
 public:
-    void Init();
-    void AddMesh(render::SubMesh &mesh);
-    void Draw(std::vector<RenderElement>& renderElments, math::mat4 &passConstants, u32 layer);
+    void init();
+    void addMesh(render::SubMesh &mesh);
+    void draw(std::vector<RenderElement> &render_elments, math::mat4 &pass_constants, u32 layer);
 
     inline Layer& operator[] (u32 index) { return layers_[index]; }
     inline const Layer& operator[] (u32 index) const { return layers_[index]; }
 
 private:
-    static std::string ReadShader(const char* fileName);
-    static u32 CreateShader(GLenum shaderType, std::string &source, const char* shaderName);
-    static u32 CreateProgram(const char* vs, const char* fs);
+    static std::string readShader(const char*file_name);
+    static u32 createShader(GLenum shader_type, std::string &source, const char*shader_name);
+    static u32 createProgram(const char* vs, const char* fs);
 
     Layer layers_[render::Shader::count];
-    std::vector<render::SubMesh *> subMeshes_[render::Shader::count];
+    std::array<std::vector<render::SubMesh *>, render::Shader::count> sub_meshes_;
 
 };
 

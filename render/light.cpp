@@ -23,9 +23,9 @@ struct LightData {
     math::vec3 color;       // Light color and strength
     math::vec3 direction;   // Spot and directional only
     math::vec3 position;    // Spot and point only
-    f32 fallOffStart;       // Spot and point only
-    f32 fallOffEnd;         // Spot and point only
-    f32 spotPower;          // Spot only
+    f32 fall_off_start;       // Spot and point only
+    f32 fall_off_end;         // Spot and point only
+    f32 spot_power;          // Spot only
 };
 
 
@@ -40,54 +40,54 @@ Light::Light(id_t id) : id_ { id } {
 
 }
 
-void Light::IsEnabled(bool is_enabled) const {
+void Light::isEnabled(bool is_enabled) const {
 
 }
 
-void Light::Itensity(f32 intensity) const {
+void Light::itensity(f32 intensity) const {
 
 }
 
-void Light::Color(math::vec3 color) const {
+void Light::color(math::vec3 color) const {
 
 }
 
-void Light::Attenuation(math::vec3 attenuation) const {
+void Light::attenuation(math::vec3 attenuation) const {
 
 }
 
-void Light::Range(f32 range) const {
+void Light::range(f32 range) const {
 
 }
 
-void Light::ConeAngles(f32 umbra, f32 penumbra) const {
+void Light::coneAngles(f32 umbra, f32 penumbra) const {
 
 }
 
-bool Light::IsEnabled() const {
+bool Light::isEnabled() const {
     return false;
 }
 
-f32 Light::Intensity() const {
+f32 Light::intensity() const {
     return 0;
 }
 
-math::vec3 Light::Color() const {
+math::vec3 Light::color() const {
     return reveal3d::math::vec3();
 }
 
-math::vec3 Light::Attenuation() const {
+math::vec3 Light::attenuation() const {
     return reveal3d::math::vec3();
 }
 
-f32 Light::Range() const {
+f32 Light::range() const {
     return 0;
 }
 
-f32 Light::Umbra() const { return 0; }
-f32 Light::Penumbra() const { return 0; }
-Light::type Light::Type() const { return Light::point; }
-id_t Light::Id() const { return 0; }
+f32 Light::umbra() const { return 0; }
+f32 Light::penumbra() const { return 0; }
+Light::Type Light::type() const { return Light::point; }
+id_t Light::id() const { return 0; }
 
 
 }

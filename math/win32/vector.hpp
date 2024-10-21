@@ -30,12 +30,12 @@ public:
     inline xvec3(FXMVECTOR vec) : vec_(vec) {}
     inline operator XMVECTOR() const { return vec_; }
 
-    inline void SetX(f32 x) { vec_ = XMVectorSetX(vec_, x); }
-    inline void SetY(f32 y) { vec_ = XMVectorSetY(vec_, y); }
-    inline void SetZ(f32 z) { vec_ = XMVectorSetZ(vec_, z); }
-    [[nodiscard]] inline scalar GetX() const { return XMVectorGetX(vec_); }
-    [[nodiscard]] inline scalar GetY() const { return XMVectorGetY(vec_); }
-    [[nodiscard]] inline scalar GetZ() const { return XMVectorGetZ(vec_); }
+    inline void x(f32 x) { vec_ = XMVectorSetX(vec_, x); }
+    inline void y(f32 y) { vec_ = XMVectorSetY(vec_, y); }
+    inline void z(f32 z) { vec_ = XMVectorSetZ(vec_, z); }
+    [[nodiscard]] inline scalar x() const { return XMVectorGetX(vec_); }
+    [[nodiscard]] inline scalar y() const { return XMVectorGetY(vec_); }
+    [[nodiscard]] inline scalar z() const { return XMVectorGetZ(vec_); }
 
     inline xvec3 operator-() const { return XMVectorNegate(vec_); }
     inline xvec3 operator+(xvec3 v2) const { return XMVectorAdd(vec_, v2); }
@@ -67,15 +67,15 @@ public:
     inline xvec4(FXMVECTOR vec) : vec_(vec) {}
     inline xvec4(const XMFLOAT3 &vec) : vec_(XMLoadFloat3(&vec)) {}
 
-    inline void SetX(const f32 x) { vec_ = XMVectorSetX(vec_, x); }
-    inline void SetY(const f32 y) { vec_ = XMVectorSetY(vec_, y); }
-    inline void SetZ(const f32 z) { vec_ = XMVectorSetZ(vec_, z); }
-    inline void SetW(const f32 w) { vec_ = XMVectorSetW(vec_, w); }
-    inline void SetXYZ(xvec3 xyz) { vec_ = XMVectorPermute<0,1,2,7>(xyz, vec_); }
-    [[nodiscard]] inline scalar GetX() const { return XMVectorGetX(vec_); }
-    [[nodiscard]] inline scalar GetY() const { return XMVectorGetY(vec_); }
-    [[nodiscard]] inline scalar GetZ() const { return XMVectorGetZ(vec_); }
-    [[nodiscard]] inline scalar GetW() const { return XMVectorGetW(vec_); }
+    inline void x(const f32 x) { vec_ = XMVectorSetX(vec_, x); }
+    inline void y(const f32 y) { vec_ = XMVectorSetY(vec_, y); }
+    inline void z(const f32 z) { vec_ = XMVectorSetZ(vec_, z); }
+    inline void w(const f32 w) { vec_ = XMVectorSetW(vec_, w); }
+    inline void xyz(xvec3 xyz) { vec_ = XMVectorPermute<0,1,2,7>(xyz, vec_); }
+    [[nodiscard]] inline scalar x() const { return XMVectorGetX(vec_); }
+    [[nodiscard]] inline scalar y() const { return XMVectorGetY(vec_); }
+    [[nodiscard]] inline scalar z() const { return XMVectorGetZ(vec_); }
+    [[nodiscard]] inline scalar w() const { return XMVectorGetW(vec_); }
 
     inline xvec4 operator-() const { return XMVectorNegate(vec_); }
     inline xvec4 operator+(const xvec4 v2) const { return XMVectorAdd(vec_, v2); }
@@ -104,10 +104,10 @@ private:
 class BoolVector
 {
 public:
-    inline BoolVector( FXMVECTOR vec ) { m_vec = vec; }
-    inline operator XMVECTOR() const { return m_vec; }
+    inline BoolVector( FXMVECTOR vec ) { m_vec_ = vec; }
+    inline operator XMVECTOR() const { return m_vec_; }
 protected:
-    XMVECTOR m_vec;
+    XMVECTOR m_vec_;
 };
 
 

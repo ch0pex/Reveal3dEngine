@@ -24,31 +24,31 @@ namespace reveal3d::graphics::dx12::utl {
 Checker DxCheck;
 ID3D12DebugDevice2* reporter;
 
-static void LogAdapterOutputs(IDXGIAdapter* adapter);
-static void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);
+static void log_adapter_outputs(IDXGIAdapter *adapter);
+static void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format);
 
-void EnableCpuLayer(reveal3d::u32 &factoryFlag) {
-    ComPtr<ID3D12Debug> debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-        debugController->EnableDebugLayer();
-        factoryFlag |= DXGI_CREATE_FACTORY_DEBUG;
+void enable_cpu_layer(reveal3d::u32 &factory_flag) {
+    ComPtr<ID3D12Debug> debug_controller;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller)))) {
+        debug_controller->EnableDebugLayer();
+        factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
     }
 }
 
-void EnableGpuLayer() {
-    ComPtr<ID3D12Debug> spDebugController0;
-    ComPtr<ID3D12Debug1> spDebugController1;
-    D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0)) >> DxCheck;
-    spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1)) >> DxCheck;
-    spDebugController1->SetEnableGPUBasedValidation(TRUE);
+void enable_gpu_layer() {
+    ComPtr<ID3D12Debug> sp_debug_controller_0;
+    ComPtr<ID3D12Debug1> sp_debug_controller_1;
+    D3D12GetDebugInterface(IID_PPV_ARGS(&sp_debug_controller_0)) >> DxCheck;
+    sp_debug_controller_0->QueryInterface(IID_PPV_ARGS(&sp_debug_controller_1)) >> DxCheck;
+    sp_debug_controller_1->SetEnableGPUBasedValidation(TRUE);
 }
 
 
-void LogAdapters() {
+void log_adapters() {
     u32 index = 0;
     IDXGIAdapter *adapter = nullptr;
     IDXGIFactory7 *factory;
-    std::vector<IDXGIAdapter *> adapterList;
+    std::vector<IDXGIAdapter *> adapter_list;
 
     CreateDXGIFactory(IID_PPV_ARGS(&factory));
 
@@ -61,16 +61,16 @@ void LogAdapters() {
         text += L"\n";
 
         OutputDebugStringW(text.c_str());
-        adapterList.push_back(adapter);
+        adapter_list.push_back(adapter);
         ++index;
     }
-    for (size_t i = 0; i < adapterList.size(); ++i) {
-        LogAdapterOutputs(adapterList[i]);
-        adapterList[i]->Release();
+    for (size_t i = 0; i < adapter_list.size(); ++i) {
+        log_adapter_outputs(adapter_list[i]);
+        adapter_list[i]->Release();
     }
 }
 
-void LogAdapterOutputs(IDXGIAdapter *adapter) {
+void log_adapter_outputs(IDXGIAdapter *adapter) {
     UINT index = 0;
     IDXGIOutput *output = nullptr;
     while (adapter->EnumOutputs(index, &output) != DXGI_ERROR_NOT_FOUND) {
@@ -85,7 +85,7 @@ void LogAdapterOutputs(IDXGIAdapter *adapter) {
     }
 }
 
-void LogOutputDisplayModes(IDXGIOutput *output, DXGI_FORMAT format) {
+void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format) {
     UINT count = 0;
     UINT flags = 0;
     // Call with nullptr to get list count.
@@ -100,19 +100,19 @@ void LogOutputDisplayModes(IDXGIOutput *output, DXGI_FORMAT format) {
         OutputDebugStringW(text.c_str());
     }
 }
-void QueueInfo(ID3D12Device *device, BOOL enable) {
-    ComPtr<ID3D12InfoQueue> infoQueue;
-    device->QueryInterface(IID_PPV_ARGS(&infoQueue));
-    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
+void queue_info(ID3D12Device *device, BOOL enable) {
+    ComPtr<ID3D12InfoQueue> info_queue;
+    device->QueryInterface(IID_PPV_ARGS(&info_queue));
+    info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
 //    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
-    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
+    info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
 }
 
-void SetReporter(ID3D12Device *device) {
+void set_reporter(ID3D12Device *device) {
     device->QueryInterface(&reporter);
 }
 
-void ReportLiveDeviceObjs() {
+void report_live_device_objs() {
    reporter-> ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
    reporter->Release();
 }
@@ -134,15 +134,16 @@ void operator>>(Error grabber, Checker checker) {
    }
 }
 
-void GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter) {
+void get_hardware_adapter(IDXGIFactory1 *p_factory, IDXGIAdapter1 **pp_adapter) {
 
-    *ppAdapter = nullptr;
+    *pp_adapter = nullptr;
 
     ComPtr<IDXGIAdapter1> adapter;
     ComPtr<IDXGIFactory6> factory6;
-    if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
+    if (SUCCEEDED(p_factory->QueryInterface(IID_PPV_ARGS(&factory6))))
     {
-        for ( u32 adapterIndex = 0; SUCCEEDED(factory6->EnumAdapterByGpuPreference( adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter))); ++adapterIndex) {
+        for ( u32 adapter_index = 0; SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+                     adapter_index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter))); ++adapter_index) {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
 
@@ -156,7 +157,7 @@ void GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter) {
 
     if(adapter.Get() == nullptr)
     {
-        for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
+        for (UINT adapter_index = 0; SUCCEEDED(p_factory->EnumAdapters1(adapter_index, &adapter)); ++adapter_index)
         {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
@@ -168,7 +169,7 @@ void GetHardwareAdapter(IDXGIFactory1 *pFactory, IDXGIAdapter1 **ppAdapter) {
         }
     }
 
-    *ppAdapter = adapter.Detach();
+    *pp_adapter = adapter.Detach();
 }
 
 

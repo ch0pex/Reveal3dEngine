@@ -23,16 +23,16 @@
 
 namespace reveal3d::graphics {
 
-// Hardware Render Interface Concept
+// Hardware render Interface Concept
 template<typename Gfx>
 concept HRI = requires(Gfx graphics, render::Camera& camera, window::Resolution& res) {
-    {graphics.LoadPipeline()} ->  std::same_as<void>;
-    {graphics.LoadAssets()} ->  std::same_as<void>;
-//    {graphics.LoadAsset(std::declval<u32>)} ->  std::same_as<void>;
-    {graphics.Update(camera)} ->  std::same_as<void>;
-    {graphics.RenderSurface()} ->  std::same_as<void>;
-    {graphics.Terminate()} ->  std::same_as<void>;
-    {graphics.Resize(res)} ->  std::same_as<void>;
+    { graphics.loadPipeline()} ->  std::same_as<void>;
+    { graphics.loadAssets()} ->  std::same_as<void>;
+//    {graphics.loadAsset(std::declval<u32>)} ->  std::same_as<void>;
+    { graphics.update(camera)} ->  std::same_as<void>;
+    { graphics.renderSurface()} ->  std::same_as<void>;
+    { graphics.terminate()} ->  std::same_as<void>;
+    { graphics.resize(res)} ->  std::same_as<void>;
 };
 
 }

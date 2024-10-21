@@ -17,62 +17,53 @@ namespace reveal3d::graphics::dx12 {
 
 GraphicsPso::GraphicsPso() {}
 
-void GraphicsPso::SetPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc) {
-    psoDesc = desc;
+void GraphicsPso::setPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc) { pso_desc_ = desc;
 }
 
-void GraphicsPso::SetInputLayout(const D3D12_INPUT_ELEMENT_DESC* inputLayout, u32 count) {
-   psoDesc.InputLayout = { inputLayout, count };
+void GraphicsPso::setInputLayout(const D3D12_INPUT_ELEMENT_DESC *input_layout, u32 count) {
+    pso_desc_.InputLayout = {input_layout, count };
 }
 
-void GraphicsPso::SetRootSignature(RootSignature &rootSignature) {
-    psoDesc.pRootSignature = rootSignature.Get();
+void GraphicsPso::setRootSignature(RootSignature &root_signature) { pso_desc_.pRootSignature = root_signature.get();
 }
 
-void GraphicsPso::SetShaders(ID3DBlob *vs, ID3DBlob *ps) {
-    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vs);
-    psoDesc.PS = CD3DX12_SHADER_BYTECODE(ps);
+void GraphicsPso::setShaders(ID3DBlob *vs, ID3DBlob *ps) {
+    pso_desc_.VS = CD3DX12_SHADER_BYTECODE(vs);
+    pso_desc_.PS = CD3DX12_SHADER_BYTECODE(ps);
 }
 
-void GraphicsPso::SetRasterizerCullMode(const D3D12_CULL_MODE mode) {
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.RasterizerState.CullMode = mode;
+void GraphicsPso::setRasterizerCullMode(const D3D12_CULL_MODE mode) {
+    pso_desc_.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pso_desc_.RasterizerState.CullMode = mode;
 }
 
-void GraphicsPso::SetBlendState(const D3D12_BLEND_DESC &blendDesc) {
-    psoDesc.BlendState = blendDesc;
+void GraphicsPso::setBlendState(const D3D12_BLEND_DESC &blend_desc) { pso_desc_.BlendState = blend_desc;
 }
 
-void GraphicsPso::SetDepthStencil(const D3D12_DEPTH_STENCIL_DESC& dsDesc) {
-    psoDesc.DepthStencilState = dsDesc;
+void GraphicsPso::setDepthStencil(const D3D12_DEPTH_STENCIL_DESC &ds_desc) { pso_desc_.DepthStencilState = ds_desc;
 }
 
-void GraphicsPso::SetSampleMask(const u32 mask) {
-    psoDesc.SampleMask = mask;
+void GraphicsPso::setSampleMask(const u32 mask) { pso_desc_.SampleMask = mask;
 }
 
-void GraphicsPso::SetPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive) {
-    psoDesc.PrimitiveTopologyType = primitive;
+void GraphicsPso::setPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive) {
+    pso_desc_.PrimitiveTopologyType = primitive;
 }
 
-void GraphicsPso::SetNumRenderTargets(const u32 number) {
-    psoDesc.NumRenderTargets = number;
+void GraphicsPso::setNumRenderTargets(const u32 number) { pso_desc_.NumRenderTargets = number;
 }
 
-void GraphicsPso::SetRtvFormats(const u32 index, const DXGI_FORMAT format) {
-    psoDesc.RTVFormats[index] = format;
+void GraphicsPso::setRtvFormats(const u32 index, const DXGI_FORMAT format) { pso_desc_.RTVFormats[index] = format;
 }
 
-void GraphicsPso::SetSampleDescCount(const u32 sampleCount) {
-    psoDesc.SampleDesc.Count = sampleCount;
+void GraphicsPso::setSampleDescCount(const u32 sample_count) { pso_desc_.SampleDesc.Count = sample_count;
 }
 
-void GraphicsPso::SetDSVFormat(const DXGI_FORMAT dsvFormat) {
-    psoDesc.DSVFormat = dsvFormat;
+void GraphicsPso::setDsvFormat(const DXGI_FORMAT dsv_format) { pso_desc_.DSVFormat = dsv_format;
 }
 
-void GraphicsPso::Finalize(ID3D12Device *device) {
-    device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState_)) >> utl::DxCheck;
+void GraphicsPso::finalize(ID3D12Device *device) {
+    device->CreateGraphicsPipelineState(&pso_desc_, IID_PPV_ARGS(&pipeline_state_)) >> utl::DxCheck;
 }
 
 }

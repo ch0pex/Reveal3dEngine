@@ -15,9 +15,9 @@
 
 std::stringstream Logger::persistent_logs_[3];
 
-Logger::Logger(LogLevel logLevel) : level_(logLevel) {
+Logger::Logger(LogLevel log_level) : level_(log_level) {
 
-    switch (logLevel) {
+    switch (log_level) {
         case logERROR:
             buffer_ << "ERROR MSG" << ": ";
             break;
@@ -30,8 +30,8 @@ Logger::Logger(LogLevel logLevel) : level_(logLevel) {
     }
 }
 
-std::string Logger::Log(LogLevel logLevel) {
-    return persistent_logs_[logLevel].str();
+std::string Logger::log(LogLevel log_level) {
+    return persistent_logs_[log_level].str();
 }
 
 Logger::~Logger()
@@ -45,6 +45,6 @@ Logger::~Logger()
 #endif
 }
 
-void Logger::Clear(LogLevel logLevel) {
-    Logger::persistent_logs_[logLevel].str("");
+void Logger::clear(LogLevel log_level) {
+    Logger::persistent_logs_[log_level].str("");
 }

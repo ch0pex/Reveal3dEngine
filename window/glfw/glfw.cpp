@@ -20,17 +20,17 @@ Glfw::Glfw(Config &info) {
 
 }
 
-void Glfw::Show() {
-    //Show window
+void Glfw::show() {
+    //show window
 }
 
 
-void Glfw::CloseWindow(input::action act, input::type type) {
+void Glfw::closeWindow(input::Action act, input::type type) {
     //Close Window
 }
 
-bool window::Glfw::ShouldClose() {
-    return glfwWindowShouldClose(winPtr_);
+bool window::Glfw::shouldClose() {
+    return glfwWindowShouldClose(win_ptr_);
 }
 
 }

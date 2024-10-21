@@ -25,13 +25,13 @@
 namespace reveal3d::window {
 
 template<typename T, typename Gfx>
-concept Mng = requires(T window, render::Renderer<Gfx> renderer) {
-    {window.Create(renderer)} ->  std::same_as<void>;
-    {window.Show()} ->  std::same_as<void>;
-    {window.Update(renderer)} ->  std::same_as<void>;
-    {window.ShouldClose()} ->  std::same_as<bool>;
-    {window.GetRes()} ->  std::same_as<Resolution&>;
-    {window.GetHandle()} ->  std::same_as<WHandle>;
+concept Manager = requires(T window, render::Renderer<Gfx> renderer) {
+    { window.create(renderer)} ->  std::same_as<void>;
+    { window.show()} ->  std::same_as<void>;
+    { window.update(renderer)} ->  std::same_as<void>;
+    { window.shouldClose()} ->  std::same_as<bool>;
+    { window.getRes()} ->  std::same_as<Resolution&>;
+    { window.getHandle()} ->  std::same_as<WHandle>;
 };
 
 }

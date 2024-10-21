@@ -28,8 +28,8 @@ OpenGL::OpenGL(window::Resolution *res) {
 
 }
 
-void OpenGL::LoadPipeline() {
-    CreateContext();
+void OpenGL::loadPipeline() {
+    createContext();
 
     if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Error on OpenGl init\r\n");
@@ -41,10 +41,10 @@ void OpenGL::LoadPipeline() {
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //    glCullFace(GL_FRONT_AND_BACK);
 //    glDisable(GL_CULL_FACE);
-    renderLayers_.Init();
+    render_layers_.init();
 }
 
-void OpenGL::LoadAssets() {
+void OpenGL::loadAssets() {
     //TODO
 //    std::vector<core::Transform> &transforms = core::scene.Transforms();
 //    std::vector<core::Geometry> &geometries = core::scene.Geometries();
@@ -52,62 +52,61 @@ void OpenGL::LoadAssets() {
 //    for(u32 i = 0; i < core::scene.NumEntities(); ++i) {
 //        if (geometries[i].RenderInfo() == UINT_MAX) {
 //
-//            renderElements_.emplace_back(geometries[i].Vertices(), geometries[i].Indices(), transforms[i].World());
+//            renderElements_.emplace_back(geometries[i].vertices(), geometries[i].indices(), transforms[i].world_mat());
 //            geometries[i].SetRenderInfo(i);
 //
-//            for (auto &mesh : geometries[i].SubMeshes()) {
+//            for (auto &mesh : geometries[i].subMeshes()) {
 //                mesh.renderInfo = i;
 //                mesh.constantIndex = i;
-//                renderLayers_.AddMesh(mesh);
+//                renderLayers_.addMesh(mesh);
 //            }
 //        } else {
-//            for (auto &mesh : geometries[i].SubMeshes()) {
+//            for (auto &mesh : geometries[i].subMeshes()) {
 //                mesh.renderInfo = geometries[i].RenderInfo();
 //                mesh.constantIndex = i;
-//                renderLayers_.AddMesh(mesh);
+//                renderLayers_.addMesh(mesh);
 //            }
 //        }
 //    }
 }
 
-void OpenGL::LoadAsset() {
+void OpenGL::loadAsset() {
     //TODO
 }
 
-void OpenGL::Update(render::Camera &camera) {
-    passConstant_ = camera.GetViewProjectionMatrix();
+void OpenGL::update(render::Camera &camera) {
+    pass_constant_ = camera.getViewProjectionMatrix();
 
 //    auto &transforms = core::scene.Transforms();
 //
 //    for (u32 i = 0; i < core::scene.NumEntities(); ++i) {
 //        if (transforms[i].IsDirty() > 0) {
-//            renderElements_[i].world = transforms[i].World();
+//            renderElements_[i].world_mat = transforms[i].world_mat();
 //            transforms[i].UpdateDirty();
 //        }
 //    }
 }
 
-void OpenGL::RenderSurface() {
+void OpenGL::renderSurface() {
     glClearColor(config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(u32 i = 0; i < render::Shader::count; ++i) {
-        renderLayers_.Draw(renderElements_, passConstant_,i);
+        render_layers_.draw(render_elements_, pass_constant_, i);
     }
-    SwapBuffer();
+    swapBuffer();
 }
 
-void OpenGL::Terminate() {
-    TerminateContext();
+void OpenGL::terminate() { terminateContext();
 }
 
-void OpenGL::Resize(const window::Resolution &res) {
+void OpenGL::resize(const window::Resolution &res) {
 
 }
 
 #ifdef WIN32
 
-void OpenGL::CreateContext() {
+void OpenGL::createContext() {
     window_.hdc = GetDC(window_.hwnd);
 
     // Configuración del formato de píxel
@@ -129,11 +128,11 @@ void OpenGL::CreateContext() {
 
 }
 
-void OpenGL::SwapBuffer() {
+void OpenGL::swapBuffer() {
     SwapBuffers(window_.hdc);
 }
 
-void OpenGL::TerminateContext() {
+void OpenGL::terminateContext() {
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(window_.hglrc);
     ReleaseDC(window_.hwnd, window_.hdc);

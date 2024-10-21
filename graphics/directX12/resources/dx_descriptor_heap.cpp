@@ -16,7 +16,7 @@
 
 namespace reveal3d::graphics::dx12 {
 
-bool DescriptorHeap::Initialize(ID3D12Device * const device, u32 capacity, bool isShaderVisible) {
+bool DescriptorHeap::initialize(ID3D12Device *const device, u32 capacity, bool is_shader_visible) {
 
     assert(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2);
     assert(!(type_ == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER &&
@@ -25,35 +25,35 @@ bool DescriptorHeap::Initialize(ID3D12Device * const device, u32 capacity, bool 
     if (type_ == D3D12_DESCRIPTOR_HEAP_TYPE_DSV ||
         type_ == D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
     {
-        isShaderVisible = false;
+        is_shader_visible = false;
     }
 
-    Release();
+    release();
 
     D3D12_DESCRIPTOR_HEAP_DESC desc{
             .Type = type_,
             .NumDescriptors = capacity,
-            .Flags = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+            .Flags = is_shader_visible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
             .NodeMask = 0,
     };
 
     if(FAILED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&heap_)))){
-        Release();
+        release();
         return false;
     }
 
-    freeHandles_ = std::move(std::make_unique<u32[]>(capacity));
+    free_handles_ = std::move(std::make_unique<u32[]>(capacity));
     capacity_ = capacity;
     size_ = 0;
 
     for (u32 i = 0 ; i < capacity; ++i) {
-        freeHandles_[i] = i;
+        free_handles_[i] = i;
     }
 
     //DEBUG_ACTION(for (u32 i{ 0 }; i < frameBufferCount; ++i) assert(_deferred_free_indices[i].empty()));
-    descriptorSize_ = device->GetDescriptorHandleIncrementSize(type_);
-    cpuStart_ = heap_->GetCPUDescriptorHandleForHeapStart();
-    gpuStart_ = isShaderVisible ? heap_->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+    descriptor_size_ = device->GetDescriptorHandleIncrementSize(type_);
+    cpu_start_ = heap_->GetCPUDescriptorHandleForHeapStart();
+    gpu_start_ = is_shader_visible ? heap_->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
 
     return true;
 }
@@ -62,14 +62,14 @@ DescriptorHandle DescriptorHeap::alloc() {
     assert(heap_);
     assert(size_ < capacity_);
 
-    const u32 index{ freeHandles_[size_] };
-    const u32 offset{ index * descriptorSize_  };
+    const u32 index{free_handles_[size_] };
+    const u32 offset{ index * descriptor_size_  };
     ++size_;
 
     DescriptorHandle handle;
-    handle.cpu.ptr = cpuStart_.ptr + offset;
-    if (IsShaderVisible()) {
-        handle.gpu.ptr = gpuStart_.ptr + offset;
+    handle.cpu.ptr = cpu_start_.ptr + offset;
+    if (isShaderVisible()) {
+        handle.gpu.ptr = gpu_start_.ptr + offset;
     }
 
     handle.index = index;
@@ -80,32 +80,31 @@ DescriptorHandle DescriptorHeap::alloc() {
 void DescriptorHeap::free(DescriptorHandle &handle) {
     if (!handle.IsValid()) return;
     assert(heap_ && size_);
-    assert(handle.cpu.ptr >= cpuStart_.ptr);
-    assert((handle.cpu.ptr - cpuStart_.ptr) % descriptorSize_ == 0);
+    assert(handle.cpu.ptr >= cpu_start_.ptr);
+    assert((handle.cpu.ptr - cpu_start_.ptr) % descriptor_size_ == 0);
     assert(handle.index < capacity_);
-    const u32 index{ (u32)(handle.cpu.ptr - cpuStart_.ptr) / descriptorSize_ };
+    const u32 index{ (u32)(handle.cpu.ptr - cpu_start_.ptr) / descriptor_size_ };
     assert(handle.index == index);
 
-    const u32 frame_idx = Commands::FrameIndex();
-    deferredIndices_[frame_idx].push_back(index);
-    SetDeferredFlag();
+    const u32 frame_idx = Commands::frameIndex();
+    deferred_indices_[frame_idx].push_back(index);
+    set_deferred_flag();
     handle = {};
 }
 
-void DescriptorHeap::CleanDeferreds() {
-    std::vector<u32>& indices{ deferredIndices_[Commands::FrameIndex()] };
+void DescriptorHeap::cleanDeferreds() {
+    std::vector<u32>& indices{deferred_indices_[Commands::frameIndex()] };
     if (!indices.empty())
     {
         for (auto index : indices) {
             --size_;
-            freeHandles_[size_] = index; // For cleaning Deferreds we just set them in free handles
+            free_handles_[size_] = index; // For cleaning Deferreds we just set them in free handles
         }
         indices.clear();
     }
 }
 
-void DescriptorHeap::Release() {
-    DeferredRelease(heap_);
+void DescriptorHeap::release() { deferred_release(heap_);
 }
 
 
@@ -118,12 +117,12 @@ Heaps::Heaps() :
 //        uavHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 {
 }
-void Heaps::Release() {
-    rtv.Release();
-    dsv.Release();
-    srv.Release();
-//    cbv.Release();
-    //    uavHeap.Release();
+void Heaps::release() {
+    rtv.release();
+    dsv.release();
+    srv.release();
+//    cbv.release();
+    //    uavHeap.release();
 }
 
 }

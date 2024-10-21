@@ -18,17 +18,17 @@
 
 namespace reveal3d::graphics::opengl {
 
-void RenderLayers::Init() {
+void RenderLayers::init() {
     layers_[render::Shader::opaque].shaderId =
-            CreateProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
+            createProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
                           relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str());
-    //    layers_[render::Shader::unlit].shaderId = CreateProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
+    //    layers_[render::Shader::unlit].shaderId = createProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
     //                                                             relative("Engine/graphics/opengl/shaders/flatShader.frag").c_str());
 }
 
-std::string RenderLayers::ReadShader(const char *fileName) {
+std::string RenderLayers::readShader(const char *file_name) {
     std::string shader_code;
-    std::ifstream file(fileName, std::ios::in);
+    std::ifstream file(file_name, std::ios::in);
     if (!file.good()) {
         logger(logERROR) << "Could not read Shader...";
         std::terminate();
@@ -42,9 +42,9 @@ std::string RenderLayers::ReadShader(const char *fileName) {
     return shader_code;
 }
 
-u32 RenderLayers::CreateShader(GLenum shaderType, std::string &source, const char *shaderName) {
+u32 RenderLayers::createShader(GLenum shader_type, std::string &source, const char *shader_name) {
     i32 compile_result = 0;
-    const u32 shader = glCreateShader(shaderType);
+    const u32 shader = glCreateShader(shader_type);
     const char *shader_code_ptr = source.c_str();
     const int shader_code_size = source.size();
     glShaderSource(shader, 1, &shader_code_ptr, &shader_code_size);
@@ -62,12 +62,12 @@ u32 RenderLayers::CreateShader(GLenum shaderType, std::string &source, const cha
     return shader;
 }
 
-u32 RenderLayers::CreateProgram(const char *vs, const char *fs) {
-    std::string source_vertex_shader = ReadShader(vs);
-    std::string source_fragment_shader = ReadShader(fs);
+u32 RenderLayers::createProgram(const char *vs, const char *fs) {
+    std::string source_vertex_shader = readShader(vs);
+    std::string source_fragment_shader = readShader(fs);
 
-    const u32 vertex_shader = CreateShader(GL_VERTEX_SHADER, source_vertex_shader, "Vertex Shader");
-    const u32 fragment_shader = CreateShader(GL_FRAGMENT_SHADER, source_fragment_shader, "Fragment Shader");
+    const u32 vertex_shader = createShader(GL_VERTEX_SHADER, source_vertex_shader, "Vertex Shader");
+    const u32 fragment_shader = createShader(GL_FRAGMENT_SHADER, source_fragment_shader, "Fragment Shader");
 
     i32 link_result = 0;
 
@@ -88,9 +88,9 @@ u32 RenderLayers::CreateProgram(const char *vs, const char *fs) {
     return program;
 }
 
-void RenderLayers::AddMesh(render::SubMesh &mesh) { subMeshes_[mesh.shader].push_back(&mesh); }
+void RenderLayers::addMesh(render::SubMesh &mesh) { sub_meshes_[mesh.shader].push_back(&mesh); }
 
-void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4 &passConstants, u32 layer) {
+void RenderLayers::draw(std::vector<RenderElement> &render_elments, math::mat4 &pass_constants, u32 layer) {
     /*
         const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
         const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
@@ -112,9 +112,9 @@ void RenderLayers::Draw(std::vector<RenderElement> &renderElments, math::mat4 &p
 
         for (const auto &mesh: subMeshes_[layer]) {
             if (!mesh->visible) continue;
-            const math::mat4 world =
-    math::Transpose(core::scene.ComponentPool<core::Transform>().At(mesh->constantIndex).World());
-            glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world);
+            const math::mat4 world_mat =
+    math::Transpose(core::scene.componentPool<core::Transform>().at(mesh->constantIndex).world_mat());
+            glUniformMatrix4fv(model_loc, 1, GL_FALSE, (f32 *) &world_mat);
             glBindVertexArray(renderElments[mesh->renderInfo].vao);
             glDrawElements(GL_TRIANGLES, mesh->indexCount * 2, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);

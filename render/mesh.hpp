@@ -6,9 +6,9 @@
  * @file mesh.hpp
  * @version 1.0
  * @date 10/03/2024
- * @brief Mesh and Submesh 
+ * @brief mesh and Submesh
  *
- * Mesh, submesh and shader structures 
+ * mesh, submesh and shader structures
  */
 
 #pragma once
@@ -22,9 +22,9 @@ namespace reveal3d::render {
 
 struct SubMesh {
     Shader shader       { opaque };
-    u32 vertexPos       { 0 };
-    u32 indexPos        { 0 };
-    u32 indexCount      { 0 };
+    u32 vertex_pos      { 0 };
+    u32 index_pos       { 0 };
+    u32 index_count     { 0 };
     bool visible        { true };
 };
 

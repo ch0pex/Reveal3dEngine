@@ -18,18 +18,18 @@
 
 #include "render/camera.hpp"
 
-namespace reveal3d::graphics::Vk {
+namespace reveal3d::graphics {
 
-class Graphics {
+class Vulkan {
 public:
-    Graphics(const window::Resolution &res) :width_(res.width), height_(res.height) {}
-    void LoadPipeline() {}
-    void LoadAssets() {}
-    void Update(render::Camera &camera) {}
-    void SetWindow(WHandle winHandle) {}
+    Vulkan(const window::Resolution &res) :width_(res.width), height_(res.height) {}
+    void loadPipeline() {}
+    void loadAssets() {}
+    void update(render::Camera &camera) {}
+    void setWindow(WHandle winHandle) {}
 
-    [[nodiscard]] inline u32 GetWidth() const { return width_; }
-    [[nodiscard]] inline u32 GetHeight() const { return height_; }
+    [[nodiscard]] inline u32 getWidth() const { return width_; }
+    [[nodiscard]] inline u32 getHeight() const { return height_; }
 
 
 private:

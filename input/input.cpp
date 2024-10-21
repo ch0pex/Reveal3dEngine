@@ -17,125 +17,116 @@ namespace reveal3d::input  {
 
 class System {
 public:
-    void AddHandlerUp(action action, Binding& binding) {
-        handlersUp[action] = std::move(binding);
+    void addHandlerUp(Action action, Binding &binding) { handlers_up_[action] = std::move(binding);
     }
 
-    void AddHandlerDown(action action, Binding& binding) {
-        handlersDown[action] = std::move(binding);
+    void addHandlerDown(Action action, Binding &binding) { handlers_down_[action] = std::move(binding);
     }
 
-    void AddMouseHandler(action action, Binding& binding) {
-        mouseHandler[action] = std::move(binding);
+    void addMouseHandler(Action action, Binding &binding) { mouse_handler_[action] = std::move(binding);
     }
 
-    void OnEventUp(action act, input::type type) {
-        if (handlersUp.find(act) != handlersUp.end()) {
-            handlersUp.at(act).callback(act, type);
+    void onEventUp(Action act, input::type type) {
+        if (handlers_up_.find(act) != handlers_up_.end()) {
+            handlers_up_.at(act).callback(act, type);
         }
     }
 
-    void OnEventDown(action act, input::type type) {
-        if (handlersDown.find(act) != handlersDown.end()) {
-            handlersDown.at(act).callback(act, type);
+    void onEventDown(Action act, input::type type) {
+        if (handlers_down_.find(act) != handlers_down_.end()) {
+            handlers_down_.at(act).callback(act, type);
         }
     }
 
-    void OnMouseDown(action act, math::vec2 value) {
-        if (handlersDown.find(act) != handlersDown.end()) {
-            handlersDown.at(act).mouse_callback(act, value);
+    void onMouseDown(Action act, math::vec2 value) {
+        if (handlers_down_.find(act) != handlers_down_.end()) {
+            handlers_down_.at(act).mouse_callback(act, value);
         }
     }
 
-    void OnMouseUp(action act, math::vec2 value) {
-        if (handlersUp.find(act) != handlersUp.end()) {
-            handlersUp.at(act).mouse_callback(act, value);
+    void onMouseUp(Action act, math::vec2 value) {
+        if (handlers_up_.find(act) != handlers_up_.end()) {
+            handlers_up_.at(act).mouse_callback(act, value);
         }
     }
 
-    void OnMouseMove(action act, math::vec2 value) {
-        if (mouseHandler.find(act) != mouseHandler.end()) {
-            mouseHandler.at(act).mouse_callback(act, value);
+    void onMouseMove(Action act, math::vec2 value) {
+        if (mouse_handler_.find(act) != mouse_handler_.end()) {
+            mouse_handler_.at(act).mouse_callback(act, value);
         }
     }
 
 private:
-    std::unordered_map<action, Binding> handlersDown;
-    std::unordered_map<action, Binding> handlersUp;
-    std::unordered_map<action, Binding> mouseHandler;
+    std::unordered_map<Action, Binding> handlers_down_;
+    std::unordered_map<Action, Binding> handlers_up_;
+    std::unordered_map<Action, Binding> mouse_handler_;
 };
 
-std::unordered_map<u8, action> bindings = {
-        {code::key_escape, action::window_close},
-        {code::mouse_middle, action::camera_look},
-        {code::mouse_move, action::camera_look},
-        {code::key_shift, action::camera_look},
-        {code::key_s, action::camera_backwd},
-        {code::key_w, action::camera_fwd},
-        {code::key_a, action::camera_left},
-        {code::key_d, action::camera_right},
-        {code::key_e, action::camera_up},
-        {code::key_q, action::camera_down},
-        {code::key_p, action::scene_pause}
+std::unordered_map<u8, Action> bindings = {
+        {Code::KeyEscape, Action::WindowClose},
+        {Code::MouseMiddle, Action::CameraLook},
+        {Code::MouseMove, Action::CameraLook},
+        {Code::KeyShift, Action::CameraLook},
+        {Code::KeyS, Action::CameraBackwd},
+        {Code::KeyW, Action::CameraFwd},
+        {Code::KeyA, Action::CameraLeft},
+        {Code::KeyD, Action::CameraRight},
+        {Code::KeyE, Action::CameraUp},
+        {Code::KeyQ, Action::CameraDown},
+        {Code::KeyP, Action::ScenePause}
 };
 
-bool Cursor::shouldClip = false;
+bool Cursor::should_clip = false;
 math::vec2 Cursor::pos = {};
-math::vec2 Cursor::lastUnclipedPos = {};
+math::vec2 Cursor::last_uncliped_pos = {};
 System inputSystem;
 
-void AddHandlerUp(action action, Binding&& binding) {
-    inputSystem.AddHandlerUp(action, binding);
-}
+void add_handler_up(Action action, Binding &&binding) { inputSystem.addHandlerUp(action, binding); }
 
-void AddHandlerDown(action action, Binding&& binding) {
-    inputSystem.AddHandlerDown(action, binding);
-}
+void add_handler_down(Action action, Binding &&binding) { inputSystem.addHandlerDown(action, binding); }
 
-void AddMouseHandler(action action, Binding&& binding) {
-    inputSystem.AddMouseHandler(action, binding);
-}
+void add_mouse_handler(Action action, Binding &&binding) { inputSystem.addMouseHandler(action, binding); }
 
-void KeyDown(u8 keycode) {
+void key_down(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
-        const action act = bindings[keycode];
-        inputSystem.OnEventDown(act, type::down);
+        const Action act = bindings[keycode];
+        inputSystem.onEventDown(act, type::down);
     }
 }
 
-void KeyDown(u8 keycode, math::vec2 pos) {
+void key_down(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
-        const action act = bindings[keycode];
-        inputSystem.OnMouseDown(act, pos);
+        const Action act = bindings[keycode];
+        inputSystem.onMouseDown(act, pos);
     }
 }
 
-void KeyUp(u8 keycode) {
+void key_up(u8 keycode) {
     if (bindings.find(keycode) != bindings.end()) {
-        const action act = bindings[keycode];
-        inputSystem.OnEventUp(act, type::up);
+        const Action act = bindings[keycode];
+        inputSystem.onEventUp(act, type::up);
     }
 }
 
-void KeyUp(u8 keycode, math::vec2 pos) {
+void key_up(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
-        const action act = bindings[keycode];
-        inputSystem.OnEventDown(act, type::down);
+        const Action act = bindings[keycode];
+        inputSystem.onEventDown(act, type::down);
     }
 }
 
-void MouseMove(u8 keycode, math::vec2 pos) {
+void mouse_move(u8 keycode, math::vec2 pos) {
     if (bindings.find(keycode) != bindings.end()) {
-        const action act = bindings[keycode];
-        inputSystem.OnMouseMove(act, pos);
+        const Action act = bindings[keycode];
+        inputSystem.onMouseMove(act, pos);
     }
 }
 
-void BindKey(code keycode, action action) {
+void bind_key(Code keycode, Action action) {
    bindings[keycode] = action;
 }
 
-void Unbind(code keycode) {
+void unbind(Code keycode) {
    bindings.erase(keycode);
 }
 

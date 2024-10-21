@@ -21,7 +21,6 @@
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
 #include "dx_render_info.hpp"
-#include "dx_render_layers.hpp"
 #include "resources/dx_resources.hpp"
 
 #include "core/scene.hpp"
@@ -39,43 +38,43 @@ __declspec(align(16))
 class Dx12 {
 public:
     explicit Dx12(window::Resolution *res);
-    void LoadPipeline();
-    void LoadAssets();
-    void LoadAsset(core::Entity id);
-    void Update(render::Camera &camera);
-    void RenderSurface();
-    void Terminate();
-    void Resize(const window::Resolution &res);
-    inline void SetWindow(WHandle& winHandle) { surface_.SetWindow(winHandle); }
-    inline ID3D12Device* GetDevice() { return device_.Get(); }
-    inline dx12::Heaps& GetHeaps() { return heaps_;}
+    void loadPipeline();
+    void loadAssets();
+    void loadAsset(core::Entity id);
+    void update(render::Camera &camera);
+    void renderSurface();
+    void terminate();
+    void resize(const window::Resolution &res);
+    inline void initWindow(WHandle &win_handle) { surface_.setWindow(win_handle); }
+    inline ID3D12Device* device() { return device_.Get(); }
+    inline dx12::Heaps& heaps() { return heaps_;}
 
 private:
-    void InitDXGIAdapter();
-    void InitFrameResources();
-    void InitDsBuffer();
-    void InitConstantBuffers();
-    void RemoveAsset(id_t id);
+    void initDXGIAdapter();
+    void initFrameResources();
+    void initDsBuffer();
+    void initConstantBuffers();
+    void removeAsset(id_t id);
 
     /****************** Factory and Device *****************/
     ComPtr<IDXGIFactory5> factory_;
     ComPtr<ID3D12Device> device_;
 
     /****************** Frame resources *****************/
-    std::array<dx12::FrameResource, dx12::frameBufferCount> frameResources_;
+    std::array<dx12::FrameResource, dx12::frameBufferCount> frame_resources_;
 
     /***************** Depth stencil buffer**********************/
-    ComPtr<ID3D12Resource> depthStencilBuffer_;
-    dx12::DescriptorHandle dsHandle_;
+    ComPtr<ID3D12Resource> depth_stencil_buffer_;
+    dx12::DescriptorHandle ds_handle_;
 
     /******************* Gpu heaps and commands **********************/
     dx12::Heaps heaps_;
-    dx12::Commands cmdManager_;
+    dx12::Commands cmd_manager_;
 
     /******************* Gpass class **********************/
-    dx12::Gpass gPass_;
+    dx12::Gpass gpass_;
 
-    /***************** Surface and swapchain Info **********************/
+    /***************** Surface and swapchain pos_rot_scale **********************/
     dx12::Surface surface_;
 };
 

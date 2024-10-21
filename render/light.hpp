@@ -21,7 +21,7 @@ namespace reveal3d::render {
 
 class Light {
 public:
-    enum type {
+    enum Type {
         directional,
         point,
         spot,
@@ -33,22 +33,22 @@ public:
     constexpr Light() = default;
     [[nodiscard]] constexpr bool IsValid() const { return id::isValid(id_); }
 
-    void IsEnabled(bool is_enabled) const;
-    void Itensity(f32 intensity) const;
-    void Color(math::vec3 color) const;
-    void Attenuation(math::vec3 attenuation) const;
-    void Range(f32 range) const;
-    void ConeAngles(f32 umbra, f32 penumbra) const;
+    void isEnabled(bool is_enabled) const;
+    void itensity(f32 intensity) const;
+    void color(math::vec3 color) const;
+    void attenuation(math::vec3 attenuation) const;
+    void range(f32 range) const;
+    void coneAngles(f32 umbra, f32 penumbra) const;
 
-    [[nodiscard]] bool IsEnabled() const;
-    [[nodiscard]] f32 Intensity() const;
-    [[nodiscard]] math::vec3 Color() const;
-    [[nodiscard]] math::vec3 Attenuation() const;
-    [[nodiscard]] f32 Range() const;
-    [[nodiscard]] f32 Umbra() const;
-    [[nodiscard]] f32 Penumbra() const;
-    [[nodiscard]] type Type() const;
-    [[nodiscard]] id_t Id() const;
+    [[nodiscard]] bool isEnabled() const;
+    [[nodiscard]] f32 intensity() const;
+    [[nodiscard]] math::vec3 color() const;
+    [[nodiscard]] math::vec3 attenuation() const;
+    [[nodiscard]] f32 range() const;
+    [[nodiscard]] f32 umbra() const;
+    [[nodiscard]] f32 penumbra() const;
+    [[nodiscard]] Type type() const;
+    [[nodiscard]] id_t id() const;
 
 private:
     id_t id_ { id::invalid };

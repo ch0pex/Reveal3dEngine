@@ -16,93 +16,94 @@
 namespace reveal3d {
 
 Timer::Timer() :
-    secondPerCount_(0.0), deltaTime_(-1.0), baseTime_(0), pausedTime_(0), stopTime_(0), prevTime_(0), currTime_(0),
-    prevTotalFrames_(0), totalTime_(0), totalFrames_(0), stopped_(false)
+    second_per_count_(0.0), delta_time_(-1.0), base_time_(0), paused_time_(0), stop_time_(0), prev_time_(0),
+    curr_time_(0), prev_total_frames_(0), total_time_(0), total_frames_(0), stopped_(false)
 {
-    QueryFrequency(countsPerSecond_);
-    secondPerCount_ = 1.0 / (f64)countsPerSecond_;
+    queryFrequency(counts_per_second_);
+    second_per_count_ = 1.0 / (f64)counts_per_second_;
 
-    input::AddHandlerUp(input::action::scene_pause, {[this](input::action act, input::type type){ Pause(act, type); }});
+    input::add_handler_up(input::Action::ScenePause,
+                          {[this](input::Action act, input::type type) { pause(act, type); }});
 }
 
 
-void Timer::Reset() {
-    i64 currTime = 0;
-    QueryCounter(currTime);
+void Timer::reset() {
+    i64 curr_time = 0;
+    queryCounter(curr_time);
 
-    baseTime_ = currTime;
-    prevTime_ = currTime;
-    stopTime_ = 0;
+    base_time_ = curr_time;
+    prev_time_ = curr_time;
+    stop_time_ = 0;
     stopped_ = false;
 }
 
-void Timer::Start() {
+void Timer::start() {
    if (stopped_) {
-       i64 startTime = 0;
-       QueryCounter(startTime);
+       i64 start_time = 0;
+       queryCounter(start_time);
 
-       pausedTime_ += (startTime - stopTime_);
-       prevTime_ = startTime;
+       paused_time_ += (start_time - stop_time_);
+       prev_time_ = start_time;
        stopped_ = false;
-       stopTime_ = 0;
+       stop_time_ = 0;
    }
 }
 
-void Timer::Stop() {
+void Timer::stop() {
     if (!stopped_) {
-        i64 currTime = 0;
-        QueryCounter(currTime);
-        stopTime_ = currTime;
+        i64 curr_time = 0;
+        queryCounter(curr_time);
+        stop_time_ = curr_time;
         stopped_ = true;
     }
 }
 
-void Timer::Tick() {
+void Timer::tick() {
 
-    i64 currTime = 0;
-    QueryCounter(currTime);
-    totalFrames_++;
+    i64 curr_time = 0;
+    queryCounter(curr_time);
+    total_frames_++;
 
-    currTime_ = currTime;
-    deltaTime_ = (currTime - prevTime_) * secondPerCount_;
-    frameTime_ = deltaTime_;
-    prevTime_ = currTime_;
+    curr_time_ = curr_time;
+    delta_time_ = (curr_time - prev_time_) * second_per_count_;
+    frame_time_ = delta_time_;
+    prev_time_ = curr_time_;
 
-    const u64 newTotalSeconds =static_cast<u64>(floor((currTime - baseTime_) * secondPerCount_));
+    const u64 newTotalSeconds =static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
 
-    if (totalTime_ < newTotalSeconds) {
-        totalTime_ = newTotalSeconds;
-        fps_ = totalFrames_ - prevTotalFrames_;
-        prevTotalFrames_ = totalFrames_;
+    if (total_time_ < newTotalSeconds) {
+        total_time_ = newTotalSeconds;
+        fps_ = total_frames_ - prev_total_frames_;
+        prev_total_frames_ = total_frames_;
     }
 
-    if (deltaTime_ < 0.0) {
-        deltaTime_ = 0.0;
+    if (delta_time_ < 0.0) {
+        delta_time_ = 0.0;
     }
 
     if (stopped_) {
-        deltaTime_ = 0.0;
+        delta_time_ = 0.0;
     }
 }
-f32 Timer::TotalTime() const {
+f32 Timer::totalTime() const {
     if (stopped_) {
-        return ((stopTime_ - pausedTime_) - baseTime_) * secondPerCount_;
+        return ((stop_time_ - paused_time_) - base_time_) * second_per_count_;
     }
-    i64 currTime = 0;
+    i64 curr_time = 0;
 
-    QueryCounter(currTime);
-    return ((currTime - pausedTime_) - baseTime_) * secondPerCount_;
+    queryCounter(curr_time);
+    return ((curr_time - paused_time_) - base_time_) * second_per_count_;
 }
 
-f32 Timer::Diff(f32 time) const {
-    return TotalTime() - time;
+f32 Timer::diff(f32 time) const {
+    return totalTime() - time;
 }
 
-void Timer::Pause(input::action act, input::type type) {
+void Timer::pause(input::Action act, input::type type) {
     if(stopped_) {
-        Start();
+        start();
     } else {
-       Stop();
+        stop();
     }
 }
 

@@ -28,41 +28,41 @@ class Glfw {
 public:
     Glfw(Config &info);
 
-    template<graphics::HRI Gfx> void Create(render::Renderer<Gfx> &renderer);
-    void Show();
-    template<graphics::HRI Gfx> void Update(render::Renderer<Gfx> &renderer);
-    void CloseWindow(input::action act, input::type type);
-    bool ShouldClose();
+    template<graphics::HRI Gfx> void create(render::Renderer<Gfx> &renderer);
+    void show();
+    template<graphics::HRI Gfx> void update(render::Renderer<Gfx> &renderer);
+    void closeWindow(input::Action act, input::type type);
+    bool shouldClose();
 
-    [[nodiscard]] inline Resolution& GetRes() { return info_.res; }
-    [[nodiscard]] inline WHandle GetHandle() const { return info_.handle; }
+    [[nodiscard]] inline Resolution& getRes() { return info_.res; }
+    [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
 private:
-    template<graphics::HRI Gfx> void ClipMouse(render::Renderer<Gfx> &renderer);
+    template<graphics::HRI Gfx> void clipMouse(render::Renderer<Gfx> &renderer);
 
     Config info_;
-    GLFWwindow* winPtr_;
+    GLFWwindow* win_ptr_;
 
 };
 
 template<graphics::HRI Gfx>
-void Glfw::Update(render::Renderer<Gfx> &renderer) {
+void Glfw::update(render::Renderer<Gfx> &renderer) {
     //Handle inputs
     glfwPollEvents();
 }
 
 template<graphics::HRI Gfx>
-void Glfw::Create(render::Renderer<Gfx> &renderer) {
+void Glfw::create(render::Renderer<Gfx> &renderer) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef WIN32
-    winPtr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
-    if (!winPtr_) {
+    win_ptr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
+    if (!win_ptr_) {
         std::cout << "Creat window error\n";
     }
-    info_.handle.hwnd = glfwGetWin32Window(winPtr_);
+    info_.handle.hwnd = glfwGetWin32Window(win_ptr_);
 
     if (info_.handle.hwnd == NULL) {
         glfwTerminate();
@@ -82,7 +82,7 @@ void Glfw::Create(render::Renderer<Gfx> &renderer) {
 }
 
 template<graphics::HRI Gfx>
-void Glfw::ClipMouse(render::Renderer<Gfx> &renderer) {
+void Glfw::clipMouse(render::Renderer<Gfx> &renderer) {
 
 }
 
