@@ -149,7 +149,7 @@ void Scene::removeNode(id_t id) {
 }
 
 bool Scene::isEntityAlive(id_t id) {
-    if (id == id::invalid) return false;
+    if (id == id::invalid) { return false; }
     if (id::index(id) >= scene_graph_.size()) return false;
     return getNode(id).entity.id() != id::invalid;
 }

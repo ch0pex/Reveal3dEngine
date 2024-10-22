@@ -48,8 +48,8 @@ private:
     std::array<GraphicsPso, render::Shader::count> pipeline_states_;
     std::array<RootSignature, render::Shader::count> root_signatures_;
 
-    ID3D12RootSignature*curr_root_signature_{ nullptr };
-    ID3D12PipelineState*curr_pipeline_state_{ nullptr };
+    ID3D12RootSignature* curr_root_signature_{ nullptr };
+    ID3D12PipelineState* curr_pipeline_state_{ nullptr };
 };
 
 

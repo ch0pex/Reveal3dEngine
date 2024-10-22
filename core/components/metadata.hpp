@@ -31,9 +31,10 @@ public:
     };
 
     struct Data {
-        std::string_view name;
-        std::string_view comment;
-        std::string_view date;
+        Data(std::string& name,std::string& comm, std::string& date) : name(name), comment(comm), date(date) {}
+        std::string& name;
+        std::string& comment;
+        std::string& date;
     };
 
     Metadata() : id_(id::invalid) {}

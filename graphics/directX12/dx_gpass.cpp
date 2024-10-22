@@ -58,10 +58,10 @@ void Gpass::render(ID3D12GraphicsCommandList *command_list, FrameResource &frame
                 command_list->SetPipelineState(curr_pipeline_state_);
             }
 
-            command_list->SetGraphicsRootConstantBufferView(0, frame_resource.constant_buffer.gpuPos(id::index(transform.id())));
-            command_list->SetGraphicsRootConstantBufferView(1,
-                                                            frame_resource.mat_buffer.gpuPos(id::index(geometry.id())));
-            command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
+            // TODO This is the most expensive way to set RootParameters limit 64 DWORDS
+            command_list->SetGraphicsRootConstantBufferView(0, frame_resource.constant_buffer.gpuPos(id::index(transform.id()))); // 2 DWORDS
+            command_list->SetGraphicsRootConstantBufferView(1, frame_resource.mat_buffer.gpuPos(id::index(geometry.id()))); // 2 DWORDS
+            command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart()); // 2 DWORDS
 
             command_list->IASetVertexBuffers(0, 1, render_element.vertex_buffer.view());
             command_list->IASetIndexBuffer(render_element.index_buffer.view());
@@ -120,7 +120,7 @@ void Gpass::buildPsos(ID3D12Device *device) {
     // Enable better Shader debugging with the graphics debugging tools.
     UINT compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
-    UINT compileFlags = 0;
+    UINT compile_flags = 0;
 #endif
     HRESULT hr = S_OK;
 

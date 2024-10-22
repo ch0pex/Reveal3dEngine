@@ -39,5 +39,12 @@ void Metadata::update() {
 
 }
 
+Metadata::Data Metadata::data() {
+    return {
+            name(),
+            comment(),
+            date()
+    };
+}
 
 }

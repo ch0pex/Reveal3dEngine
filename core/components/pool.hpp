@@ -24,12 +24,18 @@ namespace reveal3d::core {
 
 namespace detail {
 
+template<typename T>
+concept stored_in_gpu = requires(T component) {
+    {component.setDirty()} -> std::same_as<void>;
+    {component.unDirty()} -> std::same_as<void>;
+    {component.dirty()} -> std::same_as<u8>;
+};
 
 template<bool InGPU>
-struct GpuSyncronizer {};
+struct GpuSynchronize {};
 
 template<>
-class GpuSyncronizer<true> { // TODO consider this as posible bottleneck in a future
+class GpuSynchronize<true> {
 public:
     id_t popNew() {
         if (new_components_.empty()) {
@@ -52,9 +58,8 @@ public:
     utl::vector<u8>& dirties() { return dirties_; }
 
 protected:
-    std::queue<id_t> new_components_;
-    std::queue<id_t> deleted_components_;
-
+    std::queue<id_t>    new_components_;
+    std::queue<id_t>    deleted_components_;
     std::set<id_t>      dirty_ids_;
     utl::vector<u8>     dirties_;
 };
@@ -72,26 +77,24 @@ concept is_component = requires(T component) {
     typename T::Data;
 };
 
-struct GpuStored { };
 
-template<typename T>
-concept stored_in_gpu = std::is_base_of_v<GpuStored, T>;
 
 template<is_component T>
-class Pool : public detail::GpuSyncronizer<stored_in_gpu<T>> {
+class Pool : public detail::GpuSynchronize<detail::stored_in_gpu<T>> {
 public:
     T addComponent();
     T addComponent(id_t entity_id);
     T addComponent(id_t entityId, T::InitInfo&& initInfo);
     void removeComponent(id_t entity_id);
     void update();
-    u32 count() { return data_.count(); }
 
-    T at(id_t id)                       { return components_.at(id::index(id)); }
-    std::vector<T>::iterator begin()    { return components_.begin(); };
-    std::vector<T>::iterator end()      { return components_.end();   };
+    u32 count() { return data_.count(); }
+    T at(id_t id) { return components_.at(id::index(id)); }
+    std::vector<T>::iterator begin() { return components_.begin(); };
+    std::vector<T>::iterator end() { return components_.end();   };
     u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
     T::Pool& data() { return data_; }
+
 private:
     void add(id_t index, id_t id);
     void remove(id_t id);
@@ -117,7 +120,7 @@ void Pool<T>::add(id_t index, id_t id) {
 template<is_component T>
 T Pool<T>::addComponent() {
         components_.emplace_back();
-        if constexpr (stored_in_gpu<T>) {
+        if constexpr (detail::stored_in_gpu<T>) {
             this->dirties_.emplace_back(4);
         }
         return components_.at(components_.size() - 1);
@@ -132,11 +135,17 @@ void Pool<T>::remove(id_t id) {
     }
     components_.at(idx) = {};
     id_factory_.remove(id);
+    if constexpr (detail::stored_in_gpu<T>) {
+        if (last != id) {
+            this->dirties_.at(id::index(id)) = 3;
+            this->dirty_ids_.insert(id::index(id) | id::generation(last));
+        }
+    }
 }
 
 template<is_component T>
 void Pool<T>::update() {
-    if constexpr (stored_in_gpu<T>) {
+    if constexpr (detail::stored_in_gpu<T>) {
         for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
 //        id_t idx = id::index(*it);
             T component { *it };

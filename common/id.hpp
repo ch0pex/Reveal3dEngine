@@ -72,7 +72,7 @@ public:
         return (free_indices_.size() > id::maxFree);
     }
 
-    u32 FreeCount() const{
+    u32 freeCount() const{
         return free_indices_.size();
     }
 

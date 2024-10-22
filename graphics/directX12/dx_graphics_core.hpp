@@ -50,7 +50,7 @@ public:
     inline dx12::Heaps& heaps() { return heaps_;}
 
 private:
-    void initDXGIAdapter();
+    void initDxgiAdapter();
     void initFrameResources();
     void initDsBuffer();
     void initConstantBuffers();

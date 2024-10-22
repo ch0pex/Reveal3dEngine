@@ -39,7 +39,7 @@ Geometry &Geometry::operator=(Geometry &&other) noexcept {
 
 // Note: for now we only will have one mesh and submesh so we move the vector
 // instead of appending it
-void Geometry::AddMesh(render::Mesh &mesh) {
+void Geometry::addMesh(render::Mesh &mesh) {
     render::SubMesh sub_mesh;
     pool().data().mesh(id_) = std::move(mesh);
 
@@ -49,7 +49,7 @@ void Geometry::AddMesh(render::Mesh &mesh) {
 }
 
 
-void Geometry::AddMesh(Geometry::Primitive type) {
+void Geometry::addMesh(Primitive type) {
 
     render::SubMesh &sub_mesh = pool().data().subMeshes(id_)[0]; // Only one submesh for now
 
@@ -96,7 +96,7 @@ void Geometry::visibility(bool visibility) { pool().data().subMeshes(id_)[0].vis
 
 bool Geometry::isVisible() const { return pool().data().subMeshes(id_)[0].visible; }
 
-const render::Material &Geometry::material() { return pool().data().material(id_); }
+render::Material &Geometry::material() { return pool().data().material(id_); }
 
 void Geometry::diffuseColor(math::vec4 color) {
     pool().data().material(id_).base_color = color;
@@ -142,6 +142,10 @@ void Geometry::setDirty() const {
 
 void Geometry::update() {
 
+}
+
+Geometry::Data Geometry::data() {
+    return { material(), subMeshes()[0], pool().data().mesh(id_) };
 }
 
 }

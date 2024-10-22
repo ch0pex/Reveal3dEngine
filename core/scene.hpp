@@ -81,12 +81,13 @@ public:
     Entity removeEntity(id_t id);
     bool isEntityAlive(id_t id);
 
-    /******************************* Scene Graph methods ******************************/
-    [[nodiscard]] inline const std::vector<Scene::Node>& Graph() const { return scene_graph_; }
-    [[nodiscard]] inline u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
-    inline Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
-    inline Node& getNode(id_t id) { return scene_graph_.at(id::index(id)); }
-    inline Node& root() { return scene_graph_.at(root_node_); }
+    /******************************* Scene graph methods ******************************/
+
+    [[nodiscard]] const std::vector<Scene::Node>& graph() const { return scene_graph_; }
+    [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
+    [[nodiscard]] Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
+    Node& getNode(id_t id) { return scene_graph_.at(id::index(id)); }
+    Node& root() { return scene_graph_.at(root_node_); }
 
     template<is_component T>
     Pool<T>& componentPool() noexcept;
@@ -103,7 +104,6 @@ private:
     u32                         root_node_;
     u32                         last_node_;
     std::deque<u32>             free_nodes_;
-//    std::deque<u32>             nodeIndex_;
 
     /*********** Components Pools  *************/
 
@@ -151,8 +151,9 @@ T Entity::addComponent(T::InitInfo&& init_info) {
 
 template<is_component T>
 void Entity::removeComponent() {
-    if (isAlive())
+    if (isAlive()) {
         scene.componentPool<T>().removeComponent(id_);
+    }
 }
 
 } // reveal3d::core namespace

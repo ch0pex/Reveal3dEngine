@@ -20,7 +20,7 @@
 
 namespace reveal3d::core {
 
-class Transform : GpuStored {
+class Transform {
 public:
     struct Info {
         math::xvec3 position    { 0.f, 0.f, 0.f };
@@ -112,15 +112,11 @@ inline Transform Pool<Transform>::addComponent(id_t id) {
 
 template<>
 inline void Pool<Transform>::removeComponent(id_t id) {
-    id_t transform_id {components_.at(id::index(id)).id() };
+    id_t transform_id { components_.at(id::index(id)).id() };
     if (id_factory_.isAlive(transform_id)) {
         data_.pos_rot_scale.unordered_remove(id::index(transform_id));
         data_.world_mat.unordered_remove(id::index(transform_id));
         data_.inv_world.unordered_remove(id::index(transform_id));
-        dirties().at(id::index(id)) = 0;
-        if (dirtyIds().find(transform_id) != dirtyIds().end()) {
-            dirtyIds().erase(transform_id);
-        }
         remove(transform_id);
     }
 }

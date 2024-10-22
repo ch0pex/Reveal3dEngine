@@ -23,7 +23,7 @@
 
 namespace reveal3d::core {
 
-class Geometry : GpuStored {
+class Geometry {
 public:
     enum Primitive : u8 {
         Cube = 0u,
@@ -72,15 +72,15 @@ public:
 
     // NOTE: This will need to be changed when mesh instancing is implemented
     // For now there is no mesh instancing and only one submesh each mesh and geometry
-    void AddMesh(render::Mesh& mesh);
-    void AddMesh(Primitive type);
+    void addMesh(render::Mesh &mesh);
+    void addMesh(Primitive type);
 
     [[nodiscard]] std::span<render::SubMesh> subMeshes() const;
     [[nodiscard]] std::vector<render::Vertex> &vertices() const;
     [[nodiscard]] std::vector<u32> &indices() const;
 
     [[nodiscard]] bool isVisible() const;
-    const render::Material &material();
+    render::Material &material();
 
     void visibility(bool visibility);
     void diffuseColor(math::vec4 color);
@@ -98,7 +98,6 @@ public:
     Data data();
 
 private:
-
     id_t id_;
 };
 

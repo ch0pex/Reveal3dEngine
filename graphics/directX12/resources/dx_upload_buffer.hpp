@@ -41,10 +41,10 @@ public:
 
     void init(ID3D12Device *device, u32 count);
     DescriptorHandle createView(ID3D12Device *device, DescriptorHeap &heap);
-    inline ID3D12Resource *get() { return buff_; };
-    inline u32 size() { return capacity_; };
-    inline D3D12_GPU_VIRTUAL_ADDRESS gpuStart() { return buff_->GetGPUVirtualAddress(); }
-    inline D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
+    ID3D12Resource *get() { return buff_; };
+    u32 size() { return capacity_; };
+    D3D12_GPU_VIRTUAL_ADDRESS gpuStart() { return buff_->GetGPUVirtualAddress(); }
+    D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 index) { return buff_->GetGPUVirtualAddress() + (index * sizeof(T)); }
 
     void copyData(u32 element_index, const T *data, u32 count = 1) { memcpy(&mapped_data_[element_index], data, sizeof(T) * count); }
     void release() { if (buff_ != nullptr) buff_->Unmap(0, nullptr);
