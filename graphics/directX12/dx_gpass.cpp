@@ -13,9 +13,9 @@ namespace reveal3d::graphics::dx12 {
 const f32 Gpass::clear_color_[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
 
 Gpass::Gpass() {
-    root_signatures_[render::Shader::opaque].reset(4);
-    root_signatures_[render::Shader::unlit].reset(4);
-    root_signatures_[render::Shader::grid].reset(4);
+    root_signatures_[render::Shader::Opaque].reset(4);
+    root_signatures_[render::Shader::Unlit].reset(4);
+    root_signatures_[render::Shader::Grid].reset(4);
 }
 
 void Gpass::init(ID3D12Device *device) {
@@ -74,8 +74,8 @@ void Gpass::render(ID3D12GraphicsCommandList *command_list, FrameResource &frame
 
 void Gpass::drawWorldGrid(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource) {
     command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::grid].get());
-    command_list->SetPipelineState(pipeline_states_[render::Shader::grid].get());
+    command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::Grid].get());
+    command_list->SetPipelineState(pipeline_states_[render::Shader::Grid].get());
     command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
     command_list->DrawInstanced(6, 1, 0, 0);
 }
@@ -140,20 +140,20 @@ void Gpass::buildPsos(ID3D12Device *device) {
             { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    pipeline_states_[render::Shader::opaque].setInputLayout(input_element_descs, _countof(input_element_descs));
-    pipeline_states_[render::Shader::opaque].setRootSignature(root_signatures_[render::Shader::opaque]);
-    pipeline_states_[render::Shader::opaque].setShaders(vertex_shader.Get(), pixel_shader.Get());
-    pipeline_states_[render::Shader::opaque].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipeline_states_[render::Shader::opaque].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    pipeline_states_[render::Shader::opaque].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipeline_states_[render::Shader::opaque].setSampleMask(UINT_MAX);
-    pipeline_states_[render::Shader::opaque].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipeline_states_[render::Shader::opaque].setNumRenderTargets(1U);
-    pipeline_states_[render::Shader::opaque].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipeline_states_[render::Shader::opaque].setSampleDescCount(1U); //TODO: Support x4
-    pipeline_states_[render::Shader::opaque].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::Opaque].setInputLayout(input_element_descs, _countof(input_element_descs));
+    pipeline_states_[render::Shader::Opaque].setRootSignature(root_signatures_[render::Shader::Opaque]);
+    pipeline_states_[render::Shader::Opaque].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::Opaque].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::Opaque].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::Opaque].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::Opaque].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::Opaque].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::Opaque].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::Opaque].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::Opaque].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::Opaque].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipeline_states_[render::Shader::opaque].finalize(device);
+    pipeline_states_[render::Shader::Opaque].finalize(device);
 
     //TODO Config file for assets path
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
@@ -170,20 +170,20 @@ void Gpass::buildPsos(ID3D12Device *device) {
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    pipeline_states_[render::Shader::unlit].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-    pipeline_states_[render::Shader::unlit].setRootSignature(root_signatures_[render::Shader::opaque]);
-    pipeline_states_[render::Shader::unlit].setShaders(vertex_shader.Get(), pixel_shader.Get());
-    pipeline_states_[render::Shader::unlit].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipeline_states_[render::Shader::unlit].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-    pipeline_states_[render::Shader::unlit].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipeline_states_[render::Shader::unlit].setSampleMask(UINT_MAX);
-    pipeline_states_[render::Shader::unlit].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipeline_states_[render::Shader::unlit].setNumRenderTargets(1U);
-    pipeline_states_[render::Shader::unlit].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipeline_states_[render::Shader::unlit].setSampleDescCount(1U); //TODO: Support x4
-    pipeline_states_[render::Shader::unlit].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::Unlit].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+    pipeline_states_[render::Shader::Unlit].setRootSignature(root_signatures_[render::Shader::Opaque]);
+    pipeline_states_[render::Shader::Unlit].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::Unlit].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::Unlit].setBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::Unlit].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::Unlit].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::Unlit].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::Unlit].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::Unlit].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::Unlit].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::Unlit].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipeline_states_[render::Shader::unlit].finalize(device);
+    pipeline_states_[render::Shader::Unlit].finalize(device);
 
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
@@ -209,20 +209,20 @@ void Gpass::buildPsos(ID3D12Device *device) {
     D3D12_BLEND_DESC blend_desc = {
             .RenderTarget = transparency_blend_desc};
 
-    pipeline_states_[render::Shader::grid].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-    pipeline_states_[render::Shader::grid].setRootSignature(root_signatures_[render::Shader::grid]);
-    pipeline_states_[render::Shader::grid].setShaders(vertex_shader.Get(), pixel_shader.Get());
-    pipeline_states_[render::Shader::grid].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
-    pipeline_states_[render::Shader::grid].setBlendState(blend_desc);
-    pipeline_states_[render::Shader::grid].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-    pipeline_states_[render::Shader::grid].setSampleMask(UINT_MAX);
-    pipeline_states_[render::Shader::grid].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    pipeline_states_[render::Shader::grid].setNumRenderTargets(1U);
-    pipeline_states_[render::Shader::grid].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-    pipeline_states_[render::Shader::grid].setSampleDescCount(1U); //TODO: Support x4
-    pipeline_states_[render::Shader::grid].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+    pipeline_states_[render::Shader::Grid].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+    pipeline_states_[render::Shader::Grid].setRootSignature(root_signatures_[render::Shader::Grid]);
+    pipeline_states_[render::Shader::Grid].setShaders(vertex_shader.Get(), pixel_shader.Get());
+    pipeline_states_[render::Shader::Grid].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+    pipeline_states_[render::Shader::Grid].setBlendState(blend_desc);
+    pipeline_states_[render::Shader::Grid].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+    pipeline_states_[render::Shader::Grid].setSampleMask(UINT_MAX);
+    pipeline_states_[render::Shader::Grid].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+    pipeline_states_[render::Shader::Grid].setNumRenderTargets(1U);
+    pipeline_states_[render::Shader::Grid].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipeline_states_[render::Shader::Grid].setSampleDescCount(1U); //TODO: Support x4
+    pipeline_states_[render::Shader::Grid].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-    pipeline_states_[render::Shader::grid].finalize(device);
+    pipeline_states_[render::Shader::Grid].finalize(device);
 
 //    auto gridMesh = new render::SubMesh();
 //    gridMesh->indexCount = 6;
@@ -230,25 +230,14 @@ void Gpass::buildPsos(ID3D12Device *device) {
 }
 
 void Gpass::buildRoots(ID3D12Device *device) {
-    root_signatures_[render::Shader::opaque][0].InitAsConstantBufferView(0);
-    root_signatures_[render::Shader::opaque][1].InitAsConstantBufferView(1);
-    root_signatures_[render::Shader::opaque][2].InitAsConstantBufferView(2);
-    root_signatures_[render::Shader::opaque][3].InitAsShaderResourceView(3);
-    root_signatures_[render::Shader::opaque].finalize(device);
+    for (auto& root : root_signatures_) {
+        root[0].InitAsConstantBufferView(0);
+        root[1].InitAsConstantBufferView(1);
+        root[2].InitAsConstantBufferView(2);
+        root[3].InitAsShaderResourceView(3);
+        root.finalize(device);
 
-    root_signatures_[render::Shader::unlit][0].InitAsConstantBufferView(0);
-    root_signatures_[render::Shader::unlit][1].InitAsConstantBufferView(1);
-    root_signatures_[render::Shader::unlit][2].InitAsConstantBufferView(2);
-    root_signatures_[render::Shader::unlit][3].InitAsShaderResourceView(3);
-    root_signatures_[render::Shader::unlit].finalize(device);
-    //    worldGridLayer_.rootSignature.reset(1);
-    root_signatures_[render::Shader::grid][0].InitAsConstantBufferView(0);
-    root_signatures_[render::Shader::grid][1].InitAsConstantBufferView(1);
-    root_signatures_[render::Shader::grid][2].InitAsConstantBufferView(2);
-    root_signatures_[render::Shader::grid][3].InitAsShaderResourceView(3);
-    root_signatures_[render::Shader::grid].finalize(device);
-
-
+    }
 }
 
 

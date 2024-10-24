@@ -42,9 +42,10 @@ public:
 
 private:
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc_ = {};
-    RootSignature* root_signature_;
     ComPtr<ID3D12PipelineState> pipeline_state_;
 };
+
+
 
 }
 

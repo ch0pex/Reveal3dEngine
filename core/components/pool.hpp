@@ -53,7 +53,7 @@ public:
         deleted_components_.pop();
         return id;
     }
-    inline std::set<id_t>& dirtyElements() { return dirty_ids_; }
+    std::set<id_t>& dirtyElements() { return dirty_ids_; }
     std::set<id_t>& dirtyIds() { return dirty_ids_; }
     utl::vector<u8>& dirties() { return dirties_; }
 
@@ -77,8 +77,6 @@ concept is_component = requires(T component) {
     typename T::Data;
 };
 
-
-
 template<is_component T>
 class Pool : public detail::GpuSynchronize<detail::stored_in_gpu<T>> {
 public:
@@ -88,52 +86,51 @@ public:
     void removeComponent(id_t entity_id);
     void update();
 
-    u32 count() { return data_.count(); }
-    T at(id_t id) { return components_.at(id::index(id)); }
-    std::vector<T>::iterator begin() { return components_.begin(); };
-    std::vector<T>::iterator end() { return components_.end();   };
+    u32 count() { return components_data_.count(); }
+    T at(id_t id) { return components_ids_.at(id::index(id)); }
+    std::vector<T>::iterator begin() { return components_ids_.begin(); };
+    std::vector<T>::iterator end() { return components_ids_.end();   };
     u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
-    T::Pool& data() { return data_; }
+    T::Pool& data() { return components_data_; }
 
 private:
     void add(id_t index, id_t id);
     void remove(id_t id);
 
-    /************* is_component data ****************/
-    T::Pool data_;
-
     /************* Components IDs ****************/
-    id::Factory       id_factory_;
-    std::vector<T>    components_;
+    id::Factory     id_factory_;
+    std::vector<T>  components_ids_;
 
+    /************* Component data pool ****************/
+    T::Pool         components_data_;
 };
 
 template<is_component T>
 void Pool<T>::add(id_t index, id_t id) {
-    if (index >= components_.size()) {
-        components_.emplace_back(id);
+    if (index >= components_ids_.size()) {
+        components_ids_.emplace_back(id);
     } else {
-        components_.at(index) = T(id);
+        components_ids_.at(index) = T(id);
     }
 }
 
 template<is_component T>
 T Pool<T>::addComponent() {
-        components_.emplace_back();
+    components_ids_.emplace_back();
         if constexpr (detail::stored_in_gpu<T>) {
             this->dirties_.emplace_back(4);
         }
-        return components_.at(components_.size() - 1);
+        return components_ids_.at(components_ids_.size() - 1);
 }
 
 template<is_component T>
 void Pool<T>::remove(id_t id) {
-    auto last = components_.at(id_factory_.back()).id();
+    auto last = components_ids_.at(id_factory_.back()).id();
     u32 idx {id_factory_.mapped(id) };
     if (last != id) {
-        components_.at(id::index(getMappedId(last))) = T(id::index(id) | id::generation(last));
+        components_ids_.at(id::index(getMappedId(last))) = T(id::index(id) | id::generation(last));
     }
-    components_.at(idx) = {};
+    components_ids_.at(idx) = {};
     id_factory_.remove(id);
     if constexpr (detail::stored_in_gpu<T>) {
         if (last != id) {
@@ -147,7 +144,6 @@ template<is_component T>
 void Pool<T>::update() {
     if constexpr (detail::stored_in_gpu<T>) {
         for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-//        id_t idx = id::index(*it);
             T component { *it };
             component.update();
             if (this->dirties_.at(id::index(*it)) == 0) {
@@ -159,16 +155,6 @@ void Pool<T>::update() {
     } else {
        //  TODO
     }
-//    std::set<id_t> comps_;
-//    for (auto comp : components_) {
-//       if (comp.id() == id::invalid)  continue;
-//
-//        if (comps_.find(comp.id()) != comps_.end()) {
-//            assert(false);
-//        }
-//        comps_.insert(comp.id());
-//    }
-
 }
 
 

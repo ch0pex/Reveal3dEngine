@@ -56,10 +56,10 @@ template<>
 inline Metadata Pool<Metadata>::addComponent(id_t id) {
     const id_t metadata_id { id_factory_.New(id::index(id)) };
 
-    data_.names.emplace_back("Entity_" + std::to_string(id));
-    data_.comments.emplace_back();
-    data_.dates.emplace_back("10/12/2024");  //TODO
-    data_.comments.at(data_.comments.size() - 1U).reserve(1024);
+    components_data_.names.emplace_back("Entity_" + std::to_string(id));
+    components_data_.comments.emplace_back();
+    components_data_.dates.emplace_back("10/12/2024");  //TODO
+    components_data_.comments.at(components_data_.comments.size() - 1U).reserve(1024);
     add(id::index(id), metadata_id);
 
     return Metadata(metadata_id);
@@ -69,23 +69,23 @@ template<>
 inline Metadata Pool<Metadata>::addComponent(id_t id, Metadata::InitInfo &&init_info) {
     const id_t metadata_id { id_factory_.New(id::index(id)) };
 
-    data_.names.emplace_back(std::move(init_info));
-    data_.comments.emplace_back();
-    data_.dates.emplace_back("10/12/2024");  //TODO
+    components_data_.names.emplace_back(std::move(init_info));
+    components_data_.comments.emplace_back();
+    components_data_.dates.emplace_back("10/12/2024");  //TODO
     add(id::index(id), metadata_id);
 
-    assert(id::index(metadata_id) < data_.count());
+    assert(id::index(metadata_id) < components_data_.count());
 
     return Metadata(metadata_id);
 }
 
 template<>
 inline void Pool<Metadata>::removeComponent(id_t id) {
-    const id_t metadata_id {components_.at(id::index(id)).id() };
+    const id_t metadata_id {components_ids_.at(id::index(id)).id() };
     const u32 idx { id::index(metadata_id) };
-    data_.names.unordered_remove(idx);
-    data_.comments.unordered_remove(idx);
-    data_.dates.unordered_remove(idx);
+    components_data_.names.unordered_remove(idx);
+    components_data_.comments.unordered_remove(idx);
+    components_data_.dates.unordered_remove(idx);
     remove(metadata_id);
 }
 

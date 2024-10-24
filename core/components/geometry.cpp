@@ -57,26 +57,27 @@ void Geometry::addMesh(Primitive type) {
     sub_mesh.index_pos = indexCount();
     sub_mesh.index_count = indexCount();
 
-    switch (type) {
-        case Cube:
-            content::getCubeData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-        case Plane:
-            content::getPlaneData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-        case Cylinder:
-            content::getCylinderData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-        case Sphere:
-            content::getSphereData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-        case Cone:
-            content::getConeData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-        case Torus:
-            content::getTorusData(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-            break;
-    }
+    // TODO
+//    switch (type) {
+//        case Cube:
+//            content::get_cube_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//        case Plane:
+//            content::get_plane_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//        case Cylinder:
+//            content::get_cylinder_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//        case Sphere:
+//            content::get_sphere_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//        case Cone:
+//            content::get_cone_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//        case Torus:
+//            content::get_torus_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
+//            break;
+//    }
 
     sub_mesh.index_count = indexCount() - sub_mesh.index_count;
 }

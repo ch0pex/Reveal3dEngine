@@ -91,18 +91,18 @@ template<>
 inline Transform Pool<Transform>::addComponent(id_t entity_id, Transform::InitInfo &&init_info) {
     id_t transform_id{id_factory_.New(id::index(entity_id))};
 
-    data_.pos_rot_scale.push_back(std::move(init_info));
-    Transform::Info& data = data_.pos_rot_scale.at(count() - 1);
-    data_.world_mat.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
-    data_.inv_world.emplace_back(math::inverse(data_.world_mat.at(count() - 1)));
+    components_data_.pos_rot_scale.push_back(std::move(init_info));
+    Transform::Info& data = components_data_.pos_rot_scale.at(count() - 1);
+    components_data_.world_mat.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
+    components_data_.inv_world.emplace_back(math::inverse(components_data_.world_mat.at(count() - 1)));
     dirties().emplace_back(4);
     dirtyIds().insert(transform_id);
 
     add(id::index(entity_id), transform_id);
 
-    assert(id::index(transform_id) < data_.count());
+    assert(id::index(transform_id) < components_data_.count());
 
-    return components_.at(id::index(entity_id));
+    return components_ids_.at(id::index(entity_id));
 }
 
 template<>
@@ -112,11 +112,11 @@ inline Transform Pool<Transform>::addComponent(id_t id) {
 
 template<>
 inline void Pool<Transform>::removeComponent(id_t id) {
-    id_t transform_id { components_.at(id::index(id)).id() };
+    id_t transform_id {components_ids_.at(id::index(id)).id() };
     if (id_factory_.isAlive(transform_id)) {
-        data_.pos_rot_scale.unordered_remove(id::index(transform_id));
-        data_.world_mat.unordered_remove(id::index(transform_id));
-        data_.inv_world.unordered_remove(id::index(transform_id));
+        components_data_.pos_rot_scale.unordered_remove(id::index(transform_id));
+        components_data_.world_mat.unordered_remove(id::index(transform_id));
+        components_data_.inv_world.unordered_remove(id::index(transform_id));
         remove(transform_id);
     }
 }

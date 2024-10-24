@@ -62,8 +62,7 @@ const window::Resolution &Surface::resolution() {
     return *resolution_;
 }
 
-void Surface::present() { swap_chain_->Present(0, present_info_) >> utl::DxCheck;
-}
+void Surface::present() { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
 void Surface::resize(const window::Resolution &res) {
     *resolution_ = res;

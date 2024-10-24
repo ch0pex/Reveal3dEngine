@@ -11,7 +11,6 @@ include_directories(PUBLIC .)
 
 #find_program(CLANG_TIDY_EXE NAMES clang-tidy)
 #set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(SOURCES
         core/scene.cpp

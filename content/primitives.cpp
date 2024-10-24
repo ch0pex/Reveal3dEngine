@@ -17,7 +17,10 @@
 
 namespace reveal3d::content {
 
-u16 getCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+template<>
+core::Geometry::InitInfo import_primitive<core::Geometry::Cube>() {
+    render::Mesh mesh;
+
     std::vector<render::Vertex> v = {
             { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f} }, // 0
             { {-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 0.0f} }, // 1
@@ -38,15 +41,14 @@ u16 getCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices
             4, 0, 3, 4, 3, 7
     };
 
-
-//    ApplyOffset(ind, ++offset);
-
-    vertices.insert(vertices.end(), v.begin(), v.end());
-    indices.insert(indices.end(), ind.begin(), ind.end());
-    return 7;
+    mesh.vertices.insert(mesh.vertices.end(), v.begin(), v.end());
+    mesh.indices.insert(mesh.indices.end(), ind.begin(), ind.end());
+    return mesh;
 }
 
-u16 getPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+template<>
+core::Geometry::InitInfo import_primitive<core::Geometry::Plane>() {
+    render::Mesh mesh;
     std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
             { { -1.0f, 1.0f, 0.0f },  { 0.2f, 0.2f, 0.2f, 0.0f } },
@@ -60,24 +62,24 @@ u16 getPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indice
     };
 
 //    ApplyOffset(ind, ++offset);
-    vertices.insert(vertices.end(), v.begin(), v.end());
-    indices.insert(indices.end(), ind.begin(), ind.end());
-    return 3;
+    mesh.vertices.insert(mesh.vertices.end(), v.begin(), v.end());
+    mesh.indices.insert(mesh.indices.end(), ind.begin(), ind.end());
+    return mesh;
 }
 
-u16 getSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 get_sphere_data(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 getCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 get_cylinder_data(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 getConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 get_cone_data(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 
-u16 getTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u16 get_torus_data(std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
     return 0;
 }
 

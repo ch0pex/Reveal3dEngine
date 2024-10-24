@@ -23,6 +23,7 @@
 
 namespace reveal3d::core {
 
+
 class Geometry {
 public:
     enum Primitive : u8 {
@@ -105,47 +106,47 @@ template<>
 inline Geometry Pool<Geometry>::addComponent(id_t entity_id) {
     const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
 
-    data_.meshes.emplace_back();
-    data_.sub_meshes.emplace_back();
-    data_.materials.emplace_back();
+    components_data_.meshes.emplace_back();
+    components_data_.sub_meshes.emplace_back();
+    components_data_.materials.emplace_back();
     dirties_.emplace_back(4);
     dirty_ids_.insert(geometry_id);
     new_components_.push(entity_id);
 
     add(id::index(entity_id), geometry_id);
-    return components_.at(id::index(entity_id));
+    return components_ids_.at(id::index(entity_id));
 }
 
 template<>
 inline Geometry Pool<Geometry>::addComponent(id_t entity_id, Geometry::InitInfo &&init_info) {
     const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
 
-    data_.meshes.push_back(std::move(init_info));
-    data_.materials.emplace_back();
+    components_data_.meshes.push_back(std::move(init_info));
+    components_data_.materials.emplace_back();
     dirties_.emplace_back(4);
     dirty_ids_.insert(geometry_id);
     new_components_.push(entity_id);
 
     add(id::index(entity_id), geometry_id);
 
-    data_.sub_meshes.emplace_back(render::SubMesh {
-            .shader = render::opaque,
+    components_data_.sub_meshes.emplace_back(render::SubMesh {
+            .shader = render::Opaque,
             .vertex_pos = 0,
             .index_pos = 0,
-            .index_count = components_.at(id::index(entity_id)).indexCount(),
+            .index_count = components_ids_.at(id::index(entity_id)).indexCount(),
             .visible = true,
     });
 
-    return components_.at(id::index(entity_id));
+    return components_ids_.at(id::index(entity_id));
 }
 
 template<>
 inline void Pool<Geometry>::removeComponent(id_t id) {
-    id_t geometry_id { components_.at(id::index(id)).id() };
+    id_t geometry_id {components_ids_.at(id::index(id)).id() };
     if (id_factory_.isAlive(geometry_id)) {
-        data_.materials.unordered_remove(id::index(geometry_id));
-        data_.meshes.unordered_remove(id::index(geometry_id));
-        data_.sub_meshes.unordered_remove(id::index(geometry_id));
+        components_data_.materials.unordered_remove(id::index(geometry_id));
+        components_data_.meshes.unordered_remove(id::index(geometry_id));
+        components_data_.sub_meshes.unordered_remove(id::index(geometry_id));
         dirties_.at(id::index(id)) = 0;
         if (dirty_ids_.find(geometry_id) != dirty_ids_.end()) {
             dirty_ids_.erase(geometry_id);

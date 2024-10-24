@@ -64,7 +64,7 @@ static void getTriangle(std::string &line, std::vector<FaceElem> &primitives) {
 }
 
 
-u32 getDataFromObj(const std::string_view path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
+u32 get_data_from_obj(const std::string_view path, std::vector<render::Vertex> &vertices, std::vector<u32> &indices) {
 #ifndef WIN32
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::string path_str = converter.to_bytes(path);
@@ -128,9 +128,9 @@ u32 getDataFromObj(const std::string_view path, std::vector<render::Vertex> &ver
     return index;
 }
 
-render::Mesh importObj(const std::string_view path) {
+render::Mesh import_obj(const std::string_view path) {
    render::Mesh mesh;
-   getDataFromObj(path, mesh.vertices, mesh.indices);
+   get_data_from_obj(path, mesh.vertices, mesh.indices);
    return std::move(mesh);
 }
 

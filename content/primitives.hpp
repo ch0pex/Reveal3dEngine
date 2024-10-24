@@ -17,12 +17,8 @@
 
 namespace reveal3d::content {
 
-u16 getCubeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
-u16 getPlaneData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
-u16 getSphereData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
-u16 getCylinderData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
-u16 getConeData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
-u16 getTorusData(std::vector<render::Vertex> &vertices, std::vector<u32> &indices);
+template<core::Geometry::Primitive primitive>
+core::Geometry::InitInfo import_primitive();
 
 }
 
