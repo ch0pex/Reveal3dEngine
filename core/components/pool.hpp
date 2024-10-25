@@ -127,7 +127,9 @@ void Pool<T>::update() {
     if constexpr (stored_in_gpu<T>) {
         for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
             T component { *it };
-            component.update();
+            if constexpr (is_updatable<T>) {
+                component.update();
+            }
             if (this->dirties_.at(id::index(*it)) == 0) {
                 it = this->dirty_ids_.erase(it);
             } else {
@@ -136,7 +138,7 @@ void Pool<T>::update() {
         }
     } else if constexpr (is_updatable<T>){
        //  TODO update scripts
-
+       //  TODO update rigid-bodies
     }
 }
 

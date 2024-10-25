@@ -28,6 +28,8 @@ public:
         math::xvec3 scale       { 1.f, 1.f, 1.f };
     };
 
+    using InitInfo = Info;
+
     /************* Transform data ****************/
     struct Pool {
         Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
@@ -49,7 +51,6 @@ public:
         Transform::Info& info;
     };
 
-    using InitInfo = Info;
 
     Transform() : id_(id::invalid) {}
     explicit Transform(id_t id);
@@ -66,9 +67,9 @@ public:
     void position(math::xvec3 pos) const;
     void scale(math::xvec3 size) const;
     void rotation(math::xvec3 rot) const;
-    void worldPosition(math::xvec3 pos);
-    void worldScale(math::xvec3 scale);
-    void worldRotation(math::xvec3 rot);
+    void worldPosition(math::xvec3 pos) const;
+    void worldScale(math::xvec3 scale) const;
+    void worldRotation(math::xvec3 rot) const;
     void update() const;
 
     [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }

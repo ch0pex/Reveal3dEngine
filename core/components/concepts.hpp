@@ -28,13 +28,12 @@ concept is_component = requires(T component) {
 };
 
 template<typename T>
-concept is_updatable = requires(T component) {
+concept is_updatable = is_component<T> and requires(T component) {
     { component.update()  } -> std::same_as<void>;
 };
 
 template<typename T>
 concept stored_in_gpu = is_component<T> and requires(T component) {
-    requires is_updatable<T>;
     { component.setDirty() } -> std::same_as<void>;
     { component.unDirty() } -> std::same_as<void>;
     { component.dirty() } -> std::same_as<u8>;

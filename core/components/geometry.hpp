@@ -95,7 +95,6 @@ public:
     [[nodiscard]] u8 dirty() const;
     void unDirty() const;
     void setDirty() const;
-    void update();
     Data data();
 
 private:

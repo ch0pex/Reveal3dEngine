@@ -33,10 +33,6 @@ std::string& Metadata::date() {
     return pool.data().dates.at(id::index(id_));
 }
 
-void Metadata::update() {
-
-}
-
 Metadata::Data Metadata::data() {
     return { name(), comment(), date() };
 }

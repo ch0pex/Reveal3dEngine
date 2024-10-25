@@ -16,7 +16,7 @@
 
 namespace reveal3d::core {
 
-Pool<Transform> pool = core::scene.componentPool<Transform>();
+Pool<Transform>& pool = core::scene.componentPool<Transform>();
 
 Transform::Transform(id_t id) : id_(id) { }
 
@@ -68,7 +68,7 @@ void Transform::rotation(math::xvec3 rot) const {
     setDirty();
 }
 
-void Transform::worldPosition(math::xvec3 pos) {
+void Transform::worldPosition(math::xvec3 pos) const {
     Transform::Info& trans = pool.data().posRotScale(id_);
     pool.data().world(id_) = math::transpose(math::affine_transformation(pos, trans.scale, trans.rotation));
     core::Entity parent = scene.getNode(id_).parent;
@@ -84,7 +84,7 @@ void Transform::worldPosition(math::xvec3 pos) {
     updateChildren();
 }
 
-void Transform::worldScale(math::xvec3 scale) {
+void Transform::worldScale(math::xvec3 scale) const {
     Transform::Info& trans = pool.data().posRotScale(id_);
     pool.data().world(id_) = math::transpose(math::affine_transformation(trans.position, scale, trans.rotation));
     core::Entity parent = scene.getNode(id_).parent;
@@ -99,7 +99,7 @@ void Transform::worldScale(math::xvec3 scale) {
     updateChildren();
 }
 
-void Transform::worldRotation(math::xvec3 rot) {
+void Transform::worldRotation(math::xvec3 rot) const {
     Transform::Info& trans = pool.data().posRotScale(id_);
     world() = math::transpose(math::affine_transformation(trans.position, trans.scale, rot));
     core::Entity parent = scene.getNode(id_).parent;
