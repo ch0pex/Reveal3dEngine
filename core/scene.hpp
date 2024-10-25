@@ -34,7 +34,6 @@
 
 #include "common/common.hpp"
 #include "components.hpp"
-#include "render/light.hpp"
 
 #include <deque>
 #include <set>
@@ -93,7 +92,7 @@ public:
     Node &getNode(id_t id) { return scene_graph_.at(id::index(id)); }
     Node &root() { return scene_graph_.at(root_node_); }
 
-    template<is_component T>
+    template<component T>
     Pool<T> &componentPool() noexcept;
 
     void init();
@@ -118,7 +117,7 @@ private:
     //    Pool<core::Light>                 light_pool_;
 };
 
-template<is_component T>
+template<component T>
 Pool<T> &Scene::componentPool() noexcept {
     if constexpr (std::is_same<T, Transform>()) {
         return (transform_pool_);

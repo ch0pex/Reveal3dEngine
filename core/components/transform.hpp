@@ -31,7 +31,7 @@ public:
     /************* Transform data ****************/
     struct Pool {
         Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
-        math::mat4& World(id_t id)       { return world_mat.at(id::index(id)); }
+        math::mat4& world(id_t id)       { return world_mat.at(id::index(id)); }
         math::mat4& invWorld(id_t id)    { return inv_world.at(id::index(id)); }
         const u32 count()                { return pos_rot_scale.size(); }
         void remove(u32 index)           { }
@@ -81,7 +81,7 @@ public:
 
 private:
     static math::mat4 calcWorld(id_t id);
-    void updateChilds() const;
+    void updateChildren() const;
 
     id_t id_ { id::invalid };
 };

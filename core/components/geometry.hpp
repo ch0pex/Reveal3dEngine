@@ -74,7 +74,7 @@ public:
     // NOTE: This will need to be changed when mesh instancing is implemented
     // For now there is no mesh instancing and only one submesh each mesh and geometry
     void addMesh(render::Mesh &mesh);
-    void addMesh(Primitive type);
+    template<Primitive primitive> void addMesh();
 
     [[nodiscard]] std::span<render::SubMesh> subMeshes() const;
     [[nodiscard]] std::vector<render::Vertex> &vertices() const;

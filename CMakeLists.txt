@@ -56,6 +56,7 @@ set(HEADERS
         graphics/directX12/dx_surface.hpp
         common/string_literals.hpp
         common/string_literals.hpp
+        core/components/concepts.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

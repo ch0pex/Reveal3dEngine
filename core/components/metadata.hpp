@@ -44,10 +44,11 @@ public:
     std::string& comment();
     std::string& date();
 
-    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t id() const { return id_; }
-    void update();
+    [[nodiscard]] bool isAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] id_t id() const { return id_; }
+
     Data data();
+
 private:
     id_t id_;
 };

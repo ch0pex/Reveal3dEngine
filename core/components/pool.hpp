@@ -14,22 +14,15 @@
 
 #include "common/common.hpp"
 #include "math/math.hpp"
+#include "concepts.hpp"
 
 #include <vector>
 #include <queue>
 #include <set>
-#include <type_traits>
 
 namespace reveal3d::core {
 
 namespace detail {
-
-template<typename T>
-concept stored_in_gpu = requires(T component) {
-    {component.setDirty()} -> std::same_as<void>;
-    {component.unDirty()} -> std::same_as<void>;
-    {component.dirty()} -> std::same_as<u8>;
-};
 
 template<bool InGPU>
 struct GpuSynchronize {};
@@ -66,23 +59,12 @@ protected:
 
 }
 
-template<typename T>
-concept is_component = requires(T component) {
-    {component.isAlive()} -> std::same_as<bool>;
-    {component.id()} -> std::same_as<id_t>;
-    { component.update()} -> std::same_as<void>;
-    component.data();
-    typename T::InitInfo;
-    typename T::Pool;
-    typename T::Data;
-};
-
-template<is_component T>
-class Pool : public detail::GpuSynchronize<detail::stored_in_gpu<T>> {
+template<component T>
+class Pool : public detail::GpuSynchronize<stored_in_gpu<T>> {
 public:
     T addComponent();
     T addComponent(id_t entity_id);
-    T addComponent(id_t entityId, T::InitInfo&& initInfo);
+    T addComponent(id_t entity_id, T::InitInfo&& initInfo);
     void removeComponent(id_t entity_id);
     void update();
 
@@ -105,7 +87,7 @@ private:
     T::Pool         components_data_;
 };
 
-template<is_component T>
+template<component T>
 void Pool<T>::add(id_t index, id_t id) {
     if (index >= components_ids_.size()) {
         components_ids_.emplace_back(id);
@@ -114,16 +96,16 @@ void Pool<T>::add(id_t index, id_t id) {
     }
 }
 
-template<is_component T>
+template<component T>
 T Pool<T>::addComponent() {
     components_ids_.emplace_back();
-        if constexpr (detail::stored_in_gpu<T>) {
+        if constexpr (stored_in_gpu<T>) {
             this->dirties_.emplace_back(4);
         }
         return components_ids_.at(components_ids_.size() - 1);
 }
 
-template<is_component T>
+template<component T>
 void Pool<T>::remove(id_t id) {
     auto last = components_ids_.at(id_factory_.back()).id();
     u32 idx {id_factory_.mapped(id) };
@@ -132,7 +114,7 @@ void Pool<T>::remove(id_t id) {
     }
     components_ids_.at(idx) = {};
     id_factory_.remove(id);
-    if constexpr (detail::stored_in_gpu<T>) {
+    if constexpr (stored_in_gpu<T>) {
         if (last != id) {
             this->dirties_.at(id::index(id)) = 3;
             this->dirty_ids_.insert(id::index(id) | id::generation(last));
@@ -140,9 +122,9 @@ void Pool<T>::remove(id_t id) {
     }
 }
 
-template<is_component T>
+template<component T>
 void Pool<T>::update() {
-    if constexpr (detail::stored_in_gpu<T>) {
+    if constexpr (stored_in_gpu<T>) {
         for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
             T component { *it };
             component.update();
@@ -152,8 +134,9 @@ void Pool<T>::update() {
                 ++it;
             }
         }
-    } else {
-       //  TODO
+    } else if constexpr (is_updatable<T>){
+       //  TODO update scripts
+
     }
 }
 

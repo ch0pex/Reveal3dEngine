@@ -18,7 +18,7 @@
 
 namespace reveal3d::core {
 
-static Pool<core::Geometry>& pool() { return core::scene.componentPool<Geometry>(); }
+Pool<core::Geometry>& pool = core::scene.componentPool<Geometry>();
 
 Geometry::Geometry() : id_{id::invalid} {}
 
@@ -41,7 +41,7 @@ Geometry &Geometry::operator=(Geometry &&other) noexcept {
 // instead of appending it
 void Geometry::addMesh(render::Mesh &mesh) {
     render::SubMesh sub_mesh;
-    pool().data().mesh(id_) = std::move(mesh);
+    pool.data().mesh(id_) = std::move(mesh);
 
     sub_mesh.vertex_pos = vertexCount();
     sub_mesh.index_pos = 0;
@@ -49,85 +49,67 @@ void Geometry::addMesh(render::Mesh &mesh) {
 }
 
 
-void Geometry::addMesh(Primitive type) {
-
-    render::SubMesh &sub_mesh = pool().data().subMeshes(id_)[0]; // Only one submesh for now
-
-    sub_mesh.vertex_pos = vertexCount();
-    sub_mesh.index_pos = indexCount();
-    sub_mesh.index_count = indexCount();
-
-    // TODO
-//    switch (type) {
-//        case Cube:
-//            content::get_cube_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//        case Plane:
-//            content::get_plane_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//        case Cylinder:
-//            content::get_cylinder_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//        case Sphere:
-//            content::get_sphere_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//        case Cone:
-//            content::get_cone_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//        case Torus:
-//            content::get_torus_data(pool().data().mesh(id_).vertices, pool().data().mesh(id_).indices);
-//            break;
-//    }
-
-    sub_mesh.index_count = indexCount() - sub_mesh.index_count;
+u32 Geometry::vertexCount() const {
+    return pool.data().mesh(id_).vertices.size();
 }
 
+u32 Geometry::indexCount() const {
+    return pool.data().mesh(id_).indices.size();
+}
 
-u32 Geometry::vertexCount() const { return pool().data().mesh(id_).vertices.size(); }
+std::span<render::SubMesh> Geometry::subMeshes() const {
+    return pool.data().subMeshes(id_);
+}
 
-u32 Geometry::indexCount() const { return pool().data().mesh(id_).indices.size(); }
+std::vector<render::Vertex> &Geometry::vertices() const {
+    return pool.data().mesh(id_).vertices;
+}
 
-std::span<render::SubMesh> Geometry::subMeshes() const { return pool().data().subMeshes(id_); }
+std::vector<u32> &Geometry::indices() const {
+    return pool.data().mesh(id_).indices;
+}
 
-std::vector<render::Vertex> &Geometry::vertices() const { return pool().data().mesh(id_).vertices; }
+void Geometry::visibility(bool visibility) {
+    pool.data().subMeshes(id_)[0].visible = visibility;
+}
 
-std::vector<u32> &Geometry::indices() const { return pool().data().mesh(id_).indices; }
+bool Geometry::isVisible() const {
+    return pool.data().subMeshes(id_)[0].visible;
+}
 
-void Geometry::visibility(bool visibility) { pool().data().subMeshes(id_)[0].visible = visibility; }
-
-bool Geometry::isVisible() const { return pool().data().subMeshes(id_)[0].visible; }
-
-render::Material &Geometry::material() { return pool().data().material(id_); }
+render::Material &Geometry::material() { return pool.data().material(id_); }
 
 void Geometry::diffuseColor(math::vec4 color) {
-    pool().data().material(id_).base_color = color;
+    pool.data().material(id_).base_color = color;
     setDirty();
 }
 
 void Geometry::fresnel(math::vec3 fresnel) {
-    pool().data().material(id_).fresnel = fresnel;
+    pool.data().material(id_).fresnel = fresnel;
     setDirty();
 }
 
 void Geometry::materialTransform(math::mat4 transform) {
-    pool().data().material(id_).mat_transform = transform;
+    pool.data().material(id_).mat_transform = transform;
     setDirty();
 }
 
 void Geometry::roughness(f32 roughness) {
-    pool().data().material(id_).roughness = roughness;
+    pool.data().material(id_).roughness = roughness;
     setDirty();
 }
 
-u8 Geometry::dirty() const { return pool().dirties().at(id::index(id_)); }
+u8 Geometry::dirty() const {
+    return pool.dirties().at(id::index(id_));
+}
 
 void Geometry::unDirty() const {
     const id_t idx = id::index(id_);
-    if (pool().dirties().at(idx) != 0) {
-        --pool().dirties().at(idx);
+    if (pool.dirties().at(idx) != 0) {
+        --pool.dirties().at(idx);
     }
     else {
-        pool().dirties().at(idx) = 0;
+        pool.dirties().at(idx) = 0;
     }
 }
 
@@ -136,17 +118,13 @@ void Geometry::setDirty() const {
         return;
     }
     if (dirty() == 0) {
-        pool().dirtyIds().insert(id_);
+        pool.dirtyIds().insert(id_);
     }
-    pool().dirties().at(id::index(id_)) = 3;
-}
-
-void Geometry::update() {
-
+    pool.dirties().at(id::index(id_)) = 3;
 }
 
 Geometry::Data Geometry::data() {
-    return { material(), subMeshes()[0], pool().data().mesh(id_) };
+    return { material(), subMeshes()[0], pool.data().mesh(id_) };
 }
 
 }
