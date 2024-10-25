@@ -8,14 +8,14 @@
  * @date 11/03/2024
  * @brief ECS
  *
- * Entity is_component system main header file.
- * In Reveal3D componentes just holds and ID that points to the real data.
- * Real data is compacted to avoid cache misses, this logic is handled by components pools
+ * Entity component system main header file.
+ * In Reveal3D components just holds and ID that points to the real data stored in a pool.
+ * Real data is compacted to avoid cache misses, this logic is handled by components pools.
  *
  * *********************************************** Components pool *****************************************************
  * ************************** IDs **************************************************** data ****************************
  *                                                          *                                                          *
- * Enity IDs        |  00   | 01    |  02   |  03  | ...    * Enity IDs        |  00   | 01    |  02   |  03  | ...    *
+ * Entity IDs        |  00   | 01    |  02   |  03  | ...   * Entity IDs        |  00   | 01    |  02   |  03  | ...   *
  *                                                          *                                                          *
  * --------------------- Components IDs-------------------- * ------------------- Components data -------------------- *
  *                  ------- ------- ------- ------          *                  ------- ------- -------                 *
@@ -65,7 +65,6 @@ private:
     id_t id_;
 };
 
-
 class Scene {
 public:
     struct Node {
@@ -112,12 +111,11 @@ private:
 
     /*********** Components Pools  *************/
 
-    Pool<core::Transform> transform_pool_;
-    Pool<core::Geometry> geometry_pool_;
-    Pool<core::Script> script_pool_;
-    Pool<core::Metadata> metadata_pool_;
-
-    //    LightPool                 light_pool_;
+    Pool<Transform> transform_pool_;
+    Pool<Geometry> geometry_pool_;
+    Pool<Script> script_pool_;
+    Pool<Metadata> metadata_pool_;
+    //    Pool<core::Light>                 light_pool_;
 };
 
 template<is_component T>
@@ -130,8 +128,7 @@ Pool<T> &Scene::componentPool() noexcept {
     }
     else if constexpr (std::is_same<T, Metadata>()) {
         return (metadata_pool_);
-    }
-    else {
+    } else {
         return (geometry_pool_);
     }
 }

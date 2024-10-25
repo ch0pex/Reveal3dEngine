@@ -30,12 +30,11 @@ public:
 
     /************* Transform data ****************/
     struct Pool {
+        Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
         math::mat4& World(id_t id)       { return world_mat.at(id::index(id)); }
         math::mat4& invWorld(id_t id)    { return inv_world.at(id::index(id)); }
-        Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
         const u32 count()                { return pos_rot_scale.size(); }
-        void Remove(u32 index)           {
-        }
+        void remove(u32 index)           { }
 
         utl::vector<math::mat4>         world_mat;
         utl::vector<math::mat4>         inv_world;
@@ -44,9 +43,9 @@ public:
 
     struct Data {
         Data(math::mat4& world, math::mat4& inv_world, Transform::Info& info)
-            : world(world), invWorld(inv_world), info(info) {}
+            : world(world), inv_world(inv_world), info(info) {}
         math::mat4& world;
-        math::mat4&  invWorld;
+        math::mat4& inv_world;
         Transform::Info& info;
     };
 
