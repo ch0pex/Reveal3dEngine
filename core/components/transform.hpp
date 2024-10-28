@@ -31,20 +31,33 @@ public:
     using InitInfo = Info;
 
     /************* Transform data ****************/
-    struct Pool {
-        Transform::Info& posRotScale(id_t id) { return pos_rot_scale.at(id::index(id)); }
+    class Pool {
+    public:
+        Transform::Info& posRotScale(id_t id) { return pos_rot_scale_.at(id::index(id)); }
 
-        math::mat4& world(id_t id) { return world_mat.at(id::index(id)); }
+        math::mat4& world(id_t id) { return world_mat_.at(id::index(id)); }
 
-        math::mat4& invWorld(id_t id) { return inv_world.at(id::index(id)); }
+        math::mat4& invWorld(id_t id) { return inv_world_.at(id::index(id)); }
 
-        const u32 count() { return pos_rot_scale.size(); }
+        const u32 count() { return pos_rot_scale_.size(); }
 
-        void remove(u32 index) { }
+        void add(id_t entity_id, InitInfo &init_info) {
+            Transform::Info& data = pos_rot_scale_.at(count() - 1);
+            pos_rot_scale_.push_back(std::move(init_info));
+            world_mat_.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
+            inv_world_.emplace_back(math::inverse(world_mat_.at(count() - 1)));
+        }
 
-        utl::vector<math::mat4>         world_mat;
-        utl::vector<math::mat4>         inv_world;
-        utl::vector<Transform::Info>    pos_rot_scale;
+        void remove(u32 id) {
+            pos_rot_scale_.unordered_remove(id::index(id));
+            world_mat_.unordered_remove(id::index(id));
+            inv_world_.unordered_remove(id::index(id));
+        }
+
+    private:
+        utl::vector<math::mat4> world_mat_;
+        utl::vector<math::mat4> inv_world_;
+        utl::vector<Transform::Info> pos_rot_scale_;
     };
 
     struct Data {
@@ -91,39 +104,6 @@ private:
     id_t id_ { id::invalid };
 };
 
-template<>
-inline Transform Pool<Transform>::addComponent(id_t entity_id, Transform::InitInfo &&init_info) {
-    id_t transform_id{id_factory_.New(id::index(entity_id))};
-
-    components_data_.pos_rot_scale.push_back(std::move(init_info));
-    Transform::Info& data = components_data_.pos_rot_scale.at(count() - 1);
-    components_data_.world_mat.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
-    components_data_.inv_world.emplace_back(math::inverse(components_data_.world_mat.at(count() - 1)));
-    dirties().emplace_back(4);
-    dirtyIds().insert(transform_id);
-
-    add(id::index(entity_id), transform_id);
-
-    assert(id::index(transform_id) < components_data_.count());
-
-    return components_ids_.at(id::index(entity_id));
-}
-
-template<>
-inline Transform Pool<Transform>::addComponent(id_t id) {
-    return addComponent(id, {});
-}
-
-template<>
-inline void Pool<Transform>::removeComponent(id_t id) {
-    id_t transform_id {components_ids_.at(id::index(id)).id() };
-    if (id_factory_.isAlive(transform_id)) {
-        components_data_.pos_rot_scale.unordered_remove(id::index(transform_id));
-        components_data_.world_mat.unordered_remove(id::index(transform_id));
-        components_data_.inv_world.unordered_remove(id::index(transform_id));
-        remove(transform_id);
-    }
-}
 
 } // reveal3d::core namespace
 

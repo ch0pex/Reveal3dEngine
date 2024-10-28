@@ -23,28 +23,54 @@ class Metadata {
 public:
     using InitInfo = std::string;
 
-    struct Pool {
-        u32 count() { return names.size(); }
-        utl::vector<std::string> names;
-        utl::vector<std::string> comments;
-        utl::vector<std::string> dates;
+    class Pool {
+    public:
+        std::string& name(id_t id) { return names_.at(id::index(id)); }
+
+        std::string& comment(id_t id) { return comments_.at(id::index(id)); }
+
+        std::string& date(id_t id) { return dates_.at(id::index(id)); }
+
+        u32 count() { return names_.size(); }
+
+        void add(id_t entity_id, InitInfo &init_info) {
+            names_.emplace_back("Entity_" + std::to_string(entity_id));
+            comments_.emplace_back();
+            dates_.emplace_back("10/12/2024");  //TODO
+            comments_.at(comments_.size() - 1U).reserve(1024);
+        }
+
+        void remove(u32 id) {
+            names_.unordered_remove(id::index(id));
+            comments_.unordered_remove(id::index(id));
+            dates_.unordered_remove(id::index(id));
+        }
+
+    private:
+        utl::vector<std::string> names_;
+        utl::vector<std::string> comments_;
+        utl::vector<std::string> dates_;
     };
 
     struct Data {
-        Data(std::string& name,std::string& comm, std::string& date) : name(name), comment(comm), date(date) {}
-        std::string& name;
-        std::string& comment;
-        std::string& date;
+        Data(std::string& name,std::string& comm, std::string& date) : name(name.data()), comment(comm.data()), date(date.data()) {}
+        char * name;
+        char * comment;
+        char * date;
     };
 
     Metadata() : id_(id::invalid) {}
+
     explicit Metadata(id_t id);
 
     std::string& name();
+
     std::string& comment();
+
     std::string& date();
 
     [[nodiscard]] bool isAlive() const { return id_ != id::invalid; }
+
     [[nodiscard]] id_t id() const { return id_; }
 
     Data data();
@@ -52,42 +78,5 @@ public:
 private:
     id_t id_;
 };
-
-template<>
-inline Metadata Pool<Metadata>::addComponent(id_t id) {
-    const id_t metadata_id { id_factory_.New(id::index(id)) };
-
-    components_data_.names.emplace_back("Entity_" + std::to_string(id));
-    components_data_.comments.emplace_back();
-    components_data_.dates.emplace_back("10/12/2024");  //TODO
-    components_data_.comments.at(components_data_.comments.size() - 1U).reserve(1024);
-    add(id::index(id), metadata_id);
-
-    return Metadata(metadata_id);
-}
-
-template<>
-inline Metadata Pool<Metadata>::addComponent(id_t id, Metadata::InitInfo &&init_info) {
-    const id_t metadata_id { id_factory_.New(id::index(id)) };
-
-    components_data_.names.emplace_back(std::move(init_info));
-    components_data_.comments.emplace_back();
-    components_data_.dates.emplace_back("10/12/2024");  //TODO
-    add(id::index(id), metadata_id);
-
-    assert(id::index(metadata_id) < components_data_.count());
-
-    return Metadata(metadata_id);
-}
-
-template<>
-inline void Pool<Metadata>::removeComponent(id_t id) {
-    const id_t metadata_id {components_ids_.at(id::index(id)).id() };
-    const u32 idx { id::index(metadata_id) };
-    components_data_.names.unordered_remove(idx);
-    components_data_.comments.unordered_remove(idx);
-    components_data_.dates.unordered_remove(idx);
-    remove(metadata_id);
-}
 
 }

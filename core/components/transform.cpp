@@ -29,7 +29,7 @@ math::mat4& Transform::invWorld() const {
 }
 
 math::xvec3 Transform::position() const {
-    return pool.data().pos_rot_scale.at(id::index(id_)).position;
+    return pool.data().posRotScale(id_).position;
 }
 
 math::xvec3 Transform::scale() const {
@@ -41,8 +41,8 @@ math::xvec3 Transform::rotation() const {
 }
 
 math::xvec3 Transform::worldPosition() const {
-    math::mat4 worldMat = pool.data().world(id_);
-    return worldMat.translation();
+    math::mat4 world_mat = pool.data().world(id_);
+    return world_mat.translation();
 }
 
 math::xvec3 Transform::worldScale() const {

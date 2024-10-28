@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.26)
 project(Reveal3d LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -68,7 +68,7 @@ if (WIN32)
     #add_compile_options(/Wall /external:anglebrakets /external:W0)
     message("-- WINDOWS")
     message("-- Source dir: ${PROJECT_SOURCE_DIR}")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /std:c++latest")
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
 #    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
@@ -77,7 +77,7 @@ if (WIN32)
     aux_source_directory(graphics/directX12 GRAPHICS)
     aux_source_directory(graphics/directX12/resources GRAPHICS)
     aux_source_directory(window/win32 WINDOW)
-    #add glew and glfw for windows
+    #addId glew and glfw for windows
 elseif (UNIX)
     message("-- UNIX" )
     set(PLAT unix)
@@ -88,7 +88,7 @@ elseif (UNIX)
     target_link_libraries(Reveal3d PRIVATE glfw ${GLEW_LIBRARIES} ${OPENGL_LIBRARY})
 
     #    add_compile_options(-Werror -Wall -Wextra  -pedantic -pedantic-errors)
-    #add glew, glfw and glm for linux
+    #addId glew, glfw and glm for linux
     #    target_link_libraries(Reveal3d PRIVATE ${EXTERN}/glew.t a ${EXTERN}/glfw3.lib)
 endif()
 

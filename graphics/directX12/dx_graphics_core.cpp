@@ -202,7 +202,7 @@ void Dx12::update(render::Camera &camera) {
         curr_frame_res.mat_buffer.copyData(id::index(geo.id()), &mat_constant);
     }
 
-    // add new meshes
+    // addId new meshes
     while (entity_with_new_geo.isAlive()) {
         loadAsset(entity_with_new_geo);
         entity_with_new_geo = core::Entity(geometries.popNew());

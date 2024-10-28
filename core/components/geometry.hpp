@@ -39,15 +39,39 @@ public:
     };
 
     /************* Geometry data ****************/
-    struct Pool {
-        u32 count() { return meshes.size(); }
-        render::Material&material(id_t id) { return materials.at(id::index(id)); }
-        render::Mesh& mesh(id_t id) { return meshes.at(id::index(id)); }
-        std::span<render::SubMesh> subMeshes(id_t id) { return std::span {sub_meshes.begin() + id::index(id), sub_meshes.begin() + id::index(id) + 1}; }
+    using InitInfo = render::Mesh;
 
-        utl::vector<render::Material> materials;
-        utl::vector<render::SubMesh> sub_meshes;
-        utl::vector<render::Mesh> meshes;
+    class Pool {
+    public:
+        render::Material&material(id_t id) { return materials_.at(id::index(id)); }
+
+        render::Mesh& mesh(id_t id) { return meshes_.at(id::index(id)); }
+
+        std::span<render::SubMesh> subMeshes(id_t id) { return std::span {sub_meshes_.begin() + id::index(id), sub_meshes_.begin() + id::index(id) + 1}; }
+
+        u32 count() { return meshes_.size(); }
+
+        void add(id_t entity_id, InitInfo &init_info) {
+            materials_.emplace_back();
+            sub_meshes_.emplace_back(render::SubMesh {
+                    .shader = render::Opaque,
+                    .vertex_pos = 0,
+                    .index_pos = 0,
+                    .index_count = static_cast<u32>(init_info.indices.size()),
+                    .visible = true,
+            });
+            meshes_.push_back(std::move(init_info));
+        }
+
+        void remove(u32 id) {
+            materials_.unordered_remove(id::index(id));
+            meshes_.unordered_remove(id::index(id));
+            sub_meshes_.unordered_remove(id::index(id));
+        }
+    private:
+        utl::vector<render::Material> materials_;
+        utl::vector<render::SubMesh> sub_meshes_;
+        utl::vector<render::Mesh> meshes_;
     };
 
     struct Data {
@@ -58,7 +82,6 @@ public:
         render::Mesh& mesh;
     };
 
-    using InitInfo = render::Mesh;
 
     Geometry();
     Geometry(Geometry& other);
@@ -105,14 +128,15 @@ template<>
 inline Geometry Pool<Geometry>::addComponent(id_t entity_id) {
     const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
 
-    components_data_.meshes.emplace_back();
-    components_data_.sub_meshes.emplace_back();
-    components_data_.materials.emplace_back();
+    data_.meshes_.emplace_back();
+    data_.sub_meshes_.emplace_back();
+    data_.materials_.emplace_back();
     dirties_.emplace_back(4);
     dirty_ids_.insert(geometry_id);
     new_components_.push(entity_id);
 
-    add(id::index(entity_id), geometry_id);
+    data_.add(entity_id, {})
+    addId(id::index(entity_id), geometry_id);
     return components_ids_.at(id::index(entity_id));
 }
 
@@ -120,21 +144,12 @@ template<>
 inline Geometry Pool<Geometry>::addComponent(id_t entity_id, Geometry::InitInfo &&init_info) {
     const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
 
-    components_data_.meshes.push_back(std::move(init_info));
-    components_data_.materials.emplace_back();
     dirties_.emplace_back(4);
     dirty_ids_.insert(geometry_id);
     new_components_.push(entity_id);
 
-    add(id::index(entity_id), geometry_id);
-
-    components_data_.sub_meshes.emplace_back(render::SubMesh {
-            .shader = render::Opaque,
-            .vertex_pos = 0,
-            .index_pos = 0,
-            .index_count = components_ids_.at(id::index(entity_id)).indexCount(),
-            .visible = true,
-    });
+    data_.add(entity_id, init_info);
+    addId(id::index(entity_id), geometry_id);
 
     return components_ids_.at(id::index(entity_id));
 }
@@ -143,15 +158,15 @@ template<>
 inline void Pool<Geometry>::removeComponent(id_t id) {
     id_t geometry_id {components_ids_.at(id::index(id)).id() };
     if (id_factory_.isAlive(geometry_id)) {
-        components_data_.materials.unordered_remove(id::index(geometry_id));
-        components_data_.meshes.unordered_remove(id::index(geometry_id));
-        components_data_.sub_meshes.unordered_remove(id::index(geometry_id));
+        components_data_.materials_.unordered_remove(id::index(geometry_id));
+        components_data_.meshes_.unordered_remove(id::index(geometry_id));
+        components_data_.sub_meshes_.unordered_remove(id::index(geometry_id));
         dirties_.at(id::index(id)) = 0;
         if (dirty_ids_.find(geometry_id) != dirty_ids_.end()) {
             dirty_ids_.erase(geometry_id);
         }
         deleted_components_.push(geometry_id);
-        remove(geometry_id);
+        removeId(geometry_id);
     }
 }
 

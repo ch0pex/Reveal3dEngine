@@ -22,15 +22,15 @@ Pool<Metadata>& pool = core::scene.componentPool<Metadata>();
 Metadata::Metadata(id_t id) : id_(id) { }
 
 std::string& Metadata::name() {
-    return pool.data().names.at(id::index(id_));
+    return pool.data().name(id_);
 }
 
 std::string& Metadata::comment() {
-    return pool.data().comments.at(id::index(id_));
+    return pool.data().comment(id_);
 }
 
 std::string& Metadata::date() {
-    return pool.data().dates.at(id::index(id_));
+    return pool.data().date(id_);
 }
 
 Metadata::Data Metadata::data() {
