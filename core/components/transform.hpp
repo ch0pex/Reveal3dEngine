@@ -23,20 +23,24 @@ namespace reveal3d::core {
 class Transform {
 public:
     struct Info {
-        math::xvec3 position    { 0.f, 0.f, 0.f };
-        math::xvec3 rotation    { 0.f, 0.f, 0.f };
-        math::xvec3 scale       { 1.f, 1.f, 1.f };
+        math::xvec3 position { 0.f, 0.f, 0.f };
+        math::xvec3 rotation { 0.f, 0.f, 0.f };
+        math::xvec3 scale    { 1.f, 1.f, 1.f };
     };
 
     using InitInfo = Info;
 
     /************* Transform data ****************/
     struct Pool {
-        Transform::Info& posRotScale(id_t id)   { return pos_rot_scale.at(id::index(id)); }
-        math::mat4& world(id_t id)       { return world_mat.at(id::index(id)); }
-        math::mat4& invWorld(id_t id)    { return inv_world.at(id::index(id)); }
-        const u32 count()                { return pos_rot_scale.size(); }
-        void remove(u32 index)           { }
+        Transform::Info& posRotScale(id_t id) { return pos_rot_scale.at(id::index(id)); }
+
+        math::mat4& world(id_t id) { return world_mat.at(id::index(id)); }
+
+        math::mat4& invWorld(id_t id) { return inv_world.at(id::index(id)); }
+
+        const u32 count() { return pos_rot_scale.size(); }
+
+        void remove(u32 index) { }
 
         utl::vector<math::mat4>         world_mat;
         utl::vector<math::mat4>         inv_world;

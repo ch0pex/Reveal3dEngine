@@ -13,7 +13,6 @@ include_directories(PUBLIC .)
 #set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
 
 set(SOURCES
-        core/scene.cpp
         core/components/geometry.cpp
         core/components/transform.cpp
         core/components/script.cpp

@@ -66,18 +66,62 @@ public:
     T addComponent(id_t entity_id);
     T addComponent(id_t entity_id, T::InitInfo&& initInfo);
     void removeComponent(id_t entity_id);
-    void update();
+
+    void update() {
+        if constexpr (stored_in_gpu<T>) {
+            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+                T component { *it };
+                if constexpr (is_updatable<T>) {
+                    component.update();
+                }
+                if (this->dirties_.at(id::index(*it)) == 0) {
+                    it = this->dirty_ids_.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        } else if constexpr (is_updatable<T>){
+            //  TODO update scripts
+            //  TODO update rigid-bodies
+        }
+    }
 
     u32 count() { return components_data_.count(); }
+
     T at(id_t id) { return components_ids_.at(id::index(id)); }
+
     std::vector<T>::iterator begin() { return components_ids_.begin(); };
+
     std::vector<T>::iterator end() { return components_ids_.end();   };
+
     u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
+
     T::Pool& data() { return components_data_; }
 
 private:
-    void add(id_t index, id_t id);
-    void remove(id_t id);
+    void add(id_t index, id_t id) {
+        if (index >= components_ids_.size()) {
+            components_ids_.emplace_back(id);
+        } else {
+            components_ids_.at(index) = T(id);
+        }
+    }
+
+    void remove(id_t id) {
+        auto last = components_ids_.at(id_factory_.back()).id();
+        u32 idx {id_factory_.mapped(id) };
+        if (last != id) {
+            components_ids_.at(id::index(getMappedId(last))) = T(id::index(id) | id::generation(last));
+        }
+        components_ids_.at(idx) = {};
+        id_factory_.remove(id);
+        if constexpr (stored_in_gpu<T>) {
+            if (last != id) {
+                this->dirties_.at(id::index(id)) = 3;
+                this->dirty_ids_.insert(id::index(id) | id::generation(last));
+            }
+        }
+    }
 
     /************* Components IDs ****************/
     id::Factory     id_factory_;
@@ -87,14 +131,6 @@ private:
     T::Pool         components_data_;
 };
 
-template<component T>
-void Pool<T>::add(id_t index, id_t id) {
-    if (index >= components_ids_.size()) {
-        components_ids_.emplace_back(id);
-    } else {
-        components_ids_.at(index) = T(id);
-    }
-}
 
 template<component T>
 T Pool<T>::addComponent() {
@@ -105,42 +141,7 @@ T Pool<T>::addComponent() {
         return components_ids_.at(components_ids_.size() - 1);
 }
 
-template<component T>
-void Pool<T>::remove(id_t id) {
-    auto last = components_ids_.at(id_factory_.back()).id();
-    u32 idx {id_factory_.mapped(id) };
-    if (last != id) {
-        components_ids_.at(id::index(getMappedId(last))) = T(id::index(id) | id::generation(last));
-    }
-    components_ids_.at(idx) = {};
-    id_factory_.remove(id);
-    if constexpr (stored_in_gpu<T>) {
-        if (last != id) {
-            this->dirties_.at(id::index(id)) = 3;
-            this->dirty_ids_.insert(id::index(id) | id::generation(last));
-        }
-    }
-}
 
-template<component T>
-void Pool<T>::update() {
-    if constexpr (stored_in_gpu<T>) {
-        for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-            T component { *it };
-            if constexpr (is_updatable<T>) {
-                component.update();
-            }
-            if (this->dirties_.at(id::index(*it)) == 0) {
-                it = this->dirty_ids_.erase(it);
-            } else {
-                ++it;
-            }
-        }
-    } else if constexpr (is_updatable<T>){
-       //  TODO update scripts
-       //  TODO update rigid-bodies
-    }
-}
 
 
 }
