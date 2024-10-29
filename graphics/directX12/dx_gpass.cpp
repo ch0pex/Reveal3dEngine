@@ -5,12 +5,10 @@
 #include "dx_gpass.hpp"
 
 #include "core/scene.hpp"
-#include "config/config.hpp"
 
 
 namespace reveal3d::graphics::dx12 {
 
-const f32 Gpass::clear_color_[] = { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
 
 Gpass::Gpass() {
     root_signatures_[render::Shader::Opaque].reset(4);
@@ -26,7 +24,7 @@ void Gpass::init(ID3D12Device *device) {
 void Gpass::setRenderTargets(Commands &command_mng, FrameResource &frame_resource) {
     ID3D12GraphicsCommandList*command_list = command_mng.list();
 
-    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_, 0, nullptr);
+    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_.data(), 0, nullptr);
     command_list->ClearDepthStencilView(frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
     command_list->OMSetRenderTargets(1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu);
 
@@ -36,7 +34,7 @@ void Gpass::render(ID3D12GraphicsCommandList *command_list, FrameResource &frame
     curr_root_signature_ = nullptr;
     curr_pipeline_state_ = nullptr;
 
-    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_, 0, nullptr);
+    command_list->ClearRenderTargetView(frame_resource.back_buffer_handle.cpu, clear_color_.data(), 0, nullptr);
     command_list->ClearDepthStencilView(frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
     command_list->OMSetRenderTargets(1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu);
 

@@ -19,33 +19,10 @@
 
 namespace reveal3d::core {
 
-class ScriptBase {
-public:
-    virtual void begin() = 0;
-    virtual void update(f32 dt) = 0;
-    virtual void destroyed() = 0;
-};
 
 class Script {
 public:
     using InitInfo = std::unique_ptr<ScriptBase>;
-
-    struct Flag {
-        u8 begin   : 1; // begin function active
-        u8 update  : 1; // update function active
-        u8 destroy : 1; // destroy function active
-    };
-
-    struct Pool {
-        u32 count() { return scripts.size(); }
-        utl::vector<Flag> flags;
-        utl::vector<std::unique_ptr<ScriptBase>> scripts;
-    };
-
-    struct Data {
-       Flag flags;
-       std::unique_ptr<ScriptBase> scripts;
-    };
 
     Script() = default;
     explicit Script(id_t id);

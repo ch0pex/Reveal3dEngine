@@ -14,7 +14,11 @@
 
 #include "common/common.hpp"
 #include "math/math.hpp"
-#include "concepts.hpp"
+#include "core/concepts.hpp"
+#include "core/pooling/transform_pool.hpp"
+#include "core/pooling/geometry_pool.hpp"
+#include "core/pooling/metadata_pool.hpp"
+#include "core/pooling/script_pool.hpp"
 
 #include <vector>
 #include <queue>
@@ -24,11 +28,11 @@ namespace reveal3d::core {
 
 namespace detail {
 
-template<bool InGPU>
+template<typename InGPU>
 struct GpuSynchronize {};
 
 template<>
-class GpuSynchronize<true> {
+class GpuSynchronize<std::true_type> {
 public:
     id_t popNew() {
         if (new_components_.empty()) {
@@ -51,18 +55,18 @@ public:
     utl::vector<u8>& dirties() { return dirties_; }
 
 protected:
-    std::queue<id_t>    new_components_;
-    std::queue<id_t>    deleted_components_;
-    std::set<id_t>      dirty_ids_;
-    utl::vector<u8>     dirties_;
+    std::queue<id_t> new_components_;
+    std::queue<id_t> deleted_components_;
+    std::set<id_t>   dirty_ids_;
+    utl::vector<u8>  dirties_;
 };
 
 }
 
-template<component T>
-class Pool : public detail::GpuSynchronize<stored_in_gpu<T>> {
+template<pool T>
+class Pool : public detail::GpuSynchronize<typename T::stored_in_gpu> {
 public:
-    T addComponent() {
+    id_t addComponent() {
         components_ids_.emplace_back();
         if constexpr (stored_in_gpu<T>) {
             this->dirties_.emplace_back(4);
@@ -70,9 +74,9 @@ public:
         return components_ids_.at(components_ids_.size() - 1);
     }
 
-    T addComponent(id_t entity_id) { addComponent(entity_id, {}); }
+    id_t addComponent(id_t entity_id) { return addComponent(entity_id, {}); }
 
-    T addComponent(id_t entity_id, T::InitInfo&& init_info) {
+    id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
         id_t component_id{id_factory_.New(id::index(entity_id))};
 
         data_.add(entity_id, init_info);
@@ -81,15 +85,14 @@ public:
             this->dirtyIds().insert(component_id);
         }
 
-        addId(component_id);
-
+        addId(id::index(entity_id), component_id);
         assert(id::index(component_id) < data_.count());
 
         return components_ids_.at(id::index(entity_id));
-
     }
+
     void removeComponent(id_t entity_id) {
-        id_t component_id {components_ids_.at(id::index(entity_id)).id() };
+        id_t component_id {components_ids_.at(id::index(entity_id)) };
         if (id_factory_.isAlive(component_id)) {
             data_.remove(component_id); // Removes data
             removeId(component_id); // Removes id
@@ -100,7 +103,7 @@ public:
         if constexpr (stored_in_gpu<T>) {
             for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
                 T component { *it };
-                if constexpr (is_updatable<T>) {
+                if constexpr (updatable<T>) {
                     component.update();
                 }
                 if (this->dirties_.at(id::index(*it)) == 0) {
@@ -109,7 +112,7 @@ public:
                     ++it;
                 }
             }
-        } else if constexpr (is_updatable<T>){
+        } else if constexpr (updatable<T>){
             //  TODO update scripts
             //  TODO update rigid-bodies
         }
@@ -125,24 +128,24 @@ public:
 
     u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
 
-    T::Pool& data() { return data_; }
+    T& data() { return data_; }
 
 private:
     void addId(id_t index, id_t id) {
         if (index >= components_ids_.size()) {
             components_ids_.emplace_back(id);
         } else {
-            components_ids_.at(index) = T(id);
+            components_ids_.at(index) = id;
         }
     }
 
     void removeId(id_t id) {
-        auto last = components_ids_.at(id_factory_.back()).id();
+        id_t last = components_ids_.at(id_factory_.back());
         u32 idx {id_factory_.mapped(id) };
         if (last != id) {
-            components_ids_.at(id::index(getMappedId(last))) = T(id::index(id) | id::generation(last));
+            components_ids_.at(id::index(getMappedId(last))) = (id::index(id) | id::generation(last));
         }
-        components_ids_.at(idx) = {};
+        components_ids_.at(idx) = id::invalid;
         id_factory_.remove(id);
         if constexpr (stored_in_gpu<T>) {
             if (last != id) {
@@ -154,10 +157,10 @@ private:
 
     /************* Components IDs ****************/
     id::Factory id_factory_;
-    std::vector<T> components_ids_;
+    std::vector<id_t> components_ids_;
 
-    /************* Component data pool ****************/
-    T::Pool data_;
+    /************* Transform data pool ****************/
+    T data_;
 };
 
 }

@@ -48,7 +48,7 @@ constexpr u8  maxGeneration     { (std::numeric_limits<u8>::max)() };
 
 using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 
-constexpr bool isValid(id_t id) {
+constexpr bool is_valid(id_t id) {
     return id != invalid;
 }
 
@@ -60,7 +60,7 @@ constexpr id_t generation(id_t id) {
     return (id >> indexBits) & generationMask;
 }
 
-constexpr id_t newGeneration(id_t idx) {
+constexpr id_t new_generation(id_t idx) {
     const id_t gen {generation(idx) + 1};
     return index(idx) | (gen << indexBits);
 }
@@ -68,13 +68,13 @@ constexpr id_t newGeneration(id_t idx) {
 
 class Factory {
 public:
-    bool useFree() {
-        return (free_indices_.size() > id::maxFree);
-    }
+    bool useFree() { return (free_indices_.size() > id::maxFree); }
 
-    u32 freeCount() const{
-        return free_indices_.size();
-    }
+    [[nodiscard]] u32 freeCount() const{ return free_indices_.size(); }
+
+    id_t back() { return owner_idx_.back(); }
+
+    id_t mapped(id_t id) { return mapped_idx_.at(id::index(id)); }
 
     bool isAlive(id_t id) {
         id_t idx {id::index(id)};
@@ -122,13 +122,6 @@ public:
         }
     }
 
-    id_t back() {
-       return owner_idx_.back();
-    }
-
-    id_t mapped(id_t id) {
-       return mapped_idx_.at(id::index(id));
-    }
 
 private:
     std::vector<id_t>   generations_;

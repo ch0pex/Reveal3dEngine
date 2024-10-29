@@ -13,6 +13,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "config/config.hpp"
 #include "core/components/geometry.hpp"
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
@@ -39,7 +40,7 @@ private:
     void buildRoots(ID3D12Device *device);
     void drawWorldGrid(ID3D12GraphicsCommandList *command_list, FrameResource &frame_resource);
 
-    static const f32 clear_color_[];
+    inline static const std::array<f32, 4> clear_color_ { config::clearColor.x, config::clearColor.y, config::clearColor.z, config::clearColor.w };
 
     /**************** render elements *****************/
     reveal3d::utl::vector<RenderElement> render_elements_;

@@ -32,8 +32,7 @@
 
 #pragma once
 
-#include "common/common.hpp"
-#include "components.hpp"
+#include "core/pooling/pool.hpp"
 
 #include <deque>
 #include <set>
@@ -50,7 +49,7 @@ public:
 
     template<is_component T> T component() const;
 
-    template<is_component T> T addComponent(T::InitInfo&& init_info);
+    template<is_component T> T addComponent(T::init_info && init_info);
 
     template<is_component T> void removeComponent();
 
@@ -80,7 +79,7 @@ public:
     ~Scene() = default;
 
     Entity newEntity() {
-        const id_t id = id::maxFree < free_nodes_.size() ? id::newGeneration(free_nodes_.front()) : scene_graph_.size();
+        const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
         Entity entity(id);
 
         Node node { .entity = entity };
@@ -89,7 +88,7 @@ public:
             root_node_ = id::index(entity.id());
         }
 
-        if (id::isValid(last_node_)) {
+        if (id::is_valid(last_node_)) {
             node.prev = scene_graph_.at(last_node_).entity;
             scene_graph_.at(last_node_).next = node.entity;
         }
@@ -103,7 +102,7 @@ public:
     Entity newChildEntity(Entity parent) {
         assert(parent.isAlive());
 
-        const id_t id = id::maxFree < free_nodes_.size() ? id::newGeneration(free_nodes_.front()) : scene_graph_.size();
+        const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
         Entity child(id);
 
         Node child_node{
@@ -162,19 +161,20 @@ public:
     Node &root() { return scene_graph_.at(root_node_); }
 
     template<component T>
-    Pool<T>& componentPool() noexcept {
-        if constexpr (std::is_same<T, Transform>()) {
+    Pool<typename T::pool_type>& componentPool() noexcept {
+        if constexpr (std::same_as<T, Transform>) {
             return (transform_pool_);
         }
-        else if constexpr (std::is_same<T, Script>()) {
+        else if constexpr (std::same_as<T, Script>) {
             return (script_pool_);
         }
-        else if constexpr (std::is_same<T, Metadata>()) {
+        else if constexpr (std::same_as<T, Metadata>) {
             return (metadata_pool_);
         } else {
             return (geometry_pool_);
         }
     }
+
 
     void init() {
         // transformPool_.init();
@@ -189,7 +189,7 @@ public:
     void update(f32 dt) {
         transform_pool_.update();
         geometry_pool_.update();
-        script_pool_.update();
+//        script_pool_.update();
         metadata_pool_.update();
         assert(transform_pool_.count() == count());
         assert(metadata_pool_.count() == count());
@@ -198,7 +198,7 @@ public:
 private:
 
     void removeNode(id_t id) {
-        if (!id::isValid(id)) return;
+        if (!id::is_valid(id)) return;
         Node& node = getNode(id);
         free_nodes_.push_back(node.entity.id());
         transform_pool_.removeComponent(id);
@@ -253,15 +253,15 @@ private:
 
     /*********** Components Pools  *************/
 
-    Pool<Transform> transform_pool_;
-    Pool<Geometry> geometry_pool_;
-    Pool<Script> script_pool_;
-    Pool<Metadata> metadata_pool_;
+    Pool<transform::Pool> transform_pool_;
+    Pool<geometry::Pool> geometry_pool_;
+//    Pool<Script::Pool> script_pool_;
+    Pool<metadata::Pool> metadata_pool_;
     //    Pool<core::Light>                 light_pool_;
 };
 
 
-extern Scene scene;
+inline Scene scene;
 
 template<is_component T>
 inline T Entity::component() const {
@@ -272,7 +272,7 @@ inline T Entity::component() const {
 }
 
 template<is_component T>
-inline T Entity::addComponent(T::InitInfo &&init_info) {
+inline T Entity::addComponent(T::init_info &&init_info) {
     if (not isAlive()) {
         return T();
     }

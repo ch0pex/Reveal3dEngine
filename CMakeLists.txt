@@ -56,6 +56,7 @@ set(HEADERS
         common/string_literals.hpp
         common/string_literals.hpp
         core/components/concepts.hpp
+        core/pooling/transform_pool.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 

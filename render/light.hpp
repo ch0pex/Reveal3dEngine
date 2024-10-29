@@ -31,7 +31,7 @@ public:
 
     explicit Light(id_t id);
     constexpr Light() = default;
-    [[nodiscard]] constexpr bool IsValid() const { return id::isValid(id_); }
+    [[nodiscard]] constexpr bool IsValid() const { return id::is_valid(id_); }
 
     void isEnabled(bool is_enabled) const;
     void itensity(f32 intensity) const;

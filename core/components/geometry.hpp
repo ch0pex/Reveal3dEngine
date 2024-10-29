@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "pool.hpp"
+#include "core/scene.hpp"
 #include "render/mesh.hpp"
 
 #include <queue>
@@ -23,11 +23,10 @@
 
 namespace reveal3d::core {
 
-
 class Geometry {
 public:
     enum Primitive : u8 {
-        Cube = 0u,
+        Cube = 0U,
         Plane,
         Cylinder,
         Sphere,
@@ -39,40 +38,6 @@ public:
     };
 
     /************* Geometry data ****************/
-    using InitInfo = render::Mesh;
-
-    class Pool {
-    public:
-        render::Material&material(id_t id) { return materials_.at(id::index(id)); }
-
-        render::Mesh& mesh(id_t id) { return meshes_.at(id::index(id)); }
-
-        std::span<render::SubMesh> subMeshes(id_t id) { return std::span {sub_meshes_.begin() + id::index(id), sub_meshes_.begin() + id::index(id) + 1}; }
-
-        u32 count() { return meshes_.size(); }
-
-        void add(id_t entity_id, InitInfo &init_info) {
-            materials_.emplace_back();
-            sub_meshes_.emplace_back(render::SubMesh {
-                    .shader = render::Opaque,
-                    .vertex_pos = 0,
-                    .index_pos = 0,
-                    .index_count = static_cast<u32>(init_info.indices.size()),
-                    .visible = true,
-            });
-            meshes_.push_back(std::move(init_info));
-        }
-
-        void remove(u32 id) {
-            materials_.unordered_remove(id::index(id));
-            meshes_.unordered_remove(id::index(id));
-            sub_meshes_.unordered_remove(id::index(id));
-        }
-    private:
-        utl::vector<render::Material> materials_;
-        utl::vector<render::SubMesh> sub_meshes_;
-        utl::vector<render::Mesh> meshes_;
-    };
 
     struct Data {
         Data(render::Material& mat, render::SubMesh& submesh,  render::Mesh& meshinfo)
@@ -82,93 +47,93 @@ public:
         render::Mesh& mesh;
     };
 
+    using pool_type = Pool<geometry::Pool>;
 
-    Geometry();
-    Geometry(Geometry& other);
-    Geometry(Geometry&& other) noexcept;
-    explicit Geometry(id_t id);
+    Geometry() : id_{id::invalid} {}
 
-    Geometry& operator=(const Geometry& other);
-    Geometry& operator=(Geometry&& other) noexcept ;
+    Geometry(id_t id) : id_{id} {}
 
-    [[nodiscard]] u32 vertexCount() const;
-    [[nodiscard]] u32 indexCount() const;
+    Geometry(Geometry &other) : id_{other.id()} {}
 
-    // NOTE: This will need to be changed when mesh instancing is implemented
-    // For now there is no mesh instancing and only one submesh each mesh and geometry
-    void addMesh(render::Mesh &mesh);
-    template<Primitive primitive> void addMesh();
+    Geometry(Geometry &&other) noexcept : id_{other.id()} {}
 
-    [[nodiscard]] std::span<render::SubMesh> subMeshes() const;
-    [[nodiscard]] std::vector<render::Vertex> &vertices() const;
-    [[nodiscard]] std::vector<u32> &indices() const;
+    [[nodiscard]] bool isAlive() const { return id_ != id::invalid; }
 
-    [[nodiscard]] bool isVisible() const;
-    render::Material &material();
+    [[nodiscard]] id_t id() const { return id_; }
 
-    void visibility(bool visibility);
-    void diffuseColor(math::vec4 color);
-    void roughness(f32 roughness);
-    void fresnel(math::vec3 fresnel);
-    void materialTransform(math::mat4 transform);
+    Geometry &operator=(const Geometry &other) {
+        id_ = other.id_;
+        return *this;
+    }
+    Geometry &operator=(Geometry &&other) noexcept {
+        id_ = other.id_;
+        return *this;
+    }
 
-    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t id() const { return id_; }
+    // Note: for now we only will have one mesh and submesh, so we move the vector instead of appending it
+    void addMesh(render::Mesh &mesh) {
+        render::SubMesh sub_mesh;
+        pool.data().mesh(id_) = std::move(mesh);
 
-    [[nodiscard]] u8 dirty() const;
-    void unDirty() const;
-    void setDirty() const;
-    Data data();
+        sub_mesh.vertex_pos = vertexCount();
+        sub_mesh.index_pos = 0;
+        sub_mesh.index_count = indexCount();
+    }
+
+
+    [[nodiscard]] u32 vertexCount() const { return pool.data().mesh(id_).vertices.size(); }
+
+    [[nodiscard]] u32 indexCount() const { return pool.data().mesh(id_).indices.size(); }
+
+    [[nodiscard]] std::span<render::SubMesh> subMeshes() const { return pool.data().subMeshes(id_); }
+
+    [[nodiscard]] std::vector<render::Vertex> &vertices() const { return pool.data().mesh(id_).vertices; }
+
+    [[nodiscard]] std::vector<u32> &indices() const { return pool.data().mesh(id_).indices; }
+
+    void visibility(bool visibility) { pool.data().subMeshes(id_)[0].visible = visibility; }
+
+    [[nodiscard]] bool isVisible() const { return pool.data().subMeshes(id_)[0].visible; }
+
+    render::Material &material() { return pool.data().material(id_); }
+
+    void diffuseColor(math::vec4 color) { pool.data().material(id_).base_color = color; setDirty(); }
+
+    void fresnel(math::vec3 fresnel) { pool.data().material(id_).fresnel = fresnel; setDirty(); }
+
+    void materialTransform(math::mat4 transform) { pool.data().material(id_).mat_transform = transform; setDirty(); }
+
+    void roughness(f32 roughness) { pool.data().material(id_).roughness = roughness; setDirty(); }
+
+    u8 dirty() const { return pool.dirties().at(id::index(id_)); }
+
+    void unDirty() const {
+        const id_t idx = id::index(id_);
+        if (pool.dirties().at(idx) != 0) {
+            --pool.dirties().at(idx);
+        }
+        else {
+            pool.dirties().at(idx) = 0;
+        }
+    }
+
+    void setDirty() const {
+        if (dirty() == 3) {
+            return;
+        }
+        if (dirty() == 0) {
+            pool.dirtyIds().insert(id_);
+        }
+        pool.dirties().at(id::index(id_)) = 3;
+    }
+
+    Data data() { return { material(), subMeshes()[0], pool.data().mesh(id_) }; }
 
 private:
+
+    static inline auto& pool = core::scene.componentPool<Geometry>();
+
     id_t id_;
 };
-
-template<>
-inline Geometry Pool<Geometry>::addComponent(id_t entity_id) {
-    const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
-
-    data_.meshes_.emplace_back();
-    data_.sub_meshes_.emplace_back();
-    data_.materials_.emplace_back();
-    dirties_.emplace_back(4);
-    dirty_ids_.insert(geometry_id);
-    new_components_.push(entity_id);
-
-    data_.add(entity_id, {})
-    addId(id::index(entity_id), geometry_id);
-    return components_ids_.at(id::index(entity_id));
-}
-
-template<>
-inline Geometry Pool<Geometry>::addComponent(id_t entity_id, Geometry::InitInfo &&init_info) {
-    const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
-
-    dirties_.emplace_back(4);
-    dirty_ids_.insert(geometry_id);
-    new_components_.push(entity_id);
-
-    data_.add(entity_id, init_info);
-    addId(id::index(entity_id), geometry_id);
-
-    return components_ids_.at(id::index(entity_id));
-}
-
-template<>
-inline void Pool<Geometry>::removeComponent(id_t id) {
-    id_t geometry_id {components_ids_.at(id::index(id)).id() };
-    if (id_factory_.isAlive(geometry_id)) {
-        components_data_.materials_.unordered_remove(id::index(geometry_id));
-        components_data_.meshes_.unordered_remove(id::index(geometry_id));
-        components_data_.sub_meshes_.unordered_remove(id::index(geometry_id));
-        dirties_.at(id::index(id)) = 0;
-        if (dirty_ids_.find(geometry_id) != dirty_ids_.end()) {
-            dirty_ids_.erase(geometry_id);
-        }
-        deleted_components_.push(geometry_id);
-        removeId(geometry_id);
-    }
-}
-
 
 }

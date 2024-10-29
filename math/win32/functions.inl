@@ -18,40 +18,40 @@ namespace reveal3d::math {
 
 //Concept for T, it must be XMVector wrapper class (scalar, xvec3, xvec4)
 template<typename T>
-concept vectorizable = requires(T t) {
+concept is_vector = requires(T t) {
     {t} -> std::convertible_to<scalar>;
     {t} -> std::convertible_to<xvec3>;
     {t} -> std::convertible_to<xvec4>;
 };
 
-template<vectorizable T> T sqrt(T s) { return XMVectorSqrt(s); }
-template<vectorizable T> T recip(T s) { return T(XMVectorReciprocal(s)); }
-template<vectorizable T> T recip_sqrt(T s) { return T(XMVectorReciprocalSqrt(s)); }
-template<vectorizable T> T floor(T s) { return T(XMVectorFloor(s)); }
-template<vectorizable T> T ceiling(T s) { return T(XMVectorCeiling(s)); }
-template<vectorizable T> T round(T s) { return T(XMVectorRound(s)); }
-template<vectorizable T> T abs(T s) { return T(XMVectorAbs(s)); }
-template<vectorizable T> T exp(T s) { return T(XMVectorExp(s)); }
-template<vectorizable T> T pow(T b, T e) { return T(XMVectorPow(b, e)); }
-template<vectorizable T> T log(T s) { return T(XMVectorLog(s)); }
-template<vectorizable T> T sin(T s) { return T(XMVectorSin(s)); }
-template<vectorizable T> T cos(T s) { return T(XMVectorCos(s)); }
-template<vectorizable T> T tan(T s) { return T(XMVectorTan(s)); }
-template<vectorizable T> T a_sin(T s) { return T(XMVectorASin(s)); }
-template<vectorizable T> T a_cos(T s) { return T(XMVectorACos(s)); }
-template<vectorizable T> T a_tan(T s) { return T(XMVectorATan(s)); }
-template<vectorizable T> T a_tan2(T y, T x) { return T(XMVectorATan2(y, x)); }
-template<vectorizable T> T lerp(T a, T b, T t) { return T(XMVectorLerpV(a, b, t)); }
-template<vectorizable T> T lerp(T a, T b, f32 t ) { return T(XMVectorLerp(a, b, t)); }
-template<vectorizable T> T max_(T a, T b) { return T(XMVectorMax(a, b)); }
-template<vectorizable T> T min_(T a, T b) { return T(XMVectorMin(a, b)); }
-template<vectorizable T> T clamp(T v, T a, T b) { return min_(max_(v, a), b); }
-template<vectorizable T> BoolVector operator<  (T lhs, T rhs) { return XMVectorLess(lhs, rhs); }
-template<vectorizable T> BoolVector operator<= (T lhs, T rhs) { return XMVectorLessOrEqual(lhs, rhs); }
-template<vectorizable T> BoolVector operator>  (T lhs, T rhs) { return XMVectorGreater(lhs, rhs); }
-template<vectorizable T> BoolVector operator>= (T lhs, T rhs) { return XMVectorGreaterOrEqual(lhs, rhs); }
-template<vectorizable T> BoolVector operator== (T lhs, T rhs) { return XMVectorEqual(lhs, rhs); }
-template<vectorizable T> T select(T lhs, T rhs, BoolVector mask) { return T(XMVectorSelect(lhs, rhs, mask)); }
+template<is_vector T> T sqrt(T s) { return XMVectorSqrt(s); }
+template<is_vector T> T recip(T s) { return T(XMVectorReciprocal(s)); }
+template<is_vector T> T recip_sqrt(T s) { return T(XMVectorReciprocalSqrt(s)); }
+template<is_vector T> T floor(T s) { return T(XMVectorFloor(s)); }
+template<is_vector T> T ceiling(T s) { return T(XMVectorCeiling(s)); }
+template<is_vector T> T round(T s) { return T(XMVectorRound(s)); }
+template<is_vector T> T abs(T s) { return T(XMVectorAbs(s)); }
+template<is_vector T> T exp(T s) { return T(XMVectorExp(s)); }
+template<is_vector T> T pow(T b, T e) { return T(XMVectorPow(b, e)); }
+template<is_vector T> T log(T s) { return T(XMVectorLog(s)); }
+template<is_vector T> T sin(T s) { return T(XMVectorSin(s)); }
+template<is_vector T> T cos(T s) { return T(XMVectorCos(s)); }
+template<is_vector T> T tan(T s) { return T(XMVectorTan(s)); }
+template<is_vector T> T a_sin(T s) { return T(XMVectorASin(s)); }
+template<is_vector T> T a_cos(T s) { return T(XMVectorACos(s)); }
+template<is_vector T> T a_tan(T s) { return T(XMVectorATan(s)); }
+template<is_vector T> T a_tan2(T y, T x) { return T(XMVectorATan2(y, x)); }
+template<is_vector T> T lerp(T a, T b, T t) { return T(XMVectorLerpV(a, b, t)); }
+template<is_vector T> T lerp(T a, T b, f32 t ) { return T(XMVectorLerp(a, b, t)); }
+template<is_vector T> T max_(T a, T b) { return T(XMVectorMax(a, b)); }
+template<is_vector T> T min_(T a, T b) { return T(XMVectorMin(a, b)); }
+template<is_vector T> T clamp(T v, T a, T b) { return min_(max_(v, a), b); }
+template<is_vector T> BoolVector operator<  (T lhs, T rhs) { return XMVectorLess(lhs, rhs); }
+template<is_vector T> BoolVector operator<= (T lhs, T rhs) { return XMVectorLessOrEqual(lhs, rhs); }
+template<is_vector T> BoolVector operator>  (T lhs, T rhs) { return XMVectorGreater(lhs, rhs); }
+template<is_vector T> BoolVector operator>= (T lhs, T rhs) { return XMVectorGreaterOrEqual(lhs, rhs); }
+template<is_vector T> BoolVector operator== (T lhs, T rhs) { return XMVectorEqual(lhs, rhs); }
+template<is_vector T> T select(T lhs, T rhs, BoolVector mask) { return T(XMVectorSelect(lhs, rhs, mask)); }
 
 inline f32 sqrt(f32 s) { return sqrt(scalar(s)); }
 inline f32 recip(f32 s) { return recip(scalar(s)); }
