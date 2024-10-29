@@ -22,13 +22,13 @@ namespace reveal3d::core {
 
 class Transform {
 public:
-//    struct Data {
-//        Data(math::mat4& world, math::mat4& inv_world, Info& info)
-//                : world(world), inv_world(inv_world), info(info) {}
-//        math::mat4& world;
-//        math::mat4& inv_world;
-//        Info& info;
-//    };
+    struct Data {
+        Data(math::mat4& world, math::mat4& inv_world, transform::Info& info)
+                : world(world), inv_world(inv_world), info(info) {}
+        math::mat4& world;
+        math::mat4& inv_world;
+        transform::Info& info;
+    };
 
     using pool_type = transform::Pool;
 
@@ -174,11 +174,25 @@ private:
         }
     }
 
-    static inline Pool<pool_type>& pool = core::scene.componentPool<Transform>();
+    inline static auto& pool = core::scene.componentPool<Transform>();
 
     id_t id_ { id::invalid };
 };
 
+template<>
+inline void Pool<Transform::pool_type>::update() {
+    for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+        Transform component { *it };
+        if constexpr (updatable<Transform>) {
+            component.update();
+        }
+        if (this->dirties_.at(id::index(*it)) == 0) {
+            it = this->dirty_ids_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
 
 } // reveal3d::core namespace
 

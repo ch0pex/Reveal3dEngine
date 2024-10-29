@@ -99,24 +99,27 @@ public:
         }
     }
 
-    void update() {
-        if constexpr (stored_in_gpu<T>) {
-            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-                T component { *it };
-                if constexpr (updatable<T>) {
-                    component.update();
-                }
-                if (this->dirties_.at(id::index(*it)) == 0) {
-                    it = this->dirty_ids_.erase(it);
-                } else {
-                    ++it;
-                }
-            }
-        } else if constexpr (updatable<T>){
-            //  TODO update scripts
-            //  TODO update rigid-bodies
-        }
-    }
+//    void update() {
+//        if constexpr (stored_in_gpu<T>) {
+//            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+//                T component { *it };
+//                if constexpr (updatable<T>) {
+//                    component.update();
+//                }
+//                if (this->dirties_.at(id::index(*it)) == 0) {
+//                    it = this->dirty_ids_.erase(it);
+//                } else {
+//                    ++it;
+//                }
+//            }
+//        } else if constexpr (updatable<T>){
+//              TODO update scripts
+//              TODO update rigid-bodies
+//        }
+//    }
+
+    void update();
+
 
     u32 count() { return data_.count(); }
 

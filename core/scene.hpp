@@ -161,20 +161,19 @@ public:
     Node &root() { return scene_graph_.at(root_node_); }
 
     template<component T>
-    Pool<typename T::pool_type>& componentPool() noexcept {
-        if constexpr (std::same_as<T, Transform>) {
+    decltype(auto) componentPool() noexcept {
+        if constexpr (std::same_as<typename T::pool_type, transform::Pool>) {
             return (transform_pool_);
         }
-        else if constexpr (std::same_as<T, Script>) {
+        else if constexpr (std::same_as<typename T::pool_type, script::Pool>) {
             return (script_pool_);
         }
-        else if constexpr (std::same_as<T, Metadata>) {
+        else if constexpr (std::same_as<typename T::pool_type, metadata::Pool>) {
             return (metadata_pool_);
         } else {
             return (geometry_pool_);
         }
     }
-
 
     void init() {
         // transformPool_.init();
@@ -196,7 +195,6 @@ public:
     }
 
 private:
-
     void removeNode(id_t id) {
         if (!id::is_valid(id)) return;
         Node& node = getNode(id);
@@ -255,7 +253,7 @@ private:
 
     Pool<transform::Pool> transform_pool_;
     Pool<geometry::Pool> geometry_pool_;
-//    Pool<Script::Pool> script_pool_;
+    Pool<script::Pool> script_pool_;
     Pool<metadata::Pool> metadata_pool_;
     //    Pool<core::Light>                 light_pool_;
 };

@@ -29,7 +29,6 @@ class Pool {
 public:
     using init_info = Info;
     using stored_in_gpu = std::true_type;
-//    using value_type = Transform;
 
     Info& posRotScale(id_t id) { return pos_rot_scale_.at(id::index(id)); }
 
@@ -57,5 +56,7 @@ private:
     utl::vector<math::mat4> inv_world_;
     utl::vector<Info> pos_rot_scale_;
 };
+
+
 
 }

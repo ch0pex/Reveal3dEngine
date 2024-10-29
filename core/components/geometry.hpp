@@ -47,7 +47,7 @@ public:
         render::Mesh& mesh;
     };
 
-    using pool_type = Pool<geometry::Pool>;
+    using pool_type = geometry::Pool;
 
     Geometry() : id_{id::invalid} {}
 
@@ -131,9 +131,24 @@ public:
 
 private:
 
-    static inline auto& pool = core::scene.componentPool<Geometry>();
+    inline static auto& pool = core::scene.componentPool<Geometry>();
 
     id_t id_;
 };
+
+template<>
+inline void Pool<Geometry::pool_type>::update() {
+    for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+        Geometry component { *it };
+        if constexpr (updatable<Transform>) {
+            component.update();
+        }
+        if (this->dirties_.at(id::index(*it)) == 0) {
+            it = this->dirty_ids_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
 
 }

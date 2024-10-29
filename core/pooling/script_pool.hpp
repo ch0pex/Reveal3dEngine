@@ -36,9 +36,25 @@ struct Data {
     std::unique_ptr<ScriptBase> scripts;
 };
 
-
 class Pool {
+public:
+    using init_info = std::string;
+    using stored_in_gpu = std::false_type;
+
+    void add(id_t entity_id, init_info &init_info) {
+//        names_.emplace_back("Entity_" + std::to_string(entity_id));
+//        comments_.emplace_back();
+//        dates_.emplace_back("10/12/2024");  //TODO
+//        comments_.at(comments_.size() - 1U).reserve(1024);
+    }
+
+    void remove(u32 id) {
+//        names_.unordered_remove(id::index(id));
+//        comments_.unordered_remove(id::index(id));
+//        dates_.unordered_remove(id::index(id));
+    }
     u32 count() { return scripts.size(); }
+private:
     utl::vector<Flag> flags;
     utl::vector<std::unique_ptr<ScriptBase>> scripts;
 };

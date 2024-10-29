@@ -13,54 +13,43 @@
 
 #pragma once
 
-#include "pool.hpp"
-#include "common/vector.hpp"
-
+#include "core/scene.hpp"
 
 namespace reveal3d::core {
 
 
 class Script {
 public:
-    using InitInfo = std::unique_ptr<ScriptBase>;
+    using init_info = std::unique_ptr<script::ScriptBase>;
+    using pool_type = Pool<script::Pool>;
 
-    Script() = default;
-    explicit Script(id_t id);
-    Script(id_t id, InitInfo script);
+    Script(id_t id) : id_(id) { }
+
+    Script(id_t id, init_info script) { }
 
     [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
     [[nodiscard]] inline id_t id() const { return id_; }
 
-    void begin();
-    void update();
-    Data data();
-    void destroyed();
+    void begin() { pool.data().scripts.at(id::index(id_))->begin(); }
 
-    void enableUpdate();
-    void disableUpdate();
+
+    void disableUpdate() { }
+
+    void enableUpdate() { }
+
+    void destroyed() { }
+
+    void update() { pool.data().scripts.at(id::index(id_))->update(0.3f); }
+
     void enableBegin();
     void disableBegin();
     void enableDestroyed();
     void disableDestroyed();
 
 private:
+    inline static auto& pool = core::scene.componentPool<Script>();
     id_t id_ { id::invalid };
 };
-
-template<>
-inline Script Pool<Script>::addComponent(id_t id) {
-    return Script();
-}
-
-template<>
-inline Script Pool<Script>::addComponent(id_t id, Script::InitInfo &&init_info) {
-    return Script();
-}
-
-template<>
-inline void Pool<Script>::removeComponent(id_t id) {
-
-}
 
 }
 

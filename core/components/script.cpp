@@ -18,32 +18,6 @@ namespace reveal3d::core {
 
 Pool<Script>& pool = core::scene.componentPool<Script>();
 
-Script::Script(id_t id) : id_(id) { }
-
-Script::Script(id_t id, InitInfo script) {
-
-}
-
-void Script::begin() {
-    pool.data().scripts.at(id::index(id_))->begin();
-}
-
-
-void Script::disableUpdate() {
-
-}
-
-void Script::enableUpdate() {
-
-}
-
-void Script::destroyed() {
-
-}
-
-void Script::update() {
-    pool.data().scripts.at(id::index(id_))->update(0.3f);
-}
 
 
 
