@@ -34,7 +34,7 @@ public:
         void InitAsBufferUAV( u32 reg, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL, u32 Space = 0 );
         void InitAsDescriptorRange( D3D12_DESCRIPTOR_RANGE_TYPE type, u32 reg, u32 count, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL, u32 spcae = 0 );
         void InitAsDescriptorTable( u32 RangeCount, D3D12_SHADER_VISIBILITY visibility = D3D12_SHADER_VISIBILITY_ALL );
-        void SetTableRange( u32 rangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE type, u32 reg, u32 count, u32 space = 0 );
+        void SetTableRange( u32 rangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE type, u32 reg, u32 countData, u32 space = 0 );
 
         const D3D12_ROOT_PARAMETER& operator() ( void ) const { return parameter_; }
 

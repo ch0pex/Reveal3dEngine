@@ -6,30 +6,30 @@
  * @file pool.hpp
  * @version 1.0
  * @date 26/03/2024
- * @brief Pool virtual class
+ * @brief GenericPool virtual class
  *
  */
 
 #pragma once
 
 #include "common/common.hpp"
-#include "math/math.hpp"
 #include "core/concepts.hpp"
-#include "core/pooling/transform_pool.hpp"
 #include "core/pooling/geometry_pool.hpp"
 #include "core/pooling/metadata_pool.hpp"
 #include "core/pooling/script_pool.hpp"
+#include "core/pooling/transform_pool.hpp"
+#include "math/math.hpp"
 
-#include <vector>
 #include <queue>
 #include <set>
+#include <vector>
 
 namespace reveal3d::core {
 
 namespace detail {
 
 template<typename InGPU>
-struct GpuSynchronize {};
+class GpuSynchronize {};
 
 template<>
 class GpuSynchronize<std::true_type> {
@@ -57,14 +57,14 @@ public:
 protected:
     std::queue<id_t> new_components_;
     std::queue<id_t> deleted_components_;
-    std::set<id_t>   dirty_ids_;
-    utl::vector<u8>  dirties_;
+    std::set<id_t> dirty_ids_;
+    utl::vector<u8> dirties_;
 };
 
-}
+} // namespace detail
 
-template<pool T>
-class Pool : public detail::GpuSynchronize<typename T::stored_in_gpu> {
+template<typename T>
+class GenericPool : public T, public detail::GpuSynchronize<typename T::stored_in_gpu> {
 public:
     id_t addComponent() {
         components_ids_.emplace_back();
@@ -79,72 +79,77 @@ public:
     id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
         id_t component_id{id_factory_.New(id::index(entity_id))};
 
-        data_.add(entity_id, init_info);
-        if constexpr(stored_in_gpu<T>) {
+        this->addData(entity_id, init_info);
+        if constexpr (stored_in_gpu<T>) {
             this->dirties().emplace_back(4);
             this->dirtyIds().insert(component_id);
+            if constexpr (std::same_as<T, geometry::Pool>) { // TODO change this for a concept
+                this->new_components_.push(component_id);
+            }
         }
 
         addId(id::index(entity_id), component_id);
-        assert(id::index(component_id) < data_.count());
+        assert(id::index(component_id) < this->countData());
 
         return components_ids_.at(id::index(entity_id));
     }
 
     void removeComponent(id_t entity_id) {
-        id_t component_id {components_ids_.at(id::index(entity_id)) };
+        id_t component_id{components_ids_.at(id::index(entity_id))};
         if (id_factory_.isAlive(component_id)) {
-            data_.remove(component_id); // Removes data
+            this->removeData(component_id); // Removes data
+            if constexpr (std::same_as<T, geometry::Pool>) { // TODO change this for a concept
+                this->deleted_components_.push(component_id);
+            }
             removeId(component_id); // Removes id
         }
     }
 
-//    void update() {
-//        if constexpr (stored_in_gpu<T>) {
-//            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-//                T component { *it };
-//                if constexpr (updatable<T>) {
-//                    component.update();
-//                }
-//                if (this->dirties_.at(id::index(*it)) == 0) {
-//                    it = this->dirty_ids_.erase(it);
-//                } else {
-//                    ++it;
-//                }
-//            }
-//        } else if constexpr (updatable<T>){
-//              TODO update scripts
-//              TODO update rigid-bodies
-//        }
-//    }
+    //    void update() {
+    //        if constexpr (stored_in_gpu<T>) {
+    //            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+    //                T component { *it };
+    //                if constexpr (updatable<T>) {
+    //                    component.update();
+    //                }
+    //                if (this->dirties_.at(id::index(*it)) == 0) {
+    //                    it = this->dirty_ids_.erase(it);
+    //                } else {
+    //                    ++it;
+    //                }
+    //            }
+    //        } else if constexpr (updatable<T>){
+    //              TODO update scripts
+    //              TODO update rigid-bodies
+    //        }
+    //    }
 
     void update();
 
 
-    u32 count() { return data_.count(); }
+    u32 count() { return this->countData(); }
 
-    T at(id_t id) { return components_ids_.at(id::index(id)); }
+    id_t at(id_t id) { return components_ids_.at(id::index(id)); }
 
     std::vector<T>::iterator begin() { return components_ids_.begin(); };
 
-    std::vector<T>::iterator end() { return components_ids_.end();   };
+    std::vector<T>::iterator end() { return components_ids_.end(); };
 
     u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
-
-    T& data() { return data_; }
 
 private:
     void addId(id_t index, id_t id) {
         if (index >= components_ids_.size()) {
             components_ids_.emplace_back(id);
-        } else {
+        }
+        else {
             components_ids_.at(index) = id;
         }
     }
 
     void removeId(id_t id) {
         id_t last = components_ids_.at(id_factory_.back());
-        u32 idx {id_factory_.mapped(id) };
+        u32 idx{id_factory_.mapped(id)};
         if (last != id) {
             components_ids_.at(id::index(getMappedId(last))) = (id::index(id) | id::generation(last));
         }
@@ -161,9 +166,6 @@ private:
     /************* Components IDs ****************/
     id::Factory id_factory_;
     std::vector<id_t> components_ids_;
-
-    /************* Transform data pool ****************/
-    T data_;
 };
 
-}
+} // namespace reveal3d::core

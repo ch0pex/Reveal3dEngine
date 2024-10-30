@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "common/common.hpp"
+#include "core/scene.hpp"
 
 #include <string>
 
@@ -21,7 +21,8 @@ namespace reveal3d::core {
 
 class Metadata {
 public:
-    using InitInfo = std::string;
+    using init_info = std::string;
+    using pool_type = metadata::Pool;
 
     struct Data {
         Data(std::string& name,std::string& comm, std::string& date) : name(name.data()), comment(comm.data()), date(date.data()) {}
@@ -30,23 +31,24 @@ public:
         char * date;
     };
 
-    Metadata() : id_(id::invalid) {}
+    constexpr Metadata() : id_(id::invalid) {}
 
-    explicit Metadata(id_t id);
+    constexpr Metadata(id_t id) : id_(id) { }
 
-    std::string& name();
+    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
-    std::string& comment();
+    [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    std::string& date();
+    std::string& name() { return scene.componentPool<Metadata>().name(id_); }
 
-    [[nodiscard]] bool isAlive() const { return id_ != id::invalid; }
+    std::string& date() { return scene.componentPool<Metadata>().date(id_); }
 
-    [[nodiscard]] id_t id() const { return id_; }
+    std::string& comment() { return scene.componentPool<Metadata>().comment(id_); }
 
-    Data data();
+    Data data() { return {name(), comment(), date()}; }
 
 private:
+
     id_t id_;
 };
 

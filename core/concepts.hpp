@@ -25,7 +25,6 @@ concept is_component = requires(T component) {
     { component.isAlive() } -> std::same_as<bool>;
     { component.id() } -> std::same_as<id_t>;
     component.data();
-    typename T::Data;
 };
 
 template<typename T>
@@ -41,9 +40,9 @@ concept component = is_component<T>;
 
 template<typename T>
 concept pool = requires(T pool) {
-    { pool.count() } -> std::same_as<u32>;
-    { pool.add(std::declval<id_t>(), std::declval<typename T::init_info&>()) } -> std::same_as<void>;
-    { pool.remove(std::declval<id_t>()) } -> std::same_as<void>;
+    { pool.countData() } -> std::same_as<u32>;
+    { pool.addData(std::declval<id_t>(), std::declval<typename T::init_info &>()) } -> std::same_as<void>;
+    { pool.removeData(std::declval<id_t>()) } -> std::same_as<void>;
 };
 
 

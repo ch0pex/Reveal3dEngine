@@ -36,16 +36,17 @@ public:
 
     math::mat4& invWorld(id_t id) { return inv_world_.at(id::index(id)); }
 
-    u32 count() { return pos_rot_scale_.size(); }
+protected:
+    u32 countData() { return pos_rot_scale_.size(); }
 
-    void add(id_t entity_id, init_info &init_info) {
+    void addData(id_t entity_id, init_info &init_info) {
         pos_rot_scale_.push_back(std::move(init_info));
-        Info& data = pos_rot_scale_.at(count() - 1);
+        Info& data = pos_rot_scale_.at(countData() - 1);
         world_mat_.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
-        inv_world_.emplace_back(math::inverse(world_mat_.at(count() - 1)));
+        inv_world_.emplace_back(math::inverse(world_mat_.at(countData() - 1)));
     }
 
-    void remove(id_t id) {
+    void removeData(id_t id) {
         pos_rot_scale_.unordered_remove(id::index(id));
         world_mat_.unordered_remove(id::index(id));
         inv_world_.unordered_remove(id::index(id));

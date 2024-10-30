@@ -21,16 +21,16 @@ namespace reveal3d::core {
 class Script {
 public:
     using init_info = std::unique_ptr<script::ScriptBase>;
-    using pool_type = Pool<script::Pool>;
+    using pool_type = script::Pool;
 
-    Script(id_t id) : id_(id) { }
+    constexpr Script(id_t id) : id_(id) { }
 
-    Script(id_t id, init_info script) { }
+    constexpr Script(id_t id, init_info script) { }
 
-    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t id() const { return id_; }
+    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
+    [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    void begin() { pool.data().scripts.at(id::index(id_))->begin(); }
+    void begin() { pool.scripts(id_)->begin(); }
 
 
     void disableUpdate() { }
@@ -39,7 +39,9 @@ public:
 
     void destroyed() { }
 
-    void update() { pool.data().scripts.at(id::index(id_))->update(0.3f); }
+    void update() { pool.scripts(id_)->update(0.3f); }
+
+    void data();
 
     void enableBegin();
     void disableBegin();
@@ -47,7 +49,8 @@ public:
     void disableDestroyed();
 
 private:
-    inline static auto& pool = core::scene.componentPool<Script>();
+    inline static GenericPool<pool_type>& pool = core::scene.componentPool<Script>();
+
     id_t id_ { id::invalid };
 };
 

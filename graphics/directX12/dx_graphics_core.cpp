@@ -18,7 +18,8 @@
 #endif
 
 #include "config/config.hpp"
-#include "core/components.hpp"
+#include "core/components/transform.hpp"
+#include "core/components/geometry.hpp"
 #include "dx_graphics_core.hpp"
 namespace reveal3d::graphics {
 
@@ -133,9 +134,9 @@ void Dx12::loadAssets() {
     cmd_manager_.reset(nullptr);
     using namespace core;
 
-    Pool<Transform> &transforms = core::scene.componentPool<core::Transform>();
+    auto& transforms = core::scene.componentPool<core::Transform>();
     // auto& geometries = core::scene.componentPool<Geometry>();
-    Pool<Geometry> &geometries = core::scene.componentPool<core::Geometry>();
+    auto& geometries = core::scene.componentPool<core::Geometry>();
 
     auto entity = core::Entity(geometries.popNew());
     auto geometry = entity.component<core::Geometry>();
@@ -174,7 +175,7 @@ void Dx12::update(render::Camera &camera) {
     auto &curr_frame_res = frame_resources_.at(Commands::frameIndex());
     std::set<id_t> &dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
     std::set<id_t> &dirty_mats = core::scene.componentPool<core::Geometry>().dirtyElements();
-    core::Pool<core::Geometry> &geometries = core::scene.componentPool<core::Geometry>();
+    auto& geometries = core::scene.componentPool<core::Geometry>();
     auto entity_with_new_geo = core::Entity(geometries.popNew());
     auto entity_with_removed_geo = geometries.popRemoved();
 

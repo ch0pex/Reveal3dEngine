@@ -87,7 +87,7 @@ void RootParameter::SetTableRange( UINT RangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE 
 {
     D3D12_DESCRIPTOR_RANGE* range = const_cast<D3D12_DESCRIPTOR_RANGE*>(parameter_.DescriptorTable.pDescriptorRanges + RangeIndex);
     range->RangeType = Type;
-    range->NumDescriptors = count;
+    range->NumDescriptors = countData;
     range->BaseShaderRegister = Register;
     range->RegisterSpace = Space;
     range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;

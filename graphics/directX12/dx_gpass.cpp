@@ -4,7 +4,7 @@
 
 #include "dx_gpass.hpp"
 
-#include "core/scene.hpp"
+#include "core/components/transform.hpp"
 
 
 namespace reveal3d::graphics::dx12 {

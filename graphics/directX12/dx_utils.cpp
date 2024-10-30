@@ -88,7 +88,7 @@ void log_adapter_outputs(IDXGIAdapter *adapter) {
 void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format) {
     UINT count = 0;
     UINT flags = 0;
-    // Call with nullptr to get list count.
+    // Call with nullptr to get list countData.
     output->GetDisplayModeList(format, flags, &count, nullptr);
     std::vector<DXGI_MODE_DESC> modeList(count);
     output->GetDisplayModeList(format, flags, &count, &modeList[0]);

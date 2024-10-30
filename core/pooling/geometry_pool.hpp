@@ -23,7 +23,7 @@ namespace reveal3d::core::geometry {
 class Pool {
 public:
     using init_info = render::Mesh;
-    using stored_in_gpu = std::false_type;
+    using stored_in_gpu = std::true_type;
 
     render::Material&material(id_t id) { return materials_.at(id::index(id)); }
 
@@ -31,9 +31,10 @@ public:
 
     std::span<render::SubMesh> subMeshes(id_t id) { return std::span {sub_meshes_.begin() + id::index(id), sub_meshes_.begin() + id::index(id) + 1}; }
 
-    u32 count() { return meshes_.size(); }
+protected:
+    u32 countData() { return meshes_.size(); }
 
-    void add(id_t entity_id, init_info &init_info) {
+    void addData(id_t entity_id, init_info &init_info) {
         materials_.emplace_back();
         sub_meshes_.emplace_back(render::SubMesh {
                 .shader = render::Opaque,
@@ -45,7 +46,7 @@ public:
         meshes_.push_back(std::move(init_info));
     }
 
-    void remove(u32 id) {
+    void removeData(u32 id) {
         materials_.unordered_remove(id::index(id));
         meshes_.unordered_remove(id::index(id));
         sub_meshes_.unordered_remove(id::index(id));

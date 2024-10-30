@@ -18,7 +18,7 @@
 namespace reveal3d::content {
 
 template<>
-core::Geometry::InitInfo import_primitive<core::Geometry::Cube>() {
+core::Geometry::init_info import_primitive<core::Geometry::Cube>() {
     render::Mesh mesh;
 
     std::vector<render::Vertex> v = {
@@ -41,13 +41,13 @@ core::Geometry::InitInfo import_primitive<core::Geometry::Cube>() {
             4, 0, 3, 4, 3, 7
     };
 
-    mesh.vertices.insert(mesh.vertices.end(), v.begin(), v.end());
-    mesh.indices.insert(mesh.indices.end(), ind.begin(), ind.end());
+    std::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
+    std::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
     return mesh;
 }
 
 template<>
-core::Geometry::InitInfo import_primitive<core::Geometry::Plane>() {
+core::Geometry::init_info import_primitive<core::Geometry::Plane>() {
     render::Mesh mesh;
     std::vector<render::Vertex> v = {
             { { -1.0f, -1.0f, 0.0f }, { 0.2f, 0.2f, 0.2f, 0.0f } },
@@ -61,9 +61,10 @@ core::Geometry::InitInfo import_primitive<core::Geometry::Plane>() {
             0, 2, 3
     };
 
-//    ApplyOffset(ind, ++offset);
-    mesh.vertices.insert(mesh.vertices.end(), v.begin(), v.end());
-    mesh.indices.insert(mesh.indices.end(), ind.begin(), ind.end());
+
+    std::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
+    std::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
+
     return mesh;
 }
 

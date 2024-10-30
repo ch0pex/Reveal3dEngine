@@ -53,7 +53,7 @@ public:
 
     template<is_component T> void removeComponent();
 
-    Entity addChild();
+    Entity addChild() const;
 
     [[nodiscard]] u32 id() const { return id_; }
 
@@ -160,7 +160,8 @@ public:
 
     Node &root() { return scene_graph_.at(root_node_); }
 
-    template<component T>
+    /// @note Can't use concept here because T is not complete type
+    template<typename T>
     decltype(auto) componentPool() noexcept {
         if constexpr (std::same_as<typename T::pool_type, transform::Pool>) {
             return (transform_pool_);
@@ -175,21 +176,22 @@ public:
         }
     }
 
-    void init() {
-        // transformPool_.init();
-//    for (u32 i = 0; i < scene.entities_; ++i) {
-//        if (scripts_[i] != nullptr) {
-//            Entity entity = getEntity(i);
-//            scripts_[i]->begin(entity);
-//        }
-//    }
-    }
+    void init() { }
 
+
+    /**
+     * @brief Updating scene function
+     *
+     * This function updates every component pool
+     *
+     * @params[in] dt Delta time
+     * @return None
+     *
+     * @note Not all components need to be updated every frame
+     */
     void update(f32 dt) {
         transform_pool_.update();
         geometry_pool_.update();
-//        script_pool_.update();
-        metadata_pool_.update();
         assert(transform_pool_.count() == count());
         assert(metadata_pool_.count() == count());
     }
@@ -251,11 +253,11 @@ private:
 
     /*********** Components Pools  *************/
 
-    Pool<transform::Pool> transform_pool_;
-    Pool<geometry::Pool> geometry_pool_;
-    Pool<script::Pool> script_pool_;
-    Pool<metadata::Pool> metadata_pool_;
-    //    Pool<core::Light>                 light_pool_;
+    GenericPool<transform::Pool> transform_pool_;
+    GenericPool<geometry::Pool> geometry_pool_;
+    GenericPool<script::Pool> script_pool_;
+    GenericPool<metadata::Pool> metadata_pool_;
+    //    GenericPool<core::Light>                 light_pool_;
 };
 
 
@@ -274,7 +276,7 @@ inline T Entity::addComponent(T::init_info &&init_info) {
     if (not isAlive()) {
         return T();
     }
-    return scene.componentPool<T>().addComponent(id_, std::forward<T::InitInfo>(init_info));
+    return scene.componentPool<T>().addComponent(id_, std::forward<T::init_info>(init_info));
 }
 
 template<is_component T>
@@ -288,7 +290,7 @@ inline bool Entity::isAlive() const {
     return core::scene.isEntityAlive(id_);
 }
 
-inline Entity Entity::addChild() {
+inline Entity Entity::addChild() const {
     return core::scene.newChildEntity(id_);
 }
 

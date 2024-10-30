@@ -18,7 +18,7 @@
 namespace reveal3d::content {
 
 template<core::Geometry::Primitive primitive>
-core::Geometry::InitInfo import_primitive();
+core::Geometry::init_info import_primitive();
 
 }
 

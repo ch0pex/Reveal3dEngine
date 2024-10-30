@@ -28,16 +28,17 @@ public:
 
     std::string& date(id_t id) { return dates_.at(id::index(id)); }
 
-    u32 count() { return names_.size(); }
+protected:
+    u32 countData() { return names_.size(); }
 
-    void add(id_t entity_id, init_info &init_info) {
+    void addData(id_t entity_id, init_info &init_info) {
         names_.emplace_back("Entity_" + std::to_string(entity_id));
         comments_.emplace_back();
         dates_.emplace_back("10/12/2024");  //TODO
         comments_.at(comments_.size() - 1U).reserve(1024);
     }
 
-    void remove(u32 id) {
+    void removeData(u32 id) {
         names_.unordered_remove(id::index(id));
         comments_.unordered_remove(id::index(id));
         dates_.unordered_remove(id::index(id));
