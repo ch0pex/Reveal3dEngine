@@ -53,6 +53,8 @@ set(HEADERS
         graphics/directX12/dx_surface.hpp
         common/string_literals.hpp
         common/string_literals.hpp
+        core/pooling/rigidbody_pool.hpp
+        core/components/rigidbody.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
@@ -68,7 +70,7 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "/O2 /std:c++latest")
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
-#    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
+    #    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
     target_link_libraries(Reveal3d PRIVATE d3d12 dxgi d3dcompiler ${OPENGL_LIBRARY} ${EXTERN}/glew.lib ${EXTERN}/glfw3.lib)
 
     aux_source_directory(graphics/directX12 GRAPHICS)
@@ -76,7 +78,7 @@ if (WIN32)
     aux_source_directory(window/win32 WINDOW)
     #addId glew and glfw for windows
 elseif (UNIX)
-    message("-- UNIX" )
+    message("-- UNIX")
     set(PLAT unix)
     #    find_package(GLM REQUIRED)
     find_package(GLEW REQUIRED)
@@ -87,7 +89,7 @@ elseif (UNIX)
     #    add_compile_options(-Werror -Wall -Wextra  -pedantic -pedantic-errors)
     #addId glew, glfw and glm for linux
     #    target_link_libraries(Reveal3d PRIVATE ${EXTERN}/glew.t a ${EXTERN}/glfw3.lib)
-endif()
+endif ()
 
 aux_source_directory(graphics/opengl GRAPHICS)
 aux_source_directory(graphics/vulkan GRAPHICS)
@@ -98,7 +100,7 @@ if (IMGUI)
     aux_source_directory(extern/include/IMGUI IMGUI_SOURCE)
     aux_source_directory(extern/include/IMGUI/backends IMGUI_SOURCE)
     target_include_directories(Reveal3d PUBLIC extern/include/IMGUI)
-endif()
+endif ()
 target_sources(Reveal3d PUBLIC ${GRAPHICS} ${WINDOW} ${IMGUI_SOURCE})
 #target_link_libraries(Reveal3d PRIVATE )
 

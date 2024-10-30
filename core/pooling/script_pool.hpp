@@ -13,21 +13,19 @@
 
 #pragma once
 
-
-class Script;
+#include <functional>
 
 namespace reveal3d::core::script {
 
 class ScriptBase {
-public:
-    virtual void begin() = 0;
-    virtual void update(f32 dt) = 0;
-    virtual void destroyed() = 0;
+    std::function<void()> begin;
+    std::function<void()> update;
+    std::function<void()> destroyed;
 };
 
 struct Flag {
-    u8 begin   : 1; // begin function active
-    u8 update  : 1; // update function active
+    u8 begin : 1; // begin function active
+    u8 update : 1; // update function active
     u8 destroy : 1; // destroy function active
 };
 
@@ -46,21 +44,22 @@ public:
 protected:
     [[nodiscard]] u32 countData() { return scripts_.size(); }
 
-    void addData(id_t entity_id, init_info &init_info) {
-//        names_.emplace_back("Entity_" + std::to_string(entity_id));
-//        comments_.emplace_back();
-//        dates_.emplace_back("10/12/2024");  //TODO
-//        comments_.at(comments_.size() - 1U).reserve(1024);
+    void addData(id_t entity_id, init_info& init_info) {
+        //        names_.emplace_back("Entity_" + std::to_string(entity_id));
+        //        comments_.emplace_back();
+        //        dates_.emplace_back("10/12/2024");  //TODO
+        //        comments_.at(comments_.size() - 1U).reserve(1024);
     }
 
     void removeData(u32 id) {
-//        names_.unordered_remove(id::index(id));
-//        comments_.unordered_remove(id::index(id));
-//        dates_.unordered_remove(id::index(id));
+        //        names_.unordered_remove(id::index(id));
+        //        comments_.unordered_remove(id::index(id));
+        //        dates_.unordered_remove(id::index(id));
     }
+
 private:
     utl::vector<Flag> flags_;
     utl::vector<std::unique_ptr<ScriptBase>> scripts_;
 };
 
-}
+} // namespace reveal3d::core::script

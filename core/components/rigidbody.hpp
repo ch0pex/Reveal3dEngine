@@ -3,9 +3,9 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file script.hpp
+ * @file rigidbody_pool.hpp
  * @version 1.0
- * @date 01/04/2024
+ * @date 31/10/2024
  * @brief Short description
  *
  * Longer description
@@ -17,40 +17,21 @@
 
 namespace reveal3d::core {
 
-class Script {
+class Rigidbody {
 public:
-    using init_info = std::unique_ptr<script::ScriptBase>;
-    using pool_type = script::Pool;
+    using init_info = std::string;
+    using pool_type = rigidbody::Pool;
 
-    constexpr Script(id_t id) : id_(id) {}
+    constexpr Rigidbody(id_t id) : id_(id) {}
 
-    constexpr Script(id_t id, init_info script) {}
+    constexpr Rigidbody() : id_(id::invalid) {}
 
     [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
     [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    void begin() {}
-
-    void disableUpdate() {}
-
-    void enableUpdate() {}
-
-    void destroyed() {}
-
-    void update() {}
-
-    void data();
-
-    void enableBegin();
-    void disableBegin();
-    void enableDestroyed();
-    void disableDestroyed();
-
 private:
-    inline static GenericPool<pool_type>& pool = core::scene.componentPool<Script>();
-
-    id_t id_{id::invalid};
+    id_t id_;
 };
 
 } // namespace reveal3d::core

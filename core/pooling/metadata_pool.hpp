@@ -13,8 +13,6 @@
 
 #pragma once
 
-class Metadata;
-
 namespace reveal3d::core::metadata {
 
 class Pool {
@@ -31,10 +29,10 @@ public:
 protected:
     u32 countData() { return names_.size(); }
 
-    void addData(id_t entity_id, init_info &init_info) {
+    void addData(id_t entity_id, init_info& init_info) {
         names_.emplace_back("Entity_" + std::to_string(entity_id));
         comments_.emplace_back();
-        dates_.emplace_back("10/12/2024");  //TODO
+        dates_.emplace_back("10/12/2024"); // TODO
         comments_.at(comments_.size() - 1U).reserve(1024);
     }
 
@@ -51,4 +49,4 @@ private:
 };
 
 
-}
+} // namespace reveal3d::core::metadata

@@ -33,6 +33,7 @@
 #pragma once
 
 #include "core/pooling/pool.hpp"
+#include "core/pooling/rigidbody_pool.hpp"
 
 #include <deque>
 #include <set>
@@ -45,13 +46,16 @@ class Entity {
 public:
     Entity() : id_(id::invalid) {}
 
-    explicit Entity(id_t id) : id_ {id} { };
+    explicit Entity(id_t id) : id_{id} {};
 
-    template<is_component T> T component() const;
+    template<is_component T>
+    T component() const;
 
-    template<is_component T> T addComponent(T::init_info && init_info);
+    template<is_component T>
+    T addComponent(T::init_info&& init_info);
 
-    template<is_component T> void removeComponent();
+    template<is_component T>
+    void removeComponent();
 
     Entity addChild() const;
 
@@ -79,10 +83,11 @@ public:
     ~Scene() = default;
 
     Entity newEntity() {
-        const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+        const id_t id =
+                id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
         Entity entity(id);
 
-        Node node { .entity = entity };
+        Node node{.entity = entity};
 
         if (root_node_ == id::invalid) {
             root_node_ = id::index(entity.id());
@@ -102,20 +107,19 @@ public:
     Entity newChildEntity(Entity parent) {
         assert(parent.isAlive());
 
-        const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+        const id_t id =
+                id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
         Entity child(id);
 
-        Node child_node{
-                .entity = child,
-                .parent = parent
-        };
+        Node child_node{.entity = child, .parent = parent};
 
         Node& parent_node = getNode(parent.id());
 
         if (not parent_node.first_child.isAlive()) {
             parent_node.first_child = child;
-        } else {
-            Node&first_child = getNode(parent_node.first_child.id());
+        }
+        else {
+            Node& first_child = getNode(parent_node.first_child.id());
             first_child.prev = child_node.entity;
             child_node.next = parent_node.first_child;
             parent_node.first_child = child_node.entity;
@@ -129,28 +133,32 @@ public:
     Entity newChildEntity(id_t parent) { return newChildEntity(Entity(parent)); }
 
     Entity removeEntity(id_t id) {
-        Entity entity { id };
+        Entity entity{id};
         Entity nextOrPrev = {};
         if (isEntityAlive(id)) {
             if (isEntityAlive(getNode(id).next.id())) {
                 nextOrPrev = getNode(id).next;
-            } else if (isEntityAlive(getNode(id).prev.id())) {
+            }
+            else if (isEntityAlive(getNode(id).prev.id())) {
                 nextOrPrev = getNode(id).prev;
             }
             removeNode(id);
         }
-        return {}; //TODO fix this can't return nextOrPrev when deleting nested nodes
+        return {}; // TODO fix this can't return nextOrPrev when deleting nested nodes
     }
 
     bool isEntityAlive(id_t id) {
-        if (id == id::invalid) { return false; }
-        if (id::index(id) >= scene_graph_.size()) return false;
+        if (id == id::invalid) {
+            return false;
+        }
+        if (id::index(id) >= scene_graph_.size())
+            return false;
         return getNode(id).entity.id() != id::invalid;
     }
 
     /******************************* Scene graph methods ******************************/
 
-    [[nodiscard]] const std::vector<Scene::Node> &graph() const { return scene_graph_; }
+    [[nodiscard]] const std::vector<Scene::Node>& graph() const { return scene_graph_; }
 
     [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
@@ -158,7 +166,7 @@ public:
 
     Node& getNode(id_t id) { return scene_graph_.at(id::index(id)); }
 
-    Node &root() { return scene_graph_.at(root_node_); }
+    Node& root() { return scene_graph_.at(root_node_); }
 
     /// @note Can't use concept here because T is not complete type
     template<typename T>
@@ -171,13 +179,13 @@ public:
         }
         else if constexpr (std::same_as<typename T::pool_type, metadata::Pool>) {
             return (metadata_pool_);
-        } else {
+        }
+        else {
             return (geometry_pool_);
         }
     }
 
-    void init() { }
-
+    void init() {}
 
     /**
      * @brief Updating scene function
@@ -198,32 +206,36 @@ public:
 
 private:
     void removeNode(id_t id) {
-        if (!id::is_valid(id)) return;
+        if (!id::is_valid(id)) {
+            return;
+        }
+
         Node& node = getNode(id);
         free_nodes_.push_back(node.entity.id());
         transform_pool_.removeComponent(id);
         metadata_pool_.removeComponent(id);
         geometry_pool_.removeComponent(id);
 
-
         if (node.prev.isAlive()) {
             Node& prev_node = getNode(node.prev.id());
             prev_node.next = node.next;
-        } else if (not node.parent.isAlive()){
-            //Change root node
+        }
+        else if (not node.parent.isAlive()) {
+            // Change root node
             root_node_ = node.next.isAlive() ? node.next.id() : id::invalid;
         }
 
         if (node.next.isAlive()) {
             Node& next_node = getNode(node.next.id());
             next_node.prev = node.prev;
-        } else if (not node.parent.isAlive()){
+        }
+        else if (not node.parent.isAlive()) {
             last_node_ = node.prev.isAlive() ? node.prev.id() : id::invalid;
         }
 
         if (node.first_child.isAlive()) {
             auto children = node.getChildren();
-            for (auto child : children) {
+            for (auto child: children) {
                 removeNode(child);
             }
         }
@@ -234,7 +246,8 @@ private:
         if (id::maxFree < free_nodes_.size()) {
             scene_graph_.at(id::index(id)) = node;
             free_nodes_.pop_front();
-        } else {
+        }
+        else {
             scene_graph_.push_back(node);
             geometry_pool_.addComponent();
         }
@@ -257,9 +270,8 @@ private:
     GenericPool<geometry::Pool> geometry_pool_;
     GenericPool<script::Pool> script_pool_;
     GenericPool<metadata::Pool> metadata_pool_;
-    //    GenericPool<core::Light>                 light_pool_;
+    GenericPool<rigidbody::Pool> rigidbody_pool_;
 };
-
 
 inline Scene scene;
 
@@ -272,7 +284,7 @@ inline T Entity::component() const {
 }
 
 template<is_component T>
-inline T Entity::addComponent(T::init_info &&init_info) {
+inline T Entity::addComponent(T::init_info&& init_info) {
     if (not isAlive()) {
         return T();
     }
@@ -286,23 +298,20 @@ inline void Entity::removeComponent() {
     }
 }
 
-inline bool Entity::isAlive() const {
-    return core::scene.isEntityAlive(id_);
-}
+inline bool Entity::isAlive() const { return core::scene.isEntityAlive(id_); }
 
-inline Entity Entity::addChild() const {
-    return core::scene.newChildEntity(id_);
-}
+inline Entity Entity::addChild() const { return core::scene.newChildEntity(id_); }
 
 inline std::vector<id_t> Scene::Node::getChildren() const {
     std::vector<id_t> children;
     if (first_child.isAlive()) {
-        Node *curr_node = &scene.getNode(first_child.id());
-        while(true) {
+        Node* curr_node = &scene.getNode(first_child.id());
+        while (true) {
             children.push_back(curr_node->entity.id());
             if (curr_node->next.isAlive()) {
                 curr_node = &scene.getNode(curr_node->next.id());
-            } else {
+            }
+            else {
                 break;
             }
         }
