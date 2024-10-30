@@ -77,7 +77,7 @@ public:
     id_t addComponent(id_t entity_id) { return addComponent(entity_id, {}); }
 
     id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
-        id_t component_id{id_factory_.New(id::index(entity_id))};
+        id_t component_id{id_factory_.newId(id::index(entity_id))};
 
         this->addData(entity_id, init_info);
         if constexpr (stored_in_gpu<T>) {
@@ -105,27 +105,8 @@ public:
         }
     }
 
-    //    void update() {
-    //        if constexpr (stored_in_gpu<T>) {
-    //            for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-    //                T component { *it };
-    //                if constexpr (updatable<T>) {
-    //                    component.update();
-    //                }
-    //                if (this->dirties_.at(id::index(*it)) == 0) {
-    //                    it = this->dirty_ids_.erase(it);
-    //                } else {
-    //                    ++it;
-    //                }
-    //            }
-    //        } else if constexpr (updatable<T>){
-    //              TODO update scripts
-    //              TODO update rigid-bodies
-    //        }
-    //    }
-
+    /// @note for now this must be specialized in every component header file
     void update();
-
 
     u32 count() { return this->countData(); }
 
