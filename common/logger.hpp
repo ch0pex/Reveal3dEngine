@@ -18,10 +18,6 @@
 #include <iostream>
 #include <sstream>
 
-namespace reveal3d {
-
-}
-
 enum LogLevel {
     logERROR = 0,
     logWARNING,
@@ -50,7 +46,7 @@ private:
     static std::stringstream persistent_logs_[3];
 };
 
-extern LogLevel loglevel;
+extern const LogLevel loglevel;
 
 #define logger(level) \
 if (level > loglevel) ; \

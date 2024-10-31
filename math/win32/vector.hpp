@@ -100,7 +100,6 @@ private:
     XMVECTOR vec_;
 };
 
-
 class BoolVector
 {
 public:
@@ -109,7 +108,6 @@ public:
 protected:
     XMVECTOR m_vec_;
 };
-
 
 using vec2 = XMFLOAT2;
 using vec3 = XMFLOAT3;

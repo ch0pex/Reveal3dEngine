@@ -24,7 +24,10 @@ template<typename T>
 concept is_component = requires(T component) {
     { component.isAlive() } -> std::same_as<bool>;
     { component.id() } -> std::same_as<id_t>;
-    component.data();
+    {T{}};
+    {T{}.id() == id::invalid};
+    {std::is_constructible_v<T, id_t>};
+    {sizeof(T) == 4};
 };
 
 template<typename T>

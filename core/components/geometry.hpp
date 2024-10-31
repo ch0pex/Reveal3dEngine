@@ -25,28 +25,6 @@ namespace reveal3d::core {
 
 class Geometry {
 public:
-    enum Primitive : u8 {
-        Cube = 0U,
-        Plane,
-        Cylinder,
-        Sphere,
-        Cone,
-        Torus,
-        Custom,
-
-        count
-    };
-
-    /************* Geometry data ****************/
-
-    struct Data {
-        Data(render::Material& mat, render::SubMesh& submesh, render::Mesh& mesh_info) :
-            material(mat), sub_mesh(submesh), mesh(mesh_info) {}
-        render::Material& material;
-        render::SubMesh& sub_mesh;
-        render::Mesh& mesh;
-    };
-
     using init_info = render::Mesh;
     using pool_type = geometry::Pool;
 
@@ -62,10 +40,7 @@ public:
 
     [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    Geometry& operator=(const Geometry& other) {
-        id_ = other.id_;
-        return *this;
-    }
+    Geometry& operator=(const Geometry& other) = default;
     Geometry& operator=(Geometry&& other) noexcept {
         id_ = other.id_;
         return *this;
@@ -95,16 +70,17 @@ public:
 
     [[nodiscard]] u8 dirty() const { return pool.dirties().at(id::index(id_)); }
 
+    [[nodiscard]] const render::Material& material() const { return pool.material(id_); }
+
     void visibility(bool visibility) const { pool.subMeshes(id_)[0].visible = visibility; }
 
-    const render::Material& material() const { return pool.material(id_); }
 
     void diffuseColor(math::vec4 color) const {
         pool.material(id_).base_color = color;
         setDirty();
     }
 
-    void fresnel(math::vec3 fresnel) {
+    void fresnel(math::vec3 fresnel) const {
         pool.material(id_).fresnel = fresnel;
         setDirty();
     }
@@ -140,7 +116,7 @@ public:
         pool.dirties().at(id::index(id_)) = 3;
     }
 
-    Data data() { return {pool.material(id_), subMeshes()[0], pool.mesh(id_)}; }
+    enum Primitive : u8 { Cube = 0U, Plane, Cylinder, Sphere, Cone, Torus, Custom, count };
 
 private:
     inline static GenericPool<pool_type>& pool = core::scene.componentPool<Geometry>();

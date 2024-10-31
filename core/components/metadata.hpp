@@ -24,13 +24,6 @@ public:
     using init_info = std::string;
     using pool_type = metadata::Pool;
 
-    struct Data {
-        Data(std::string& name,std::string& comm, std::string& date) : name(name.data()), comment(comm.data()), date(date.data()) {}
-        char * name;
-        char * comment;
-        char * date;
-    };
-
     constexpr Metadata() : id_(id::invalid) {}
 
     constexpr Metadata(id_t id) : id_(id) { }
@@ -39,14 +32,11 @@ public:
 
     [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    std::string& name() { return scene.componentPool<Metadata>().name(id_); }
+    [[nodiscard]] std::string& name() const { return scene.componentPool<Metadata>().name(id_); }
 
-    std::string& date() { return scene.componentPool<Metadata>().date(id_); }
+    [[nodiscard]] std::string& date() const { return scene.componentPool<Metadata>().date(id_); }
 
-    std::string& comment() { return scene.componentPool<Metadata>().comment(id_); }
-
-    Data data() { return {name(), comment(), date()}; }
-
+    [[nodiscard]] std::string& comment() const { return scene.componentPool<Metadata>().comment(id_); }
 private:
 
     id_t id_;

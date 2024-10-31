@@ -67,7 +67,7 @@ template<typename T>
 class GenericPool : public T, public detail::GpuSynchronize<typename T::stored_in_gpu> {
 public:
     id_t addComponent() {
-        components_ids_.emplace_back();
+        components_ids_.emplace_back(id::invalid);
         if constexpr (stored_in_gpu<T>) {
             this->dirties_.emplace_back(4);
         }

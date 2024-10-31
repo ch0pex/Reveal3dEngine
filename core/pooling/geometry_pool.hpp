@@ -25,7 +25,7 @@ public:
     using init_info = render::Mesh;
     using stored_in_gpu = std::true_type;
 
-    render::Material&material(id_t id) { return materials_.at(id::index(id)); }
+    render::Material& material(id_t id) { return materials_.at(id::index(id)); }
 
     render::Mesh& mesh(id_t id) { return meshes_.at(id::index(id)); }
 

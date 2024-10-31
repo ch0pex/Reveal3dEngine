@@ -69,12 +69,12 @@ void Dx12::initFrameResources() {
     for (u32 i = 0; i < frameBufferCount; ++i) {
         D3D12_RENDER_TARGET_VIEW_DESC desc = {.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                                               .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D};
-        frame_resources_[i].back_buffer_handle = heaps_.rtv.alloc();
-        surface_.getBuffer(i, frame_resources_[i].back_buffer);
-        device_->CreateRenderTargetView(frame_resources_[i].back_buffer.Get(), &desc,
-                                        frame_resources_[i].back_buffer_handle.cpu);
+        frame_resources_.at(i).back_buffer_handle = heaps_.rtv.alloc();
+        surface_.getBuffer(i, frame_resources_.at(i).back_buffer);
+        device_->CreateRenderTargetView(frame_resources_.at(i).back_buffer.Get(), &desc,
+                                        frame_resources_.at(i).back_buffer_handle.cpu);
         std::wstring name = L"BackBuffer " + std::to_wstring(i);
-        frame_resources_[i].back_buffer->SetName(name.c_str()) >> utl::DxCheck;
+        frame_resources_.at(i).back_buffer->SetName(name.c_str()) >> utl::DxCheck;
     }
 }
 
@@ -216,7 +216,7 @@ void Dx12::update(render::Camera &camera) {
 }
 
 void Dx12::renderSurface() {
-    auto &curr_frame_res = frame_resources_[Commands::frameIndex()];
+    auto &curr_frame_res = frame_resources_.at(Commands::frameIndex());
     ID3D12GraphicsCommandList *command_list = cmd_manager_.list();
 
     cmd_manager_.reset(); // Resets commands list and current frame allocator
@@ -233,7 +233,6 @@ void Dx12::renderSurface() {
 
     auto present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-
 
 #ifdef IMGUI
     ID3D12DescriptorHeap *srvDesc = heaps_.srv.get();
@@ -278,9 +277,9 @@ void Dx12::resize(const window::Resolution &res) {
     for (u32 i = 0; i < frameBufferCount; ++i) {
         D3D12_RENDER_TARGET_VIEW_DESC desc = {.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                                               .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D};
-        surface_.getBuffer(i, frame_resources_[i].back_buffer);
-        device_->CreateRenderTargetView(frame_resources_[i].back_buffer.Get(), &desc,
-                                        frame_resources_[i].back_buffer_handle.cpu);
+        surface_.getBuffer(i, frame_resources_.at(i).back_buffer);
+        device_->CreateRenderTargetView(frame_resources_.at(i).back_buffer.Get(), &desc,
+                                        frame_resources_.at(i).back_buffer_handle.cpu);
     }
 
     cmd_manager_.list()->Close();

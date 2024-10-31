@@ -22,21 +22,18 @@ namespace reveal3d::core {
 
 class Transform {
 public:
-    struct Data {
-        Data(math::mat4& world, math::mat4& inv_world, transform::Info& info) :
-            world(world), inv_world(inv_world), info(info) {}
-        math::mat4& world;
-        math::mat4& inv_world;
-        transform::Info& info;
-    };
+    // *** Type Traits ***
 
     using pool_type = transform::Pool;
     using stored_in_gpu = std::true_type;
 
+    // *** Constructors ***
+
     constexpr Transform() : id_(id::invalid) {}
 
-
     constexpr Transform(id_t id) : id_(id) {}
+
+    // *** Member methods ***
 
     [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
@@ -77,7 +74,7 @@ public:
     }
 
     void worldPosition(math::xvec3 pos) const {
-        transform::Info& trans = pool.posRotScale(id_);
+        transform::detail::Transform& trans = pool.posRotScale(id_);
         pool.world(id_) = math::transpose(math::affine_transformation(pos, trans.scale, trans.rotation));
         core::Entity parent = scene.getNode(id_).parent;
         if (parent.isAlive()) {
@@ -94,7 +91,7 @@ public:
     }
 
     void worldScale(math::xvec3 scale) const {
-        transform::Info& trans = pool.posRotScale(id_);
+        transform::detail::Transform& trans = pool.posRotScale(id_);
         pool.world(id_) = math::transpose(math::affine_transformation(trans.position, scale, trans.rotation));
         core::Entity parent = scene.getNode(id_).parent;
         if (parent.isAlive()) {
@@ -110,7 +107,7 @@ public:
     }
 
     void worldRotation(math::xvec3 rot) const {
-        transform::Info& trans = pool.posRotScale(id_);
+        transform::detail::Transform& trans = pool.posRotScale(id_);
         world() = math::transpose(math::affine_transformation(trans.position, trans.scale, rot));
         core::Entity parent = scene.getNode(id_).parent;
         if (parent.isAlive()) {
@@ -130,7 +127,7 @@ public:
             return;
         }
 
-        transform::Info& transform = pool.posRotScale(id_);
+        transform::detail::Transform& transform = pool.posRotScale(id_);
         core::Scene::Node& curr_node = scene.getNode(id::index(id_));
 
         if (curr_node.parent.isAlive()) {
@@ -175,11 +172,9 @@ public:
 
     [[nodiscard]] u8 dirty() const { return pool.dirties().at(id::index(id_)); }
 
-    Data data();
-
 private:
     static math::mat4 calcWorld(id_t id) {
-        transform::Info& trans = core::scene.componentPool<Transform>().posRotScale(id);
+        transform::detail::Transform& trans = core::scene.componentPool<Transform>().posRotScale(id);
         return math::transpose(math::affine_transformation(trans.position, trans.scale, trans.rotation));
     }
 
@@ -197,6 +192,7 @@ private:
 
     id_t id_{id::invalid};
 };
+
 
 template<>
 inline void GenericPool<Transform::pool_type>::update() {

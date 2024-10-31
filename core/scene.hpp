@@ -284,11 +284,11 @@ inline T Entity::component() const {
 }
 
 template<is_component T>
-inline T Entity::addComponent(T::init_info&& init_info) {
+inline T Entity::addComponent(typename T::init_info&& init_info) {
     if (not isAlive()) {
         return T();
     }
-    return scene.componentPool<T>().addComponent(id_, std::forward<T::init_info>(init_info));
+    return scene.componentPool<T>().addComponent(id_, std::forward<typename T::init_info>(init_info));
 }
 
 template<is_component T>

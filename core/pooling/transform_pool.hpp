@@ -19,18 +19,22 @@
 
 namespace reveal3d::core::transform {
 
-struct Info {
+namespace detail {
+
+struct Transform {
     math::xvec3 position { 0.f, 0.f, 0.f };
     math::xvec3 rotation { 0.f, 0.f, 0.f };
     math::xvec3 scale    { 1.f, 1.f, 1.f };
 };
 
+}
+
 class Pool {
 public:
-    using init_info = Info;
+    using init_info = detail::Transform;
     using stored_in_gpu = std::true_type;
 
-    Info& posRotScale(id_t id) { return pos_rot_scale_.at(id::index(id)); }
+    detail::Transform& posRotScale(id_t id) { return pos_rot_scale_.at(id::index(id)); }
 
     math::mat4& world(id_t id) { return world_mat_.at(id::index(id)); }
 
@@ -41,7 +45,7 @@ protected:
 
     void addData(id_t entity_id, init_info &init_info) {
         pos_rot_scale_.push_back(std::move(init_info));
-        Info& data = pos_rot_scale_.at(countData() - 1);
+        detail::Transform& data = pos_rot_scale_.at(countData() - 1);
         world_mat_.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
         inv_world_.emplace_back(math::inverse(world_mat_.at(countData() - 1)));
     }
@@ -55,7 +59,7 @@ protected:
 private:
     utl::vector<math::mat4> world_mat_;
     utl::vector<math::mat4> inv_world_;
-    utl::vector<Info> pos_rot_scale_;
+    utl::vector<detail::Transform> pos_rot_scale_;
 };
 
 

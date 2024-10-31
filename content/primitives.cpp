@@ -41,8 +41,8 @@ core::Geometry::init_info import_primitive<core::Geometry::Cube>() {
             4, 0, 3, 4, 3, 7
     };
 
-    std::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
-    std::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
+    std::ranges::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
+    std::ranges::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
     return mesh;
 }
 
@@ -62,8 +62,8 @@ core::Geometry::init_info import_primitive<core::Geometry::Plane>() {
     };
 
 
-    std::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
-    std::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
+    std::ranges::copy(v.begin(), v.end(), std::back_inserter(mesh.vertices));
+    std::ranges::copy(ind.begin(), ind.end(), std::back_inserter(mesh.indices));
 
     return mesh;
 }
