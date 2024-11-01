@@ -16,7 +16,7 @@
 
 namespace reveal3d::window {
 
-Glfw::Glfw(Config &info) {
+Glfw::Glfw(Info &info) {
 
 }
 

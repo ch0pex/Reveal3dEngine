@@ -22,15 +22,16 @@ void RenderLayers::init() {
     layers_[render::Shader::Opaque].shaderId =
             createProgram(relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
                           relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str());
-    //    layers_[render::Shader::unlit].shaderId = createProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
+    //    layers_[render::Shader::unlit].shaderId =
+    //    createProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),
     //                                                             relative("Engine/graphics/opengl/shaders/flatShader.frag").c_str());
 }
 
-std::string RenderLayers::readShader(const char *file_name) {
+std::string RenderLayers::readShader(const char* file_name) {
     std::string shader_code;
     std::ifstream file(file_name, std::ios::in);
     if (!file.good()) {
-        logger(logERROR) << "Could not read Shader...";
+        logger(LogError) << "Could not read Shader...";
         std::terminate();
     }
 
@@ -42,10 +43,10 @@ std::string RenderLayers::readShader(const char *file_name) {
     return shader_code;
 }
 
-u32 RenderLayers::createShader(GLenum shader_type, std::string &source, const char *shader_name) {
+u32 RenderLayers::createShader(GLenum shader_type, std::string& source, const char* shader_name) {
     i32 compile_result = 0;
     const u32 shader = glCreateShader(shader_type);
-    const char *shader_code_ptr = source.c_str();
+    const char* shader_code_ptr = source.c_str();
     const int shader_code_size = source.size();
     glShaderSource(shader, 1, &shader_code_ptr, &shader_code_size);
     glCompileShader(shader);
@@ -56,13 +57,13 @@ u32 RenderLayers::createShader(GLenum shader_type, std::string &source, const ch
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
         std::vector<char> shader_log(info_log_length);
         glGetShaderInfoLog(shader, info_log_length, NULL, shader_log.data());
-        logger(logDEBUG) << "Error compiling Shader: " << shader_log.data();
+        logger(LogDebug) << "Error compiling Shader: " << shader_log.data();
         return 0;
     }
     return shader;
 }
 
-u32 RenderLayers::createProgram(const char *vs, const char *fs) {
+u32 RenderLayers::createProgram(const char* vs, const char* fs) {
     std::string source_vertex_shader = readShader(vs);
     std::string source_fragment_shader = readShader(fs);
 
@@ -88,9 +89,9 @@ u32 RenderLayers::createProgram(const char *vs, const char *fs) {
     return program;
 }
 
-void RenderLayers::addMesh(render::SubMesh &mesh) { sub_meshes_[mesh.shader].push_back(&mesh); }
+void RenderLayers::addMesh(render::SubMesh& mesh) { sub_meshes_[mesh.shader].push_back(&mesh); }
 
-void RenderLayers::draw(std::vector<RenderElement> &render_elments, math::mat4 &pass_constants, u32 layer) {
+void RenderLayers::draw(std::vector<RenderElement>& render_elments, math::mat4& pass_constants, u32 layer) {
     /*
         const i32 vp_loc = glGetUniformLocation(layers_[layer].shaderId, "vp");
         const i32 model_loc = glGetUniformLocation(layers_[layer].shaderId, "model");
@@ -125,4 +126,4 @@ void RenderLayers::draw(std::vector<RenderElement> &render_elments, math::mat4 &
 
 };
 
-}
+} // namespace reveal3d::graphics::opengl

@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file viewport.hpp
@@ -9,7 +9,7 @@
  * @brief Short description
  *
  * Viewport template class, it takes two classes as parameters a window manager
- * and a renderer  
+ * and a renderer
  *                                 ----------
  *                                | Viewport |
  *                                 ----------
@@ -30,17 +30,17 @@
 
 #pragma once
 
-#include "window/window.hpp"
 #include "renderer.hpp"
+#include "window/window.hpp"
 
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 struct Viewport {
-    explicit Viewport(window::Config &windowInfo) : window(windowInfo), renderer(&window.getRes(), timer) { }
+    explicit Viewport(window::Info& windowInfo) : window(windowInfo), renderer(&window.getRes(), timer) {}
     void init();
     void run();
     f64 benchMark(u32 seconds);
@@ -57,11 +57,11 @@ void Viewport<Gfx, Window>::init() {
         window.create(renderer);
         renderer.init(window.getHandle());
         window.show();
-
-    } catch(std::exception &e) {
+    }
+    catch (std::exception& e) {
         renderer.destroy();
-        logger(logERROR) << e.what();
-//        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+        logger(LogError) << e.what();
+        //        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
 
@@ -69,7 +69,7 @@ template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 void Viewport<Gfx, Window>::run() {
     try {
         timer.reset();
-        while(!window.shouldClose()) {
+        while (!window.shouldClose()) {
             timer.tick();
             window.clipMouse(renderer);
             renderer.update();
@@ -83,9 +83,10 @@ void Viewport<Gfx, Window>::run() {
             window.update();
         }
         renderer.destroy();
-    } catch(std::exception &e) {
+    }
+    catch (std::exception& e) {
         renderer.destroy();
-        logger(logERROR) << e.what();
+        logger(LogError) << e.what();
         MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
 }
@@ -94,7 +95,7 @@ template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
     try {
         timer.reset();
-        while(!window.shouldClose()) {
+        while (!window.shouldClose()) {
             if (timer.totalTime() > seconds)
                 break;
             timer.tick();
@@ -108,11 +109,12 @@ f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
             window.update();
         }
         renderer.destroy();
-    } catch(std::exception &e) {
+    }
+    catch (std::exception& e) {
         renderer.destroy();
-        logger(logERROR) << e.what();
+        logger(LogError) << e.what();
         MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
     }
     return timer.meanFps();
 }
-} // reveal3d
+} // namespace reveal3d::render

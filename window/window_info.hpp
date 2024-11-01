@@ -28,10 +28,10 @@ struct Resolution {
 };
 
 
-struct Config {
-    Config() = default;
-    Config(const wchar_t * name, u32 width, u32 height) : name(name), res(width, height) {}
-    Config(const wchar_t * name, u32 width, u32 height, WCallback callback) :
+struct Info {
+    Info() = default;
+    Info(const wchar_t * name, u32 width, u32 height) : name(name), res(width, height) {}
+    Info(const wchar_t * name, u32 width, u32 height, WCallback callback) :
         name(name), res(width, height), callback(callback) {}
     const wchar_t * name { L"Reveal3d" };
     Resolution res { 1920, 1080 };

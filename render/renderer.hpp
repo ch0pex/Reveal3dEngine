@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file renderer.hpp
@@ -9,7 +9,7 @@
  * @brief render class
  *
  * Renderer template class, abstracts at a very high level the HRI (Hardware render interface)
- * 
+ *
  */
 
 #pragma once
@@ -17,26 +17,26 @@
 #include "camera.hpp"
 #include "graphics/gfx.hpp"
 
-#include "IMGUI/backends/imgui_impl_win32.h"
-#include "IMGUI/backends/imgui_impl_dx12.h"
 #include <functional>
+#include "IMGUI/backends/imgui_impl_dx12.h"
+#include "IMGUI/backends/imgui_impl_win32.h"
 
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-    Renderer(window::Resolution *res, Timer &timer);
+    Renderer(window::Resolution* res, Timer& timer);
     void init(WHandle w_handle);
     void update();
     void render();
     void destroy();
-    void resize(const window::Resolution &res);
+    void resize(const window::Resolution& res);
 
     Gfx& graphics() { return graphics_; }
 
     inline f32 deltaTime() const { return timer_.deltaTime(); }
-    inline  void cameraResetMouse() { camera_.resetMouse(); }
+    inline void cameraResetMouse() { camera_.resetMouse(); }
     inline Timer& time() { return timer_; }
 
 private:
@@ -46,23 +46,17 @@ private:
 };
 
 template<graphics::HRI Gfx>
-Renderer<Gfx>::Renderer(window::Resolution *res, Timer &timer)
-        : camera_(*res),
-          graphics_(res),
-          timer_(timer)
-{
-
-}
+Renderer<Gfx>::Renderer(window::Resolution* res, Timer& timer) : camera_(*res), graphics_(res), timer_(timer) {}
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::init(WHandle w_handle) {
     f32 time = timer_.totalTime();
     graphics_.initWindow(w_handle);
     graphics_.loadPipeline();
-    logger(logDEBUG) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 <<"ms]";
+    logger(LogDebug) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 << "ms]";
     time = timer_.totalTime();
     graphics_.loadAssets();
-    logger(logDEBUG) << "Loading assets...[" << timer_.diff(time) * 1000 <<"ms]";
+    logger(LogDebug) << "Loading assets...[" << timer_.diff(time) * 1000 << "ms]";
 }
 
 template<graphics::HRI Gfx>
@@ -78,13 +72,13 @@ void Renderer<Gfx>::render() {
 
 template<graphics::HRI Gfx>
 void Renderer<Gfx>::destroy() {
-    logger(logDEBUG) << "Cleaning pipeline...[" << timer_.totalTime()  <<"]";
+    logger(LogDebug) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
     graphics_.terminate();
 }
 
 template<graphics::HRI Gfx>
-void Renderer<Gfx>::resize(const window::Resolution &res) {
+void Renderer<Gfx>::resize(const window::Resolution& res) {
     camera_.resize(res);
     graphics_.resize(res);
 }
-}
+} // namespace reveal3d::render

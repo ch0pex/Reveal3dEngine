@@ -48,13 +48,13 @@ public:
 
     explicit Entity(id_t id) : id_{id} {};
 
-    template<is_component T>
+    template<detail::is_component T> // C
     T component() const;
 
-    template<is_component T>
+    template<detail::is_component T>
     T addComponent(T::init_info&& init_info);
 
-    template<is_component T>
+    template<detail::is_component T>
     void removeComponent();
 
     Entity addChild() const;
@@ -109,7 +109,7 @@ public:
 
         const id_t id =
                 id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
-        Entity child(id);
+        const Entity child(id);
 
         Node child_node{.entity = child, .parent = parent};
 
@@ -164,7 +164,7 @@ public:
 
     [[nodiscard]] Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
 
-    Node& getNode(id_t id) { return scene_graph_.at(id::index(id)); }
+    Node& getNode(const id_t id) { return scene_graph_.at(id::index(id)); }
 
     Node& root() { return scene_graph_.at(root_node_); }
 
@@ -190,9 +190,9 @@ public:
     /**
      * @brief Updating scene function
      *
-     * This function updates every component pool
+     * This function updates every component pool each frame
      *
-     * @params[in] dt Delta time
+     * @param[in] dt Delta time
      * @return None
      *
      * @note Not all components need to be updated every frame
@@ -234,8 +234,7 @@ private:
         }
 
         if (node.first_child.isAlive()) {
-            auto children = node.getChildren();
-            for (auto child: children) {
+            for (auto children = node.getChildren(); const auto child: children) {
                 removeNode(child);
             }
         }
@@ -257,7 +256,7 @@ private:
     }
 
 
-    /************ Entities scene ***********/
+    /************ Scene entities ***********/
 
     std::vector<Scene::Node> scene_graph_;
     u32 root_node_;
@@ -275,7 +274,7 @@ private:
 
 inline Scene scene;
 
-template<is_component T>
+template<detail::is_component T>
 inline T Entity::component() const {
     if (not isAlive()) {
         return T();
@@ -283,7 +282,7 @@ inline T Entity::component() const {
     return scene.componentPool<T>().at(id_);
 }
 
-template<is_component T>
+template<detail::is_component T>
 inline T Entity::addComponent(typename T::init_info&& init_info) {
     if (not isAlive()) {
         return T();
@@ -291,7 +290,7 @@ inline T Entity::addComponent(typename T::init_info&& init_info) {
     return scene.componentPool<T>().addComponent(id_, std::forward<typename T::init_info>(init_info));
 }
 
-template<is_component T>
+template<detail::is_component T>
 inline void Entity::removeComponent() {
     if (isAlive()) {
         scene.componentPool<T>().removeComponent(id_);

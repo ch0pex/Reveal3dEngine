@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file dx_debugger.cpp
@@ -13,21 +13,21 @@
 
 #include "dx_utils.hpp"
 
-#include <windows.h>
 #include <format>
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 namespace reveal3d::graphics::dx12::utl {
 
 Checker DxCheck;
 ID3D12DebugDevice2* reporter;
 
-static void log_adapter_outputs(IDXGIAdapter *adapter);
-static void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format);
+static void log_adapter_outputs(IDXGIAdapter* adapter);
+static void log_output_display_modes(IDXGIOutput* output, DXGI_FORMAT format);
 
-void enable_cpu_layer(reveal3d::u32 &factory_flag) {
+void enable_cpu_layer(reveal3d::u32& factory_flag) {
     ComPtr<ID3D12Debug> debug_controller;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller)))) {
         debug_controller->EnableDebugLayer();
@@ -46,9 +46,9 @@ void enable_gpu_layer() {
 
 void log_adapters() {
     u32 index = 0;
-    IDXGIAdapter *adapter = nullptr;
-    IDXGIFactory7 *factory;
-    std::vector<IDXGIAdapter *> adapter_list;
+    IDXGIAdapter* adapter = nullptr;
+    IDXGIFactory7* factory;
+    std::vector<IDXGIAdapter*> adapter_list;
 
     CreateDXGIFactory(IID_PPV_ARGS(&factory));
 
@@ -70,9 +70,9 @@ void log_adapters() {
     }
 }
 
-void log_adapter_outputs(IDXGIAdapter *adapter) {
+void log_adapter_outputs(IDXGIAdapter* adapter) {
     UINT index = 0;
-    IDXGIOutput *output = nullptr;
+    IDXGIOutput* output = nullptr;
     while (adapter->EnumOutputs(index, &output) != DXGI_ERROR_NOT_FOUND) {
         DXGI_OUTPUT_DESC desc;
         output->GetDesc(&desc);
@@ -85,14 +85,14 @@ void log_adapter_outputs(IDXGIAdapter *adapter) {
     }
 }
 
-void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format) {
+void log_output_display_modes(IDXGIOutput* output, DXGI_FORMAT format) {
     UINT count = 0;
     UINT flags = 0;
     // Call with nullptr to get list countData.
     output->GetDisplayModeList(format, flags, &count, nullptr);
     std::vector<DXGI_MODE_DESC> modeList(count);
     output->GetDisplayModeList(format, flags, &count, &modeList[0]);
-    for (auto &x: modeList) {
+    for (auto& x: modeList) {
         UINT n = x.RefreshRate.Numerator;
         UINT d = x.RefreshRate.Denominator;
         std::wstring text = L"Width = " + std::to_wstring(x.Width) + L" " + L"Height = " + std::to_wstring(x.Height) +
@@ -100,50 +100,43 @@ void log_output_display_modes(IDXGIOutput *output, DXGI_FORMAT format) {
         OutputDebugStringW(text.c_str());
     }
 }
-void queue_info(ID3D12Device *device, BOOL enable) {
+void queue_info(ID3D12Device* device, BOOL enable) {
     ComPtr<ID3D12InfoQueue> info_queue;
     device->QueryInterface(IID_PPV_ARGS(&info_queue));
     info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable);
-//    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
+    //    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable);
     info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable);
 }
 
-void set_reporter(ID3D12Device *device) {
-    device->QueryInterface(&reporter);
-}
+void set_reporter(ID3D12Device* device) { device->QueryInterface(&reporter); }
 
 void report_live_device_objs() {
-   reporter-> ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
-   reporter->Release();
+    reporter->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+    reporter->Release();
 }
 
 Error::Error(u32 hr, std::source_location location) noexcept : hr(hr), loc(location) {}
 
 void operator>>(Error grabber, Checker checker) {
-   if(FAILED(grabber.hr)) {
-       std::string error = std::format(
-               "{}:{}:{}: HRESULT failed with error code {}" ,
-               grabber.loc.file_name(),
-               grabber.loc.line(),
-               grabber.loc.column(),
-               grabber.hr
-       );
-       logger(logDEBUG) << error.c_str();
-       MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2 );
-       throw std::runtime_error(error);
-   }
+    if (FAILED(grabber.hr)) {
+        std::string error = std::format("{}:{}:{}: HRESULT failed with error code {}", grabber.loc.file_name(),
+                                        grabber.loc.line(), grabber.loc.column(), grabber.hr);
+        logger(LogDebug) << error.c_str();
+        MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2);
+        throw std::runtime_error(error);
+    }
 }
 
-void get_hardware_adapter(IDXGIFactory1 *p_factory, IDXGIAdapter1 **pp_adapter) {
+void get_hardware_adapter(IDXGIFactory1* p_factory, IDXGIAdapter1** pp_adapter) {
 
     *pp_adapter = nullptr;
 
     ComPtr<IDXGIAdapter1> adapter;
     ComPtr<IDXGIFactory6> factory6;
-    if (SUCCEEDED(p_factory->QueryInterface(IID_PPV_ARGS(&factory6))))
-    {
-        for ( u32 adapter_index = 0; SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-                     adapter_index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter))); ++adapter_index) {
+    if (SUCCEEDED(p_factory->QueryInterface(IID_PPV_ARGS(&factory6)))) {
+        for (u32 adapter_index = 0; SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+                     adapter_index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)));
+             ++adapter_index) {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
 
@@ -155,10 +148,8 @@ void get_hardware_adapter(IDXGIFactory1 *p_factory, IDXGIAdapter1 **pp_adapter) 
         }
     }
 
-    if(adapter.Get() == nullptr)
-    {
-        for (UINT adapter_index = 0; SUCCEEDED(p_factory->EnumAdapters1(adapter_index, &adapter)); ++adapter_index)
-        {
+    if (adapter.Get() == nullptr) {
+        for (UINT adapter_index = 0; SUCCEEDED(p_factory->EnumAdapters1(adapter_index, &adapter)); ++adapter_index) {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
 
@@ -173,4 +164,4 @@ void get_hardware_adapter(IDXGIFactory1 *p_factory, IDXGIAdapter1 **pp_adapter) 
 }
 
 
-}
+} // namespace reveal3d::graphics::dx12::utl

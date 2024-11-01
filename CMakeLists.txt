@@ -9,19 +9,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories(PUBLIC .)
 
-#find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-#set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
-
 set(SOURCES
         render/camera.cpp
         render/light.cpp
-        common/timer.cpp
-        config/config.cpp
         input/input.cpp
-        content/primitives.cpp
         content/formats/obj/obj_parser.cpp
         window/glfw/glfw.cpp
-        common/logger.cpp
 )
 
 set(HEADERS
@@ -55,13 +48,24 @@ set(HEADERS
         common/string_literals.hpp
         core/pooling/rigidbody_pool.hpp
         core/components/rigidbody.hpp
+        math/utils.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
+
 add_library(Reveal3d STATIC ${SOURCES} ${HEADERS})
 
+include(FetchContent)
+FetchContent_Declare(
+        tomlplusplus
+        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+        GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+target_link_libraries(Reveal3d PUBLIC tomlplusplus::tomlplusplus)
 find_package(OpenGL REQUIRED)
 target_include_directories(Reveal3d PRIVATE extern/include)
+
 
 if (WIN32)
     #add_compile_options(/Wall /external:anglebrakets /external:W0)
@@ -102,7 +106,6 @@ if (IMGUI)
     target_include_directories(Reveal3d PUBLIC extern/include/IMGUI)
 endif ()
 target_sources(Reveal3d PUBLIC ${GRAPHICS} ${WINDOW} ${IMGUI_SOURCE})
-#target_link_libraries(Reveal3d PRIVATE )
 
 target_include_directories(Reveal3d PUBLIC .)
 target_include_directories(Reveal3d PUBLIC math/${PLAT})

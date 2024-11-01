@@ -26,7 +26,7 @@ namespace reveal3d::window {
 
 class Glfw {
 public:
-    Glfw(Config &info);
+    Glfw(Info &info);
 
     template<graphics::HRI Gfx> void create(render::Renderer<Gfx> &renderer);
     void show();
@@ -39,7 +39,7 @@ public:
 private:
     template<graphics::HRI Gfx> void clipMouse(render::Renderer<Gfx> &renderer);
 
-    Config info_;
+    Info info_;
     GLFWwindow* win_ptr_;
 
 };

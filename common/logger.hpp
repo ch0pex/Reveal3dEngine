@@ -6,49 +6,74 @@
  * @file logger.hpp
  * @version 1.0
  * @date 08/03/2024
- * @brief Logger 
+ * @brief Logger
  *
- * Logger class  
+ * Logger class
  */
 
 #pragma once
 
 #include "platform.hpp"
+#include "primitive_types.hpp"
 
+#include <array>
 #include <iostream>
 #include <sstream>
 
-enum LogLevel {
-    logERROR = 0,
-    logWARNING,
-    logDEBUG,
+enum LogLevel : reveal3d::u8 {
+    LogError = 0,
+    LogWarning,
+    LogDebug,
 };
 
-class Logger
-{
-public:
-    Logger(LogLevel log_level = logERROR);
+inline constexpr LogLevel loglevel = LogDebug;
 
-    template <typename T>
-    Logger & operator<<(T const & value)
-    {
+class Logger {
+public:
+    Logger(LogLevel log_level) : level_(log_level) {
+
+        switch (log_level) {
+            case LogError:
+                buffer_ << "ERROR MSG" << ": ";
+                break;
+            case LogWarning:
+                buffer_ << "WARNING MSG" << ": ";
+                break;
+            case LogDebug:
+                buffer_ << "DEBUG MSG" << ": ";
+                break;
+        }
+    }
+
+    template<typename T>
+    Logger& operator<<(T const& value) {
         buffer_ << value;
         return *this;
     }
 
-    static void clear(LogLevel log_level);
-    static std::string log(LogLevel log_level);
-    ~Logger();
+    static std::string log(LogLevel log_level) { return Logger::persistent_logs_.at(log_level).str(); }
+
+    ~Logger() {
+        buffer_ << '\n';
+        Logger::persistent_logs_.at(level_) << buffer_.str();
+#ifdef _WIN32
+        OutputDebugStringA(buffer_.str().c_str());
+#else
+        std::cerr << buffer_.str();
+#endif
+    }
+
+    static void clear(LogLevel log_level) { Logger::persistent_logs_.at(log_level).str(""); }
 
 private:
     LogLevel level_;
     std::ostringstream buffer_;
-    static std::stringstream persistent_logs_[3];
+    static inline std::array<std::stringstream, 3> persistent_logs_;
 };
 
-extern const LogLevel loglevel;
 
-#define logger(level) \
-if (level > loglevel) ; \
-else Logger(level)
-
+#define logger(level)                                                                                                  \
+    if (level > loglevel)                                                                                              \
+        ;                                                                                                              \
+    else                                                                                                               \
+        Logger(level)
