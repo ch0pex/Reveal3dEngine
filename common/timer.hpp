@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <chrono>
 #include "input/input.hpp"
 #include "platform.hpp"
@@ -29,8 +30,7 @@ public:
         queryFrequency(counts_per_second_);
         second_per_count_ = 1.0 / static_cast<f64>(counts_per_second_);
 
-        input::add_handler_up(input::Action::ScenePause,
-                              {[this](input::Action act, input::type type) { pause(act, type); }});
+        add_handler_up(input::Action::ScenePause, {[this](input::Action act, input::type type) { pause(act, type); }});
     }
 
     [[nodiscard]] f64 deltaTime() const { return delta_time_; }
@@ -41,7 +41,7 @@ public:
 
     [[nodiscard]] f64 meanFps() const { return static_cast<f64>(total_frames_) / totalTime(); }
 
-    [[nodiscard]] f64 averageFps() const { return fps_; }
+    [[nodiscard]] u64 averageFps() const { return fps_; }
 
     [[nodiscard]] u64 totalFrames() const { return total_frames_; }
 
@@ -50,9 +50,7 @@ public:
     [[nodiscard]] f64 diff(f64 time) const { return totalTime() - time; }
 
     [[nodiscard]] f64 totalTime() const {
-        if (stopped_) {
-            return ((stop_time_ - paused_time_) - base_time_) * second_per_count_;
-        }
+        if (stopped_) return ((stop_time_ - paused_time_) - base_time_) * second_per_count_;
         i64 curr_time = 0;
 
         queryCounter(curr_time);
@@ -92,7 +90,6 @@ public:
     }
 
     void tick() {
-
         i64 curr_time = 0;
         queryCounter(curr_time);
         total_frames_++;
@@ -102,36 +99,30 @@ public:
         frame_time_ = delta_time_;
         prev_time_ = curr_time_;
 
-        const u64 new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
-
-        if (total_time_ < new_total_seconds) {
+        if (const u64 new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
+            total_time_ < new_total_seconds)
+        {
             total_time_ = new_total_seconds;
             fps_ = total_frames_ - prev_total_frames_;
             prev_total_frames_ = total_frames_;
         }
 
-        if (delta_time_ < 0.0) {
-            delta_time_ = 0.0;
-        }
+        delta_time_ = std::max(delta_time_, 0.0);
 
-        if (stopped_) {
+        [[unlikely]] if (stopped_) {
             delta_time_ = 0.0;
         }
     }
 
     void pause(input::Action act, input::type type) {
-        if (stopped_) {
-            start();
-        }
-        else {
-            stop();
-        }
+        if (stopped_) start();
+        else stop();
     }
 
 private:
 #ifdef _WIN32
-    static void queryFrequency(i64& time) { QueryPerformanceFrequency((LARGE_INTEGER*)&time); }
-    static void queryCounter(i64& time) { QueryPerformanceCounter((LARGE_INTEGER*)&time); }
+    static void queryFrequency(i64& time) { QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&time)); }
+    static void queryCounter(i64& time) { QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&time)); }
 #else
     static inline void QueryFrequency(i64& time) { time = 1000000000; }
     static inline void QueryCounter(i64& time) {
@@ -153,7 +144,7 @@ private:
     i64 curr_time_{};
 
     u64 total_time_{};
-    u64 fps_{};
+    u16 fps_{};
     u64 total_frames_{};
     u64 prev_total_frames_{};
     bool stopped_{false};

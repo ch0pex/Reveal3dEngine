@@ -18,6 +18,7 @@
 #include "core/pooling/metadata_pool.hpp"
 #include "core/pooling/script_pool.hpp"
 #include "core/pooling/transform_pool.hpp"
+#include "core/pooling/rigidbody_pool.hpp"
 #include "math/math.hpp"
 
 #include <queue>
@@ -94,9 +95,8 @@ public:
         return components_ids_.at(id::index(entity_id));
     }
 
-    void removeComponent(id_t entity_id) {
-        id_t component_id{components_ids_.at(id::index(entity_id))};
-        if (id_factory_.isAlive(component_id)) {
+    void removeComponent(const id_t entity_id) {
+        if (id_t component_id{components_ids_.at(id::index(entity_id))};id_factory_.isAlive(component_id)) {
             this->removeData(component_id); // Removes data
             if constexpr (std::same_as<T, geometry::Pool>) { // TODO change this for a concept
                 this->deleted_components_.push(component_id);
@@ -112,14 +112,14 @@ public:
 
     id_t at(id_t id) { return components_ids_.at(id::index(id)); }
 
-    std::vector<T>::iterator begin() { return components_ids_.begin(); };
+    typename std::vector<T>::iterator begin() { return components_ids_.begin(); };
 
-    std::vector<T>::iterator end() { return components_ids_.end(); };
+    typename std::vector<T>::iterator end() { return components_ids_.end(); };
 
-    u32 getMappedId(id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
+    u32 getMappedId(const id_t component_id) { return id_factory_.mapped(id::index(component_id)); }
 
 private:
-    void addId(id_t index, id_t id) {
+    void addId(const id_t index, id_t id) {
         if (index >= components_ids_.size()) {
             components_ids_.emplace_back(id);
         }
@@ -129,8 +129,8 @@ private:
     }
 
     void removeId(id_t id) {
-        id_t last = components_ids_.at(id_factory_.back());
-        u32 idx{id_factory_.mapped(id)};
+        const id_t last = components_ids_.at(id_factory_.back());
+        const u32 idx{id_factory_.mapped(id)};
         if (last != id) {
             components_ids_.at(id::index(getMappedId(last))) = (id::index(id) | id::generation(last));
         }

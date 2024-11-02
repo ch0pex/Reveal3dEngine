@@ -14,11 +14,11 @@
 
 #include "obj_parser.hpp"
 
-#include <codecvt>
 #include <fstream>
 #include <locale>
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 
 namespace reveal3d::content {
@@ -105,7 +105,7 @@ u32 get_data_from_obj(const std::string_view path, std::vector<render::Vertex>& 
     render::Vertex vert;
     std::unordered_map<FaceElem, u32, FaceElem::Hash> cache;
     for (auto& primitive: primitives) {
-        if (cache.find(primitive) == cache.end()) {
+        if (!cache.contains(primitive)  ) {
             vert.pos = positions[primitive.pos_index - 1U];
             vert.normal = normals[primitive.normal_index - 1U];
             //            vert.uv = uvs[primitives[i].uvIndex - 1U];

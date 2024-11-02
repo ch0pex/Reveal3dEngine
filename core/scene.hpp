@@ -33,7 +33,6 @@
 #pragma once
 
 #include "core/pooling/pool.hpp"
-#include "core/pooling/rigidbody_pool.hpp"
 
 #include <deque>
 #include <set>
@@ -46,18 +45,18 @@ class Entity {
 public:
     Entity() : id_(id::invalid) {}
 
-    explicit Entity(id_t id) : id_{id} {};
+    explicit Entity(const id_t id) : id_{id} {};
 
-    template<detail::is_component T> // C
+    template<detail::is_component T>
     T component() const;
 
     template<detail::is_component T>
-    T addComponent(T::init_info&& init_info);
+    T addComponent(typename T::init_info&& init_info);
 
     template<detail::is_component T>
     void removeComponent();
 
-    Entity addChild() const;
+    [[nodiscard]] Entity addChild() const;
 
     [[nodiscard]] u32 id() const { return id_; }
 

@@ -119,9 +119,9 @@ Error::Error(u32 hr, std::source_location location) noexcept : hr(hr), loc(locat
 
 void operator>>(Error grabber, Checker checker) {
     if (FAILED(grabber.hr)) {
-        std::string error = std::format("{}:{}:{}: HRESULT failed with error code {}", grabber.loc.file_name(),
+        const std::string error = std::format("{}:{}:{}: HRESULT failed with error code {}", grabber.loc.file_name(),
                                         grabber.loc.line(), grabber.loc.column(), grabber.hr);
-        logger(LogDebug) << error.c_str();
+        logger(LogDebug) << error;
         MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2);
         throw std::runtime_error(error);
     }

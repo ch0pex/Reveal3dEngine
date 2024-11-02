@@ -15,6 +15,9 @@
 
 #include "vector.hpp"
 
+#include <concepts>
+#include <type_traits>
+
 namespace reveal3d::math::utils {
 
 inline auto to_array(xvec3 v) { return std::array{v.x(), v.y(), v.z()}; }

@@ -6,7 +6,7 @@
  * @file platform.hpp
  * @version 1.0
  * @date 09/03/2024
- * @brief Platform 
+ * @brief Platform
  *
  * Platform especific stuff
  */
@@ -16,11 +16,13 @@
 
 #ifdef WIN32
 
+#define NOMINMAX
+
 #include <DirectXMath.h>
 #include <windows.h>
 
 
-//#define inline __forceinline
+// #define inline __forceinline
 using namespace DirectX;
 
 struct WHandle {
@@ -32,12 +34,11 @@ struct WHandle {
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 #else
-#include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "GL/glew.h"
 #define inline inline
 
 using WHandle = GLFWwindow*;
 
 #endif
-

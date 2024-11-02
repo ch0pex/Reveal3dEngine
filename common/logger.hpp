@@ -17,63 +17,66 @@
 #include "primitive_types.hpp"
 
 #include <array>
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include <iostream>
 #include <sstream>
 
+using namespace std::literals;
 enum LogLevel : reveal3d::u8 {
     LogError = 0,
     LogWarning,
     LogDebug,
 };
 
+#ifdef _DEBUG
 inline constexpr LogLevel loglevel = LogDebug;
+#else
+inline constexpr LogLevel loglevel = LogWarning;
+#endif
 
-class Logger {
+template<LogLevel lvl> class Logger {
 public:
-    Logger(LogLevel log_level) : level_(log_level) {
-
-        switch (log_level) {
-            case LogError:
-                buffer_ << "ERROR MSG" << ": ";
-                break;
-            case LogWarning:
-                buffer_ << "WARNING MSG" << ": ";
-                break;
-            case LogDebug:
-                buffer_ << "DEBUG MSG" << ": ";
-                break;
+    explicit Logger() {
+        if constexpr (lvl == LogError) {
+            buffer_.append("[ERROR]: "s);
+        }
+        else if constexpr (lvl == LogWarning) {
+            buffer_.append("[WARNING]: "s);
+        }
+        else {
+            buffer_.append("[DEBUG]: "s);
         }
     }
 
-    template<typename T>
-    Logger& operator<<(T const& value) {
-        buffer_ << value;
+    Logger& operator<<(auto const& value) {
+        fmt::format_to(std::back_inserter(buffer_), "{}", value);
         return *this;
     }
 
-    static std::string log(LogLevel log_level) { return Logger::persistent_logs_.at(log_level).str(); }
+    static std::string log() { return fmt::to_string(persistent_logs_.at(lvl)); }
 
     ~Logger() {
-        buffer_ << '\n';
-        Logger::persistent_logs_.at(level_) << buffer_.str();
+        buffer_.push_back('\n');
+        OutputDebugString(fmt::to_string(buffer_).data());
+        persistent_logs_.at(lvl).append(buffer_);
+
 #ifdef _WIN32
-        OutputDebugStringA(buffer_.str().c_str());
 #else
-        std::cerr << buffer_.str();
+        std::cerr << fmt::to_string(buffer_);
 #endif
     }
 
-    static void clear(LogLevel log_level) { Logger::persistent_logs_.at(log_level).str(""); }
+    static void clear() { persistent_logs_.at(lvl).clear(); }
 
 private:
-    LogLevel level_;
-    std::ostringstream buffer_;
-    static inline std::array<std::stringstream, 3> persistent_logs_;
+    fmt::memory_buffer buffer_;
+    static inline std::array<fmt::memory_buffer, 3> persistent_logs_;
 };
 
-
+// Macro para usar el logger con diferentes niveles
 #define logger(level)                                                                                                  \
     if (level > loglevel)                                                                                              \
         ;                                                                                                              \
     else                                                                                                               \
-        Logger(level)
+        Logger<level>()

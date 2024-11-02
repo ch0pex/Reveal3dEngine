@@ -10,9 +10,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 include_directories(PUBLIC .)
 
 set(SOURCES
-        render/camera.cpp
         render/light.cpp
-        input/input.cpp
         content/formats/obj/obj_parser.cpp
         window/glfw/glfw.cpp
 )
@@ -49,6 +47,7 @@ set(HEADERS
         core/pooling/rigidbody_pool.hpp
         core/components/rigidbody.hpp
         math/utils.hpp
+        input/input_types.hpp
 )
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
@@ -62,7 +61,17 @@ FetchContent_Declare(
         GIT_TAG v3.4.0
 )
 FetchContent_MakeAvailable(tomlplusplus)
+
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG 10.1.1  # Cambia a la versión de fmt que prefieras
+)
+
+FetchContent_MakeAvailable(fmt)
+
 target_link_libraries(Reveal3d PUBLIC tomlplusplus::tomlplusplus)
+target_link_libraries(Reveal3d PUBLIC fmt::fmt)
 find_package(OpenGL REQUIRED)
 target_include_directories(Reveal3d PRIVATE extern/include)
 

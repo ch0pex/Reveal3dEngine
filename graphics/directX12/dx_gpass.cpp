@@ -129,12 +129,12 @@ void Gpass::buildPsos(ID3D12Device* device) {
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS",
                             "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
-        logger(LogDebug) << (char*)errors->GetBufferPointer();
+        logger(LogDebug) << static_cast<char*>(errors->GetBufferPointer());
     hr >> utl::DxCheck;
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS",
                             "ps_5_0", compile_flags, 0, &pixel_shader, &errors);
     if (errors != nullptr)
-        logger(LogDebug) << (char*)errors->GetBufferPointer();
+        logger(LogDebug) << static_cast<char*>(errors->GetBufferPointer());
     hr >> utl::DxCheck;
 
     D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
@@ -191,12 +191,12 @@ void Gpass::buildPsos(ID3D12Device* device) {
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS",
                             "vs_5_0", compile_flags, 0, &vertex_shader, &errors);
     if (errors != nullptr)
-        logger(LogDebug) << (char*)errors->GetBufferPointer();
+        logger(LogDebug) << static_cast<char*>(errors->GetBufferPointer());
     hr >> utl::DxCheck;
     hr = D3DCompileFromFile(relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS",
                             "ps_5_0", compile_flags, 0, &pixel_shader, &errors);
     if (errors != nullptr)
-        logger(LogDebug) << (char*)errors->GetBufferPointer();
+        logger(LogDebug) << static_cast<char*>(errors->GetBufferPointer());
     hr >> utl::DxCheck;
 
     D3D12_RENDER_TARGET_BLEND_DESC transparency_blend_desc;

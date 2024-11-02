@@ -37,8 +37,8 @@ public:
     void closeWindow(input::Action act, input::type type);
     bool shouldClose();
 
-    [[nodiscard]] inline Resolution& getRes() { return info_.res; }
-    [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
+    [[nodiscard]] Resolution& getRes() { return info_.res; }
+    [[nodiscard]] WHandle getHandle() const { return info_.handle; }
 
 private:
     template<graphics::HRI Gfx>
@@ -54,7 +54,7 @@ private:
 
 template<graphics::HRI Gfx>
 void Win32::update(render::Renderer<Gfx>& renderer) {
-    while (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
+    while (PeekMessage(&msg_, nullptr, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg_);
         DispatchMessage(&msg_);
         is_running_ &= (msg_.message != WM_QUIT);
@@ -74,7 +74,7 @@ LRESULT Win32::defaultProc(const HWND hwnd, const UINT message, const WPARAM w_p
 
     switch (message) {
         case WM_CREATE: {
-            LPCREATESTRUCT p_create_struct = reinterpret_cast<LPCREATESTRUCT>(l_param);
+            auto *p_create_struct = reinterpret_cast<LPCREATESTRUCT>(l_param);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(p_create_struct->lpCreateParams));
             return 0;
         }
@@ -97,17 +97,17 @@ LRESULT Win32::defaultProc(const HWND hwnd, const UINT message, const WPARAM w_p
             if (io.WantCaptureMouse)
                 return 0;
 #endif
-            input::key_down(w_param);
+            input::key_down(static_cast<input::Code>(w_param));
             return 0;
         }
         case WM_KEYUP:
-            input::key_up(w_param);
+            input::key_up(static_cast<input::Code>(w_param));
             return 0;
         case WM_MBUTTONDOWN: {
             input::Cursor::should_clip = true;
-            input::Cursor::last_uncliped_pos = {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)};
+            input::Cursor::last_uncliped_pos = {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))};
             SetCapture(hwnd);
-            SetCursor(NULL);
+            SetCursor(nullptr);
             input::key_down(input::Code::MouseMiddle);
             return 0;
         }
@@ -116,27 +116,27 @@ LRESULT Win32::defaultProc(const HWND hwnd, const UINT message, const WPARAM w_p
             input::key_up(input::Code::MouseMiddle);
             RECT window_rect;
             GetWindowRect(hwnd, &window_rect);
-            SetCursorPos(input::Cursor::last_uncliped_pos.x + window_rect.left,
-                         input::Cursor::last_uncliped_pos.y + window_rect.top);
+            SetCursorPos(window_rect.left + input::Cursor::last_uncliped_pos.x,
+                         window_rect.top + input::Cursor::last_uncliped_pos.y);
             ReleaseCapture();
             return 0;
         }
         case WM_MOUSEMOVE: {
             input::Cursor::pos = {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))};
-            input::mouse_move(w_param, input::Cursor::pos);
+            input::mouse_move(static_cast<input::Code>(w_param), input::Cursor::pos);
             return 0;
         }
         case WM_RBUTTONDOWN:
-            input::key_down(input::Code::MouseRight, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
+            key_down(input::Code::MouseRight, {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))});
             return 0;
         case WM_RBUTTONUP:
-            input::key_up(input::Code::MouseRight, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
+            key_up(input::Code::MouseRight, {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))});
             return 0;
         case WM_LBUTTONDOWN:
-            input::key_down(input::Code::MouseLeft, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
+            key_down(input::Code::MouseLeft, {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))});
             return 0;
         case WM_LBUTTONUP:
-            input::key_up(input::Code::MouseLeft, {(f32)GET_X_LPARAM(l_param), (f32)GET_Y_LPARAM(l_param)});
+            key_up(input::Code::MouseLeft, {static_cast<f32>(GET_X_LPARAM(l_param)), static_cast<f32>(GET_Y_LPARAM(l_param))});
             return 0;
     }
     return DefWindowProcW(hwnd, message, w_param, l_param);

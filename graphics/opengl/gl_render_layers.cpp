@@ -15,6 +15,7 @@
 #include "core/scene.hpp"
 
 #include <fstream>
+#include <iostream>
 
 namespace reveal3d::graphics::opengl {
 
@@ -31,7 +32,7 @@ std::string RenderLayers::readShader(const char* file_name) {
     std::string shader_code;
     std::ifstream file(file_name, std::ios::in);
     if (!file.good()) {
-        logger(LogError) << "Could not read Shader...";
+        logger(LogError) << "Could not read Shader..."s;
         std::terminate();
     }
 
@@ -56,7 +57,7 @@ u32 RenderLayers::createShader(GLenum shader_type, std::string& source, const ch
         i32 info_log_length = 0;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
         std::vector<char> shader_log(info_log_length);
-        glGetShaderInfoLog(shader, info_log_length, NULL, shader_log.data());
+        glGetShaderInfoLog(shader, info_log_length, nullptr, shader_log.data());
         logger(LogDebug) << "Error compiling Shader: " << shader_log.data();
         return 0;
     }
