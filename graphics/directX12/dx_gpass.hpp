@@ -6,10 +6,12 @@
  * @file dx_gpass.hpp
  * @version 1.0
  * @date 12/08/2024
- * @brief Short description
+ * @brief Gpass main class
  *
- * Longer description
+ * This class will handle deferred lighting or forward+ in a future
+ * for now it's just a simple forward rendering
  */
+
 #pragma once
 
 #include "common/common.hpp"
@@ -31,7 +33,7 @@ public:
   static void setRenderTargets(const Commands& command_mng, const FrameResource& frame_resource);
   void depthPrepass(); // TODO
   void render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
-  void addRenderElement(core::Entity entity, Commands& cmd_mng, ID3D12Device* device);
+  void addRenderElement(core::Entity entity, const Commands& cmd_mng, ID3D12Device* device);
   void removeRenderElement(u32 idx);
   void terminate();
 

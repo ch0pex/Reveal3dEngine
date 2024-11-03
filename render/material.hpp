@@ -28,9 +28,9 @@ enum Shader : u8 {
 };
 
 struct Material {
-  math::vec4 base_color {0.8f, 0.8f, 0.8f, 0.0f};
-  math::vec3 fresnel {0.8f, 0.8f, 0.8f};
-  f32 roughness {0.8f};
+  math::vec4 base_color {0.8F, 0.8F, 0.8F, 0.0F};
+  math::vec3 fresnel {0.8F, 0.8F, 0.8F};
+  f32 roughness {0.8F};
   math::mat4 mat_transform {math::mat4_identity()};
 };
 

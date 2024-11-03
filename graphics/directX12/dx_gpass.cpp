@@ -11,9 +11,9 @@ namespace reveal3d::graphics::dx12 {
 
 
 Gpass::Gpass() {
-  root_signatures_[render::Shader::Opaque].reset(4);
-  root_signatures_[render::Shader::Unlit].reset(4);
-  root_signatures_[render::Shader::Grid].reset(4);
+  root_signatures_.at(render::Shader::Opaque).reset(4);
+  root_signatures_.at(render::Shader::Unlit).reset(4);
+  root_signatures_.at(render::Shader::Grid).reset(4);
 }
 
 void Gpass::init(ID3D12Device* device) {
@@ -68,7 +68,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource& frame
         command_list->SetPipelineState(curr_pipeline_state_);
       }
 
-      // TODO This is the most expensive way to set RootParameters limit 64 DWORDS
+      // TODO This is the most expensive way to set RootParameters limit 64 DWORDS, currently using 6
       command_list->SetGraphicsRootConstantBufferView(
           0, frame_resource.constant_buffer.gpuPos(id::index(transform.id()))
       ); // 2 DWORDS
@@ -83,7 +83,9 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource& frame
       command_list->DrawIndexedInstanced(index_count, 1, index_pos, vertex_pos, 0);
     }
   }
-  drawWorldGrid(command_list, frame_resource);
+  if (config::scene.showGrid) {
+    drawWorldGrid(command_list, frame_resource);
+  }
 }
 
 void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource) {
@@ -95,8 +97,8 @@ void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource
 }
 
 // NOTE change geometry to mesh when content module update
-void Gpass::addRenderElement(core::Entity entity, Commands& cmd_mng, ID3D12Device* device) {
-  core::Geometry geometry           = entity.component<core::Geometry>();
+void Gpass::addRenderElement(core::Entity entity, const Commands& cmd_mng, ID3D12Device* device) {
+  const auto geometry               = entity.component<core::Geometry>();
   BufferInitInfo vertex_buffer_info = {
     .device = device, .cmd_list = cmd_mng.list(), .data = geometry.vertices().data(), .count = geometry.vertexCount()
   };
@@ -234,22 +236,22 @@ void Gpass::buildPsos(ID3D12Device* device) {
   transparency_blend_desc.LogicOp               = D3D12_LOGIC_OP_NOOP;
   transparency_blend_desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-  D3D12_BLEND_DESC blend_desc = {.RenderTarget = transparency_blend_desc};
+  const D3D12_BLEND_DESC blend_desc = {.RenderTarget = transparency_blend_desc};
 
-  pipeline_states_[render::Shader::Grid].setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_[render::Shader::Grid].setRootSignature(root_signatures_[render::Shader::Grid]);
-  pipeline_states_[render::Shader::Grid].setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_[render::Shader::Grid].setRasterizerCullMode(D3D12_CULL_MODE_NONE);
-  pipeline_states_[render::Shader::Grid].setBlendState(blend_desc);
-  pipeline_states_[render::Shader::Grid].setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-  pipeline_states_[render::Shader::Grid].setSampleMask(UINT_MAX);
-  pipeline_states_[render::Shader::Grid].setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-  pipeline_states_[render::Shader::Grid].setNumRenderTargets(1U);
-  pipeline_states_[render::Shader::Grid].setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
-  pipeline_states_[render::Shader::Grid].setSampleDescCount(1U); // TODO: Support x4
-  pipeline_states_[render::Shader::Grid].setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
+  pipeline_states_.at(render::Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+  pipeline_states_.at(render::Shader::Grid).setRootSignature(root_signatures_[render::Shader::Grid]);
+  pipeline_states_.at(render::Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
+  pipeline_states_.at(render::Shader::Grid).setRasterizerCullMode(D3D12_CULL_MODE_NONE);
+  pipeline_states_.at(render::Shader::Grid).setBlendState(blend_desc);
+  pipeline_states_.at(render::Shader::Grid).setDepthStencil(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+  pipeline_states_.at(render::Shader::Grid).setSampleMask(UINT_MAX);
+  pipeline_states_.at(render::Shader::Grid).setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+  pipeline_states_.at(render::Shader::Grid).setNumRenderTargets(1U);
+  pipeline_states_.at(render::Shader::Grid).setRtvFormats(0U, DXGI_FORMAT_R8G8B8A8_UNORM);
+  pipeline_states_.at(render::Shader::Grid).setSampleDescCount(1U); // TODO: Support x4
+  pipeline_states_.at(render::Shader::Grid).setDsvFormat(DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-  pipeline_states_[render::Shader::Grid].finalize(device);
+  pipeline_states_.at(render::Shader::Grid).finalize(device);
 
   //    auto gridMesh = new render::SubMesh();
   //    gridMesh->indexCount = 6;
