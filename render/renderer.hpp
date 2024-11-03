@@ -17,39 +17,14 @@
 #include "camera.hpp"
 #include "graphics/gfx.hpp"
 
-#include <functional>
-#include "IMGUI/backends/imgui_impl_dx12.h"
-#include "IMGUI/backends/imgui_impl_win32.h"
-
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-    Renderer(window::Resolution* res, Timer& timer);
-    void init(WHandle w_handle);
-    void update();
-    void render();
-    void destroy();
-    void resize(const window::Resolution& res);
+  Renderer(window::Resolution* res, Timer& timer) : camera_(*res), graphics_(res), timer_(timer) { }
 
-    Gfx& graphics() { return graphics_; }
-
-    inline f32 deltaTime() const { return timer_.deltaTime(); }
-    inline void cameraResetMouse() { camera_.resetMouse(); }
-    inline Timer& time() { return timer_; }
-
-private:
-    Gfx graphics_;
-    Camera camera_;
-    Timer& timer_;
-};
-
-template<graphics::HRI Gfx>
-Renderer<Gfx>::Renderer(window::Resolution* res, Timer& timer) : camera_(*res), graphics_(res), timer_(timer) {}
-
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::init(WHandle w_handle) {
+  void init(WHandle w_handle) {
     f32 time = timer_.totalTime();
     graphics_.initWindow(w_handle);
     graphics_.loadPipeline();
@@ -57,28 +32,36 @@ void Renderer<Gfx>::init(WHandle w_handle) {
     time = timer_.totalTime();
     graphics_.loadAssets();
     logger(LogDebug) << "Loading assets...[" << timer_.diff(time) * 1000 << "ms]";
-}
+  }
 
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::update() {
+  void update() {
     camera_.update(timer_);
     graphics_.update(camera_);
-}
+  }
 
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::render() {
-    graphics_.renderSurface();
-}
+  void render() { graphics_.renderSurface(); }
 
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::destroy() {
+  void destroy() {
     logger(LogDebug) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
     graphics_.terminate();
-}
+  }
 
-template<graphics::HRI Gfx>
-void Renderer<Gfx>::resize(const window::Resolution& res) {
+  void resize(const window::Resolution& res) {
     camera_.resize(res);
     graphics_.resize(res);
-}
+  }
+
+  Gfx& graphics() { return graphics_; }
+
+  [[nodiscard]] f32 deltaTime() const { return timer_.deltaTime(); }
+  [[nodiscard]] Timer& time() const { return timer_; }
+
+  void cameraResetMouse() { camera_.resetMouse(); }
+
+private:
+  Gfx graphics_;
+  Camera camera_;
+  Timer& timer_;
+};
+
 } // namespace reveal3d::render

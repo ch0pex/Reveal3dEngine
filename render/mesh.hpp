@@ -13,25 +13,24 @@
 
 #pragma once
 
-#include "vertex.hpp"
 #include "material.hpp"
+#include "vertex.hpp"
 
 #include <vector>
 
 namespace reveal3d::render {
 
 struct SubMesh {
-    Shader shader       {Opaque};
-    u32 vertex_pos      { 0 };
-    u32 index_pos       { 0 };
-    u32 index_count     { 0 };
-    bool visible        { true };
+  Shader shader {Opaque};
+  u32 vertex_pos {0};
+  u32 index_pos {0};
+  u32 index_count {0};
+  bool visible {true};
 };
 
 struct Mesh {
-    std::vector<render::Vertex> vertices;
-    std::vector<u32> indices;
+  std::vector<Vertex> vertices;
+  std::vector<u32> indices;
 };
 
-}
-
+} // namespace reveal3d::render
