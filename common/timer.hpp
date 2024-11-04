@@ -67,7 +67,7 @@ public:
     base_time_ = curr_time;
     prev_time_ = curr_time;
     stop_time_ = 0;
-    stopped_ = false;
+    stopped_   = false;
   }
 
   void start() {
@@ -77,7 +77,7 @@ public:
 
       paused_time_ += (start_time - stop_time_);
       prev_time_ = start_time;
-      stopped_ = false;
+      stopped_   = false;
       stop_time_ = 0;
     }
   }
@@ -87,7 +87,7 @@ public:
       i64 curr_time = 0;
       queryCounter(curr_time);
       stop_time_ = curr_time;
-      stopped_ = true;
+      stopped_   = true;
     }
   }
 
@@ -96,15 +96,15 @@ public:
     queryCounter(curr_time);
     total_frames_++;
 
-    curr_time_ = curr_time;
+    curr_time_  = curr_time;
     delta_time_ = (curr_time - prev_time_) * second_per_count_;
     frame_time_ = delta_time_;
-    prev_time_ = curr_time_;
+    prev_time_  = curr_time_;
 
     if (const u64 new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
         total_time_ < new_total_seconds) {
-      total_time_ = new_total_seconds;
-      fps_ = total_frames_ - prev_total_frames_;
+      total_time_        = new_total_seconds;
+      fps_               = total_frames_ - prev_total_frames_;
       prev_total_frames_ = total_frames_;
     }
 

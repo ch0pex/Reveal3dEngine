@@ -15,11 +15,24 @@
 
 namespace reveal3d::graphics::dx12 {
 
-GraphicsPso::GraphicsPso() { }
+GraphicsPso::GraphicsPso() :
+  pso_desc_ {
+    .SampleMask            = std::numeric_limits<u32>::max(),
+    .RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
+    .DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
+    .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+    .NumRenderTargets      = 1,
+    .DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT,
+    .SampleDesc            = {.Count = 1},
+  } {
+  pso_desc_.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+  pso_desc_.RTVFormats[0]            = DXGI_FORMAT_R8G8B8A8_UNORM;
+  pso_desc_.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+}
 
-void GraphicsPso::setPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc) { pso_desc_ = desc; }
+void GraphicsPso::setPsoDesc(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc) { pso_desc_ = desc; }
 
-void GraphicsPso::setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, u32 count) {
+void GraphicsPso::setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, const u32 count) {
   pso_desc_.InputLayout = {input_layout, count};
 }
 
@@ -31,7 +44,7 @@ void GraphicsPso::setShaders(ID3DBlob* vs, ID3DBlob* ps) {
 }
 
 void GraphicsPso::setRasterizerCullMode(const D3D12_CULL_MODE mode) {
-  pso_desc_.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+  pso_desc_.RasterizerState          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
   pso_desc_.RasterizerState.CullMode = mode;
 }
 

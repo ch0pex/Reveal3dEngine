@@ -22,19 +22,19 @@ class GraphicsPso {
 public:
   GraphicsPso();
 
-  void setPsoDesc(D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
+  void setPsoDesc(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
   void setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, u32 count);
   void setRootSignature(RootSignature& root_signature);
   void setShaders(ID3DBlob* vs, ID3DBlob* ps);
-  void setRasterizerCullMode(const D3D12_CULL_MODE mode);
+  void setRasterizerCullMode(D3D12_CULL_MODE mode);
   void setBlendState(const D3D12_BLEND_DESC& blend_desc);
   void setDepthStencil(const D3D12_DEPTH_STENCIL_DESC& ds_desc);
-  void setSampleMask(const u32 mask);
-  void setPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive);
-  void setNumRenderTargets(const u32 number);
-  void setRtvFormats(const u32 index, const DXGI_FORMAT format);
-  void setSampleDescCount(const u32 sample_count);
-  void setDsvFormat(const DXGI_FORMAT dsv_format);
+  void setSampleMask(u32 mask);
+  void setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive);
+  void setNumRenderTargets(u32 number);
+  void setRtvFormats(u32 index, DXGI_FORMAT format);
+  void setSampleDescCount(u32 sample_count);
+  void setDsvFormat(DXGI_FORMAT dsv_format);
 
   void finalize(ID3D12Device* device);
   ID3D12PipelineState* get() const { return pipeline_state_.Get(); }

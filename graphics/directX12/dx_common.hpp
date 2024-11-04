@@ -14,14 +14,11 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "utils/dx_checker.hpp"
+#include "utils/dx_utils.hpp"
 
 #include <d3d12.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
 #include <wrl.h>
 #include "d3dx12.h"
-
-#include "dx_utils.hpp"
-
-using namespace DirectX;
-using Microsoft::WRL::ComPtr;

@@ -15,8 +15,6 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "core/components/geometry.hpp"
-#include "core/config/config.hpp"
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
@@ -34,7 +32,7 @@ public:
   void depthPrepass(); // TODO
   void render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
   void addRenderElement(core::Entity entity, const Commands& cmd_mng, ID3D12Device* device);
-  void removeRenderElement(u32 idx);
+  void removeRenderElement(const u32 idx) { render_elements_.unordered_remove(idx); }
   void terminate();
 
 private:

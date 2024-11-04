@@ -28,10 +28,10 @@ public:
     f32 time = timer_.totalTime();
     graphics_.initWindow(w_handle);
     graphics_.loadPipeline();
-    logger(LogDebug) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 << "ms]";
+    logger(LogInfo) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 << "ms]";
     time = timer_.totalTime();
     graphics_.loadAssets();
-    logger(LogDebug) << "Loading assets...[" << timer_.diff(time) * 1000 << "ms]";
+    logger(LogInfo) << "Loading assets...[" << timer_.diff(time) * 1000 << "ms]";
   }
 
   void update() {
@@ -42,7 +42,7 @@ public:
   void render() { graphics_.renderSurface(); }
 
   void destroy() {
-    logger(LogDebug) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
+    logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
     graphics_.terminate();
   }
 

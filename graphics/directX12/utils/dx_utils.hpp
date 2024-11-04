@@ -13,8 +13,14 @@
 
 #pragma once
 
-#include <source_location>
-#include "dx_common.hpp"
+#include "common/common.hpp"
+
+#include <d3d12.h>
+#include <dxgi1_6.h>
+#include <wrl/client.h>
+
+using namespace DirectX;
+using Microsoft::WRL::ComPtr;
 
 namespace reveal3d::graphics::dx12::utl {
 
@@ -25,21 +31,6 @@ void release(T*& resource) {
     resource = nullptr;
   }
 }
-
-struct Checker
-{
-};
-
-extern Checker DxCheck;
-
-struct Error
-{
-  Error(u32 hr, const std::source_location& = std::source_location::current()) noexcept;
-  u32 hr;
-  std::source_location loc;
-};
-
-void operator>>(Error, Checker);
 
 void enable_cpu_layer(u32& factory_flag);
 void enable_gpu_layer();

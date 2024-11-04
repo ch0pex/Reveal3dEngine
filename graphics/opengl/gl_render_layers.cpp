@@ -58,7 +58,7 @@ u32 RenderLayers::createShader(GLenum shader_type, std::string& source, const ch
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
         std::vector<char> shader_log(info_log_length);
         glGetShaderInfoLog(shader, info_log_length, nullptr, shader_log.data());
-        logger(LogDebug) << "Error compiling Shader: " << shader_log.data();
+        logger(LogInfo) << "Error compiling Shader: " << shader_log.data();
         return 0;
     }
     return shader;

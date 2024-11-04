@@ -25,7 +25,6 @@ set(HEADERS
         render/camera.hpp
         render/light.hpp
         common/timer.hpp
-        config/config.hpp
         input/input.hpp
         content/primitives.hpp
         content/formats/obj/obj_parser.hpp
@@ -40,8 +39,6 @@ set(HEADERS
         core/pooling/geometry_pool.hpp
         core/concepts.hpp
         common/vector.hpp
-        graphics/directX12/dx_gpass.hpp
-        graphics/directX12/dx_surface.hpp
         common/string_literals.hpp
         common/string_literals.hpp
         core/pooling/rigidbody_pool.hpp
@@ -88,6 +85,7 @@ if (WIN32)
 
     aux_source_directory(graphics/directX12 GRAPHICS)
     aux_source_directory(graphics/directX12/resources GRAPHICS)
+    aux_source_directory(graphics/directX12/utils GRAPHICS)
     aux_source_directory(window/win32 WINDOW)
     #addId glew and glfw for windows
 elseif (UNIX)

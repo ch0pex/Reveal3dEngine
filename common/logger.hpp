@@ -19,65 +19,65 @@
 #include <array>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <iostream>
 #include <sstream>
 
 using namespace std::literals;
 
 enum LogLevel : reveal3d::u8 {
-    LogError = 0,
-    LogWarning,
-    LogDebug,
+  LogError = 0,
+  LogWarning,
+  LogInfo,
 };
 
 #ifdef _DEBUG
-inline constexpr LogLevel loglevel = LogDebug;
+inline constexpr LogLevel loglevel = LogInfo;
 #else
 inline constexpr LogLevel loglevel = LogWarning;
 #endif
 
-template<LogLevel lvl> class Logger {
+template<LogLevel lvl>
+class Logger {
 public:
-    explicit Logger() {
-        if constexpr (lvl == LogError) {
-            buffer_.append("[ERROR]: "s);
-        }
-        else if constexpr (lvl == LogWarning) {
-            buffer_.append("[WARNING]: "s);
-        }
-        else {
-            buffer_.append("[DEBUG]: "s);
-        }
+  explicit Logger() {
+    if constexpr (lvl == LogError) {
+      buffer_.append("[ERROR]: "s);
     }
-
-    Logger& operator<<(auto const& value) {
-        fmt::format_to(std::back_inserter(buffer_), "{}", value);
-        return *this;
+    else if constexpr (lvl == LogWarning) {
+      buffer_.append("[WARNING]: "s);
     }
+    else {
+      buffer_.append("[INFO]: "s);
+    }
+  }
 
-    static std::string log() { return fmt::to_string(persistent_logs_.at(lvl)); }
+  Logger& operator<<(auto const& value) {
+    fmt::format_to(std::back_inserter(buffer_), "{}", value);
+    return *this;
+  }
 
-    ~Logger() {
-        buffer_.push_back('\n');
-        OutputDebugString(fmt::to_string(buffer_).data());
-        persistent_logs_.at(lvl).append(buffer_);
+  static std::string log() { return fmt::to_string(persistent_logs_.at(lvl)); }
+
+  ~Logger() {
+    buffer_.push_back('\n');
+    OutputDebugString(fmt::to_string(buffer_).data());
+    persistent_logs_.at(lvl).append(buffer_);
 
 #ifdef _WIN32
 #else
-        std::cerr << fmt::to_string(buffer_);
+    std::cerr << fmt::to_string(buffer_);
 #endif
-    }
+  }
 
-    static void clear() { persistent_logs_.at(lvl).clear(); }
+  static void clear() { persistent_logs_.at(lvl).clear(); }
 
 private:
-    fmt::memory_buffer buffer_;
-    static inline std::array<fmt::memory_buffer, 3> persistent_logs_;
+  fmt::memory_buffer buffer_;
+  static inline std::array<fmt::memory_buffer, 3> persistent_logs_;
 };
 
 // Macro para usar el logger con diferentes niveles
 #define logger(level)                                                                                                  \
-    if (level > loglevel)                                                                                              \
-        ;                                                                                                              \
-    else                                                                                                               \
-        Logger<level>()
+  if (level > loglevel)                                                                                                \
+    ;                                                                                                                  \
+  else                                                                                                                 \
+    Logger<level>()

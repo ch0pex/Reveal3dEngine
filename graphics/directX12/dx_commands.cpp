@@ -12,7 +12,6 @@
  */
 
 #include "dx_commands.hpp"
-#include "dx_utils.hpp"
 
 
 namespace reveal3d::graphics::dx12 {

@@ -12,16 +12,11 @@
  */
 
 #include "dx_utils.hpp"
+#include "dx_checker.hpp"
 
-#include <format>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <windows.h>
 
 namespace reveal3d::graphics::dx12::utl {
 
-Checker DxCheck;
 ID3D12DebugDevice2* reporter;
 
 static void log_adapter_outputs(IDXGIAdapter* adapter);
@@ -45,12 +40,12 @@ void enable_gpu_layer() {
 
 
 void log_adapters() {
-  u32 index = 0;
+  u32 index             = 0;
   IDXGIAdapter* adapter = nullptr;
   IDXGIFactory7* factory;
   std::vector<IDXGIAdapter*> adapter_list;
 
-  CreateDXGIFactory(IID_PPV_ARGS(&factory));
+  CreateDXGIFactory(IID_PPV_ARGS(&factory)) >> DxCheck;
 
   while (factory->EnumAdapters(index, &adapter) != DXGI_ERROR_NOT_FOUND) {
     DXGI_ADAPTER_DESC desc;
@@ -71,11 +66,11 @@ void log_adapters() {
 }
 
 void log_adapter_outputs(IDXGIAdapter* adapter) {
-  UINT index = 0;
+  UINT index          = 0;
   IDXGIOutput* output = nullptr;
   while (adapter->EnumOutputs(index, &output) != DXGI_ERROR_NOT_FOUND) {
     DXGI_OUTPUT_DESC desc;
-    output->GetDesc(&desc);
+    output->GetDesc(&desc) >> DxCheck;
 
     std::wstring text = L"***Output: ";
     text += desc.DeviceName;
@@ -85,16 +80,16 @@ void log_adapter_outputs(IDXGIAdapter* adapter) {
   }
 }
 
-void log_output_display_modes(IDXGIOutput* output, DXGI_FORMAT format) {
-  UINT count = 0;
-  UINT flags = 0;
+void log_output_display_modes(IDXGIOutput* output, const DXGI_FORMAT format) {
+  UINT count       = 0;
+  const UINT flags = 0;
   // Call with nullptr to get list countData.
   output->GetDisplayModeList(format, flags, &count, nullptr) >> DxCheck;
   std::vector<DXGI_MODE_DESC> modeList(count);
   output->GetDisplayModeList(format, flags, &count, &modeList[0]) >> DxCheck;
   for (auto& x: modeList) {
-    UINT n = x.RefreshRate.Numerator;
-    UINT d = x.RefreshRate.Denominator;
+    const UINT n      = x.RefreshRate.Numerator;
+    const UINT d      = x.RefreshRate.Denominator;
     std::wstring text = L"Width = " + std::to_wstring(x.Width) + L" " + L"Height = " + std::to_wstring(x.Height) +
                         L" " + L"Refresh = " + std::to_wstring(n) + L"/" + std::to_wstring(d) + L"\n";
     OutputDebugStringW(text.c_str());
@@ -113,20 +108,6 @@ void set_reporter(ID3D12Device* device) { device->QueryInterface(&reporter); }
 void report_live_device_objs() {
   reporter->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL) >> DxCheck;
   reporter->Release();
-}
-
-Error::Error(const u32 hr, const std::source_location& location) noexcept : hr(hr), loc(location) { }
-
-void operator>>(Error grabber, Checker checker) {
-  if (FAILED(grabber.hr)) {
-    const std::string error = std::format(
-        "{}:{}:{}: HRESULT failed with error code {}", grabber.loc.file_name(), grabber.loc.line(),
-        grabber.loc.column(), grabber.hr
-    );
-    logger(LogDebug) << error;
-    MessageBoxA(nullptr, error.c_str(), "Error details", MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2);
-    throw std::runtime_error(error);
-  }
 }
 
 void get_hardware_adapter(IDXGIFactory1* p_factory, IDXGIAdapter1** pp_adapter) {
@@ -156,7 +137,7 @@ void get_hardware_adapter(IDXGIFactory1* p_factory, IDXGIAdapter1** pp_adapter) 
       DXGI_ADAPTER_DESC1 desc;
       adapter->GetDesc1(&desc) >> DxCheck;
 
-      if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+      if ((desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) != 0u)
         continue;
       if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
         break;
