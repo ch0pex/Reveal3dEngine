@@ -20,8 +20,8 @@
 
 namespace reveal3d::graphics::dx12 {
 
-std::array<std::vector<IUnknown*>, config::graphics.buffer_count> deferredReleases;
-std::array<u32, config::graphics.buffer_count> deferredReleasesFlags;
+std::array<std::vector<IUnknown*>, config::Graphics::max_buffer_count> deferredReleases;
+std::array<u32, config::Graphics::max_buffer_count> deferredReleasesFlags;
 
 void set_deferred_flag() { deferredReleasesFlags[Commands::frameIndex()] = 1; }
 
@@ -36,7 +36,7 @@ void deferred_release(IUnknown* resource) {
 void clean_deferred_resources(Heaps& heaps) {
   // Will need mutex __declspec(noinline)
 
-  if (const u8 frame_index = Commands::frameIndex(); deferredReleasesFlags[frame_index]) {
+  if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags[frame_index]) {
 
     deferredReleasesFlags[frame_index] = 0;
 

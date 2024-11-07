@@ -25,7 +25,8 @@ struct Scene {
 struct Graphics {
   u8 max_framerate = 0;
   bool vsync       = true;
-  static constexpr u8 buffer_count {3};
+  u8 buffer_count {3};
+  static constexpr u8 max_buffer_count {3};
 };
 
 struct Lighting {

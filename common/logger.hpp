@@ -19,7 +19,7 @@
 #include <array>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <sstream>
+#include <iostream>
 
 using namespace std::literals;
 
@@ -59,10 +59,10 @@ public:
 
   ~Logger() {
     buffer_.push_back('\n');
-    OutputDebugString(fmt::to_string(buffer_).data());
     persistent_logs_.at(lvl).append(buffer_);
 
 #ifdef _WIN32
+    OutputDebugString(fmt::to_string(buffer_).data());
 #else
     std::cerr << fmt::to_string(buffer_);
 #endif

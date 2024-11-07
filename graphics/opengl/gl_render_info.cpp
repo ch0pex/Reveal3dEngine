@@ -11,6 +11,7 @@
  * Longer description
  */
 #include "gl_render_info.hpp"
+#include "GL/glew.h"
 
 
 namespace reveal3d::graphics::opengl {

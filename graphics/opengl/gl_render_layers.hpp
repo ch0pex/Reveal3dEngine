@@ -13,32 +13,33 @@
 
 #pragma once
 
-#include "render/mesh.hpp"
 #include "gl_render_info.hpp"
+#include "render/mesh.hpp"
+
+#include <GL/glew.h>
 
 namespace reveal3d::graphics::opengl {
 
 struct Layer {
-    u32 shaderId;
+  u32 shaderId;
 };
 
-class RenderLayers  {
+class RenderLayers {
 public:
-    void init();
-    void addMesh(render::SubMesh &mesh);
-    void draw(std::vector<RenderElement> &render_elments, math::mat4 &pass_constants, u32 layer);
+  void init();
+  void addMesh(render::SubMesh& mesh);
+  void draw(std::vector<RenderElement>& render_elments, math::mat4& pass_constants, u32 layer);
 
-    inline Layer& operator[] (u32 index) { return layers_[index]; }
-    inline const Layer& operator[] (u32 index) const { return layers_[index]; }
+  Layer& operator[](u32 index) { return layers_[index]; }
+  Layer const& operator[](u32 index) const { return layers_[index]; }
 
 private:
-    static std::string readShader(const char*file_name);
-    static u32 createShader(GLenum shader_type, std::string &source, const char*shader_name);
-    static u32 createProgram(const char* vs, const char* fs);
+  static std::string readShader(char const* file_name);
+  static u32 createShader(GLenum shader_type, std::string& source, char const* shader_name);
+  static u32 createProgram(char const* vs, char const* fs);
 
-    Layer layers_[render::Shader::count];
-    std::array<std::vector<render::SubMesh *>, render::Shader::count> sub_meshes_;
-
+  Layer layers_[render::Shader::count];
+  std::array<std::vector<render::SubMesh*>, render::Shader::count> sub_meshes_;
 };
 
-}
+} // namespace reveal3d::graphics::opengl

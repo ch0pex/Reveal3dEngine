@@ -121,8 +121,8 @@ void RootSignature::finalize(ID3D12Device* device) {
   // create a root signature with a single slot which points to a descriptor range consisting of a single constant
   // buffer
   ComPtr<ID3DBlob> serialized_root_sig = nullptr;
-  ComPtr<ID3DBlob> error_blob = nullptr;
-  const HRESULT hr = D3D12SerializeRootSignature(
+  ComPtr<ID3DBlob> error_blob          = nullptr;
+  const HRESULT hr                     = D3D12SerializeRootSignature(
       &rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serialized_root_sig.GetAddressOf(), error_blob.GetAddressOf()
   );
 

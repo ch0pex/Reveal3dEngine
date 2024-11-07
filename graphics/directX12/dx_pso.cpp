@@ -32,7 +32,7 @@ GraphicsPso::GraphicsPso() :
 
 void GraphicsPso::setPsoDesc(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc) { pso_desc_ = desc; }
 
-void GraphicsPso::setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, const u32 count) {
+void GraphicsPso::setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, u32 const count) {
   pso_desc_.InputLayout = {input_layout, count};
 }
 
@@ -52,17 +52,17 @@ void GraphicsPso::setBlendState(const D3D12_BLEND_DESC& blend_desc) { pso_desc_.
 
 void GraphicsPso::setDepthStencil(const D3D12_DEPTH_STENCIL_DESC& ds_desc) { pso_desc_.DepthStencilState = ds_desc; }
 
-void GraphicsPso::setSampleMask(const u32 mask) { pso_desc_.SampleMask = mask; }
+void GraphicsPso::setSampleMask(u32 const mask) { pso_desc_.SampleMask = mask; }
 
 void GraphicsPso::setPrimitive(const D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive) {
   pso_desc_.PrimitiveTopologyType = primitive;
 }
 
-void GraphicsPso::setNumRenderTargets(const u32 number) { pso_desc_.NumRenderTargets = number; }
+void GraphicsPso::setNumRenderTargets(u32 const number) { pso_desc_.NumRenderTargets = number; }
 
-void GraphicsPso::setRtvFormats(const u32 index, const DXGI_FORMAT format) { pso_desc_.RTVFormats[index] = format; }
+void GraphicsPso::setRtvFormats(u32 const index, const DXGI_FORMAT format) { pso_desc_.RTVFormats[index] = format; }
 
-void GraphicsPso::setSampleDescCount(const u32 sample_count) { pso_desc_.SampleDesc.Count = sample_count; }
+void GraphicsPso::setSampleDescCount(u32 const sample_count) { pso_desc_.SampleDesc.Count = sample_count; }
 
 void GraphicsPso::setDsvFormat(const DXGI_FORMAT dsv_format) { pso_desc_.DSVFormat = dsv_format; }
 

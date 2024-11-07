@@ -45,7 +45,7 @@ void Gpass::init(ID3D12Device* device) {
   buildPsos(device);
 }
 
-void Gpass::setRenderTargets(const Commands& command_mng, const FrameResource& frame_resource) {
+void Gpass::setRenderTargets(Commands const& command_mng, FrameResource const& frame_resource) {
   ID3D12GraphicsCommandList* command_list = command_mng.list();
 
   command_list->ClearRenderTargetView(
@@ -121,8 +121,8 @@ void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource
 }
 
 // NOTE change geometry to mesh when content module update
-void Gpass::addRenderElement(core::Entity entity, const Commands& cmd_mng, ID3D12Device* device) {
-  const auto geometry               = entity.component<core::Geometry>();
+void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device) {
+  auto const geometry               = entity.component<core::Geometry>();
   BufferInitInfo vertex_buffer_info = {
     .device = device, .cmd_list = cmd_mng.list(), .data = geometry.vertices().data(), .count = geometry.vertexCount()
   };

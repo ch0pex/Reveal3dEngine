@@ -6,10 +6,10 @@
 
 namespace reveal3d::graphics::dx12 {
 
-Surface::Surface(window::Resolution& resolution, const u32 swap_chain_flags, const u32 present_info) :
+Surface::Surface(window::Resolution& resolution, u32 const swap_chain_flags, u32 const present_info) :
   resolution_(&resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
 
-void Surface::init(const Commands& cmd_manager, IDXGIFactory5* factory) {
+void Surface::init(Commands const& cmd_manager, IDXGIFactory5* factory) {
   ComPtr<IDXGISwapChain1> swap_chain_1;
 
   const DXGI_SWAP_CHAIN_DESC1 swap_chain_desc {
@@ -60,11 +60,11 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
   }
 }
 
-const window::Resolution& Surface::resolution() const { return *resolution_; }
+window::Resolution const& Surface::resolution() const { return *resolution_; }
 
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
-void Surface::resize(const window::Resolution& res) const {
+void Surface::resize(window::Resolution const& res) const {
   *resolution_ = res;
   swap_chain_->ResizeBuffers(
       config::graphics.buffer_count, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -72,10 +72,10 @@ void Surface::resize(const window::Resolution& res) const {
   ) >> utl::DxCheck;
 }
 
-void Surface::getBuffer(const u32 index, ComPtr<ID3D12Resource>& buffer) const {
+void Surface::getBuffer(u32 const index, ComPtr<ID3D12Resource>& buffer) const {
   swap_chain_->GetBuffer(index, IID_PPV_ARGS(&buffer)) >> utl::DxCheck;
 }
 
-void Surface::setWindow(const WHandle& win_handle) { window_ = win_handle; }
+void Surface::setWindow(WHandle const& win_handle) { window_ = win_handle; }
 
 } // namespace reveal3d::graphics::dx12

@@ -63,7 +63,7 @@ void Commands::waitForGpu() {
 }
 
 void Commands::moveToNextFrame() {
-  const u64 current_fence_val = fence_values_[frame_index_];
+  u64 const current_fence_val = fence_values_[frame_index_];
 
   command_queue_->Signal(fence_.Get(), current_fence_val) >> utl::DxCheck;
 

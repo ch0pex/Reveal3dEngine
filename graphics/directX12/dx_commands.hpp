@@ -39,13 +39,13 @@ public:
 private:
   ComPtr<ID3D12CommandQueue> command_queue_;
   ComPtr<ID3D12GraphicsCommandList> command_list_;
-  std::array<ComPtr<ID3D12CommandAllocator>, config::graphics.buffer_count> command_allocators_;
+  std::array<ComPtr<ID3D12CommandAllocator>, config::Graphics::max_buffer_count> command_allocators_;
 
   // Synchronization objects.
   static u8 frame_index_;
   HANDLE fence_event_ {};
   ComPtr<ID3D12Fence> fence_;
-  std::array<u64, config::graphics.buffer_count> fence_values_ {};
+  std::array<u64, config::Graphics::max_buffer_count> fence_values_ {};
 };
 
 } // namespace reveal3d::graphics::dx12

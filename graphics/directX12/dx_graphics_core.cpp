@@ -113,7 +113,7 @@ void Dx12::initDsBuffer() {
          .Stencil = 0,
        }};
 
-  const auto heap_prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+  auto const heap_prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
   device_->CreateCommittedResource(
       &heap_prop, D3D12_HEAP_FLAG_NONE, &depth_stencil_desc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &opt_clear,
       IID_PPV_ARGS(depth_stencil_buffer_.GetAddressOf())
@@ -147,7 +147,7 @@ void Dx12::loadAssets() {
   auto geometry = entity.component<core::Geometry>();
 
   while (geometry.isAlive()) {
-    const id_t idx = id::index(geometry.id());
+    id_t const idx = id::index(geometry.id());
     auto transform = entity.component<core::Transform>();
     gpass_.addRenderElement(entity, cmd_manager_, device_.Get());
     Constant<PerObjectData> obj_constant;
@@ -168,7 +168,7 @@ void Dx12::loadAssets() {
   cmd_manager_.waitForGpu();
 }
 
-void Dx12::loadAsset(const core::Entity id) {
+void Dx12::loadAsset(core::Entity const id) {
   cmd_manager_.reset(nullptr);
   gpass_.addRenderElement(id, cmd_manager_, device_.Get());
   cmd_manager_.list()->Close() >> utl::DxCheck;
@@ -176,11 +176,11 @@ void Dx12::loadAsset(const core::Entity id) {
   cmd_manager_.waitForGpu();
 }
 
-void Dx12::update(const Camera& camera) {
+void Dx12::update(Camera const& camera) {
   auto& [back_buffer, back_buffer_handle, depth_buffer_handle, constant_buffer, pass_buffer, mat_buffer] =
       frame_resources_.at(Commands::frameIndex());
-  const auto& dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
-  const auto& dirty_mats       = core::scene.componentPool<core::Geometry>().dirtyElements();
+  auto const& dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
+  auto const& dirty_mats       = core::scene.componentPool<core::Geometry>().dirtyElements();
   auto& geometries             = core::scene.componentPool<core::Geometry>();
   auto entity_with_new_geo     = core::Entity(geometries.popNew());
   auto entity_with_removed_geo = geometries.popRemoved();
@@ -194,7 +194,7 @@ void Dx12::update(const Camera& camera) {
   pass_buffer.copyData(0, &pass_constant);
 
   // update object constants
-  for (const auto id: dirty_transforms) {
+  for (auto const id: dirty_transforms) {
     core::Transform trans {id};
     obj_constant.data.world_view_proj = trans.world();
     trans.unDirty();
@@ -202,7 +202,7 @@ void Dx12::update(const Camera& camera) {
   }
 
   // update material constants
-  for (const auto id: dirty_mats) {
+  for (auto const id: dirty_mats) {
     core::Geometry geo {id};
     mat_constant.data.base_color = geo.material().base_color;
     geo.unDirty();
@@ -231,14 +231,14 @@ void Dx12::renderSurface() {
 
   surface_.setViewport(command_list);
 
-  const auto target_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+  auto const target_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
   );
   command_list->ResourceBarrier(1, &target_barrier);
 
   gpass_.render(command_list, curr_frame_res);
 
-  const auto present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+  auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
   );
 
@@ -260,7 +260,7 @@ void Dx12::renderSurface() {
   cmd_manager_.moveToNextFrame();
 }
 
-void Dx12::resize(const window::Resolution& res) {
+void Dx12::resize(window::Resolution const& res) {
   if (res.aspect_ratio == surface_.resolution().aspect_ratio) {
     return;
   }

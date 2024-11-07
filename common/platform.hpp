@@ -26,9 +26,9 @@
 using namespace DirectX;
 
 struct WHandle {
-    HWND hwnd;
-    HDC hdc;
-    HGLRC hglrc;
+  HWND hwnd;
+  HDC hdc;
+  HGLRC hglrc;
 };
 
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -37,7 +37,6 @@ struct WHandle {
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include "GL/glew.h"
-#define inline inline
 
 using WHandle = GLFWwindow*;
 

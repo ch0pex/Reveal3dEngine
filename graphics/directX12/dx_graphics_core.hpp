@@ -35,11 +35,11 @@ public:
   void loadPipeline();
   void loadAssets();
   void loadAsset(core::Entity id);
-  void update(const render::Camera& camera);
+  void update(render::Camera const& camera);
   void renderSurface();
   void terminate();
-  void resize(const window::Resolution& res);
-  void initWindow(const WHandle& win_handle) { surface_.setWindow(win_handle); }
+  void resize(window::Resolution const& res);
+  void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
   ID3D12Device* device() const { return device_.Get(); }
   dx12::Heaps& heaps() { return heaps_; }
 
@@ -55,7 +55,7 @@ private:
   ComPtr<ID3D12Device> device_;
 
   /****************** Frame resources *****************/
-  std::array<dx12::FrameResource, config::graphics.buffer_count> frame_resources_;
+  std::array<dx12::FrameResource, config::Graphics::max_buffer_count> frame_resources_;
 
   /***************** Depth stencil buffer**********************/
   ComPtr<ID3D12Resource> depth_stencil_buffer_;

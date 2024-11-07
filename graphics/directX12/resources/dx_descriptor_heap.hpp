@@ -42,8 +42,8 @@ struct DescriptorHandle {
 class DescriptorHeap {
 public:
   explicit DescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE type) : type_(type) { }
-  explicit DescriptorHeap(const DescriptorHeap&)   = delete;
-  DescriptorHeap& operator=(const DescriptorHeap&) = delete;
+  explicit DescriptorHeap(DescriptorHeap const&)   = delete;
+  DescriptorHeap& operator=(DescriptorHeap const&) = delete;
   explicit DescriptorHeap(DescriptorHeap&&)        = delete;
   DescriptorHeap& operator=(DescriptorHeap&&)      = delete;
   ~DescriptorHeap()                                = default;
@@ -68,7 +68,7 @@ private:
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
-  std::array<std::vector<u32>, config::graphics.buffer_count> deferred_indices_;
+  std::array<std::vector<u32>, config::Graphics::max_buffer_count> deferred_indices_;
   u32 capacity_ {0};
   u32 size_ {0};
   u32 descriptor_size_ {};

@@ -13,12 +13,14 @@
 
 #include "gl_graphics_core.hpp"
 
+// #include <GL/gl.h>
+
 #include "core/config/config.hpp"
 #include "core/scene.hpp"
-// #ifdef WIN32
-// #include <GL/wglew.h>
-// #else
-// #endif
+#ifdef WIN32
+#include <GL/glew.h>
+#else
+#endif
 
 namespace reveal3d::graphics {
 
@@ -72,7 +74,7 @@ void OpenGL::loadAsset() {
   // TODO
 }
 
-void OpenGL::update(const render::Camera& camera) {
+void OpenGL::update(render::Camera const& camera) {
   pass_constant_ = camera.getViewProjectionMatrix();
 
   //    auto &transforms = core::scene.Transforms();
@@ -97,9 +99,9 @@ void OpenGL::renderSurface() {
   swapBuffer();
 }
 
-void OpenGL::terminate() { terminateContext(); }
+// void OpenGL::terminate() const { terminateContext(); }
 
-void OpenGL::resize(const window::Resolution& res) { }
+void OpenGL::resize(window::Resolution const& res) { }
 
 #ifdef WIN32
 
@@ -131,15 +133,6 @@ void OpenGL::terminateContext() const {
   wglDeleteContext(window_.hglrc);
   ReleaseDC(window_.hwnd, window_.hdc);
 }
-
-#else
-
-void Dx12::CreateContext() { glfwMakeContextCurrent(window); }
-
-void Dx12::SwapBuffer() { glfwSwapBuffers(window); }
-
-void Dx12::TerminateContext() { }
-
 #endif
 
 } // namespace reveal3d::graphics

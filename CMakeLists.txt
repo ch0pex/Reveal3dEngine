@@ -1,5 +1,12 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.31)
+#set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+# This specific value changes as experimental support evolves. See
+# `Help/dev/experimental.rst` in the CMake source corresponding to
+# your CMake build for the exact value to use.
+#        "0e5b6991-d74f-4b3d-a41c-cf096e0b2508")
 project(Reveal3d LANGUAGES CXX)
+
+#set(CMAKE_CXX_MODULE_STD 1)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,10 +16,11 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories(PUBLIC .)
 
+add_library(Reveal3d STATIC)
+
 set(SOURCES
         render/light.cpp
         content/formats/obj/obj_parser.cpp
-        window/glfw/glfw.cpp
 )
 
 set(HEADERS
@@ -46,10 +54,14 @@ set(HEADERS
         math/utils.hpp
         input/input_types.hpp
 )
+
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
+target_sources(Reveal3d
+        PUBLIC
+        ${SOURCES} ${HEADERS}
+)
 
-add_library(Reveal3d STATIC ${SOURCES} ${HEADERS})
 
 include(FetchContent)
 FetchContent_Declare(
@@ -77,7 +89,7 @@ if (WIN32)
     #add_compile_options(/Wall /external:anglebrakets /external:W0)
     message("-- WINDOWS")
     message("-- Source dir: ${PROJECT_SOURCE_DIR}")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /std:c++latest")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /experimental:module")
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
     #    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
@@ -105,6 +117,7 @@ endif ()
 aux_source_directory(graphics/opengl GRAPHICS)
 aux_source_directory(graphics/vulkan GRAPHICS)
 aux_source_directory(window/glfw WINDOW)
+
 if (IMGUI)
     message("-- IMGUI support activated")
     target_compile_definitions(Reveal3d PUBLIC IMGUI=1)

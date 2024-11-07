@@ -17,7 +17,6 @@
 #include "math/math.hpp"
 #include "render/vertex.hpp"
 
-#include "GL/glew.h"
 
 #include <vector>
 
