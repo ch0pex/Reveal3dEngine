@@ -8,7 +8,7 @@
  * @date 12/08/2024
  * @brief Gpass main class
  *
- * This class will handle deferred lighting or forward+ in a future
+ * This class will handle deferred render or forward+ in a future
  * for now it's just a simple forward rendering
  */
 
@@ -28,11 +28,11 @@ class Gpass {
 public:
   Gpass();
   void init(ID3D12Device* device);
-  static void setRenderTargets(const Commands& command_mng, const FrameResource& frame_resource);
+  static void setRenderTargets(Commands const& command_mng, FrameResource const& frame_resource);
   void depthPrepass(); // TODO
   void render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
-  void addRenderElement(core::Entity entity, const Commands& cmd_mng, ID3D12Device* device);
-  void removeRenderElement(const u32 idx) { render_elements_.unordered_remove(idx); }
+  void addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device);
+  void removeRenderElement(u32 const idx) { render_elements_.unordered_remove(idx); }
   void terminate();
 
 private:

@@ -12,7 +12,7 @@
  * In Reveal3D components just holds and ID that points to the real data stored in a pool.
  * Real data is compacted to avoid cache misses, this logic is handled by components pools.
  *
- * *********************************************** Components pool *****************************************************
+ * ************************************************** Components pool **************************************************
  * ************************** IDs **************************************************** data ****************************
  *                                                          *                                                          *
  * Entity IDs        |  00   | 01    |  02   |  03  | ...   * Entity IDs        |  00   | 01    |  02   |  03  | ...   *

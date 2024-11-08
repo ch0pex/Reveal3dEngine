@@ -13,10 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
 include_directories(PUBLIC .)
 
-add_library(Reveal3d STATIC)
+add_library(Reveal3d STATIC
+        core/config/console.hpp)
 
 set(SOURCES
         render/light.cpp
@@ -86,10 +86,10 @@ target_include_directories(Reveal3d PRIVATE extern/include)
 
 
 if (WIN32)
-    #add_compile_options(/Wall /external:anglebrakets /external:W0)
+    add_compile_options(/Wall /external:anglebrakets /external:W0)
     message("-- WINDOWS")
     message("-- Source dir: ${PROJECT_SOURCE_DIR}")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /experimental:module")
+    add_compile_options(/experimental:module)
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
     #    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
@@ -131,4 +131,3 @@ target_include_directories(Reveal3d PUBLIC .)
 target_include_directories(Reveal3d PUBLIC math/${PLAT})
 target_include_directories(Reveal3d PUBLIC extern/include)
 target_compile_definitions(Reveal3d PUBLIC PROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")
-

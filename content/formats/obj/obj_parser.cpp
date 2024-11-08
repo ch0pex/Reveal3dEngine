@@ -16,7 +16,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <locale>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -39,6 +38,7 @@ struct FaceElem {
 
 static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
   u32 elem[4][3];
+
   sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0],
       &elem[1][1], &elem[1][2], &elem[2][0], &elem[2][1], &elem[2][2], &elem[3][0], &elem[3][1], &elem[3][2]

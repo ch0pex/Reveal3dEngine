@@ -17,9 +17,19 @@
 
 namespace reveal3d::config {
 
+struct Section {
+  std::string name;
+  std::string shortcut;
+};
+
+struct General {
+  LogLevel logLevel = LogLevel::LogInfo;
+};
+
 struct Scene {
   math::vec4 clearColor = {0.2F, 0.2F, 0.2F, 1.0F};
   bool showGrid         = true;
+  static constexpr Section section {"scene", "s"};
 };
 
 struct Graphics {
@@ -27,19 +37,22 @@ struct Graphics {
   bool vsync       = true;
   u8 buffer_count {3};
   static constexpr u8 max_buffer_count {3};
+  static constexpr Section section {"graphics", "g"};
 };
 
-struct Lighting {
+struct Render {
   f32 ambient_light_intensity    = 0.7F;
   f32 sun_light_intensity        = 0.9F;
   math::vec3 ambient_color       = {1.0F, 1.0F, 1.0F};
   math::vec3 sun_light_color     = {1.0F, 1.0F, 1.0F};
   math::vec3 sun_light_direction = {0.0F, 0.0F, -1.0F};
+  static constexpr Section section {"render", "r"};
 };
 
 struct Window {
   std::string_view title = "Reveal3D";
   math::vec2 resolution  = {1920, 1080};
+  static constexpr Section section {"window", "w"};
 };
 
 struct Camera {
@@ -49,11 +62,12 @@ struct Camera {
   f32 movement_speed = 5.0F;
   f32 sensitivity    = 50.0F * 0.001F;
   static constexpr math::vec3 world_up {0, 0, 1};
+  static constexpr Section section {"camera", "c"};
 };
 
 inline Scene scene       = {};
 inline Graphics graphics = {};
-inline Lighting lighting = {};
+inline Render render     = {};
 inline Window window     = {};
 inline Camera camera     = {};
 

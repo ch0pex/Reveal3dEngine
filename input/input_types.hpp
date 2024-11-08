@@ -15,10 +15,10 @@
 
 #include "common/common.hpp"
 #include "math/math.hpp"
+
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
 #include <functional>
 
 namespace reveal3d::input {

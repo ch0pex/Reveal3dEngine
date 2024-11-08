@@ -15,12 +15,13 @@
 
 #pragma once
 
-#include <algorithm>
-#include <chrono>
-
 #include "input/input.hpp"
 #include "platform.hpp"
 #include "primitive_types.hpp"
+
+#include <algorithm>
+#include <chrono>
+
 
 
 namespace reveal3d {
@@ -30,7 +31,6 @@ public:
   Timer() {
     queryFrequency(counts_per_second_);
     second_per_count_ = 1.0 / static_cast<f64>(counts_per_second_);
-
     add_handler_up(input::Action::ScenePause, {[this](input::Action act, input::type type) { pause(act, type); }});
   }
 
@@ -58,7 +58,6 @@ public:
     queryCounter(curr_time);
     return ((curr_time - paused_time_) - base_time_) * second_per_count_;
   }
-
 
   void reset() {
     i64 curr_time = 0;
