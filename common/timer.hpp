@@ -23,7 +23,6 @@
 #include <chrono>
 
 
-
 namespace reveal3d {
 
 class Timer {
@@ -31,7 +30,16 @@ public:
   Timer() {
     queryFrequency(counts_per_second_);
     second_per_count_ = 1.0 / static_cast<f64>(counts_per_second_);
-    add_handler_up(input::Action::ScenePause, {[this](input::Action act, input::type type) { pause(act, type); }});
+    add_handler_up(input::Action::ScenePause, {[this](input::Action const act, input::type const type) {
+                     pause(act, type);
+                   }});
+  }
+
+  [[nodiscard]] static auto now() { return std::chrono::high_resolution_clock::now(); }
+
+  // template<typename T>
+  [[nodiscard]] static auto diff(std::chrono::time_point<std::chrono::steady_clock> const& time) {
+    return std::chrono::duration<f64>(now() - time).count();
   }
 
   [[nodiscard]] f64 deltaTime() const { return delta_time_; }
@@ -48,15 +56,15 @@ public:
 
   [[nodiscard]] bool isRunning() const { return !stopped_; };
 
-  [[nodiscard]] f64 diff(const f64 time) const { return totalTime() - time; }
+  [[nodiscard]] f64 diff(f64 const time) const { return totalTime() - time; }
 
   [[nodiscard]] f64 totalTime() const {
     if (stopped_)
-      return ((stop_time_ - paused_time_) - base_time_) * second_per_count_;
+      return (stop_time_ - paused_time_ - base_time_) * second_per_count_;
     i64 curr_time = 0;
 
     queryCounter(curr_time);
-    return ((curr_time - paused_time_) - base_time_) * second_per_count_;
+    return (curr_time - paused_time_ - base_time_) * second_per_count_;
   }
 
   void reset() {
@@ -100,7 +108,7 @@ public:
     frame_time_ = delta_time_;
     prev_time_  = curr_time_;
 
-    if (const u64 new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
+    if (u64 const new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
         total_time_ < new_total_seconds) {
       total_time_        = new_total_seconds;
       fps_               = total_frames_ - prev_total_frames_;
@@ -126,9 +134,9 @@ private:
 #else
   static inline void QueryFrequency(i64& time) { time = 1000000000; }
   static inline void QueryCounter(i64& time) {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now    = std::chrono::high_resolution_clock::now();
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-    time = now_ns.time_since_epoch().count();
+    time        = now_ns.time_since_epoch().count();
   }
 #endif
 

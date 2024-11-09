@@ -15,8 +15,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories(PUBLIC .)
 
-add_library(Reveal3d STATIC
-        core/config/console.hpp)
+add_library(Reveal3d STATIC)
 
 set(SOURCES
         render/light.cpp
@@ -24,6 +23,7 @@ set(SOURCES
 )
 
 set(HEADERS
+        config/config.hpp
         core/scene.hpp
         core/components/geometry.hpp
         core/components/transform.hpp

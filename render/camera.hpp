@@ -13,9 +13,7 @@
 
 #pragma once
 
-#include <core/config/config.hpp>
-
-
+#include "config/config.hpp"
 #include "common/timer.hpp"
 #include "math/math.hpp"
 #include "window/window_info.hpp"

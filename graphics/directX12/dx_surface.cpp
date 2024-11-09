@@ -19,7 +19,7 @@ void Surface::init(Commands const& cmd_manager, IDXGIFactory5* factory) {
     .Stereo      = FALSE,
     .SampleDesc  = {1, 0},
     .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-    .BufferCount = config::graphics.buffer_count,
+    .BufferCount = config::render.graphics.buffer_count,
     .Scaling     = DXGI_SCALING_STRETCH,
     .SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD,
     .AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED,
@@ -67,7 +67,7 @@ void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::D
 void Surface::resize(window::Resolution const& res) const {
   *resolution_ = res;
   swap_chain_->ResizeBuffers(
-      config::graphics.buffer_count, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
+      config::render.graphics.buffer_count, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
       swap_chain_flags_
   ) >> utl::DxCheck;
 }

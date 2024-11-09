@@ -14,7 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "core/config/config.hpp"
+#include "config/config.hpp"
 #include "math/math.hpp"
 
 namespace reveal3d::window {

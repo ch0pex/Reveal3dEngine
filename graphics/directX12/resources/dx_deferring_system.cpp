@@ -20,8 +20,8 @@
 
 namespace reveal3d::graphics::dx12 {
 
-std::array<std::vector<IUnknown*>, config::Graphics::max_buffer_count> deferredReleases;
-std::array<u32, config::Graphics::max_buffer_count> deferredReleasesFlags;
+std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
+std::array<u32, config::render.graphics.max_buffer_count> deferredReleasesFlags;
 
 void set_deferred_flag() { deferredReleasesFlags[Commands::frameIndex()] = 1; }
 

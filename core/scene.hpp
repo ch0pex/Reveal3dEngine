@@ -44,7 +44,7 @@ class Entity {
 public:
   Entity() : id_(id::invalid) { }
 
-  explicit Entity(const id_t id) : id_ {id} {};
+  explicit Entity(id_t const id) : id_ {id} {};
 
   template<detail::is_component T>
   T component() const;
@@ -81,8 +81,8 @@ public:
   ~Scene() = default;
 
   Entity newEntity() {
-    const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
-    Entity entity(id);
+    id_t const id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+    Entity const entity(id);
 
     Node node {.entity = entity};
 
@@ -104,8 +104,8 @@ public:
   Entity newChildEntity(Entity parent) {
     assert(parent.isAlive());
 
-    const id_t id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
-    const Entity child(id);
+    id_t const id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+    Entity const child(id);
 
     Node child_node {.entity = child, .parent = parent};
 
@@ -154,13 +154,13 @@ public:
 
   /******************************* Scene graph methods ******************************/
 
-  [[nodiscard]] const std::vector<Scene::Node>& graph() const { return scene_graph_; }
+  [[nodiscard]] std::vector<Scene::Node> const& graph() const { return scene_graph_; }
 
   [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
   [[nodiscard]] Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
 
-  Node& getNode(const id_t id) { return scene_graph_.at(id::index(id)); }
+  Node& getNode(id_t const id) { return scene_graph_.at(id::index(id)); }
 
   Node& root() { return scene_graph_.at(root_node_); }
 
@@ -230,7 +230,7 @@ private:
     }
 
     if (node.first_child.isAlive()) {
-      for (const auto children = node.getChildren(); const auto child: children) {
+      for (auto const children = node.getChildren(); auto const child: children) {
         removeNode(child);
       }
     }

@@ -13,10 +13,9 @@
  */
 
 #include "obj_parser.hpp"
+#include "common/timer.hpp"
 
 #include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 
@@ -39,7 +38,7 @@ struct FaceElem {
 static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
   u32 elem[4][3];
 
-  sscanf(
+  std::sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0],
       &elem[1][1], &elem[1][2], &elem[2][0], &elem[2][1], &elem[2][2], &elem[3][0], &elem[3][1], &elem[3][2]
   );
@@ -50,7 +49,7 @@ static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
 
 static void getTriangle(std::string& line, std::vector<FaceElem>& primitives) {
   u32 elem[3][3];
-  sscanf(
+  std::sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0], &elem[1][1],
       &elem[1][2], &elem[2][0], &elem[2][1], &elem[2][2]
   );
@@ -60,48 +59,49 @@ static void getTriangle(std::string& line, std::vector<FaceElem>& primitives) {
 }
 
 
-u32 get_data_from_obj(std::string_view const path, std::vector<render::Vertex>& vertices, std::vector<u32>& indices) {
-#ifndef WIN32
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-  std::string path_str = converter.to_bytes(path);
-  std::ifstream file(path_str);
-#else
+std::optional<render::Mesh> import_obj(std::string_view const path) {
+  render::Mesh mesh;
+  auto const start = Timer::now();
   std::ifstream file(path.data());
-#endif
   std::vector<math::vec3> positions;
   std::vector<math::vec3> normals;
   std::vector<math::vec2> uvs;
   std::vector<FaceElem> primitives;
-  char c[2];
   std::string line;
 
   if (!file.is_open()) {
-    std::cerr << "No se pudo abrir el archivo" << std::endl;
-    return 0;
+    logger(LogError) << "Error opening obj file";
+    return std::nullopt;
   }
 
   while (std::getline(file, line)) {
-    if (line[0] == 'v') {
+    if (line.empty())
+      continue;
+
+    char const prefix = line[0];
+    if (prefix == 'v') {
       if (line[1] == 'n') {
         math::vec3 normal;
-        std::stringstream(line) >> c[0] >> c[1] >> normal.x >> normal.y >> normal.z;
-        //                normal.z = -normal.z;
-        normal.y = -normal.y;
-        normals.push_back(normal);
+        if (std::sscanf(line.c_str(), "vn %f %f %f", &normal.x, &normal.y, &normal.z) == 3) {
+          normal.y = -normal.y;
+          normals.push_back(normal);
+        }
       }
       else if (line[1] == 't') {
         math::vec2 uv;
-        std::stringstream(line) >> c[0] >> c[1] >> uv.x >> uv.y;
-        uvs.push_back(uv);
+        if (std::sscanf(line.c_str(), "vt %f %f", &uv.x, &uv.y) == 2) {
+          uvs.push_back(uv);
+        }
       }
       else {
         math::vec3 pos;
-        std::stringstream(line) >> c[0] >> pos.x >> pos.y >> pos.z;
-        pos.y = -pos.y;
-        positions.push_back(pos);
+        if (std::sscanf(line.c_str(), "v %f %f %f", &pos.x, &pos.y, &pos.z) == 3) {
+          pos.y = -pos.y;
+          positions.push_back(pos);
+        }
       }
     }
-    else if (line[0] == 'f') {
+    else if (prefix == 'f') {
       getTriangle(line, primitives);
     }
   }
@@ -110,27 +110,19 @@ u32 get_data_from_obj(std::string_view const path, std::vector<render::Vertex>& 
   render::Vertex vert;
   std::unordered_map<FaceElem, u32, FaceElem::Hash> cache;
   for (auto& primitive: primitives) {
-    if (!cache.contains(primitive)) {
+    if (auto [it, inserted] = cache.emplace(primitive, index); inserted) {
       vert.pos    = positions[primitive.pos_index - 1U];
       vert.normal = normals[primitive.normal_index - 1U];
-      //            vert.uv = uvs[primitives[i].uvIndex - 1U];
-      //            vert.color = { 0.8f, 0.0f, 0.0f, 0.0f };
-      vertices.push_back(vert);
-      indices.push_back(index);
-      cache[primitive] = index++;
+      mesh.vertices.push_back(vert);
+      mesh.indices.push_back(index++);
     }
     else {
-      indices.push_back(cache[primitive]);
+      mesh.indices.push_back(it->second);
     }
   }
 
   file.close();
-  return index;
-}
-
-render::Mesh import_obj(std::string_view const path) {
-  render::Mesh mesh;
-  get_data_from_obj(path, mesh.vertices, mesh.indices);
+  logger(LogInfo) << "Time to import: " << Timer::diff(start) << "s";
   return std::move(mesh);
 }
 

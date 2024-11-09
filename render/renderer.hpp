@@ -22,7 +22,7 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-  Renderer(window::Resolution* res, Timer& timer) : camera_(*res), graphics_(res), timer_(timer) { }
+  explicit Renderer(window::Resolution* res) : graphics_(res), camera_(*res) { }
 
   void init(WHandle w_handle) {
     f32 time = timer_.totalTime();
@@ -46,7 +46,7 @@ public:
     graphics_.terminate();
   }
 
-  void resize(const window::Resolution& res) {
+  void resize(window::Resolution const& res) {
     camera_.resize(res);
     graphics_.resize(res);
   }
@@ -54,14 +54,14 @@ public:
   Gfx& graphics() { return graphics_; }
 
   [[nodiscard]] f32 deltaTime() const { return timer_.deltaTime(); }
-  [[nodiscard]] Timer& time() const { return timer_; }
+  [[nodiscard]] Timer& time() { return timer_; }
 
   void cameraResetMouse() { camera_.resetMouse(); }
 
 private:
   Gfx graphics_;
   Camera camera_;
-  Timer& timer_;
+  Timer timer_;
 };
 
 } // namespace reveal3d::render

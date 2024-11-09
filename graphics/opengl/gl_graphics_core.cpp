@@ -15,7 +15,7 @@
 
 // #include <GL/gl.h>
 
-#include "core/config/config.hpp"
+#include "config/config.hpp"
 #include "core/scene.hpp"
 #ifdef WIN32
 #include <GL/glew.h>

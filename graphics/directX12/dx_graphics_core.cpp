@@ -17,9 +17,9 @@
 // #include "IMGUI/imgui_internal.h"
 #endif
 
+#include "config/config.hpp"
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
-#include "core/config/config.hpp"
 #include "dx_graphics_core.hpp"
 namespace reveal3d::graphics {
 
@@ -31,7 +31,7 @@ Dx12::Dx12(window::Resolution* res) : surface_(*res) { }
 void Dx12::loadPipeline() {
   initDxgiAdapter();
   cmd_manager_.init(device_.Get());
-  heaps_.rtv.initialize(device_.Get(), config::graphics.buffer_count, false);
+  heaps_.rtv.initialize(device_.Get(), config::render.graphics.buffer_count, false);
   heaps_.srv.initialize(device_.Get(), 1U, true);
   heaps_.dsv.initialize(device_.Get(), 1U, false);
   ds_handle_ = heaps_.dsv.alloc();
@@ -66,7 +66,7 @@ void Dx12::initDxgiAdapter() {
 }
 
 void Dx12::initFrameResources() {
-  for (u32 i = 0; i < config::graphics.buffer_count; ++i) {
+  for (u32 i = 0; i < config::render.graphics.buffer_count; ++i) {
     D3D12_RENDER_TARGET_VIEW_DESC desc = {
       .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
     };

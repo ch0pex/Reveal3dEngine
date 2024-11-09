@@ -40,7 +40,7 @@ namespace reveal3d::render {
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 struct Viewport {
-  explicit Viewport(const window::Info& windowInfo) : window(windowInfo), renderer(&window.getRes(), timer) { }
+  explicit Viewport(window::Info const& windowInfo) : window(windowInfo), renderer(&window.getRes()) { }
 
   void init() try {
     window.create(renderer);
@@ -54,22 +54,21 @@ struct Viewport {
 
   void run();
   f64 benchMark(u32 seconds);
-  Timer& time() { return timer; }
+  Timer& time() { return renderer.time(); }
 
   Window window;
   Renderer<Gfx> renderer;
-  Timer timer;
 };
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 void Viewport<Gfx, Window>::run() {
   try {
-    timer.reset();
+    renderer.time().reset();
     while (!window.shouldClose()) {
-      timer.tick();
+      renderer.time().tick();
       window.clipMouse(renderer);
       renderer.update();
-      core::scene.update(timer.deltaTime());
+      core::scene.update(renderer.time().deltaTime());
 #ifdef WIN32
       if constexpr (not std::same_as<Window, window::Win32>)
         renderer.render();
@@ -90,14 +89,14 @@ void Viewport<Gfx, Window>::run() {
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
   try {
-    timer.reset();
+    renderer.time().reset();
     while (!window.shouldClose()) {
-      if (timer.totalTime() > seconds)
+      if (renderer.time().totalTime() > seconds)
         break;
-      timer.tick();
+      renderer.time().tick();
       window.clipMouse(renderer);
       renderer.update();
-      core::scene.update(timer.deltaTime());
+      core::scene.update(renderer.time().deltaTime());
 #ifdef WIN32
       if constexpr (not std::same_as<Window, window::Win32>)
         renderer.render();
@@ -111,6 +110,6 @@ f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
     logger(LogError) << e.what();
     MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
   }
-  return timer.meanFps();
+  return renderer.time().meanFps();
 }
 } // namespace reveal3d::render

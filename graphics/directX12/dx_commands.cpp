@@ -67,7 +67,7 @@ void Commands::moveToNextFrame() {
 
   command_queue_->Signal(fence_.Get(), current_fence_val) >> utl::DxCheck;
 
-  frame_index_ = ++frame_index_ % config::graphics.buffer_count;
+  frame_index_ = ++frame_index_ % config::render.graphics.buffer_count;
 
   if (fence_->GetCompletedValue() < fence_values_[frame_index_]) {
     fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
@@ -89,7 +89,7 @@ void Commands::flush() {
 
 void Commands::resetFences() {
   frame_index_ = 0;
-  for (auto i = 1; i < config::graphics.buffer_count; i++) {
+  for (auto i = 1; i < config::render.graphics.buffer_count; i++) {
     fence_values_.at(i) = 0;
   }
 }

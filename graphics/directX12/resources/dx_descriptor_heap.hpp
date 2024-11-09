@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "core/config/config.hpp"
+#include "config/config.hpp"
 #include "dx_deferring_system.hpp"
 
 #include <array>
@@ -68,7 +68,7 @@ private:
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
-  std::array<std::vector<u32>, config::Graphics::max_buffer_count> deferred_indices_;
+  std::array<std::vector<u32>, config::render.graphics.max_buffer_count> deferred_indices_;
   u32 capacity_ {0};
   u32 size_ {0};
   u32 descriptor_size_ {};

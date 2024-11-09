@@ -29,11 +29,7 @@ enum LogLevel : reveal3d::u8 {
   LogInfo,
 };
 
-#ifdef _DEBUG
 inline constexpr LogLevel loglevel = LogInfo;
-#else
-inline constexpr LogLevel loglevel = LogWarning;
-#endif
 
 template<LogLevel lvl>
 class Logger {

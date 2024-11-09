@@ -14,21 +14,22 @@
 
 #pragma once
 
-#include "common/common.hpp"
+#include "common/platform.hpp"
+#include "common/primitive_types.hpp"
 
 namespace reveal3d::math {
 
 class scalar {
 public:
-    scalar() = default;
-    scalar(const scalar& s) : vec_(s) {}
-    scalar(f32 f) : vec_(XMVectorReplicate(f)) {}
-    scalar(FXMVECTOR vec) : vec_(vec) {}
-    operator XMVECTOR() const { return vec_; }
-    operator f32() const { return XMVectorGetX(vec_); }
+  scalar() = default;
+  scalar(scalar const& s) : vec_(s) { }
+  scalar(f32 f) : vec_(XMVectorReplicate(f)) { }
+  scalar(FXMVECTOR vec) : vec_(vec) { }
+  operator XMVECTOR() const { return vec_; }
+  operator f32() const { return XMVectorGetX(vec_); }
 
 private:
-    XMVECTOR vec_;
+  XMVECTOR vec_;
 };
 
 inline scalar operator-(scalar s) { return scalar(XMVectorNegate(s)); }
