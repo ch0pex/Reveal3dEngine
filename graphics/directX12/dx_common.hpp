@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file dx_common.hpp
@@ -14,21 +14,11 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "utils/dx_checker.hpp"
+#include "utils/dx_utils.hpp"
 
 #include <d3d12.h>
-#include <dxgi1_6.h>
 #include <d3dcompiler.h>
+#include <dxgi1_6.h>
 #include <wrl.h>
 #include "d3dx12.h"
-
-#include "dx_utils.hpp"
-
-using namespace DirectX;
-using Microsoft::WRL::ComPtr;
-
-namespace reveal3d::graphics::dx12 {
-
-constexpr u32 frameBufferCount = 3;
-
-}
-

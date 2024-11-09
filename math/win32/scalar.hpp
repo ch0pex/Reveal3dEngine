@@ -14,45 +14,45 @@
 
 #pragma once
 
-#include "common/common.hpp"
+#include "common/platform.hpp"
+#include "common/primitive_types.hpp"
 
 namespace reveal3d::math {
 
 class scalar {
 public:
-    inline scalar() = default;
-    inline scalar(const scalar & s) : vec_(s) {}
-    inline scalar(f32 f) : vec_ (XMVectorReplicate(f)) {}
-    inline scalar( FXMVECTOR vec ) : vec_(vec) {}
-    inline operator XMVECTOR() const { return vec_; }
-    inline operator f32() const { return XMVectorGetX(vec_); }
+  scalar() = default;
+  scalar(scalar const& s) : vec_(s) { }
+  scalar(f32 f) : vec_(XMVectorReplicate(f)) { }
+  scalar(FXMVECTOR vec) : vec_(vec) { }
+  operator XMVECTOR() const { return vec_; }
+  operator f32() const { return XMVectorGetX(vec_); }
 
 private:
-    XMVECTOR vec_;
+  XMVECTOR vec_;
 };
 
-inline scalar operator- (scalar s) { return scalar(XMVectorNegate(s)); }
-inline scalar operator+ (scalar s1, scalar s2) { return scalar(XMVectorAdd(s1, s2)); }
-inline scalar operator- (scalar s1, scalar s2) { return scalar(XMVectorSubtract(s1, s2)); }
-inline scalar operator* (scalar s1, scalar s2) { return scalar(XMVectorMultiply(s1, s2)); }
-inline scalar operator/ (scalar s1, scalar s2) { return scalar(XMVectorDivide(s1, s2)); }
-inline scalar operator+ (scalar s, f32 f) { return s + scalar(f); }
-inline scalar operator- (scalar s, f32 f) { return s - scalar(f); }
-inline scalar operator* (scalar s, f32 f) { return s * scalar(f); }
-inline scalar operator/ (scalar s, f32 f) { return s / scalar(f); }
-inline scalar operator+ (f32 f, scalar s) { return scalar(f) + s; }
-inline scalar operator- (f32 f, scalar s) { return scalar(f) - s; }
-inline scalar operator* (f32 f, scalar s) { return scalar(f) * s; }
-inline scalar operator/ (f32 f, scalar s) { return scalar(f) / s; }
-inline bool operator<  (scalar s, f32 f) { return (f32)s <  f; }
-inline bool operator<= (scalar s, f32 f) { return (f32)s <= f; }
-inline bool operator>  (scalar s, f32 f) { return (f32)s >  f; }
-inline bool operator>= (scalar s, f32 f) { return (f32)s >= f; }
-inline bool operator== (scalar s, f32 f) { return (f32)s == f; }
-inline bool operator<  (f32 f, scalar s) { return f <  (f32)s; }
-inline bool operator<= (f32 f, scalar s) { return f <= (f32)s; }
-inline bool operator>  (f32 f, scalar s) { return f >  (f32)s; }
-inline bool operator>= (f32 f, scalar s) { return f >= (f32)s; }
-inline bool operator== (f32 f, scalar s) { return f == (f32)s; }
-
-}
+inline scalar operator-(scalar s) { return scalar(XMVectorNegate(s)); }
+inline scalar operator+(scalar s1, scalar s2) { return scalar(XMVectorAdd(s1, s2)); }
+inline scalar operator-(scalar s1, scalar s2) { return scalar(XMVectorSubtract(s1, s2)); }
+inline scalar operator*(scalar s1, scalar s2) { return scalar(XMVectorMultiply(s1, s2)); }
+inline scalar operator/(scalar s1, scalar s2) { return scalar(XMVectorDivide(s1, s2)); }
+inline scalar operator+(scalar s, f32 f) { return s + scalar(f); }
+inline scalar operator-(scalar s, f32 f) { return s - scalar(f); }
+inline scalar operator*(scalar s, f32 f) { return s * scalar(f); }
+inline scalar operator/(scalar s, f32 f) { return s / scalar(f); }
+inline scalar operator+(f32 f, scalar s) { return scalar(f) + s; }
+inline scalar operator-(f32 f, scalar s) { return scalar(f) - s; }
+inline scalar operator*(f32 f, scalar s) { return scalar(f) * s; }
+inline scalar operator/(f32 f, scalar s) { return scalar(f) / s; }
+inline bool operator<(scalar s, f32 f) { return static_cast<f32>(s) < f; }
+inline bool operator<=(scalar s, f32 f) { return static_cast<f32>(s) <= f; }
+inline bool operator>(scalar s, f32 f) { return static_cast<f32>(s) > f; }
+inline bool operator>=(scalar s, f32 f) { return static_cast<f32>(s) >= f; }
+inline bool operator==(scalar s, f32 f) { return static_cast<f32>(s) == f; }
+inline bool operator<(f32 f, scalar s) { return f < static_cast<f32>(s); }
+inline bool operator<=(f32 f, scalar s) { return f <= static_cast<f32>(s); }
+inline bool operator>(f32 f, scalar s) { return f > static_cast<f32>(s); }
+inline bool operator>=(f32 f, scalar s) { return f >= static_cast<f32>(s); }
+inline bool operator==(f32 f, scalar s) { return f == static_cast<f32>(s); }
+} // namespace reveal3d::math

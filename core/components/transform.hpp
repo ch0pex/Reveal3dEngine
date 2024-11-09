@@ -13,119 +13,201 @@
 
 #pragma once
 
-#include "pool.hpp"
+#include "core/scene.hpp"
 
-#include <vector>
 #include <set>
+#include <vector>
 
 namespace reveal3d::core {
 
 class Transform {
 public:
-    struct Info {
-        math::xvec3 position { 0.f, 0.f, 0.f };
-        math::xvec3 rotation { 0.f, 0.f, 0.f };
-        math::xvec3 scale    { 1.f, 1.f, 1.f };
-    };
+    // *** Type Traits ***
 
-    using InitInfo = Info;
+    using pool_type = transform::Pool;
+    using stored_in_gpu = std::true_type;
 
-    /************* Transform data ****************/
-    struct Pool {
-        Transform::Info& posRotScale(id_t id) { return pos_rot_scale.at(id::index(id)); }
+    // *** Constructors ***
 
-        math::mat4& world(id_t id) { return world_mat.at(id::index(id)); }
+    constexpr Transform() : id_(id::invalid) {}
 
-        math::mat4& invWorld(id_t id) { return inv_world.at(id::index(id)); }
+    constexpr Transform(id_t id) : id_(id) {}
 
-        const u32 count() { return pos_rot_scale.size(); }
+    // *** Member methods ***
 
-        void remove(u32 index) { }
+    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
-        utl::vector<math::mat4>         world_mat;
-        utl::vector<math::mat4>         inv_world;
-        utl::vector<Transform::Info>    pos_rot_scale;
-    };
+    [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    struct Data {
-        Data(math::mat4& world, math::mat4& inv_world, Transform::Info& info)
-            : world(world), inv_world(inv_world), info(info) {}
-        math::mat4& world;
-        math::mat4& inv_world;
-        Transform::Info& info;
-    };
+    [[nodiscard]] math::mat4& world() const { return pool.world(id_); }
 
+    [[nodiscard]] math::mat4& invWorld() const { return pool.invWorld(id_); }
 
-    Transform() : id_(id::invalid) {}
-    explicit Transform(id_t id);
+    [[nodiscard]] math::xvec3 position() const { return pool.posRotScale(id_).position; }
 
-    [[nodiscard]] math::mat4& world() const;
-    [[nodiscard]] math::mat4& invWorld() const;
-    [[nodiscard]] math::xvec3 position() const;
-    [[nodiscard]] math::xvec3 scale() const;
-    [[nodiscard]] math::xvec3 rotation() const;
-    [[nodiscard]] math::xvec3 worldPosition() const;
-    [[nodiscard]] math::xvec3 worldScale() const;
-    [[nodiscard]] math::xvec3 worldRotation() const;
+    [[nodiscard]] math::xvec3 scale() const { return pool.posRotScale(id_).scale; }
 
-    void position(math::xvec3 pos) const;
-    void scale(math::xvec3 size) const;
-    void rotation(math::xvec3 rot) const;
-    void worldPosition(math::xvec3 pos) const;
-    void worldScale(math::xvec3 scale) const;
-    void worldRotation(math::xvec3 rot) const;
-    void update() const;
+    [[nodiscard]] math::xvec3 rotation() const { return math::vec_to_degrees(pool.posRotScale(id_).rotation); }
 
-    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t id() const { return id_; }
+    [[nodiscard]] math::xvec3 worldPosition() const {
+        math::mat4 world_mat = pool.world(id_);
+        return world_mat.translation();
+    }
 
-    [[nodiscard]] u8 dirty() const;
-    void unDirty() const;
-    void setDirty() const;
-    Data data();
+    [[nodiscard]] math::xvec3 worldScale() const { return pool.world(id_).scale(); }
+
+    [[nodiscard]] math::xvec3 worldRotation() const { return pool.world(id_).rotation(); }
+
+    void position(math::xvec3 pos) const {
+        pool.posRotScale(id_).position = pos;
+        setDirty();
+    }
+
+    void scale(math::xvec3 size) const {
+        pool.posRotScale(id_).scale = size;
+        setDirty();
+    }
+
+    void rotation(math::xvec3 rot) const {
+        pool.posRotScale(id_).rotation = math::vec_to_radians(rot);
+        setDirty();
+    }
+
+    void worldPosition(math::xvec3 pos) const {
+        transform::detail::Transform& trans = pool.posRotScale(id_);
+        pool.world(id_) = math::transpose(math::affine_transformation(pos, trans.scale, trans.rotation));
+        core::Entity parent = scene.getNode(id_).parent;
+        if (parent.isAlive()) {
+            trans.position = math::transpose(parent.component<Transform>().invWorld()) * pos;
+        }
+        else {
+            trans.position = pos;
+        }
+
+        pool.invWorld(id_) = math::inverse(pool.world(id_));
+        pool.dirties().at(id_) = 3;
+        pool.dirtyIds().insert(id_);
+        updateChildren();
+    }
+
+    void worldScale(math::xvec3 scale) const {
+        transform::detail::Transform& trans = pool.posRotScale(id_);
+        pool.world(id_) = math::transpose(math::affine_transformation(trans.position, scale, trans.rotation));
+        core::Entity parent = scene.getNode(id_).parent;
+        if (parent.isAlive()) {
+            trans.scale = parent.component<Transform>().invWorld() * scale;
+        }
+        else {
+            trans.scale = scale;
+        }
+        pool.invWorld(id_) = math::inverse(pool.world(id_));
+        pool.dirties().at(id::index(id_)) = 3;
+        pool.dirtyIds().insert(id_);
+        updateChildren();
+    }
+
+    void worldRotation(math::xvec3 rot) const {
+        transform::detail::Transform& trans = pool.posRotScale(id_);
+        world() = math::transpose(math::affine_transformation(trans.position, trans.scale, rot));
+        core::Entity parent = scene.getNode(id_).parent;
+        if (parent.isAlive()) {
+            trans.rotation = parent.component<Transform>().invWorld() * rot;
+        }
+        else {
+            trans.rotation = rot;
+        }
+        pool.invWorld(id_) = math::inverse(pool.world(id_));
+        pool.dirties().at(id::index(id_)) = 3;
+        pool.dirtyIds().insert(id_);
+        updateChildren();
+    }
+
+    void update() const {
+        if (pool.dirties().at(id::index(id_)) != 4) {
+            return;
+        }
+
+        transform::detail::Transform& transform = pool.posRotScale(id_);
+        core::Scene::Node& curr_node = scene.getNode(id::index(id_));
+
+        if (curr_node.parent.isAlive()) {
+            const id_t parent_id = curr_node.parent.id();
+            if (pool.dirties().at(id::index(id_)) < 4) {
+                math::mat4 parent_world = pool.world(parent_id);
+                world() = parent_world * calcWorld(parent_id);
+            }
+            else {
+                curr_node.parent.component<Transform>().update();
+                math::mat4 parent_world = pool.world(parent_id);
+                world() = parent_world * calcWorld(id_);
+            }
+        }
+        else {
+            world() = calcWorld(id_);
+        }
+        invWorld() = math::transpose(math::inverse(world()));
+        --pool.dirties().at(id::index(id_));
+    }
+
+    void unDirty() const {
+        const id_t idx = id::index(id_);
+        if (pool.dirties().at(idx) != 0) {
+            --pool.dirties().at(idx);
+        }
+        else {
+            pool.dirties().at(idx) = 0;
+        }
+    }
+
+    void setDirty() const {
+        if (dirty() == 4) {
+            return;
+        }
+        if (dirty() == 0) {
+            pool.dirtyIds().insert(id_);
+        }
+        updateChildren();
+        pool.dirties().at(id::index(id_)) = 4;
+    }
+
+    [[nodiscard]] u8 dirty() const { return pool.dirties().at(id::index(id_)); }
 
 private:
-    static math::mat4 calcWorld(id_t id);
-    void updateChildren() const;
+    static math::mat4 calcWorld(id_t id) {
+        transform::detail::Transform& trans = core::scene.componentPool<Transform>().posRotScale(id);
+        return math::transpose(math::affine_transformation(trans.position, trans.scale, trans.rotation));
+    }
 
-    id_t id_ { id::invalid };
+    void updateChildren() const {
+        core::Scene::Node& node = scene.getNode(id_);
+        auto children = node.getChildren();
+        for (auto child_id: children) {
+            const Entity child = Entity(child_id);
+            child.component<Transform>().setDirty();
+            child.component<Transform>().updateChildren();
+        }
+    }
+
+    inline static GenericPool<transform::Pool>& pool = core::scene.componentPool<Transform>();
+
+    id_t id_{id::invalid};
 };
 
-template<>
-inline Transform Pool<Transform>::addComponent(id_t entity_id, Transform::InitInfo &&init_info) {
-    id_t transform_id{id_factory_.New(id::index(entity_id))};
-
-    components_data_.pos_rot_scale.push_back(std::move(init_info));
-    Transform::Info& data = components_data_.pos_rot_scale.at(count() - 1);
-    components_data_.world_mat.emplace_back(math::transpose(math::affine_transformation(data.position, data.scale, data.rotation)));
-    components_data_.inv_world.emplace_back(math::inverse(components_data_.world_mat.at(count() - 1)));
-    dirties().emplace_back(4);
-    dirtyIds().insert(transform_id);
-
-    add(id::index(entity_id), transform_id);
-
-    assert(id::index(transform_id) < components_data_.count());
-
-    return components_ids_.at(id::index(entity_id));
-}
 
 template<>
-inline Transform Pool<Transform>::addComponent(id_t id) {
-    return addComponent(id, {});
-}
-
-template<>
-inline void Pool<Transform>::removeComponent(id_t id) {
-    id_t transform_id {components_ids_.at(id::index(id)).id() };
-    if (id_factory_.isAlive(transform_id)) {
-        components_data_.pos_rot_scale.unordered_remove(id::index(transform_id));
-        components_data_.world_mat.unordered_remove(id::index(transform_id));
-        components_data_.inv_world.unordered_remove(id::index(transform_id));
-        remove(transform_id);
+inline void GenericPool<Transform::pool_type>::update() {
+    for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+        Transform component{*it};
+        if constexpr (updatable<Transform>) {
+            component.update();
+        }
+        if (this->dirties_.at(id::index(*it)) == 0) {
+            it = this->dirty_ids_.erase(it);
+        }
+        else {
+            ++it;
+        }
     }
 }
 
-} // reveal3d::core namespace
-
-
-
+} // namespace reveal3d::core

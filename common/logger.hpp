@@ -6,53 +6,74 @@
  * @file logger.hpp
  * @version 1.0
  * @date 08/03/2024
- * @brief Logger 
+ * @brief Logger
  *
- * Logger class  
+ * Logger class
  */
 
 #pragma once
 
 #include "platform.hpp"
+#include "primitive_types.hpp"
 
+#include <array>
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include <iostream>
-#include <sstream>
 
-namespace reveal3d {
+using namespace std::literals;
 
-}
-
-enum LogLevel {
-    logERROR = 0,
-    logWARNING,
-    logDEBUG,
+enum LogLevel : reveal3d::u8 {
+  LogError = 0,
+  LogWarning,
+  LogInfo,
 };
 
-class Logger
-{
+inline constexpr LogLevel loglevel = LogInfo;
+
+template<LogLevel lvl>
+class Logger {
 public:
-    Logger(LogLevel log_level = logERROR);
-
-    template <typename T>
-    Logger & operator<<(T const & value)
-    {
-        buffer_ << value;
-        return *this;
+  explicit Logger() {
+    if constexpr (lvl == LogError) {
+      buffer_.append("[ERROR]: "s);
     }
+    else if constexpr (lvl == LogWarning) {
+      buffer_.append("[WARNING]: "s);
+    }
+    else {
+      buffer_.append("[INFO]: "s);
+    }
+  }
 
-    static void clear(LogLevel log_level);
-    static std::string log(LogLevel log_level);
-    ~Logger();
+  Logger& operator<<(auto const& value) {
+    fmt::format_to(std::back_inserter(buffer_), "{}", value);
+    return *this;
+  }
+
+  static std::string log() { return fmt::to_string(persistent_logs_.at(lvl)); }
+
+  ~Logger() {
+    buffer_.push_back('\n');
+    persistent_logs_.at(lvl).append(buffer_);
+
+#ifdef _WIN32
+    OutputDebugString(fmt::to_string(buffer_).data());
+#else
+    std::cerr << fmt::to_string(buffer_);
+#endif
+  }
+
+  static void clear() { persistent_logs_.at(lvl).clear(); }
 
 private:
-    LogLevel level_;
-    std::ostringstream buffer_;
-    static std::stringstream persistent_logs_[3];
+  fmt::memory_buffer buffer_;
+  static inline std::array<fmt::memory_buffer, 3> persistent_logs_;
 };
 
-extern LogLevel loglevel;
-
-#define logger(level) \
-if (level > loglevel) ; \
-else Logger(level)
-
+// Macro para usar el logger con diferentes niveles
+#define logger(level)                                                                                                  \
+  if (level > loglevel)                                                                                                \
+    ;                                                                                                                  \
+  else                                                                                                                 \
+    Logger<level>()

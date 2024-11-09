@@ -14,29 +14,29 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "config/config.hpp"
+#include "math/math.hpp"
 
 namespace reveal3d::window {
 
-using WCallback = uint8_t *;
+using WCallback = uint8_t*;
 
 struct Resolution {
-    Resolution(u32 width, u32 height) :
-        width(width), height(height) , aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) {}
-    u32 width;
-    u32 height;
-    f32 aspect_ratio;
+  Resolution(const u32 width, const u32 height) :
+    width(width), height(height), aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) { }
+  explicit Resolution(const math::vec2 res) :
+    width(res.x), height(res.y), aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) { }
+  u32 width;
+  u32 height;
+  f32 aspect_ratio;
 };
 
 
-struct Config {
-    Config() = default;
-    Config(const wchar_t * name, u32 width, u32 height) : name(name), res(width, height) {}
-    Config(const wchar_t * name, u32 width, u32 height, WCallback callback) :
-        name(name), res(width, height), callback(callback) {}
-    const wchar_t * name { L"Reveal3d" };
-    Resolution res { 1920, 1080 };
-    WHandle handle { nullptr };
-    WCallback callback { nullptr };
+struct Info {
+  const char* name {config::window.title.data()};
+  Resolution res {config::window.resolution};
+  WHandle handle {nullptr};
+  WCallback callback {nullptr};
 };
 
-}
+} // namespace reveal3d::window

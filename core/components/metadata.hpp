@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "pool.hpp"
+#include "core/scene.hpp"
 
 #include <string>
 
@@ -21,73 +21,25 @@ namespace reveal3d::core {
 
 class Metadata {
 public:
-    using InitInfo = std::string;
+    using init_info = std::string;
+    using pool_type = metadata::Pool;
 
-    struct Pool {
-        u32 count() { return names.size(); }
-        utl::vector<std::string> names;
-        utl::vector<std::string> comments;
-        utl::vector<std::string> dates;
-    };
+    constexpr Metadata() : id_(id::invalid) {}
 
-    struct Data {
-        Data(std::string& name,std::string& comm, std::string& date) : name(name), comment(comm), date(date) {}
-        std::string& name;
-        std::string& comment;
-        std::string& date;
-    };
+    constexpr Metadata(id_t id) : id_(id) { }
 
-    Metadata() : id_(id::invalid) {}
-    explicit Metadata(id_t id);
+    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
-    std::string& name();
-    std::string& comment();
-    std::string& date();
+    [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    [[nodiscard]] bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] id_t id() const { return id_; }
+    [[nodiscard]] std::string& name() const { return scene.componentPool<Metadata>().name(id_); }
 
-    Data data();
+    [[nodiscard]] std::string& date() const { return scene.componentPool<Metadata>().date(id_); }
 
+    [[nodiscard]] std::string& comment() const { return scene.componentPool<Metadata>().comment(id_); }
 private:
+
     id_t id_;
 };
-
-template<>
-inline Metadata Pool<Metadata>::addComponent(id_t id) {
-    const id_t metadata_id { id_factory_.New(id::index(id)) };
-
-    components_data_.names.emplace_back("Entity_" + std::to_string(id));
-    components_data_.comments.emplace_back();
-    components_data_.dates.emplace_back("10/12/2024");  //TODO
-    components_data_.comments.at(components_data_.comments.size() - 1U).reserve(1024);
-    add(id::index(id), metadata_id);
-
-    return Metadata(metadata_id);
-}
-
-template<>
-inline Metadata Pool<Metadata>::addComponent(id_t id, Metadata::InitInfo &&init_info) {
-    const id_t metadata_id { id_factory_.New(id::index(id)) };
-
-    components_data_.names.emplace_back(std::move(init_info));
-    components_data_.comments.emplace_back();
-    components_data_.dates.emplace_back("10/12/2024");  //TODO
-    add(id::index(id), metadata_id);
-
-    assert(id::index(metadata_id) < components_data_.count());
-
-    return Metadata(metadata_id);
-}
-
-template<>
-inline void Pool<Metadata>::removeComponent(id_t id) {
-    const id_t metadata_id {components_ids_.at(id::index(id)).id() };
-    const u32 idx { id::index(metadata_id) };
-    components_data_.names.unordered_remove(idx);
-    components_data_.comments.unordered_remove(idx);
-    components_data_.dates.unordered_remove(idx);
-    remove(metadata_id);
-}
 
 }

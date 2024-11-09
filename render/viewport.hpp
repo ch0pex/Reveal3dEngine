@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file viewport.hpp
@@ -9,7 +9,7 @@
  * @brief Short description
  *
  * Viewport template class, it takes two classes as parameters a window manager
- * and a renderer  
+ * and a renderer
  *                                 ----------
  *                                | Viewport |
  *                                 ----------
@@ -30,89 +30,86 @@
 
 #pragma once
 
-#include "window/window.hpp"
 #include "renderer.hpp"
+#include "window/window.hpp"
 
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 namespace reveal3d::render {
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 struct Viewport {
-    explicit Viewport(window::Config &windowInfo) : window(windowInfo), renderer(&window.getRes(), timer) { }
-    void init();
-    void run();
-    f64 benchMark(u32 seconds);
-    inline Timer& time() { return timer; }
+  explicit Viewport(window::Info const& windowInfo) : window(windowInfo), renderer(&window.getRes()) { }
 
-    Window window;
-    Renderer<Gfx> renderer;
-    Timer timer;
+  void init() try {
+    window.create(renderer);
+    renderer.init(window.getHandle());
+    window.show();
+  }
+  catch (std::exception& e) {
+    renderer.destroy();
+    logger(LogError) << e.what();
+  };
+
+  void run();
+  f64 benchMark(u32 seconds);
+  Timer& time() { return renderer.time(); }
+
+  Window window;
+  Renderer<Gfx> renderer;
 };
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
-void Viewport<Gfx, Window>::init() {
-    try {
-        window.create(renderer);
-        renderer.init(window.getHandle());
-        window.show();
-
-    } catch(std::exception &e) {
-        renderer.destroy();
-        logger(logERROR) << e.what();
-//        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
-    }
-}
-
-template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 void Viewport<Gfx, Window>::run() {
-    try {
-        timer.reset();
-        while(!window.shouldClose()) {
-            timer.tick();
-            window.clipMouse(renderer);
-            renderer.update();
-            core::scene.update(timer.deltaTime());
+  try {
+    renderer.time().reset();
+    while (!window.shouldClose()) {
+      renderer.time().tick();
+      window.clipMouse(renderer);
+      renderer.update();
+      core::scene.update(renderer.time().deltaTime());
 #ifdef WIN32
-            if constexpr (not std::same_as<Window, window::Win32>)
-                renderer.render();
+      if constexpr (not std::same_as<Window, window::Win32>)
+        renderer.render();
 #else
-            renderer.Render();
+      renderer.Render();
 #endif
-            window.update();
-        }
-        renderer.destroy();
-    } catch(std::exception &e) {
-        renderer.destroy();
-        logger(logERROR) << e.what();
-        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+      window.update();
     }
+    renderer.destroy();
+  }
+  catch (std::exception& e) {
+    renderer.destroy();
+    logger(LogError) << e.what();
+    MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+  }
 }
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 f64 Viewport<Gfx, Window>::benchMark(u32 seconds) {
-    try {
-        timer.reset();
-        while(!window.shouldClose()) {
-            if (timer.totalTime() > seconds)
-                break;
-            timer.tick();
-            window.clipMouse(renderer);
-            renderer.update();
-            core::scene.update(timer.deltaTime());
+  try {
+    renderer.time().reset();
+    while (!window.shouldClose()) {
+      if (renderer.time().totalTime() > seconds)
+        break;
+      renderer.time().tick();
+      window.clipMouse(renderer);
+      renderer.update();
+      core::scene.update(renderer.time().deltaTime());
 #ifdef WIN32
-            if constexpr (not std::same_as<Window, window::Win32>)
-                renderer.render();
+      if constexpr (not std::same_as<Window, window::Win32>)
+        renderer.render();
 #endif
-            window.update();
-        }
-        renderer.destroy();
-    } catch(std::exception &e) {
-        renderer.destroy();
-        logger(logERROR) << e.what();
-        MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+      window.update();
     }
-    return timer.meanFps();
+    renderer.destroy();
+  }
+  catch (std::exception& e) {
+    renderer.destroy();
+    logger(LogError) << e.what();
+    MessageBoxA(window.getHandle().hwnd, e.what(), NULL, MB_ICONERROR | MB_SETFOREGROUND);
+  }
+  return renderer.time().meanFps();
 }
-} // reveal3d
+} // namespace reveal3d::render

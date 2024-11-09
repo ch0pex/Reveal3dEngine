@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file glfw.hpp
@@ -13,11 +13,12 @@
 
 #pragma once
 
+#include "input/input.hpp"
 #include "render/renderer.hpp"
 #include "window/window_info.hpp"
-#include "input/input.hpp"
 
 #include "GLFW/glfw3.h"
+
 #include <glfw/glfw3native.h>
 
 
@@ -26,65 +27,64 @@ namespace reveal3d::window {
 
 class Glfw {
 public:
-    Glfw(Config &info);
+  Glfw(Info& info);
 
-    template<graphics::HRI Gfx> void create(render::Renderer<Gfx> &renderer);
-    void show();
-    template<graphics::HRI Gfx> void update(render::Renderer<Gfx> &renderer);
-    void closeWindow(input::Action act, input::type type);
-    bool shouldClose();
+  template<graphics::HRI Gfx>
+  void create(render::Renderer<Gfx>& renderer);
+  void show();
+  template<graphics::HRI Gfx>
+  void update(render::Renderer<Gfx>& renderer);
+  void closeWindow(input::Action act, input::type type);
+  bool shouldClose();
 
-    [[nodiscard]] inline Resolution& getRes() { return info_.res; }
-    [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
+  [[nodiscard]] inline Resolution& getRes() { return info_.res; }
+  [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
+
 private:
-    template<graphics::HRI Gfx> void clipMouse(render::Renderer<Gfx> &renderer);
+  template<graphics::HRI Gfx>
+  void clipMouse(render::Renderer<Gfx>& renderer);
 
-    Config info_;
-    GLFWwindow* win_ptr_;
-
+  Info info_;
+  GLFWwindow* win_ptr_;
 };
 
 template<graphics::HRI Gfx>
-void Glfw::update(render::Renderer<Gfx> &renderer) {
-    //Handle inputs
-    glfwPollEvents();
+void Glfw::update(render::Renderer<Gfx>& renderer) {
+  // Handle inputs
+  glfwPollEvents();
 }
 
 template<graphics::HRI Gfx>
-void Glfw::create(render::Renderer<Gfx> &renderer) {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+void Glfw::create(render::Renderer<Gfx>& renderer) {
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef WIN32
-    win_ptr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
-    if (!win_ptr_) {
-        std::cout << "Creat window error\n";
-    }
-    info_.handle.hwnd = glfwGetWin32Window(win_ptr_);
+  win_ptr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
+  if (!win_ptr_) {
+    logger(LogError) << "Create window error\n";
+  }
+  info_.handle.hwnd = glfwGetWin32Window(win_ptr_);
 
-    if (info_.handle.hwnd == NULL) {
-        glfwTerminate();
-        std::terminate();
-    }
+  if (info_.handle.hwnd == nullptr) {
+    glfwTerminate();
+    std::terminate();
+  }
 
 #else
-    winPtr_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
-    info_.handle = winPtr_;
-    if (!info_.handle) {
-        glfwTerminate();
-        std::terminate();
-    }
+  winPtr_      = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
+  info_.handle = winPtr_;
+  if (!info_.handle) {
+    glfwTerminate();
+    std::terminate();
+  }
 #endif
-    glfwSwapInterval( 0 );
-
+  glfwSwapInterval(0);
 }
 
 template<graphics::HRI Gfx>
-void Glfw::clipMouse(render::Renderer<Gfx> &renderer) {
+void Glfw::clipMouse(render::Renderer<Gfx>& renderer) { }
 
-}
-
-}
-
+} // namespace reveal3d::window

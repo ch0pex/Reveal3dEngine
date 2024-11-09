@@ -18,190 +18,129 @@
 
 #pragma once
 
-#include "common/common.hpp"
-#include "math/math.hpp"
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
-#include <functional>
+#include "input_types.hpp"
 
 namespace reveal3d::input {
 
-enum Code : u8 {
-    MouseMove = 0x00U,
-    MouseLeft = 0x01U,
-    MouseRight = 0x02U,
-    ControlCancel = 0x03U,
-    MouseMiddle = 0x04U,
-    MouseX1 = 0x05U,
-    MouseX2 = 0x06U,
-    KeyBackspace = 0x08U,
-    KeyTab = 0x09U,
-    KeySupr = 0x0CU,
-    KeyEnter = 0x0DU,
-    KeyShift = 0x10U,
-    KeyControl = 0x11U,
-    KeyMenu = 0x12U,
-    KeyPause = 0x13U,
-    KeyBlockShift = 0x14U,
-    KeyEscape = 0x1BU,
-    KeySpace = 0x20U,
-    KeyPageUp = 0x21U,
-    KeyPageDown = 0x22U,
-    KeyEnd = 0x23U,
-    KeyHome = 0x24U,
-    KeyLeft = 0x25U,
-    KeyUp = 0x26U,
-    KeyRight = 0x27U,
-    KeyDown = 0x28U,
-    KeySelect = 0x29U,
-    KeyPrint = 0x2AU,
-    KeyExe = 0x2BU,
-    KeyPrintScreen = 0x2CU,
-    KeyInsert = 0x2CU,
-    KeyDelete = 0x2EU,
-    KeyHelp = 0x2FU,
-    Key0 = 0x30U,
-    Key1 = 0x31U,
-    Key2 = 0x32U,
-    Key3 = 0x33U,
-    Key4 = 0x34U,
-    Key5 = 0x35U,
-    Key6 = 0x36U,
-    Key7 = 0x37U,
-    Key8 = 0x38U,
-    Key9 = 0x39U,
-    KeyA = 0x41U,
-    KeyB = 0x42U,
-    KeyC = 0x43U,
-    KeyD = 0x44U,
-    KeyE = 0x45U,
-    KeyF = 0x46U,
-    KeyG = 0x47U,
-    KeyH = 0x48U,
-    KeyI = 0x49U,
-    KeyJ = 0x4AU,
-    KeyK = 0x4BU,
-    KeyL = 0x4CU,
-    KeyM = 0x4DU,
-    KeyN = 0x4EU,
-    KeyO = 0x4FU,
-    KeyP = 0x50U,
-    KeyQ = 0x51U,
-    KeyR = 0x52U,
-    KeyS = 0x53U,
-    KeyT = 0x54U,
-    KeyU = 0x55U,
-    KeyV = 0x56U,
-    KeyW = 0x57U,
-    KeyX = 0x58U,
-    KeyY = 0x59U,
-    KeyZ = 0x5AU,
-    KeyLeftWin = 0x5BU,
-    KeyRightWin = 0x5CU,
-    KeyApps = 0x5DU,
-    KeySleep = 0x5FU,
-    KeyNumpad0 = 0x60U,
-    KeyNumpad1 = 0x61U,
-    KeyNumpad2 = 0x62U,
-    KeyNumpad3 = 0x63U,
-    KeyNumpad4 = 0x64U,
-    KeyNumpad5 = 0x65U,
-    KeyNumpad6 = 0x66U,
-    KeyNumpad7 = 0x67U,
-    KeyNumpad8 = 0x68U,
-    KeyNumpad9 = 0x69U,
-    KeyMultiply = 0x6AU,
-    KeyAdd = 0x6BU,
-    KeySeparator = 0x6CU,
-    KeySubtract = 0x6DU,
-    KeyDecimal = 0x6EU,
-    KeyDivide = 0x6FU,
-    KeyF1 = 0x70U,
-    KeyF2 = 0x71U,
-    KeyF3 = 0x72U,
-    KeyF4 = 0x73U,
-    KeyF5 = 0x74U,
-    KeyF6 = 0x75U,
-    KeyF7 = 0x76U,
-    KeyF8 = 0x77U,
-    KeyF9 = 0x78U,
-    KeyF10 = 0x79U,
-    KeyF11 = 0x7AU,
-    KeyF12 = 0x7BU,
-    KeyF13 = 0x7CU,
-    KeyF14 = 0x7DU,
-    KeyF15 = 0x7EU,
-    KeyF16 = 0x7FU,
-    KeyF17 = 0x80U,
-    KeyF18 = 0x81U,
-    KeyF19 = 0x82U,
-    KeyF20 = 0x83U,
-    KeyF21 = 0x84U,
-    KeyF22 = 0x85U,
-    KeyF23 = 0x86U,
-    KeyF24 = 0x87U,
-    KeyNumlock = 0x90U,
-    KeyScrollock = 0x91U,
-    KeyLeftShift = 0xA0U,
-    KeyRightShift = 0xA1U,
-    KeyLeftControl = 0xA2U,
-    KeyRightControl = 0xA3U,
-    KeyLeftAlt = 0xA4U,
-    KeyRightAlt = 0xA5U,
-    KeyColon = 0xBAU,
-    KeyPlus = 0xBBU,
-    KeyComma = 0xBCU,
-    KeyMinus = 0xBDU,
-    KeyPeriod = 0xBEU,
+namespace detail {
 
-    invalid = 0xFFU
+class System {
+public:
+    void addHandlerUp(const Action action, Binding &&binding) { handlers_up_[action] = std::move(binding); }
+
+    void addHandlerDown(const Action action, Binding &&binding) { handlers_down_[action] = std::move(binding); }
+
+    void addMouseHandler(const Action action, Binding &&binding) { mouse_handler_[action] = std::move(binding); }
+
+    void onEventUp(const Action act, const input::type type) const {
+        if (handlers_up_.contains(act)  ) {
+            handlers_up_.at(act).callback(act, type);
+        }
+    }
+
+    void onEventDown(const Action act, const input::type type) const {
+        if (handlers_down_.contains(act)  ) {
+            handlers_down_.at(act).callback(act, type);
+        }
+    }
+
+    void onMouseDown(const Action act, const math::vec2 value) const {
+        if (handlers_down_.contains(act)  ) {
+            handlers_down_.at(act).mouse_callback(act, value);
+        }
+    }
+
+    void onMouseUp(const Action act, const math::vec2 value) const {
+        if (handlers_up_.contains(act)  ) {
+            handlers_up_.at(act).mouse_callback(act, value);
+        }
+    }
+
+    void onMouseMove(const Action act, const math::vec2 value) const {
+        if (mouse_handler_.contains(act)  ) {
+            mouse_handler_.at(act).mouse_callback(act, value);
+        }
+    }
+
+private:
+    std::unordered_map<Action, Binding> handlers_down_;
+    std::unordered_map<Action, Binding> handlers_up_;
+    std::unordered_map<Action, Binding> mouse_handler_;
 };
 
-enum Action : u8 {
-    CameraFwd = 0,
-    CameraBackwd,
-    CameraUp,
-    CameraDown,
-    CameraLeft,
-    CameraRight,
-    CameraLook,
-    WindowClose,
-    ScenePause,
-    SceneSelect,
-
-    count,
-    not_asigned
+inline std::unordered_map<Code, Action> bindings = {
+        {Code::KeyEscape, Action::WindowClose},
+        {Code::MouseMiddle, Action::CameraLook},
+        {Code::MouseMove, Action::CameraLook},
+        {Code::KeyShift, Action::CameraLook},
+        {Code::KeyS, Action::CameraBackwd},
+        {Code::KeyW, Action::CameraFwd},
+        {Code::KeyA, Action::CameraLeft},
+        {Code::KeyD, Action::CameraRight},
+        {Code::KeyE, Action::CameraUp},
+        {Code::KeyQ, Action::CameraDown},
+        {Code::KeyP, Action::ScenePause}
 };
 
-enum type {
-    up = 0,
-    down,
-};
+inline System inputSystem;
 
-struct Binding {
-    std::function<void(input::Action, input::type)> callback;
-    std::function<void(input::Action, math::vec2)> mouse_callback;
-};
+}
 
-void key_down(u8 keycode);
-void key_down(u8 keycode, math::vec2 pos);
-void key_up(u8 keycode);
-void key_up(u8 keycode, math::vec2 pos);
-void mouse_move(u8 keycode, math::vec2 pos);
-void bind_key(Code keycode, Action action);
-void unbind(Code keycode);
-void add_mouse_handler(Action action, Binding &&binding);
-void add_handler_up(Action action, Binding &&binding);
-void add_handler_down(Action action, Binding &&binding);
 
-struct Cursor {
-    static math::vec2 pos;
-    static bool should_clip;
-    static math::vec2 last_uncliped_pos;
-    //    static bool isLooking;
-    //    static bool fistMouse;
-};
+
+inline void add_handler_up(const Action action, Binding&& binding) {
+    detail::inputSystem.addHandlerUp(action, std::move(binding));
+}
+
+inline void add_handler_down(const Action action, Binding&& binding) {
+    detail::inputSystem.addHandlerDown(action, std::move(binding));
+}
+
+inline void add_mouse_handler(const Action action, Binding&& binding) {
+    detail::inputSystem.addMouseHandler(action, std::move(binding));
+}
+
+inline void key_down(const Code keycode) {
+    if (detail::bindings.contains(keycode)) {
+        const Action act = detail::bindings[keycode];
+        detail::inputSystem.onEventDown(act, type::down);
+    }
+}
+
+inline void key_down(const Code keycode, const math::vec2 pos) {
+    if (detail::bindings.contains(keycode)  ) {
+        const Action act = detail::bindings[keycode];
+        detail::inputSystem.onMouseDown(act, pos);
+    }
+}
+
+inline void key_up(const Code keycode) {
+    if (detail::bindings.contains(keycode)  ) {
+        const Action act = detail::bindings[keycode];
+        detail::inputSystem.onEventUp(act, type::up);
+    }
+}
+
+inline void key_up(const Code keycode, math::vec2 pos) {
+    if (detail::bindings.contains(keycode)  ) {
+        const Action act = detail::bindings[keycode];
+        detail::inputSystem.onEventDown(act, type::down);
+    }
+}
+
+inline void mouse_move(const Code keycode, const math::vec2 pos) {
+    if (detail::bindings.contains(keycode)  ) {
+        const Action act = detail::bindings[keycode];
+        detail::inputSystem.onMouseMove(act, pos);
+    }
+}
+
+inline void bind_key(const Code keycode, const Action action) {
+   detail::bindings[keycode] = action;
+}
+
+inline void unbind(const Code keycode) {
+   detail::bindings.erase(keycode);
+}
 
 }

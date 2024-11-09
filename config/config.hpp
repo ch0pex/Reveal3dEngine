@@ -6,19 +6,79 @@
  * @file config.hpp
  * @version 1.0
  * @date 21/03/2024
- * @brief Short description
+ * @brief Config engine structs
  *
- * Longer description
+ * All this structs can be used to configure the system
  */
 
 #pragma once
 
+#include "common/string_literals.hpp"
 #include "math/math.hpp"
-#include <string>
 
 namespace reveal3d::config {
 
-const math::vec4 clearColor = { 0.2f, 0.2f, 0.2f, 1.0f};
+struct General {
+  static constexpr StringLiteral name {"general"};
+  static constexpr StringLiteral shortcut {"g"};
+};
 
-}
+struct Scene {
+  math::vec4 clearColor = {0.2F, 0.2F, 0.2F, 1.0F};
+  bool showGrid         = true;
+  static constexpr StringLiteral name {"scene"};
+  static constexpr StringLiteral shortcut {"s"};
+};
 
+
+struct Render {
+  struct Graphics {
+    u8 max_framerate = 0;
+    bool vsync       = true;
+    u8 buffer_count  = 3;
+    static constexpr u8 max_buffer_count {3};
+    static constexpr StringLiteral name {"render.graphics"};
+    static constexpr StringLiteral shortcut {"r.gfx"};
+  };
+  struct Lighting {
+    f32 ambient_light_intensity    = 0.7F;
+    f32 sun_light_intensity        = 0.9F;
+    math::vec3 ambient_color       = {1.0F, 1.0F, 1.0F};
+    math::vec3 sun_light_color     = {1.0F, 1.0F, 1.0F};
+    math::vec3 sun_light_direction = {0.0F, 0.0F, -1.0F};
+    static constexpr StringLiteral name {"render.lighting"};
+    static constexpr StringLiteral shortcut {"r.lgt"};
+  };
+
+  Graphics graphics;
+  Lighting lighting;
+
+  static constexpr StringLiteral name {"render"};
+  static constexpr StringLiteral shortcut {"r"};
+};
+
+struct Window {
+  std::string_view title = "Reveal3D";
+  math::vec2 resolution  = {1920, 1080};
+  static constexpr StringLiteral name {"window"};
+  static constexpr StringLiteral shortcut {"w"};
+};
+
+struct Camera {
+  f32 fov            = 45.0F;
+  f32 near_plane     = 0.1F;
+  f32 far_plane      = 100.0F;
+  f32 movement_speed = 5.0F;
+  f32 sensitivity    = 50.0F * 0.001F;
+  static constexpr math::vec3 world_up {0, 0, 1};
+  static constexpr StringLiteral name {"camera"};
+  static constexpr StringLiteral shortcut {"c"};
+};
+
+inline General general = {};
+inline Scene scene     = {};
+inline Render render   = {};
+inline Window window   = {};
+inline Camera camera   = {};
+
+} // namespace reveal3d::config

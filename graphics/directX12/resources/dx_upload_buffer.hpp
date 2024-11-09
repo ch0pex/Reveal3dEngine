@@ -71,7 +71,7 @@ void UploadBuffer<T>::init(ID3D12Device *device, u32 count) {
             nullptr,
             IID_PPV_ARGS(&buff_)) >> utl::DxCheck;
 
-    // TODO: add option to hide this to cpu with range(0,0)
+    // TODO: addId option to hide this to cpu with range(0,0)
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_data_));
 }
 

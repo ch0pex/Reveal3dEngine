@@ -1,36 +1,29 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.31)
+#set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+# This specific value changes as experimental support evolves. See
+# `Help/dev/experimental.rst` in the CMake source corresponding to
+# your CMake build for the exact value to use.
+#        "0e5b6991-d74f-4b3d-a41c-cf096e0b2508")
 project(Reveal3d LANGUAGES CXX)
+
+#set(CMAKE_CXX_MODULE_STD 1)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
 include_directories(PUBLIC .)
 
-#find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-#set(CMAKE_CXX_CLANG_TIDY "C:/Program Files/LLVM/bin/clang-tidy.exe" -header-filter=.*)
+add_library(Reveal3d STATIC)
 
 set(SOURCES
-        core/components/geometry.cpp
-        core/components/transform.cpp
-        core/components/script.cpp
-        render/camera.cpp
         render/light.cpp
-        common/timer.cpp
-        config/config.cpp
-        input/input.cpp
-        content/primitives.cpp
         content/formats/obj/obj_parser.cpp
-        window/glfw/glfw.cpp
-        common/logger.cpp
-        graphics/directX12/dx_surface.cpp
-        graphics/directX12/dx_gpass.cpp
-        core/components/metadata.cpp
 )
 
 set(HEADERS
+        config/config.hpp
         core/scene.hpp
         core/components/geometry.hpp
         core/components/transform.hpp
@@ -40,46 +33,75 @@ set(HEADERS
         render/camera.hpp
         render/light.hpp
         common/timer.hpp
-        config/config.hpp
         input/input.hpp
         content/primitives.hpp
         content/formats/obj/obj_parser.hpp
         window/glfw/glfw.hpp
         common/id.hpp
-        core/components.hpp
         render/material.hpp
         content/content.hpp
-        core/components/pool.hpp
+        core/pooling/pool.hpp
+        core/pooling/transform_pool.hpp
+        core/pooling/script_pool.hpp
+        core/pooling/metadata_pool.hpp
+        core/pooling/geometry_pool.hpp
+        core/concepts.hpp
         common/vector.hpp
-        graphics/directX12/dx_gpass.hpp
-        graphics/directX12/dx_surface.hpp
         common/string_literals.hpp
         common/string_literals.hpp
-        core/components/concepts.hpp
+        core/pooling/rigidbody_pool.hpp
+        core/components/rigidbody.hpp
+        math/utils.hpp
+        input/input_types.hpp
 )
+
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 
-add_library(Reveal3d STATIC ${SOURCES} ${HEADERS})
+target_sources(Reveal3d
+        PUBLIC
+        ${SOURCES} ${HEADERS}
+)
 
+
+include(FetchContent)
+FetchContent_Declare(
+        tomlplusplus
+        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+        GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG 10.1.1  # Cambia a la versión de fmt que prefieras
+)
+
+FetchContent_MakeAvailable(fmt)
+
+target_link_libraries(Reveal3d PUBLIC tomlplusplus::tomlplusplus)
+target_link_libraries(Reveal3d PUBLIC fmt::fmt)
 find_package(OpenGL REQUIRED)
 target_include_directories(Reveal3d PRIVATE extern/include)
 
+
 if (WIN32)
-    #add_compile_options(/Wall /external:anglebrakets /external:W0)
+    add_compile_options(/Wall /external:anglebrakets /external:W0)
     message("-- WINDOWS")
     message("-- Source dir: ${PROJECT_SOURCE_DIR}")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+    add_compile_options(/experimental:module)
     set(PLAT win32)
     set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
-#    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
+    #    target_compile_definitions(Reveal3d PRIVATE "UNICODE" "_UNICODE")
     target_link_libraries(Reveal3d PRIVATE d3d12 dxgi d3dcompiler ${OPENGL_LIBRARY} ${EXTERN}/glew.lib ${EXTERN}/glfw3.lib)
 
     aux_source_directory(graphics/directX12 GRAPHICS)
     aux_source_directory(graphics/directX12/resources GRAPHICS)
+    aux_source_directory(graphics/directX12/utils GRAPHICS)
     aux_source_directory(window/win32 WINDOW)
-    #add glew and glfw for windows
+    #addId glew and glfw for windows
 elseif (UNIX)
-    message("-- UNIX" )
+    message("-- UNIX")
     set(PLAT unix)
     #    find_package(GLM REQUIRED)
     find_package(GLEW REQUIRED)
@@ -88,25 +110,24 @@ elseif (UNIX)
     target_link_libraries(Reveal3d PRIVATE glfw ${GLEW_LIBRARIES} ${OPENGL_LIBRARY})
 
     #    add_compile_options(-Werror -Wall -Wextra  -pedantic -pedantic-errors)
-    #add glew, glfw and glm for linux
+    #addId glew, glfw and glm for linux
     #    target_link_libraries(Reveal3d PRIVATE ${EXTERN}/glew.t a ${EXTERN}/glfw3.lib)
-endif()
+endif ()
 
 aux_source_directory(graphics/opengl GRAPHICS)
 aux_source_directory(graphics/vulkan GRAPHICS)
 aux_source_directory(window/glfw WINDOW)
+
 if (IMGUI)
     message("-- IMGUI support activated")
     target_compile_definitions(Reveal3d PUBLIC IMGUI=1)
     aux_source_directory(extern/include/IMGUI IMGUI_SOURCE)
     aux_source_directory(extern/include/IMGUI/backends IMGUI_SOURCE)
     target_include_directories(Reveal3d PUBLIC extern/include/IMGUI)
-endif()
+endif ()
 target_sources(Reveal3d PUBLIC ${GRAPHICS} ${WINDOW} ${IMGUI_SOURCE})
-#target_link_libraries(Reveal3d PRIVATE )
 
 target_include_directories(Reveal3d PUBLIC .)
 target_include_directories(Reveal3d PUBLIC math/${PLAT})
 target_include_directories(Reveal3d PUBLIC extern/include)
 target_compile_definitions(Reveal3d PUBLIC PROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")
-

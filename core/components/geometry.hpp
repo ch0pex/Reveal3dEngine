@@ -13,147 +13,127 @@
 
 #pragma once
 
-#include "pool.hpp"
+#include "core/scene.hpp"
 #include "render/mesh.hpp"
 
 #include <queue>
+#include <set>
 #include <span>
 #include <vector>
-#include <set>
 
 namespace reveal3d::core {
 
-
 class Geometry {
 public:
-    enum Primitive : u8 {
-        Cube = 0u,
-        Plane,
-        Cylinder,
-        Sphere,
-        Cone,
-        Torus,
-        Custom,
+    using init_info = render::Mesh;
+    using pool_type = geometry::Pool;
 
-        count
-    };
+    constexpr Geometry() : id_{id::invalid} {}
 
-    /************* Geometry data ****************/
-    struct Pool {
-        u32 count() { return meshes.size(); }
-        render::Material&material(id_t id) { return materials.at(id::index(id)); }
-        render::Mesh& mesh(id_t id) { return meshes.at(id::index(id)); }
-        std::span<render::SubMesh> subMeshes(id_t id) { return std::span {sub_meshes.begin() + id::index(id), sub_meshes.begin() + id::index(id) + 1}; }
+    constexpr Geometry(id_t id) : id_{id} {}
 
-        utl::vector<render::Material> materials;
-        utl::vector<render::SubMesh> sub_meshes;
-        utl::vector<render::Mesh> meshes;
-    };
+    constexpr Geometry(Geometry& other) : id_{other.id()} {}
 
-    struct Data {
-        Data(render::Material& mat, render::SubMesh& submesh,  render::Mesh& meshinfo)
-                : material(mat), sub_mesh(submesh), mesh(meshinfo) {}
-        render::Material& material;
-        render::SubMesh&sub_mesh;
-        render::Mesh& mesh;
-    };
+    constexpr Geometry(Geometry&& other) noexcept : id_{other.id()} {}
 
-    using InitInfo = render::Mesh;
+    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
-    Geometry();
-    Geometry(Geometry& other);
-    Geometry(Geometry&& other) noexcept;
-    explicit Geometry(id_t id);
+    [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    Geometry& operator=(const Geometry& other);
-    Geometry& operator=(Geometry&& other) noexcept ;
+    Geometry& operator=(const Geometry& other) = default;
+    Geometry& operator=(Geometry&& other) noexcept {
+        id_ = other.id_;
+        return *this;
+    }
 
-    [[nodiscard]] u32 vertexCount() const;
-    [[nodiscard]] u32 indexCount() const;
+    // Note: for now we only will have one mesh and submesh, so we move the vector instead of appending it
+    void addMesh(render::Mesh& mesh) const {
+        render::SubMesh sub_mesh;
+        pool.mesh(id_) = std::move(mesh);
 
-    // NOTE: This will need to be changed when mesh instancing is implemented
-    // For now there is no mesh instancing and only one submesh each mesh and geometry
-    void addMesh(render::Mesh &mesh);
-    template<Primitive primitive> void addMesh();
+        sub_mesh.vertex_pos = vertexCount();
+        sub_mesh.index_pos = 0;
+        sub_mesh.index_count = indexCount();
+    }
 
-    [[nodiscard]] std::span<render::SubMesh> subMeshes() const;
-    [[nodiscard]] std::vector<render::Vertex> &vertices() const;
-    [[nodiscard]] std::vector<u32> &indices() const;
+    [[nodiscard]] u32 vertexCount() const { return pool.mesh(id_).vertices.size(); }
 
-    [[nodiscard]] bool isVisible() const;
-    render::Material &material();
+    [[nodiscard]] u32 indexCount() const { return pool.mesh(id_).indices.size(); }
 
-    void visibility(bool visibility);
-    void diffuseColor(math::vec4 color);
-    void roughness(f32 roughness);
-    void fresnel(math::vec3 fresnel);
-    void materialTransform(math::mat4 transform);
+    [[nodiscard]] std::span<render::SubMesh> subMeshes() const { return pool.subMeshes(id_); }
 
-    [[nodiscard]] inline bool isAlive() const { return id_ != id::invalid; }
-    [[nodiscard]] inline id_t id() const { return id_; }
+    [[nodiscard]] std::vector<render::Vertex>& vertices() const { return pool.mesh(id_).vertices; }
 
-    [[nodiscard]] u8 dirty() const;
-    void unDirty() const;
-    void setDirty() const;
-    Data data();
+    [[nodiscard]] std::vector<u32>& indices() const { return pool.mesh(id_).indices; }
+
+    [[nodiscard]] bool isVisible() const { return pool.subMeshes(id_)[0].visible; }
+
+    [[nodiscard]] u8 dirty() const { return pool.dirties().at(id::index(id_)); }
+
+    [[nodiscard]] const render::Material& material() const { return pool.material(id_); }
+
+    void visibility(bool visibility) const { pool.subMeshes(id_)[0].visible = visibility; }
+
+
+    void diffuseColor(math::vec4 color) const {
+        pool.material(id_).base_color = color;
+        setDirty();
+    }
+
+    void fresnel(math::vec3 fresnel) const {
+        pool.material(id_).fresnel = fresnel;
+        setDirty();
+    }
+
+    void materialTransform(math::mat4 transform) const {
+        pool.material(id_).mat_transform = transform;
+        setDirty();
+    }
+
+    void roughness(f32 roughness) const {
+        pool.material(id_).roughness = roughness;
+        setDirty();
+    }
+
+
+    void unDirty() const {
+        const id_t idx = id::index(id_);
+        if (pool.dirties().at(idx) != 0) {
+            --pool.dirties().at(idx);
+        }
+        else {
+            pool.dirties().at(idx) = 0;
+        }
+    }
+
+    void setDirty() const {
+        if (dirty() == 3) {
+            return;
+        }
+        if (dirty() == 0) {
+            pool.dirtyIds().insert(id_);
+        }
+        pool.dirties().at(id::index(id_)) = 3;
+    }
+
+    enum Primitive : u8 { Cube = 0U, Plane, Cylinder, Sphere, Cone, Torus, Custom, count };
 
 private:
+    inline static GenericPool<pool_type>& pool = core::scene.componentPool<Geometry>();
+
     id_t id_;
 };
 
 template<>
-inline Geometry Pool<Geometry>::addComponent(id_t entity_id) {
-    const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
-
-    components_data_.meshes.emplace_back();
-    components_data_.sub_meshes.emplace_back();
-    components_data_.materials.emplace_back();
-    dirties_.emplace_back(4);
-    dirty_ids_.insert(geometry_id);
-    new_components_.push(entity_id);
-
-    add(id::index(entity_id), geometry_id);
-    return components_ids_.at(id::index(entity_id));
-}
-
-template<>
-inline Geometry Pool<Geometry>::addComponent(id_t entity_id, Geometry::InitInfo &&init_info) {
-    const id_t geometry_id{ id_factory_.New(id::index(entity_id)) };
-
-    components_data_.meshes.push_back(std::move(init_info));
-    components_data_.materials.emplace_back();
-    dirties_.emplace_back(4);
-    dirty_ids_.insert(geometry_id);
-    new_components_.push(entity_id);
-
-    add(id::index(entity_id), geometry_id);
-
-    components_data_.sub_meshes.emplace_back(render::SubMesh {
-            .shader = render::Opaque,
-            .vertex_pos = 0,
-            .index_pos = 0,
-            .index_count = components_ids_.at(id::index(entity_id)).indexCount(),
-            .visible = true,
-    });
-
-    return components_ids_.at(id::index(entity_id));
-}
-
-template<>
-inline void Pool<Geometry>::removeComponent(id_t id) {
-    id_t geometry_id {components_ids_.at(id::index(id)).id() };
-    if (id_factory_.isAlive(geometry_id)) {
-        components_data_.materials.unordered_remove(id::index(geometry_id));
-        components_data_.meshes.unordered_remove(id::index(geometry_id));
-        components_data_.sub_meshes.unordered_remove(id::index(geometry_id));
-        dirties_.at(id::index(id)) = 0;
-        if (dirty_ids_.find(geometry_id) != dirty_ids_.end()) {
-            dirty_ids_.erase(geometry_id);
+inline void GenericPool<Geometry::pool_type>::update() {
+    for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
+        if (this->dirties_.at(id::index(*it)) == 0) {
+            it = this->dirty_ids_.erase(it);
         }
-        deleted_components_.push(geometry_id);
-        remove(geometry_id);
+        else {
+            ++it;
+        }
     }
 }
 
-
-}
+} // namespace reveal3d::core
