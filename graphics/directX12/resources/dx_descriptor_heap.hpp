@@ -21,20 +21,13 @@
 namespace reveal3d::graphics::dx12 {
 
 struct DescriptorHandle {
+  [[nodiscard]] bool IsValid() const { return cpu.ptr != 0; }
+
+  [[nodiscard]] bool IsShaderVisible() const { return gpu.ptr != 0; }
+
   D3D12_CPU_DESCRIPTOR_HANDLE cpu {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu {};
   u32 index {};
-
-
-  [[nodiscard]] bool IsValid() const { return cpu.ptr != 0; }
-  [[nodiscard]] bool IsShaderVisible() const { return gpu.ptr != 0; }
-  /*
-  #ifdef _DEBUG // For debugging porpouse save Descritpor heap pointer
-      friend class DescriptorHeap;
-      DescriptorHeap* container { nullptr };
-      u32 index {0};
-  #endif
-  */
 };
 
 

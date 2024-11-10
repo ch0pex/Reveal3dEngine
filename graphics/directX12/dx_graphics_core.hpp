@@ -55,7 +55,7 @@ private:
   ComPtr<ID3D12Device> device_;
 
   /****************** Frame resources *****************/
-  std::array<dx12::FrameResource, config::render.graphics.max_buffer_count> frame_resources_;
+  dx12::FrameResources frame_resources_ {};
 
   /***************** Depth stencil buffer**********************/
   ComPtr<ID3D12Resource> depth_stencil_buffer_;

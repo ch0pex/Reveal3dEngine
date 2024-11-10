@@ -18,10 +18,11 @@
 
 namespace reveal3d::graphics {
 
-struct RenderElement
-{
-  RenderElement(const core::Entity entity, dx12::BufferInitInfo& vertex_info, dx12::BufferInitInfo& index_info) :
-    entity(entity), vertex_buffer(vertex_info), index_buffer(index_info) { }
+struct RenderElement {
+  RenderElement(
+      core::Entity const entity, dx12::BufferInitInfo<render::Vertex>& vertex_info,
+      dx12::BufferInitInfo<u32>& index_info
+  ) : vertex_buffer(vertex_info), index_buffer(index_info), entity(entity) { }
   D3D_PRIMITIVE_TOPOLOGY topology {D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST};
   dx12::VertexBuffer vertex_buffer;
   dx12::IndexBuffer index_buffer;

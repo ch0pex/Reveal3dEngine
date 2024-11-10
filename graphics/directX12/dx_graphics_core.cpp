@@ -34,19 +34,16 @@ void Dx12::loadPipeline() {
   heaps_.rtv.initialize(device_.Get(), config::render.graphics.buffer_count, false);
   heaps_.srv.initialize(device_.Get(), 1U, true);
   heaps_.dsv.initialize(device_.Get(), 1U, false);
-  ds_handle_ = heaps_.dsv.alloc();
   surface_.init(cmd_manager_, factory_.Get());
-  initFrameResources();
+  frame_resources_.initRTVs(device_.Get(), surface_, &heaps());
+  frame_resources_.initCBs(device_.Get());
+  ds_handle_ = heaps_.dsv.alloc();
   initDsBuffer();
-  initConstantBuffers();
   surface_.updateViewport();
   gpass_.init(device_.Get());
 }
 
-// TODO: search for first avaible hardware adapter and look for best performance adapter (GPU)
-// TODO: check for more features
 void Dx12::initDxgiAdapter() {
-
   u32 factory_flags = 0;
 #ifdef _DEBUG
   utl::enable_cpu_layer(factory_flags);
@@ -63,29 +60,6 @@ void Dx12::initDxgiAdapter() {
 #ifdef _DEBUG
   utl::queue_info(device_.Get(), TRUE);
 #endif
-}
-
-void Dx12::initFrameResources() {
-  for (u32 i = 0; i < config::render.graphics.buffer_count; ++i) {
-    D3D12_RENDER_TARGET_VIEW_DESC desc = {
-      .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
-    };
-    frame_resources_.at(i).back_buffer_handle = heaps_.rtv.alloc();
-    surface_.getBuffer(i, frame_resources_.at(i).back_buffer);
-    device_->CreateRenderTargetView(
-        frame_resources_.at(i).back_buffer.Get(), &desc, frame_resources_.at(i).back_buffer_handle.cpu
-    );
-    std::wstring name = L"BackBuffer " + std::to_wstring(i);
-    frame_resources_.at(i).back_buffer->SetName(name.c_str()) >> utl::DxCheck;
-  }
-}
-
-void Dx12::initConstantBuffers() {
-  for (auto& frame_resource: frame_resources_) {
-    frame_resource.constant_buffer.init(device_.Get(), 100'000);
-    frame_resource.mat_buffer.init(device_.Get(), 100'000);
-    frame_resource.pass_buffer.init(device_.Get(), 1U);
-  }
 }
 
 void Dx12::initDsBuffer() {
@@ -139,16 +113,14 @@ void Dx12::loadAssets() {
   cmd_manager_.reset(nullptr);
   using namespace core;
 
-  auto& transforms = core::scene.componentPool<core::Transform>();
-  // auto& geometries = core::scene.componentPool<Geometry>();
-  auto& geometries = core::scene.componentPool<core::Geometry>();
+  auto& geometries = scene.componentPool<Geometry>();
 
   auto entity   = Entity(geometries.popNew());
   auto geometry = entity.component<core::Geometry>();
 
   while (geometry.isAlive()) {
     id_t const idx = id::index(geometry.id());
-    auto transform = entity.component<core::Transform>();
+    auto transform = entity.component<Transform>();
     gpass_.addRenderElement(entity, cmd_manager_, device_.Get());
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
@@ -159,7 +131,7 @@ void Dx12::loadAssets() {
       frame_resource.mat_buffer.copyData(idx, &mat_constant, 1);
     }
 
-    entity   = core::Entity(geometries.popNew());
+    entity   = Entity(geometries.popNew());
     geometry = entity.component<core::Geometry>();
   }
 
@@ -281,13 +253,7 @@ void Dx12::resize(window::Resolution const& res) {
   initDsBuffer();
   cmd_manager_.resetFences();
 
-  for (auto [idx, frame_resource]: std::views::enumerate(frame_resources_)) {
-    D3D12_RENDER_TARGET_VIEW_DESC desc = {
-      .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
-    };
-    surface_.getBuffer(idx, frame_resource.back_buffer);
-    device_->CreateRenderTargetView(frame_resource.back_buffer.Get(), &desc, frame_resource.back_buffer_handle.cpu);
-  }
+  frame_resources_.initRTVs(device_.Get(), surface_);
 
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();

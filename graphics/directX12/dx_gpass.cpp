@@ -122,16 +122,16 @@ void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource
 
 // NOTE change geometry to mesh when content module update
 void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device) {
-  auto const geometry               = entity.component<core::Geometry>();
-  BufferInitInfo vertex_buffer_info = {
-    .device = device, .cmd_list = cmd_mng.list(), .data = geometry.vertices().data(), .count = geometry.vertexCount()
+  auto const geometry = entity.component<core::Geometry>();
+
+  BufferInitInfo<render::Vertex> vertex_buffer_info = {
+    .device = device, .cmd_list = cmd_mng.list(), .view = {geometry.vertices().data(), geometry.vertexCount()}
   };
 
-  BufferInitInfo index_buffer_info = {
+  BufferInitInfo<u32> index_buffer_info = {
     .device   = device,
     .cmd_list = cmd_mng.list(),
-    .data     = geometry.indices().data(),
-    .count    = geometry.indexCount(),
+    .view     = {geometry.indices().data(), geometry.indexCount()},
     .format   = DXGI_FORMAT_R32_UINT
   };
 
