@@ -26,7 +26,7 @@ public:
 
     constexpr Metadata() : id_(id::invalid) {}
 
-    constexpr Metadata(id_t id) : id_(id) { }
+    constexpr Metadata(id_t const id) : id_(id) { }
 
     [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
