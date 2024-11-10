@@ -40,7 +40,7 @@ public:
 
   FrameResources() = default;
 
-  void initRTVs(ID3D12Device* device, Surface const& surface, Heaps* heaps = nullptr) {
+  void initBackBuffers(ID3D12Device* device, Surface const& surface, Heaps* heaps = nullptr) {
     constexpr D3D12_RENDER_TARGET_VIEW_DESC desc = {
       .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
     };

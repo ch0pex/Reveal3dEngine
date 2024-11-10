@@ -35,7 +35,7 @@ void Dx12::loadPipeline() {
   heaps_.srv.initialize(device_.Get(), 1U, true);
   heaps_.dsv.initialize(device_.Get(), 1U, false);
   surface_.init(cmd_manager_, factory_.Get());
-  frame_resources_.initRTVs(device_.Get(), surface_, &heaps());
+  frame_resources_.initBackBuffers(device_.Get(), surface_, &heaps());
   frame_resources_.initCBs(device_.Get());
   ds_handle_ = heaps_.dsv.alloc();
   initDsBuffer();
@@ -253,7 +253,7 @@ void Dx12::resize(window::Resolution const& res) {
   initDsBuffer();
   cmd_manager_.resetFences();
 
-  frame_resources_.initRTVs(device_.Get(), surface_);
+  frame_resources_.initBackBuffers(device_.Get(), surface_);
 
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();
