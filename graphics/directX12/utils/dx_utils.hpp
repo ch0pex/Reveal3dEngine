@@ -14,6 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "config/config.hpp"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -31,6 +32,33 @@ void release(T*& resource) {
     resource = nullptr;
   }
 }
+
+/// This class offers a safe array for that resources that need to be replicated as times as swap chain buffers
+template<typename T>
+class ResourceArray {
+public:
+  using container      = std::array<T, config::Render::Graphics::max_buffer_count>;
+  using iterator       = typename container::iterator;
+  using const_iterator = typename container::const_iterator;
+
+  [[nodiscard]] const_iterator begin() const { return const_iterator(resource_.begin()); }
+
+  [[nodiscard]] const_iterator end() const {
+    return const_iterator(resource_.begin() + config::render.graphics.buffer_count);
+  }
+
+  iterator begin() { return iterator(resource_.begin()); }
+
+  iterator end() { return iterator(resource_.begin() + config::render.graphics.buffer_count); }
+
+  T& at(u8 const index) {
+    assert(index < config::render.graphics.buffer_count);
+    return resource_.at(index);
+  }
+
+private:
+  container resource_;
+};
 
 void enable_cpu_layer(u32& factory_flag);
 void enable_gpu_layer();

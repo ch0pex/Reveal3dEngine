@@ -17,6 +17,7 @@ include_directories(PUBLIC .)
 
 add_library(Reveal3d STATIC)
 
+
 set(SOURCES
         render/light.cpp
         content/formats/obj/obj_parser.cpp

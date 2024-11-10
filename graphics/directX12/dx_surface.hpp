@@ -12,8 +12,10 @@
  */
 #pragma once
 
+#include "dx_adapter.hpp"
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
+#include "resources/dx_descriptor_heap.hpp"
 #include "window/window_info.hpp"
 
 namespace reveal3d::graphics::dx12 {
@@ -21,25 +23,39 @@ namespace reveal3d::graphics::dx12 {
 class Surface {
 public:
   explicit Surface(
-      window::Resolution& resolution, u32 swap_chain_flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH,
+      window::Resolution const& resolution, u32 swap_chain_flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH,
       u32 present_info = 0
   );
-  void init(const Commands& cmd_manager, IDXGIFactory5* factory);
-  void updateViewport();
+
+  void createSwapChain(Commands const& cmd_manager, Adapter const& adapter, Heaps& heaps);
+
   void setViewport(ID3D12GraphicsCommandList* cmd_list) const;
-  void setWindow(const WHandle& win_handle);
-  void allowTearing(IDXGIFactory5* factory);
-  const window::Resolution& resolution() const;
+
+  void setWindow(WHandle const& win_handle);
+
   void present() const;
-  void resize(const window::Resolution& res) const;
+
+  void resize(window::Resolution const& res);
+
   void getBuffer(u32 index, ComPtr<ID3D12Resource>& buffer) const;
 
+  [[nodiscard]] window::Resolution const& resolution() const;
+
 private:
+  void allowTearing(IDXGIFactory5* factory);
+
+  void finalize(Adapter const& adapter);
+
+  struct RenderTargetData {
+    ComPtr<ID3D12Resource> resource_;
+    DescriptorHandle rtv_;
+  };
+
+  utl::ResourceArray<RenderTargetData> render_targets_;
+  window::Resolution resolution_;
   ComPtr<IDXGISwapChain3> swap_chain_;
   u32 swap_chain_flags_;
   u32 present_info_;
-
-  window::Resolution* resolution_;
   WHandle window_ {};
   D3D12_VIEWPORT viewport_ {};
   D3D12_RECT scissor_rect_ {};

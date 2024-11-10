@@ -28,16 +28,24 @@ class Gpass {
 public:
   Gpass();
   void init(ID3D12Device* device);
-  static void setRenderTargets(Commands const& command_mng, FrameResource const& frame_resource);
+
+  static void setRenderTargets(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
+
   void depthPrepass(); // TODO
+
   void render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
+
   void addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device);
+
   void removeRenderElement(u32 const idx) { render_elements_.unordered_remove(idx); }
+
   void terminate();
 
 private:
   void buildPsos(ID3D12Device* device);
+
   void buildRoots(ID3D12Device* device);
+
   void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
 
   /**************** render elements *****************/

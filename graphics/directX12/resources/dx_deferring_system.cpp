@@ -21,30 +21,25 @@
 namespace reveal3d::graphics::dx12 {
 
 std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
-std::array<u32, config::render.graphics.max_buffer_count> deferredReleasesFlags;
+utl::ResourceArray<u32> deferredReleasesFlags;
 
-void set_deferred_flag() { deferredReleasesFlags[Commands::frameIndex()] = 1; }
+void set_deferred_flag() { deferredReleasesFlags.at(Commands::frameIndex()) = 1; }
 
 void deferred_release(IUnknown* resource) {
   if (resource != nullptr) {
-    deferredReleases[Commands::frameIndex()].push_back(resource);
-    deferredReleasesFlags[Commands::frameIndex()] = 1;
-    resource                                      = nullptr;
+    deferredReleases.at(Commands::frameIndex()).push_back(resource);
+    deferredReleasesFlags.at(Commands::frameIndex()) = 1;
+    resource                                         = nullptr;
   }
 }
 
 void clean_deferred_resources(Heaps& heaps) {
   // Will need mutex __declspec(noinline)
 
-  if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags[frame_index]) {
+  if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags.at(frame_index)) {
 
-    deferredReleasesFlags[frame_index] = 0;
-
-    heaps.rtv.cleanDeferreds();
-    heaps.dsv.cleanDeferreds();
-    // heaps.cbv.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
+    deferredReleasesFlags.at(frame_index) = 0;
+    heaps.cleanDeferreds();
 
     if (!deferredReleases[frame_index].empty()) {
       for (auto* resource: deferredReleases[Commands::frameIndex()]) {

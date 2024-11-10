@@ -73,6 +73,21 @@ private:
 
 struct Heaps {
   Heaps();
+
+  void init(ID3D12Device* device) {
+    rtv.initialize(device, config::render.graphics.buffer_count, false);
+    srv.initialize(device, 1U, true);
+    dsv.initialize(device, 1U, false);
+  }
+
+  void cleanDeferreds() {
+    rtv.cleanDeferreds();
+    dsv.cleanDeferreds();
+    srv.cleanDeferreds();
+    //  uavHeap.cleanDeferreds();
+    //  uavHeap.cleanDeferreds();
+  }
+
   void release();
 
   /******************** Descriptor Heaps *************************/

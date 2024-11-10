@@ -26,41 +26,18 @@ namespace reveal3d::graphics {
 using namespace render;
 using namespace dx12;
 
-Dx12::Dx12(window::Resolution* res) : surface_(*res) { }
+Dx12::Dx12(window::Resolution const* res) : surface_(*res) { }
 
 void Dx12::loadPipeline() {
-  initDxgiAdapter();
-  cmd_manager_.init(device_.Get());
-  heaps_.rtv.initialize(device_.Get(), config::render.graphics.buffer_count, false);
-  heaps_.srv.initialize(device_.Get(), 1U, true);
-  heaps_.dsv.initialize(device_.Get(), 1U, false);
-  surface_.init(cmd_manager_, factory_.Get());
-  frame_resources_.initBackBuffers(device_.Get(), surface_, &heaps());
-  frame_resources_.initCBs(device_.Get());
+  cmd_manager_.init(adapter_.device.Get());
+  heaps_.init(adapter_.device.Get());
+  surface_.createSwapChain(cmd_manager_, adapter_, heaps_);
+  frame_resources_.init(adapter_.device.Get());
   ds_handle_ = heaps_.dsv.alloc();
   initDsBuffer();
-  surface_.updateViewport();
-  gpass_.init(device_.Get());
+  gpass_.init(adapter_.device.Get());
 }
 
-void Dx12::initDxgiAdapter() {
-  u32 factory_flags = 0;
-#ifdef _DEBUG
-  utl::enable_cpu_layer(factory_flags);
-  utl::log_adapters();
-  utl::enable_gpu_layer();
-#endif
-  ComPtr<IDXGIAdapter1> hardware_adapter;
-  CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory_)) >> utl::DxCheck;
-  utl::get_hardware_adapter(factory_.Get(), &hardware_adapter);
-  D3D12CreateDevice(hardware_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device_)) >> utl::DxCheck;
-
-  surface_.allowTearing(factory_.Get());
-
-#ifdef _DEBUG
-  utl::queue_info(device_.Get(), TRUE);
-#endif
-}
 
 void Dx12::initDsBuffer() {
   const D3D12_RESOURCE_DESC depth_stencil_desc = {
@@ -88,7 +65,7 @@ void Dx12::initDsBuffer() {
        }};
 
   auto const heap_prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-  device_->CreateCommittedResource(
+  adapter_.device->CreateCommittedResource(
       &heap_prop, D3D12_HEAP_FLAG_NONE, &depth_stencil_desc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &opt_clear,
       IID_PPV_ARGS(depth_stencil_buffer_.GetAddressOf())
   ) >> utl::DxCheck;
@@ -101,7 +78,7 @@ void Dx12::initDsBuffer() {
   };
 
   depth_stencil_buffer_->SetName(L"Depth Buffer") >> utl::DxCheck;
-  device_->CreateDepthStencilView(depth_stencil_buffer_.Get(), &dsv_desc, ds_handle_.cpu);
+  adapter_.device->CreateDepthStencilView(depth_stencil_buffer_.Get(), &dsv_desc, ds_handle_.cpu);
 
   for (auto& frame_resource: frame_resources_) {
     frame_resource.depth_buffer_handle = ds_handle_;
@@ -121,7 +98,7 @@ void Dx12::loadAssets() {
   while (geometry.isAlive()) {
     id_t const idx = id::index(geometry.id());
     auto transform = entity.component<Transform>();
-    gpass_.addRenderElement(entity, cmd_manager_, device_.Get());
+    gpass_.addRenderElement(entity, cmd_manager_, adapter_.device.Get());
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
     for (auto& frame_resource: frame_resources_) {
@@ -142,7 +119,7 @@ void Dx12::loadAssets() {
 
 void Dx12::loadAsset(core::Entity const id) {
   cmd_manager_.reset(nullptr);
-  gpass_.addRenderElement(id, cmd_manager_, device_.Get());
+  gpass_.addRenderElement(id, cmd_manager_, adapter_.device.Get());
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
@@ -206,28 +183,27 @@ void Dx12::renderSurface() {
   auto const target_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
   );
+
   command_list->ResourceBarrier(1, &target_barrier);
 
+  gpass_.setRenderTargets(command_list, curr_frame_res);
+
   gpass_.render(command_list, curr_frame_res);
+
+
+  ImGuiBegin();
 
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
   );
 
-#ifdef IMGUI
-  ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
-  command_list->SetDescriptorHeaps(1, &srvDesc);
-  ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), command_list);
-#endif
-
   command_list->ResourceBarrier(1, &present_barrier);
+
   command_list->Close() >> utl::DxCheck;
   cmd_manager_.execute();
 
-#ifdef IMGUI
-  ImGui::UpdatePlatformWindows();
-  ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
-#endif
+  ImGuiEnd();
+
   surface_.present();
   cmd_manager_.moveToNextFrame();
 }
@@ -253,19 +229,17 @@ void Dx12::resize(window::Resolution const& res) {
   initDsBuffer();
   cmd_manager_.resetFences();
 
-  frame_resources_.initBackBuffers(device_.Get(), surface_);
-
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
-  surface_.updateViewport();
 }
 
 void Dx12::terminate() {
 #ifdef _DEBUG
-  utl::queue_info(device_.Get(), FALSE);
-  utl::set_reporter(device_.Get());
+  utl::queue_info(adapter_.device.Get(), FALSE);
+  utl::set_reporter(adapter_.device.Get());
 #endif
+
   cmd_manager_.flush();
   heaps_.release();
   gpass_.terminate();

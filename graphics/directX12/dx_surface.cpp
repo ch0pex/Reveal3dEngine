@@ -4,17 +4,23 @@
 
 #include "dx_surface.hpp"
 
+#include "dx_adapter.hpp"
+
+#include <ranges>
+
 namespace reveal3d::graphics::dx12 {
 
-Surface::Surface(window::Resolution& resolution, u32 const swap_chain_flags, u32 const present_info) :
-  resolution_(&resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
+Surface::Surface(window::Resolution const& resolution, u32 const swap_chain_flags, u32 const present_info) :
+  resolution_(resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
 
-void Surface::init(Commands const& cmd_manager, IDXGIFactory5* factory) {
+void Surface::createSwapChain(Commands const& cmd_manager, Adapter const& adapter, Heaps& heaps) {
   ComPtr<IDXGISwapChain1> swap_chain_1;
 
+  allowTearing(adapter.factory.Get());
+
   const DXGI_SWAP_CHAIN_DESC1 swap_chain_desc {
-    .Width       = resolution_->width,
-    .Height      = resolution_->height,
+    .Width       = resolution_.width,
+    .Height      = resolution_.height,
     .Format      = DXGI_FORMAT_R8G8B8A8_UNORM,
     .Stereo      = FALSE,
     .SampleDesc  = {1, 0},
@@ -25,15 +31,34 @@ void Surface::init(Commands const& cmd_manager, IDXGIFactory5* factory) {
     .AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED,
     .Flags       = swap_chain_flags_
   };
-  factory->CreateSwapChainForHwnd(
+
+
+  adapter.factory->CreateSwapChainForHwnd(
       cmd_manager.getQueue(), window_.hwnd, &swap_chain_desc, nullptr, nullptr, &swap_chain_1
   ) >> utl::DxCheck;
-  factory->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >>
-      utl::DxCheck; // Disable Alt + Enter for full screen window
+  // Disable Alt + Enter for full screen window
+  adapter.factory->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck;
   swap_chain_1.As(&swap_chain_) >> utl::DxCheck;
+
+  for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
+    frame_resource.rtv_ = heaps.rtv.alloc();
+  }
+
+  finalize(adapter);
 }
 
-void Surface::updateViewport() {
+void Surface::finalize(Adapter const& adapter) {
+
+  constexpr D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
+    .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
+  };
+  for (auto [idx, target]: std::views::enumerate(render_targets_)) {
+    getBuffer(idx, target.resource_);
+    adapter.device->CreateRenderTargetView(target.resource_.Get(), &rtv_desc, target.rtv_.cpu);
+    std::wstring name = L"BackBuffer " + std::to_wstring(idx);
+    target.resource_->SetName(name.c_str()) >> utl::DxCheck;
+  }
+
   DXGI_SWAP_CHAIN_DESC desc {};
 
   swap_chain_->GetDesc(&desc) >> utl::DxCheck;
@@ -60,16 +85,18 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
   }
 }
 
-window::Resolution const& Surface::resolution() const { return *resolution_; }
+window::Resolution const& Surface::resolution() const { return resolution_; }
 
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
-void Surface::resize(window::Resolution const& res) const {
-  *resolution_ = res;
+void Surface::resize(window::Resolution const& res) {
+  resolution_ = res;
   swap_chain_->ResizeBuffers(
-      config::render.graphics.buffer_count, resolution_->width, resolution_->height, DXGI_FORMAT_R8G8B8A8_UNORM,
+      config::render.graphics.buffer_count, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
       swap_chain_flags_
   ) >> utl::DxCheck;
+
+  finalize();
 }
 
 void Surface::getBuffer(u32 const index, ComPtr<ID3D12Resource>& buffer) const {

@@ -45,8 +45,7 @@ void Gpass::init(ID3D12Device* device) {
   buildPsos(device);
 }
 
-void Gpass::setRenderTargets(Commands const& command_mng, FrameResource const& frame_resource) {
-  ID3D12GraphicsCommandList* command_list = command_mng.list();
+void Gpass::setRenderTargets(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
 
   command_list->ClearRenderTargetView(
       frame_resource.back_buffer_handle.cpu, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr
@@ -63,15 +62,6 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource& frame
   curr_root_signature_ = nullptr;
   curr_pipeline_state_ = nullptr;
 
-  command_list->ClearRenderTargetView(
-      frame_resource.back_buffer_handle.cpu, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr
-  );
-  command_list->ClearDepthStencilView(
-      frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr
-  );
-  command_list->OMSetRenderTargets(
-      1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu
-  );
 
   for (auto& render_element: render_elements_) {
 

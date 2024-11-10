@@ -15,9 +15,8 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#include "dx_adapter.hpp"
 #endif
-
-#include <array>
 
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
@@ -31,31 +30,52 @@ namespace reveal3d::graphics {
 
 __declspec(align(16)) class Dx12 {
 public:
-  explicit Dx12(window::Resolution* res);
+  explicit Dx12(window::Resolution const* res);
+
   void loadPipeline();
+
   void loadAssets();
+
   void loadAsset(core::Entity id);
+
   void update(render::Camera const& camera);
+
   void renderSurface();
+
   void terminate();
+
   void resize(window::Resolution const& res);
+
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
-  ID3D12Device* device() const { return device_.Get(); }
+
+  [[nodiscard]] ID3D12Device* device() const { return adapter_.device.Get(); }
+
   dx12::Heaps& heaps() { return heaps_; }
 
 private:
-  void initDxgiAdapter();
-  void initFrameResources();
   void initDsBuffer();
-  void initConstantBuffers();
-  void removeAsset(id_t id);
+
+  void Dx12::ImGuiBegin() const {
+#ifdef IMGUI
+    auto* command_list            = cmd_manager_.list();
+    ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
+    command_list->SetDescriptorHeaps(1, &srvDesc);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), command_list);
+#endif
+  }
+
+  void Dx12::ImGuiEnd() const {
+#ifdef IMGUI
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
+#endif
+  }
 
   /****************** Factory and Device *****************/
-  ComPtr<IDXGIFactory5> factory_;
-  ComPtr<ID3D12Device> device_;
+  dx12::Adapter const adapter_;
 
   /****************** Frame resources *****************/
-  dx12::FrameResources frame_resources_ {};
+  dx12::FrameResources frame_resources_;
 
   /***************** Depth stencil buffer**********************/
   ComPtr<ID3D12Resource> depth_stencil_buffer_;
