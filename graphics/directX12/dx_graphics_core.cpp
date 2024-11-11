@@ -221,10 +221,6 @@ void Dx12::resize(window::Resolution const& res) {
   cmd_manager_.waitForGpu();
   cmd_manager_.reset(nullptr);
 
-  // for (auto& frame_resource: frame_resources_) {
-  // frame_resource.back_buffer.Reset();
-  // }
-
   depth_stencil_buffer_.Reset();
   surface_.resize(res);
   initDsBuffer();

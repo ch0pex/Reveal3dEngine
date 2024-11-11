@@ -126,9 +126,9 @@ public:
     return child;
   }
 
-  Entity newChildEntity(id_t parent) { return newChildEntity(Entity(parent)); }
+  Entity newChildEntity(id_t const parent) { return newChildEntity(Entity(parent)); }
 
-  Entity removeEntity(id_t id) {
+  Entity removeEntity(id_t const id) {
     Entity entity {id};
     Entity nextOrPrev = {};
     if (isEntityAlive(id)) {
@@ -154,7 +154,7 @@ public:
 
   /******************************* Scene graph methods ******************************/
 
-  [[nodiscard]] std::vector<Scene::Node> const& graph() const { return scene_graph_; }
+  [[nodiscard]] std::vector<Node> const& graph() const { return scene_graph_; }
 
   [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
@@ -201,7 +201,7 @@ public:
   }
 
 private:
-  void removeNode(id_t id) {
+  void removeNode(id_t const id) {
     if (!id::is_valid(id)) {
       return;
     }

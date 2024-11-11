@@ -90,6 +90,9 @@ window::Resolution const& Surface::resolution() const { return resolution_; }
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {
+  for (auto& render_target: render_targets_) {
+    render_target.resource_.Reset();
+  }
   resolution_ = res;
   swap_chain_->ResizeBuffers(
       config::render.graphics.buffer_count, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,

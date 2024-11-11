@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.29)
 #set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
 # This specific value changes as experimental support evolves. See
 # `Help/dev/experimental.rst` in the CMake source corresponding to
