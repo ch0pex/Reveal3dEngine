@@ -17,6 +17,7 @@
 #include "dx_deferring_system.hpp"
 
 #include <array>
+#include <graphics/directX12/dx_adapter.hpp>
 
 namespace reveal3d::graphics::dx12 {
 
@@ -74,10 +75,10 @@ private:
 struct Heaps {
   Heaps();
 
-  void init(ID3D12Device* device) {
-    rtv.initialize(device, config::render.graphics.buffer_count, false);
-    srv.initialize(device, 1U, true);
-    dsv.initialize(device, 1U, false);
+  void init() {
+    rtv.initialize(adapter.device.Get(), config::render.graphics.buffer_count, false);
+    srv.initialize(adapter.device.Get(), 1U, true);
+    dsv.initialize(adapter.device.Get(), 1U, false);
   }
 
   void cleanDeferreds() {

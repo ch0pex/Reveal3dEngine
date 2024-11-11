@@ -27,13 +27,16 @@ namespace reveal3d::graphics::dx12 {
 class Gpass {
 public:
   Gpass();
-  void init(ID3D12Device* device);
 
-  static void setRenderTargets(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
+  void init();
+
+  static void setRenderTargets(
+      ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource, D3D12_CPU_DESCRIPTOR_HANDLE rtv
+  );
 
   void depthPrepass(); // TODO
 
-  void render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
+  void render(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
 
   void addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device);
 
@@ -46,7 +49,7 @@ private:
 
   void buildRoots(ID3D12Device* device);
 
-  void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource);
+  void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
 
   /**************** render elements *****************/
   reveal3d::utl::vector<RenderElement> render_elements_;

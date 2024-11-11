@@ -18,6 +18,12 @@
 #include "dx_adapter.hpp"
 #endif
 
+#ifdef IMGUI
+#include "IMGUI/backends/imgui_impl_dx12.h"
+#include "IMGUI/imgui.h"
+// #include "IMGUI/imgui_internal.h"
+#endif
+
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_common.hpp"
@@ -30,6 +36,8 @@ namespace reveal3d::graphics {
 
 __declspec(align(16)) class Dx12 {
 public:
+  using surface = dx12::Surface;
+
   explicit Dx12(window::Resolution const* res);
 
   void loadPipeline();
@@ -40,7 +48,9 @@ public:
 
   void update(render::Camera const& camera);
 
-  void renderSurface();
+  void render() { renderSurface(surface_); }
+
+  void renderSurface(dx12::Surface& surface);
 
   void terminate();
 
@@ -48,14 +58,14 @@ public:
 
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
 
-  [[nodiscard]] ID3D12Device* device() const { return adapter_.device.Get(); }
+  [[nodiscard]] static ID3D12Device* device() { return dx12::adapter.device.Get(); }
 
   dx12::Heaps& heaps() { return heaps_; }
 
 private:
   void initDsBuffer();
 
-  void Dx12::ImGuiBegin() const {
+  void ImGuiBegin() const {
 #ifdef IMGUI
     auto* command_list            = cmd_manager_.list();
     ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
@@ -64,18 +74,15 @@ private:
 #endif
   }
 
-  void Dx12::ImGuiEnd() const {
+  void ImGuiEnd() const {
 #ifdef IMGUI
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
 #endif
   }
 
-  /****************** Factory and Device *****************/
-  dx12::Adapter const adapter_;
-
   /****************** Frame resources *****************/
-  dx12::FrameResources frame_resources_;
+  dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
 
   /***************** Depth stencil buffer**********************/
   ComPtr<ID3D12Resource> depth_stencil_buffer_;

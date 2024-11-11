@@ -11,16 +11,12 @@
  * Longer description
  */
 
-#ifdef IMGUI
-#include "IMGUI/backends/imgui_impl_dx12.h"
-#include "IMGUI/imgui.h"
-// #include "IMGUI/imgui_internal.h"
-#endif
 
+#include "dx_graphics_core.hpp"
 #include "config/config.hpp"
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
-#include "dx_graphics_core.hpp"
+
 namespace reveal3d::graphics {
 
 using namespace render;
@@ -29,15 +25,20 @@ using namespace dx12;
 Dx12::Dx12(window::Resolution const* res) : surface_(*res) { }
 
 void Dx12::loadPipeline() {
-  cmd_manager_.init(adapter_.device.Get());
-  heaps_.init(adapter_.device.Get());
-  surface_.createSwapChain(cmd_manager_, adapter_, heaps_);
-  frame_resources_.init(adapter_.device.Get());
+  cmd_manager_.init();
+  heaps_.init();
+  surface_.createSwapChain(cmd_manager_, heaps_);
+
+  for (auto& frame_resource: frame_resources_) {
+    frame_resource.constant_buffer.init(adapter.device.Get(), 100'000);
+    frame_resource.mat_buffer.init(adapter.device.Get(), 100'000);
+    frame_resource.pass_buffer.init(adapter.device.Get(), 1U);
+  }
+
   ds_handle_ = heaps_.dsv.alloc();
   initDsBuffer();
-  gpass_.init(adapter_.device.Get());
+  gpass_.init();
 }
-
 
 void Dx12::initDsBuffer() {
   const D3D12_RESOURCE_DESC depth_stencil_desc = {
@@ -65,7 +66,7 @@ void Dx12::initDsBuffer() {
        }};
 
   auto const heap_prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-  adapter_.device->CreateCommittedResource(
+  adapter.device->CreateCommittedResource(
       &heap_prop, D3D12_HEAP_FLAG_NONE, &depth_stencil_desc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &opt_clear,
       IID_PPV_ARGS(depth_stencil_buffer_.GetAddressOf())
   ) >> utl::DxCheck;
@@ -78,7 +79,7 @@ void Dx12::initDsBuffer() {
   };
 
   depth_stencil_buffer_->SetName(L"Depth Buffer") >> utl::DxCheck;
-  adapter_.device->CreateDepthStencilView(depth_stencil_buffer_.Get(), &dsv_desc, ds_handle_.cpu);
+  adapter.device->CreateDepthStencilView(depth_stencil_buffer_.Get(), &dsv_desc, ds_handle_.cpu);
 
   for (auto& frame_resource: frame_resources_) {
     frame_resource.depth_buffer_handle = ds_handle_;
@@ -98,7 +99,7 @@ void Dx12::loadAssets() {
   while (geometry.isAlive()) {
     id_t const idx = id::index(geometry.id());
     auto transform = entity.component<Transform>();
-    gpass_.addRenderElement(entity, cmd_manager_, adapter_.device.Get());
+    gpass_.addRenderElement(entity, cmd_manager_, adapter.device.Get());
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
     for (auto& frame_resource: frame_resources_) {
@@ -119,15 +120,14 @@ void Dx12::loadAssets() {
 
 void Dx12::loadAsset(core::Entity const id) {
   cmd_manager_.reset(nullptr);
-  gpass_.addRenderElement(id, cmd_manager_, adapter_.device.Get());
+  gpass_.addRenderElement(id, cmd_manager_, adapter.device.Get());
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
 }
 
 void Dx12::update(Camera const& camera) {
-  auto& [back_buffer, back_buffer_handle, depth_buffer_handle, constant_buffer, pass_buffer, mat_buffer] =
-      frame_resources_.at(Commands::frameIndex());
+  auto& [ds_buffer, constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
   auto const& dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
   auto const& dirty_mats       = core::scene.componentPool<core::Geometry>().dirtyElements();
   auto& geometries             = core::scene.componentPool<core::Geometry>();
@@ -170,23 +170,24 @@ void Dx12::update(Camera const& camera) {
   }
 }
 
-void Dx12::renderSurface() {
-  auto& curr_frame_res                    = frame_resources_.at(Commands::frameIndex());
-  ID3D12GraphicsCommandList* command_list = cmd_manager_.list();
+void Dx12::renderSurface(dx12::Surface& surface) {
+  auto& curr_frame_res    = frame_resources_.at(Commands::frameIndex());
+  auto* command_list      = cmd_manager_.list();
+  auto* const back_buffer = surface.back_buffer();
 
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 
   clean_deferred_resources(heaps_); // Clean deferreds resources
 
-  surface_.setViewport(command_list);
+  surface.setViewport(command_list);
 
   auto const target_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-      curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
+      back_buffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
   );
 
   command_list->ResourceBarrier(1, &target_barrier);
 
-  gpass_.setRenderTargets(command_list, curr_frame_res);
+  gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
 
   gpass_.render(command_list, curr_frame_res);
 
@@ -194,7 +195,7 @@ void Dx12::renderSurface() {
   ImGuiBegin();
 
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-      curr_frame_res.back_buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
+      back_buffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
   );
 
   command_list->ResourceBarrier(1, &present_barrier);
@@ -204,7 +205,7 @@ void Dx12::renderSurface() {
 
   ImGuiEnd();
 
-  surface_.present();
+  surface.present();
   cmd_manager_.moveToNextFrame();
 }
 
@@ -220,9 +221,9 @@ void Dx12::resize(window::Resolution const& res) {
   cmd_manager_.waitForGpu();
   cmd_manager_.reset(nullptr);
 
-  for (auto& frame_resource: frame_resources_) {
-    frame_resource.back_buffer.Reset();
-  }
+  // for (auto& frame_resource: frame_resources_) {
+  // frame_resource.back_buffer.Reset();
+  // }
 
   depth_stencil_buffer_.Reset();
   surface_.resize(res);
@@ -236,8 +237,8 @@ void Dx12::resize(window::Resolution const& res) {
 
 void Dx12::terminate() {
 #ifdef _DEBUG
-  utl::queue_info(adapter_.device.Get(), FALSE);
-  utl::set_reporter(adapter_.device.Get());
+  utl::queue_info(adapter.device.Get(), FALSE);
+  utl::set_reporter(adapter.device.Get());
 #endif
 
   cmd_manager_.flush();

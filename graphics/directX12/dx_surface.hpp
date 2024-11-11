@@ -20,6 +20,11 @@
 
 namespace reveal3d::graphics::dx12 {
 
+struct RenderTarget {
+  ComPtr<ID3D12Resource> resource_;
+  DescriptorHandle rtv_;
+};
+
 class Surface {
 public:
   explicit Surface(
@@ -27,7 +32,7 @@ public:
       u32 present_info = 0
   );
 
-  void createSwapChain(Commands const& cmd_manager, Adapter const& adapter, Heaps& heaps);
+  void createSwapChain(Commands const& cmd_manager, Heaps& heaps);
 
   void setViewport(ID3D12GraphicsCommandList* cmd_list) const;
 
@@ -37,21 +42,20 @@ public:
 
   void resize(window::Resolution const& res);
 
-  void getBuffer(u32 index, ComPtr<ID3D12Resource>& buffer) const;
+  ID3D12Resource* const back_buffer() { return render_targets_.at(Commands::frameIndex()).resource_.Get(); }
+
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).rtv_.cpu; }
 
   [[nodiscard]] window::Resolution const& resolution() const;
 
 private:
   void allowTearing(IDXGIFactory5* factory);
 
-  void finalize(Adapter const& adapter);
+  void finalize();
 
-  struct RenderTargetData {
-    ComPtr<ID3D12Resource> resource_;
-    DescriptorHandle rtv_;
-  };
+  void getBuffer(u32 index, ComPtr<ID3D12Resource>& buffer) const;
 
-  utl::ResourceArray<RenderTargetData> render_targets_;
+  utl::ResourceArray<RenderTarget> render_targets_;
   window::Resolution resolution_;
   ComPtr<IDXGISwapChain3> swap_chain_;
   u32 swap_chain_flags_;

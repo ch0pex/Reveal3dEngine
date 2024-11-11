@@ -40,25 +40,24 @@ Gpass::Gpass() {
   root_signatures_.at(render::Shader::Grid).reset(4);
 }
 
-void Gpass::init(ID3D12Device* device) {
-  buildRoots(device);
-  buildPsos(device);
+void Gpass::init() {
+  buildRoots(adapter.device.Get());
+  buildPsos(adapter.device.Get());
 }
 
-void Gpass::setRenderTargets(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
+void Gpass::setRenderTargets(
+    ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource,
+    D3D12_CPU_DESCRIPTOR_HANDLE back_buffer
+) {
 
-  command_list->ClearRenderTargetView(
-      frame_resource.back_buffer_handle.cpu, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr
-  );
+  command_list->ClearRenderTargetView(back_buffer, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr);
   command_list->ClearDepthStencilView(
       frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr
   );
-  command_list->OMSetRenderTargets(
-      1, &frame_resource.back_buffer_handle.cpu, TRUE, &frame_resource.depth_buffer_handle.cpu
-  );
+  command_list->OMSetRenderTargets(1, &back_buffer, TRUE, &frame_resource.depth_buffer_handle.cpu);
 }
 
-void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource) {
+void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
   curr_root_signature_ = nullptr;
   curr_pipeline_state_ = nullptr;
 
@@ -102,7 +101,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource& frame
   }
 }
 
-void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource& frame_resource) {
+void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
   command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::Grid].get());
   command_list->SetPipelineState(pipeline_states_[render::Shader::Grid].get());

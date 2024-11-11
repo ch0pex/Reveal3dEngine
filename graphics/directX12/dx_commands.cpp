@@ -13,12 +13,14 @@
 
 #include "dx_commands.hpp"
 
+#include "dx_adapter.hpp"
+
 
 namespace reveal3d::graphics::dx12 {
 
 u8 Commands::frame_index_ = 0;
 
-void Commands::init(ID3D12Device* device) {
+void Commands::init() {
   const D3D12_COMMAND_QUEUE_DESC queue_desc {
     .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
     .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
@@ -26,9 +28,9 @@ void Commands::init(ID3D12Device* device) {
     .NodeMask = 0
   };
   resetFences();
-  device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utl::DxCheck;
+  adapter.device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utl::DxCheck;
 
-  device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
+  adapter.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
   fence_event_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
   if (fence_event_ == nullptr) {
     GetLastError() >> utl::DxCheck;
@@ -36,10 +38,11 @@ void Commands::init(ID3D12Device* device) {
   }
 
   for (auto& command_allocator: command_allocators_) {
-    device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator)) >> utl::DxCheck;
+    adapter.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator)) >>
+        utl::DxCheck;
   }
 
-  device->CreateCommandList(
+  adapter.device->CreateCommandList(
       0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_allocators_[frame_index_].Get(), nullptr, IID_PPV_ARGS(&command_list_)
   ) >> utl::DxCheck;
   command_list_->Close() >> utl::DxCheck;

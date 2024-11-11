@@ -13,7 +13,7 @@ namespace reveal3d::graphics::dx12 {
 Surface::Surface(window::Resolution const& resolution, u32 const swap_chain_flags, u32 const present_info) :
   resolution_(resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
 
-void Surface::createSwapChain(Commands const& cmd_manager, Adapter const& adapter, Heaps& heaps) {
+void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   ComPtr<IDXGISwapChain1> swap_chain_1;
 
   allowTearing(adapter.factory.Get());
@@ -44,10 +44,10 @@ void Surface::createSwapChain(Commands const& cmd_manager, Adapter const& adapte
     frame_resource.rtv_ = heaps.rtv.alloc();
   }
 
-  finalize(adapter);
+  finalize();
 }
 
-void Surface::finalize(Adapter const& adapter) {
+void Surface::finalize() {
 
   constexpr D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
     .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D

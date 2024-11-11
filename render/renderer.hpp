@@ -39,7 +39,7 @@ public:
     graphics_.update(camera_);
   }
 
-  void render() { graphics_.renderSurface(); }
+  void render() { graphics_.render(); }
 
   void destroy() {
     logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]";

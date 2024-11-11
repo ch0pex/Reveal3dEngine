@@ -41,17 +41,17 @@ public:
   using iterator       = typename container::iterator;
   using const_iterator = typename container::const_iterator;
 
-  [[nodiscard]] const_iterator begin() const { return const_iterator(resource_.begin()); }
+  [[nodiscard]] constexpr const_iterator begin() const { return const_iterator(resource_.begin()); }
 
-  [[nodiscard]] const_iterator end() const {
+  [[nodiscard]] constexpr const_iterator end() const {
     return const_iterator(resource_.begin() + config::render.graphics.buffer_count);
   }
 
-  iterator begin() { return iterator(resource_.begin()); }
+  constexpr iterator begin() { return iterator(resource_.begin()); }
 
-  iterator end() { return iterator(resource_.begin() + config::render.graphics.buffer_count); }
+  constexpr iterator end() { return iterator(resource_.begin() + config::render.graphics.buffer_count); }
 
-  T& at(u8 const index) {
+  constexpr T& at(u8 const index) {
     assert(index < config::render.graphics.buffer_count);
     return resource_.at(index);
   }

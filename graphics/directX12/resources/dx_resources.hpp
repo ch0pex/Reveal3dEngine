@@ -30,21 +30,4 @@ struct FrameResource {
   UploadBuffer<Constant<render::Material>> mat_buffer;
 };
 
-class FrameResources {
-public:
-  FrameResources() = default;
-
-  void init(ID3D12Device* device) {
-    for (auto& frame_resource: frame_resources_) {
-      frame_resource.constant_buffer.init(device, 100'000);
-      frame_resource.mat_buffer.init(device, 100'000);
-      frame_resource.pass_buffer.init(device, 1U);
-    }
-  }
-
-
-private:
-  utl::ResourceArray<FrameResource> frame_resources_;
-};
-
 } // namespace reveal3d::graphics::dx12

@@ -87,7 +87,7 @@ void OpenGL::update(render::Camera const& camera) {
   //    }
 }
 
-void OpenGL::renderSurface() {
+void OpenGL::renderSurface(surface& surface) {
   glClearColor(
       config::scene.clearColor.x, config::scene.clearColor.y, config::scene.clearColor.z, config::scene.clearColor.w
   );

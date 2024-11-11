@@ -39,6 +39,6 @@ struct Adapter {
   ComPtr<ID3D12Device> device;
 };
 
-// constexpr inline Adapter adapter;
+inline Adapter const adapter;
 
 } // namespace reveal3d::graphics::dx12
