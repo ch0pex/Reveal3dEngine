@@ -131,8 +131,8 @@ void Dx12::update(Camera const& camera) {
   auto const& dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
   auto const& dirty_mats       = core::scene.componentPool<core::Geometry>().dirtyElements();
   auto& geometries             = core::scene.componentPool<core::Geometry>();
-  auto entity_with_new_geo     = core::Entity(geometries.popNew());
-  auto entity_with_removed_geo = geometries.popRemoved();
+  auto new_geometry            = core::Geometry(geometries.popNew());
+  auto removed_geometry        = core::Geometry(geometries.popRemoved());
 
   Constant<GlobalShaderData> pass_constant;
   Constant<PerObjectData> obj_constant;
@@ -159,21 +159,21 @@ void Dx12::update(Camera const& camera) {
   }
 
   // addId new meshes
-  while (entity_with_new_geo.isAlive()) {
-    loadAsset(entity_with_new_geo);
-    entity_with_new_geo = core::Entity(geometries.popNew());
+  while (new_geometry.isAlive()) {
+    loadAsset(core::scene.getEntity(new_geometry.entityIdx()));
+    new_geometry = geometries.popNew();
   }
 
-  while (entity_with_removed_geo != id::invalid) {
-    gpass_.removeRenderElement(entity_with_removed_geo);
-    entity_with_removed_geo = geometries.popRemoved();
+  while (removed_geometry.isAlive()) {
+    gpass_.removeRenderElement(removed_geometry.id());
+    removed_geometry = geometries.popRemoved();
   }
 }
 
-void Dx12::renderSurface(dx12::Surface& surface) {
-  auto& curr_frame_res    = frame_resources_.at(Commands::frameIndex());
-  auto* command_list      = cmd_manager_.list();
-  auto* const back_buffer = surface.back_buffer();
+void Dx12::renderSurface(Surface& surface) {
+  auto const& curr_frame_res = frame_resources_.at(Commands::frameIndex());
+  auto* command_list         = cmd_manager_.list();
+  auto* const back_buffer    = surface.back_buffer();
 
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 

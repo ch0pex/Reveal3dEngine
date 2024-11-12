@@ -40,7 +40,7 @@ public:
 
   void addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device);
 
-  void removeRenderElement(u32 const idx) { render_elements_.unordered_remove(idx); }
+  void removeRenderElement(u32 const idx) { render_elements_.unordered_remove(id::index(idx)); }
 
   void terminate();
 

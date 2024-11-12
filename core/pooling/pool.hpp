@@ -15,14 +15,9 @@
 #include "common/common.hpp"
 #include "core/concepts.hpp"
 #include "core/pooling/geometry_pool.hpp"
-#include "core/pooling/metadata_pool.hpp"
-#include "core/pooling/rigidbody_pool.hpp"
 #include "core/pooling/script_pool.hpp"
-#include "core/pooling/transform_pool.hpp"
-#include "math/math.hpp"
 
 #include <queue>
-#include <ranges>
 #include <set>
 #include <vector>
 
@@ -76,7 +71,7 @@ public:
     return components_ids_.at(components_ids_.size() - 1);
   }
 
-  id_t addComponent(id_t entity_id) { return addComponent(entity_id, {}); }
+  id_t addComponent(id_t const entity_id) { return addComponent(entity_id, {}); }
 
   id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
     id_t component_id {id_factory_.newId(id::index(entity_id))};
@@ -111,13 +106,13 @@ public:
 
   u32 count() { return this->countData(); }
 
-  id_t at(id_t id) { return components_ids_.at(id::index(id)); }
+  id_t at(id_t const id) { return components_ids_.at(id::index(id)); }
 
   typename std::vector<T>::iterator begin() { return components_ids_.begin(); };
 
   typename std::vector<T>::iterator end() { return components_ids_.end(); };
 
-  u32 getMappedId(id_t const component_id) { return id_factory_.mapped(id::index(component_id)); }
+  constexpr u32 getMappedId(id_t const component_id) { return id_factory_.mapped(id::index(component_id)); }
 
 private:
   void addId(id_t const index, id_t id) {

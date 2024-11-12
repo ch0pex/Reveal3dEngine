@@ -38,6 +38,10 @@
 #include <utility>
 #include <vector>
 
+#include "pooling/metadata_pool.hpp"
+#include "pooling/rigidbody_pool.hpp"
+#include "pooling/transform_pool.hpp"
+
 namespace reveal3d::core {
 
 class Entity {
@@ -143,7 +147,7 @@ public:
     return {}; // TODO fix this can't return nextOrPrev when deleting nested nodes
   }
 
-  bool isEntityAlive(id_t id) {
+  bool isEntityAlive(id_t const id) {
     if (id == id::invalid) {
       return false;
     }
@@ -158,7 +162,7 @@ public:
 
   [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
-  [[nodiscard]] Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
+  [[nodiscard]] Entity getEntity(id_t const id) const { return scene_graph_.at(id::index(id)).entity; }
 
   Node& getNode(id_t const id) { return scene_graph_.at(id::index(id)); }
 
@@ -237,7 +241,7 @@ private:
     node.entity = {};
   }
 
-  void addNode(Node& node, id_t id) {
+  void addNode(Node const& node, id_t id) {
     if (id::maxFree < free_nodes_.size()) {
       scene_graph_.at(id::index(id)) = node;
       free_nodes_.pop_front();

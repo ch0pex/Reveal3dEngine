@@ -47,7 +47,7 @@ void Gpass::init() {
 
 void Gpass::setRenderTargets(
     ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource,
-    D3D12_CPU_DESCRIPTOR_HANDLE back_buffer
+    D3D12_CPU_DESCRIPTOR_HANDLE const back_buffer
 ) {
 
   command_list->ClearRenderTargetView(back_buffer, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr);
