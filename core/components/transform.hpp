@@ -39,6 +39,8 @@ public:
 
   [[nodiscard]] constexpr id_t id() const { return id_; }
 
+  [[nodiscard]] u32 entityIdx() const { return pool.getMappedId(id_); }
+
   [[nodiscard]] math::mat4& world() const { return pool.world(id_); }
 
   [[nodiscard]] math::mat4& invWorld() const { return pool.invWorld(id_); }

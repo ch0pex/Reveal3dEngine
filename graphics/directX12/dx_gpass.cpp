@@ -218,7 +218,7 @@ void Gpass::buildPsos(ID3D12Device* device) {
 
 
   pipeline_states_.at(render::Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_.at(render::Shader::Grid).setRootSignature(root_signatures_[render::Shader::Grid]);
+  pipeline_states_.at(render::Shader::Grid).setRootSignature(root_signatures_.at(render::Shader::Grid));
   pipeline_states_.at(render::Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
   pipeline_states_.at(render::Shader::Grid).setBlendState(blend_desc);
   pipeline_states_.at(render::Shader::Grid).finalize(device);

@@ -104,6 +104,7 @@ void Dx12::loadAssets() {
     Constant<Material> mat_constant;
     for (auto& frame_resource: frame_resources_) {
       obj_constant.data.world_view_proj = transform.world();
+      obj_constant.data.entity_id       = entity.id();
       mat_constant.data.base_color      = geometry.material().base_color;
       frame_resource.constant_buffer.copyData(idx, &obj_constant, 1);
       frame_resource.mat_buffer.copyData(idx, &mat_constant, 1);
@@ -145,6 +146,7 @@ void Dx12::update(Camera const& camera) {
   // update object constants
   for (auto const id: dirty_transforms) {
     core::Transform trans {id};
+    obj_constant.data.entity_id       = core::scene.getEntity(trans.entityIdx()).id();
     obj_constant.data.world_view_proj = trans.world();
     trans.unDirty();
     constant_buffer.copyData(id::index(id), &obj_constant);
