@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include "config/config.hpp"
 #include "common/timer.hpp"
+#include "config/config.hpp"
 #include "math/math.hpp"
 #include "window/window_info.hpp"
 
@@ -22,52 +22,56 @@ namespace reveal3d::render {
 
 class Camera {
 public:
-  explicit Camera(const window::Resolution& res) :
+  explicit Camera(window::Resolution const& res) :
     projection_matrix_(
         math::perspective_fov(config::camera.fov, res.aspect_ratio, config::camera.near_plane, config::camera.far_plane)
     ) {
     using namespace input;
-    add_handler_down(Action::CameraUp, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_down(Action::CameraDown, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_down(Action::CameraFwd, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_down(Action::CameraLeft, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_down(Action::CameraRight, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_down(Action::CameraBackwd, {.callback = [this](const Action act, const type t) { move(act, t); }});
+    add_handler_down(Action::CameraUp, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_down(Action::CameraDown, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_down(Action::CameraFwd, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_down(Action::CameraLeft, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_down(Action::CameraRight, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_down(Action::CameraBackwd, {.callback = [this](Action const act, type const t) { move(act, t); }});
 
-    add_handler_up(Action::CameraUp, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_up(Action::CameraDown, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_up(Action::CameraFwd, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_up(Action::CameraLeft, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_up(Action::CameraRight, {.callback = [this](const Action act, const type t) { move(act, t); }});
-    add_handler_up(Action::CameraBackwd, {.callback = [this](const Action act, const type t) { move(act, t); }});
+    add_handler_up(Action::CameraUp, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_up(Action::CameraDown, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_up(Action::CameraFwd, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_up(Action::CameraLeft, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_up(Action::CameraRight, {.callback = [this](Action const act, type const t) { move(act, t); }});
+    add_handler_up(Action::CameraBackwd, {.callback = [this](Action const act, type const t) { move(act, t); }});
 
-    add_handler_down(Action::CameraLook, {.callback = [this](const Action act, const type t) { setLooking(act, t); }});
-    add_handler_up(Action::CameraLook, {.callback = [this](const Action act, const type t) { setLooking(act, t); }});
-    add_mouse_handler(Action::CameraLook, {.mouse_callback = [this](const Action act, const math::vec2 pos) {
+    add_handler_down(Action::CameraLook, {.callback = [this](Action const act, type const t) { setLooking(act, t); }});
+    add_handler_up(Action::CameraLook, {.callback = [this](Action const act, type const t) { setLooking(act, t); }});
+    add_mouse_handler(Action::CameraLook, {.mouse_callback = [this](Action const act, math::vec2 const pos) {
                         setNewMousePos(act, pos);
                       }});
   }
 
   [[nodiscard]] math::mat4 getProjectionMatrix() const { return projection_matrix_; }
+
   [[nodiscard]] math::mat4 getViewProjectionMatrix() const { return view_projection_matrix_; }
+
   [[nodiscard]] math::mat4 getViewMatrix() const { return view_matrix_; }
+
+  // [[nodiscard]] math::vec3 position() const { return position_; }
 
   /********* Input handling ************/
 
-  void update(const Timer& timer) {
+  void update(Timer const& timer) {
     updatePos(timer.frameTime());
     updateFront();
     view_matrix_            = look_at(position_, position_ + front_, up_);
     view_projection_matrix_ = view_matrix_ * projection_matrix_;
   }
 
-  void resize(const window::Resolution& res) {
+  void resize(window::Resolution const& res) {
     projection_matrix_ = math::perspective_fov(65.F, res.aspect_ratio, 0.1F, 100.0F);
   }
 
-  void move(const input::Action dir, const input::type value) { is_moving_.at(static_cast<u8>(dir)) = (value != 0); }
+  void move(input::Action const dir, input::type const value) { is_moving_.at(static_cast<u8>(dir)) = (value != 0); }
 
-  void setLooking(const input::Action action, const input::type value) {
+  void setLooking(input::Action const action, input::type const value) {
     //    input::cursor::shouldClip = (value == input::type::up) ? false : true;
     is_looking_ = (value != 0);
     if (value == input::type::up) {
@@ -75,7 +79,7 @@ public:
     }
   }
 
-  void setNewMousePos(const input::Action action, const math::vec2 mouse_pos) {
+  void setNewMousePos(input::Action const action, math::vec2 const mouse_pos) {
     if (!is_looking_) {
       return;
     }
@@ -89,11 +93,11 @@ public:
   void resetMouse() { first_mouse_ = true; }
 
 private:
-  void updatePos(const math::scalar dt) {
+  void updatePos(math::scalar const dt) {
     u32 dirs                  = 0;
     math::scalar speed_factor = dt * config::camera.movement_speed;
 
-    for (const auto dir: is_moving_) {
+    for (auto const dir: is_moving_) {
       if (dir)
         ++dirs;
     }
@@ -128,8 +132,8 @@ private:
     pitch_ = std::min(pitch_, 89.0F);
     pitch_ = std::max(pitch_, -89.0F);
 
-    const math::scalar r = math::cos(math::radians(pitch_));
-    const math::xvec3 new_front {
+    math::scalar const r = math::cos(math::radians(pitch_));
+    math::xvec3 const new_front {
       r * math::cos(math::radians(yaw_)), r * math::sin(math::radians(yaw_)), math::sin(math::radians(pitch_))
     };
 

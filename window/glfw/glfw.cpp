@@ -16,21 +16,17 @@
 
 namespace reveal3d::window {
 
-Glfw::Glfw(Info &info) {
-
-}
+Glfw::Glfw(Info const& info) { }
 
 void Glfw::show() {
-    //show window
+  // show window
 }
 
 
 void Glfw::closeWindow(input::Action act, input::type type) {
-    //Close Window
+  // Close Window
 }
 
-bool window::Glfw::shouldClose() {
-    return glfwWindowShouldClose(win_ptr_);
-}
+bool window::Glfw::shouldClose() { return glfwWindowShouldClose(win_ptr_); }
 
-}
+} // namespace reveal3d::window

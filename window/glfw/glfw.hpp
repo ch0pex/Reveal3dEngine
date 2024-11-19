@@ -27,7 +27,7 @@ namespace reveal3d::window {
 
 class Glfw {
 public:
-  Glfw(Info& info);
+  explicit Glfw(Info const& info);
 
   template<graphics::HRI Gfx>
   void create(render::Renderer<Gfx>& renderer);
@@ -37,8 +37,8 @@ public:
   void closeWindow(input::Action act, input::type type);
   bool shouldClose();
 
-  [[nodiscard]] inline Resolution& getRes() { return info_.res; }
-  [[nodiscard]] inline WHandle getHandle() const { return info_.handle; }
+  [[nodiscard]] Resolution& getRes() { return info_.res; }
+  [[nodiscard]] WHandle getHandle() const { return info_.handle; }
 
 private:
   template<graphics::HRI Gfx>

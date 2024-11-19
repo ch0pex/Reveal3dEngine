@@ -24,16 +24,15 @@ struct GlobalShaderData {
   math::mat4 inv_proj;
   math::mat4 view_proj;
   math::mat4 inv_view_proj;
-  math::vec2 cb_per_object_pad_1;
-  math::vec2 render_target_size;
-  f32 nearZ;
+  math::vec3 eye_pos;
+  f32 near_z;
   f32 far_z;
+  math::vec2 render_target_size;
   f32 total_time;
   f32 delta_time;
 };
 
 struct PerObjectData {
-  PerObjectData() : world_view_proj(math::mat4_identity()) { }
   math::mat4 world_view_proj;
   u32 entity_id;
 };

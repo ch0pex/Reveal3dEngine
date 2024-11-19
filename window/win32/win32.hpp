@@ -27,7 +27,7 @@ class Win32 {
 public:
   using WCallback = LRESULT (*)(HWND, UINT, WPARAM, LPARAM);
 
-  explicit Win32(const Info& info);
+  explicit Win32(Info const& info);
 
   template<graphics::HRI Gfx>
   void create(render::Renderer<Gfx>& renderer);
@@ -43,6 +43,7 @@ public:
 private:
   template<graphics::HRI Gfx>
   void clipMouse(render::Renderer<Gfx>& renderer);
+
   template<graphics::HRI Gfx>
   static LRESULT defaultProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param);
 
@@ -83,7 +84,7 @@ LRESULT Win32::defaultProc(const HWND hwnd, const UINT message, const WPARAM w_p
     case WM_SIZE: {
       RECT client_rect;
       GetClientRect(hwnd, &client_rect);
-      const window::Resolution res(client_rect.right - client_rect.left, client_rect.bottom - client_rect.top);
+      window::Resolution const res(client_rect.right - client_rect.left, client_rect.bottom - client_rect.top);
       renderer->resize(res);
       return 0;
     }
@@ -92,7 +93,7 @@ LRESULT Win32::defaultProc(const HWND hwnd, const UINT message, const WPARAM w_p
       return 0;
     case WM_KEYDOWN: {
 #ifdef IMGUI
-      const ImGuiIO& io = ImGui::GetIO();
+      ImGuiIO const& io = ImGui::GetIO();
       (void)io;
       if (io.WantCaptureMouse)
         return 0;

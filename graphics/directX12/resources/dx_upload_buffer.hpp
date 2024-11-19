@@ -26,6 +26,11 @@ struct alignas(256) Constant {
   T data;
 };
 
+struct Constant2 {
+
+  u32 data;
+};
+
 // TODO: Improve Upload buffer and buffer to dynamic like heaps
 template<typename T>
 class UploadBuffer {
@@ -80,7 +85,7 @@ private:
 
 
 template<typename T>
-void UploadBuffer<T>::init(ID3D12Device* device, u32 count) {
+void UploadBuffer<T>::init(ID3D12Device* device, u32 const count) {
   capacity_                  = sizeof(T) * count;
   auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
   auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(capacity_);

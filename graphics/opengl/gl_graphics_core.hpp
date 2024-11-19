@@ -24,21 +24,34 @@ struct Surface { };
 class OpenGL {
 public:
   using surface = Surface;
+
   explicit OpenGL(window::Resolution* res);
+
   void loadPipeline();
+
   void loadAssets();
+
   void loadAsset();
+
   void update(render::Camera const& camera);
+
+  void render() { }
+
   void renderSurface(surface& surface);
-  void terminate();
+
+  void terminate() { }
+
   void resize(window::Resolution const& res);
 
-  inline void initWindow(WHandle w_handle) { window_ = w_handle; }
+  void initWindow(WHandle const& w_handle) { window_ = w_handle; }
 
 private:
   void createContext();
+
   void swapBuffer() const;
+
   void terminateContext() const;
+
   math::mat4 pass_constant_;
   std::vector<opengl::RenderElement> render_elements_;
   opengl::RenderLayers render_layers_;

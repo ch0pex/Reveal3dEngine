@@ -13,6 +13,9 @@
 
 
 #include "dx_graphics_core.hpp"
+
+#include <toml++/impl/toml_formatter.hpp>
+
 #include "config/config.hpp"
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
@@ -140,14 +143,27 @@ void Dx12::update(Camera const& camera) {
   Constant<Material> mat_constant;
 
   // update pass constants
-  pass_constant.data.view_proj = transpose(camera.getViewProjectionMatrix());
+  auto const view_proj = transpose(camera.getViewProjectionMatrix());
+  pass_constant.data   = {
+      .view          = camera.getViewMatrix(),
+      .inv_view      = inverse(camera.getViewMatrix()),
+      .proj          = camera.getProjectionMatrix(),
+      .inv_proj      = inverse(camera.getProjectionMatrix()),
+      .view_proj     = view_proj,
+      .inv_view_proj = inverse(view_proj),
+    // .eye_pos       = camera.position(),
+      .near_z = config::camera.near_plane,
+      .far_z  = config::camera.far_plane,
+    // .total_time = ;
+  };
+
+  // pass_constant.data.view_proj = transpose(camera.getViewProjectionMatrix());
   pass_buffer.copyData(0, &pass_constant);
 
   // update object constants
   for (auto const id: dirty_transforms) {
     core::Transform trans {id};
-    obj_constant.data.entity_id       = core::scene.getEntity(trans.entityIdx()).id();
-    obj_constant.data.world_view_proj = trans.world();
+    obj_constant.data = {.world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id()};
     trans.unDirty();
     constant_buffer.copyData(id::index(id), &obj_constant);
   }
@@ -155,7 +171,7 @@ void Dx12::update(Camera const& camera) {
   // update material constants
   for (auto const id: dirty_mats) {
     core::Geometry geo {id};
-    mat_constant.data.base_color = geo.material().base_color;
+    mat_constant.data = geo.material();
     geo.unDirty();
     mat_buffer.copyData(id::index(geo.id()), &mat_constant);
   }
@@ -192,7 +208,6 @@ void Dx12::renderSurface(Surface& surface) {
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
 
   gpass_.render(command_list, curr_frame_res);
-
 
   ImGuiBegin();
 

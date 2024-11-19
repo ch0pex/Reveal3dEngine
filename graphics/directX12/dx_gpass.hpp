@@ -49,7 +49,7 @@ private:
 
   void buildRoots(ID3D12Device* device);
 
-  void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
+  void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) const;
 
   /**************** render elements *****************/
   reveal3d::utl::vector<RenderElement> render_elements_;

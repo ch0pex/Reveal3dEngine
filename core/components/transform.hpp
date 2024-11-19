@@ -29,7 +29,7 @@ public:
 
   // *** Constructors ***
 
-  constexpr Transform() : id_(id::invalid) { }
+  constexpr Transform() = default;
 
   constexpr Transform(id_t const id) : id_(id) { }
 
@@ -65,17 +65,22 @@ public:
     setDirty();
   }
 
-  void scale(math::xvec3 size) const {
+  void scale(math::xvec3 const size) const {
     pool.posRotScale(id_).scale = size;
     setDirty();
   }
 
-  void rotation(math::xvec3 rot) const {
+  void rotation(math::xvec3 const rot) const {
     pool.posRotScale(id_).rotation = vec_to_radians(rot);
     setDirty();
   }
 
-  void worldPosition(math::xvec3 pos) const {
+  void rotation(math::xvec4 const rot) const {
+    pool.posRotScale(id_).rotation = vec_to_radians(rot);
+    setDirty();
+  }
+
+  void worldPosition(math::xvec3 const pos) const {
     transform::detail::Transform& trans = pool.posRotScale(id_);
     pool.world(id_)                     = transpose(affine_transformation(pos, trans.scale, trans.rotation));
     if (Entity const parent = scene.getNode(id_).parent; parent.isAlive()) {
@@ -89,7 +94,7 @@ public:
     softDirty();
   }
 
-  void worldScale(math::xvec3 scale) const {
+  void worldScale(math::xvec3 const scale) const {
     transform::detail::Transform& trans = pool.posRotScale(id_);
     pool.world(id_)                     = transpose(affine_transformation(trans.position, scale, trans.rotation));
     if (Entity const parent = scene.getNode(id_).parent; parent.isAlive()) {
@@ -102,7 +107,7 @@ public:
     softDirty();
   }
 
-  void worldRotation(math::xvec3 rot) const {
+  void worldRotation(math::xvec3 const rot) const {
     transform::detail::Transform& trans = pool.posRotScale(id_);
 
     auto const rad = vec_to_radians(rot);
@@ -182,7 +187,6 @@ private:
 
   id_t id_ {id::invalid};
 };
-
 
 template<>
 inline void GenericPool<Transform::pool_type>::update() {

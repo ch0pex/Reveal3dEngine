@@ -31,30 +31,43 @@ struct DescriptorHandle {
   u32 index {};
 };
 
-
-// TODO: Concept for checking Descriptor type is D3D12_DESCRIPTOR_HEAP_TYPE
 class DescriptorHeap {
 public:
   explicit DescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE type) : type_(type) { }
-  explicit DescriptorHeap(DescriptorHeap const&)   = delete;
+
+  explicit DescriptorHeap(DescriptorHeap const&) = delete;
+
   DescriptorHeap& operator=(DescriptorHeap const&) = delete;
-  explicit DescriptorHeap(DescriptorHeap&&)        = delete;
-  DescriptorHeap& operator=(DescriptorHeap&&)      = delete;
-  ~DescriptorHeap()                                = default;
+
+  explicit DescriptorHeap(DescriptorHeap&&) = delete;
+
+  DescriptorHeap& operator=(DescriptorHeap&&) = delete;
+
+  ~DescriptorHeap() = default;
 
   // inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
   [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_; };
+
   [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE cpuStart() const { return cpu_start_; }
+
   [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE gpuStart() const { return gpu_start_; }
+
   [[nodiscard]] u32 capacity() const { return capacity_; }
+
   [[nodiscard]] u32 size() const { return size_; }
+
   [[nodiscard]] u32 descriptorSize() const { return capacity_; }
+
   [[nodiscard]] bool isShaderVisible() const { return gpu_start_.ptr != 0; }
 
   bool initialize(ID3D12Device* device, u32 capacity, bool is_shader_visible);
+
   [[nodiscard]] DescriptorHandle alloc();
+
   void free(DescriptorHandle& handle);
+
   void cleanDeferreds();
+
   void release();
 
 private:

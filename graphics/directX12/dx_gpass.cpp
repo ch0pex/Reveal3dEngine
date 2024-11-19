@@ -101,7 +101,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
   }
 }
 
-void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
+void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) const {
   command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::Grid].get());
   command_list->SetPipelineState(pipeline_states_[render::Shader::Grid].get());

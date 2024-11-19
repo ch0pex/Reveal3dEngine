@@ -57,7 +57,7 @@ private:
   XMVECTOR vec_;
 };
 
-__declspec(align(16)) class xvec4 {
+class alignas(16) xvec4 {
 public:
   xvec4() : vec_() { }
   xvec4(f32 const x, f32 const y, f32 const z, f32 const w) : vec_(XMVectorSet(x, y, z, w)) { }
@@ -91,7 +91,7 @@ public:
   void operator-=(scalar const s) { *this = *this - xvec4(s); }
   void operator*=(scalar const s) { *this = *this * xvec4(s); }
   void operator/=(scalar const s) { *this = *this / xvec4(s); }
-  operator DirectX::XMVECTOR() const { return vec_; }
+  operator XMVECTOR() const { return vec_; }
   operator xvec3() const { return vec_; }
   bool operator==(xvec4 const v2) const { return XMVector4Equal(vec_, v2.vec_); }
 
@@ -111,8 +111,10 @@ protected:
   XMVECTOR m_vec_;
 };
 
+
 using vec2 = XMFLOAT2;
 using vec3 = XMFLOAT3;
 using vec4 = XMFLOAT4;
+
 
 } // namespace reveal3d::math

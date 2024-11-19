@@ -34,7 +34,7 @@
 
 namespace reveal3d::graphics {
 
-__declspec(align(16)) class Dx12 {
+class alignas(16) Dx12 {
 public:
   using surface = dx12::Surface;
 

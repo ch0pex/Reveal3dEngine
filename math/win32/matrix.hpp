@@ -14,32 +14,35 @@
 #pragma once
 
 
-#include <array>
 #include "vector.hpp"
+
+#include <array>
+#include <cmath>
+
 
 namespace reveal3d::math {
 
 __declspec(align(16)) class mat3 {
 public:
-  inline mat3() { }
-  inline mat3(xvec3 x, xvec3 y, xvec3 z) : mat3_({x, y, z}) { }
-  inline mat3(mat3 const& mat) : mat3_({mat.mat3_[0], mat.mat3_[1], mat.mat3_[2]}) { }
-  inline mat3(const XMMATRIX& mat) : mat3_({mat.r[0], mat.r[1], mat.r[2]}) { }
-  inline operator XMMATRIX() const { return XMMATRIX(mat3_[0], mat3_[1], mat3_[2], XMVectorZero()); }
+  mat3() { }
+  mat3(xvec3 x, xvec3 y, xvec3 z) : mat3_({x, y, z}) { }
+  mat3(mat3 const& mat) : mat3_({mat.mat3_[0], mat.mat3_[1], mat.mat3_[2]}) { }
+  mat3(const XMMATRIX& mat) : mat3_({mat.r[0], mat.r[1], mat.r[2]}) { }
+  operator XMMATRIX() const { return XMMATRIX(mat3_[0], mat3_[1], mat3_[2], XMVectorZero()); }
 
-  [[nodiscard]] inline xvec3 x() const { return mat3_[0]; }
-  [[nodiscard]] inline xvec3 y() const { return mat3_[1]; }
-  [[nodiscard]] inline xvec3 z() const { return mat3_[2]; }
-  inline void x(xvec3 x) { mat3_[0] = x; }
-  inline void y(xvec3 y) { mat3_[1] = y; }
-  inline void z(xvec3 z) { mat3_[2] = z; }
+  [[nodiscard]] xvec3 x() const { return mat3_[0]; }
+  [[nodiscard]] xvec3 y() const { return mat3_[1]; }
+  [[nodiscard]] xvec3 z() const { return mat3_[2]; }
+  void x(xvec3 x) { mat3_[0] = x; }
+  void y(xvec3 y) { mat3_[1] = y; }
+  void z(xvec3 z) { mat3_[2] = z; }
 
-  inline mat3 operator*(scalar scalar) const { return mat3(scalar * mat3_[0], scalar * mat3_[1], scalar * mat3_[2]); }
-  inline xvec3 operator*(xvec3 vec) const { return xvec3(XMVector3TransformNormal(vec, *this)); }
-  inline mat3 operator*(mat3 const& mat) const { return mat3(*this * mat.x(), *this * mat.y(), *this * mat.z()); }
+  mat3 operator*(scalar scalar) const { return mat3(scalar * mat3_[0], scalar * mat3_[1], scalar * mat3_[2]); }
+  xvec3 operator*(xvec3 vec) const { return xvec3(XMVector3TransformNormal(vec, *this)); }
+  mat3 operator*(mat3 const& mat) const { return mat3(*this * mat.x(), *this * mat.y(), *this * mat.z()); }
 
-  inline mat3 make_scale(float scale) { return mat3(XMMatrixScaling(scale, scale, scale)); }
-  inline mat3 make_scale(xvec3 scale) { return mat3(XMMatrixScalingFromVector(scale)); }
+  mat3 make_scale(float scale) { return mat3(XMMatrixScaling(scale, scale, scale)); }
+  mat3 make_scale(xvec3 scale) { return mat3(XMMatrixScalingFromVector(scale)); }
 
 private:
   std::array<xvec3, 3> mat3_;
@@ -90,14 +93,14 @@ public:
       XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(quaternion);
 
       // Extrae los ángulos de rotación de la matriz.
-      float pitch = std::atan2(rotationMatrix.r[1].m128_f32[2], rotationMatrix.r[2].m128_f32[2]);
-      float yaw   = std::atan2(
+      f32 pitch = std::atan2(rotationMatrix.r[1].m128_f32[2], rotationMatrix.r[2].m128_f32[2]);
+      f32 yaw   = std::atan2(
           -rotationMatrix.r[0].m128_f32[2], std::sqrt(
                                                 rotationMatrix.r[0].m128_f32[0] * rotationMatrix.r[0].m128_f32[0] +
                                                 rotationMatrix.r[0].m128_f32[1] * rotationMatrix.r[0].m128_f32[1]
                                             )
       );
-      float roll = std::atan2(rotationMatrix.r[0].m128_f32[1], rotationMatrix.r[0].m128_f32[0]);
+      f32 const roll = std::atan2(rotationMatrix.r[0].m128_f32[1], rotationMatrix.r[0].m128_f32[0]);
 
       return XMVectorSet(-pitch, -yaw, -roll, 0.0f);
     };
