@@ -22,11 +22,9 @@ namespace reveal3d::render {
 
 class Camera {
 public:
-  explicit Camera(window::Resolution const& res) :
-    projection_matrix_(
-        math::perspective_fov(config::camera.fov, res.aspect_ratio, config::camera.near_plane, config::camera.far_plane)
-    ) {
+  explicit Camera(window::Resolution const& res) {
     using namespace input;
+
     add_handler_down(Action::CameraUp, {.callback = [this](Action const act, type const t) { move(act, t); }});
     add_handler_down(Action::CameraDown, {.callback = [this](Action const act, type const t) { move(act, t); }});
     add_handler_down(Action::CameraFwd, {.callback = [this](Action const act, type const t) { move(act, t); }});
@@ -46,6 +44,7 @@ public:
     add_mouse_handler(Action::CameraLook, {.mouse_callback = [this](Action const act, math::vec2 const pos) {
                         setNewMousePos(act, pos);
                       }});
+    resize(res);
   }
 
   [[nodiscard]] math::mat4 getProjectionMatrix() const { return projection_matrix_; }
@@ -66,7 +65,9 @@ public:
   }
 
   void resize(window::Resolution const& res) {
-    projection_matrix_ = math::perspective_fov(65.F, res.aspect_ratio, 0.1F, 100.0F);
+    projection_matrix_ = math::perspective_fov(
+        config::camera.fov, res.aspect_ratio, config::camera.near_plane, config::camera.far_plane
+    );
   }
 
   void move(input::Action const dir, input::type const value) { is_moving_.at(static_cast<u8>(dir)) = (value != 0); }
