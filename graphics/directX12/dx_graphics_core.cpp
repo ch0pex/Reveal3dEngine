@@ -14,9 +14,6 @@
 
 #include "dx_graphics_core.hpp"
 
-#include <toml++/impl/toml_formatter.hpp>
-
-#include "config/config.hpp"
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
 
@@ -162,7 +159,7 @@ void Dx12::update(Camera const& camera) {
 
   // update object constants
   for (auto const id: dirty_transforms) {
-    core::Transform trans {id};
+    core::Transform const trans {id};
     obj_constant.data = {.world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id()};
     trans.unDirty();
     constant_buffer.copyData(id::index(id), &obj_constant);
@@ -170,7 +167,7 @@ void Dx12::update(Camera const& camera) {
 
   // update material constants
   for (auto const id: dirty_mats) {
-    core::Geometry geo {id};
+    core::Geometry const geo {id};
     mat_constant.data = geo.material();
     geo.unDirty();
     mat_buffer.copyData(id::index(geo.id()), &mat_constant);
@@ -195,7 +192,7 @@ void Dx12::renderSurface(Surface& surface) {
 
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 
-  clean_deferred_resources(heaps_); // Clean deferreds resources
+  clean_deferred_resources(heaps_); // Clean deferred resources
 
   surface.setViewport(command_list);
 
@@ -205,7 +202,7 @@ void Dx12::renderSurface(Surface& surface) {
 
   command_list->ResourceBarrier(1, &target_barrier);
 
-  gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
+  Gpass::setRenderTargets(command_list, curr_frame_res, surface.rtv());
 
   gpass_.render(command_list, curr_frame_res);
 
