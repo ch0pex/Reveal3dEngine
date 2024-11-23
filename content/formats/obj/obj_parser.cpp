@@ -36,7 +36,7 @@ struct FaceElem {
 };
 
 static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
-  u32 elem[4][3];
+  std::array<std::array<u32, 3>, 3> elem;
 
   std::sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0],
@@ -48,7 +48,7 @@ static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
 }
 
 static void getTriangle(std::string& line, std::vector<FaceElem>& primitives) {
-  u32 elem[3][3];
+  std::array<std::array<u32, 3>, 3> elem;
   std::sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0], &elem[1][1],
       &elem[1][2], &elem[2][0], &elem[2][1], &elem[2][2]

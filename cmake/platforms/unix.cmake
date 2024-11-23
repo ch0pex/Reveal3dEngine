@@ -1,0 +1,5 @@
+set(PLAT unix)
+find_package(GLEW REQUIRED)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -O3 -ftree-vectorize -fprefetch-loop-arrays")
+set(EXTERN ${PROJECT_SOURCE_DIR}/Engine/extern/lib/${PLAT})
+target_link_libraries(Reveal3d PRIVATE glfw ${GLEW_LIBRARIES} ${OPENGL_LIBRARY})
