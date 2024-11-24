@@ -34,28 +34,14 @@ constexpr D3D12_RENDER_TARGET_BLEND_DESC transparency_blend_desc {
 
 constexpr D3D12_BLEND_DESC blend_desc = {.RenderTarget = transparency_blend_desc};
 
-Gpass::Gpass() {
+Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) : depth_buffer_(resolution, heaps) {
   root_signatures_.at(render::Shader::Opaque).reset(4);
   root_signatures_.at(render::Shader::Unlit).reset(4);
   root_signatures_.at(render::Shader::Grid).reset(4);
+  buildRoots();
+  buildPsos();
 }
 
-void Gpass::init() {
-  buildRoots(adapter.device.Get());
-  buildPsos(adapter.device.Get());
-}
-
-void Gpass::setRenderTargets(
-    ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource,
-    D3D12_CPU_DESCRIPTOR_HANDLE const back_buffer
-) {
-
-  command_list->ClearRenderTargetView(back_buffer, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr);
-  command_list->ClearDepthStencilView(
-      frame_resource.depth_buffer_handle.cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr
-  );
-  command_list->OMSetRenderTargets(1, &back_buffer, TRUE, &frame_resource.depth_buffer_handle.cpu);
-}
 
 void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) {
   curr_root_signature_ = nullptr;
@@ -64,8 +50,8 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
 
   for (auto& render_element: render_elements_) {
 
-    auto geometry  = render_element.entity.component<core::Geometry>();
-    auto transform = render_element.entity.component<core::Transform>();
+    auto geometry  = render_element.entity().component<core::Geometry>();
+    auto transform = render_element.entity().component<core::Transform>();
 
     for (auto& [shader, vertex_pos, index_pos, index_count, visible]: geometry.subMeshes()) {
       if (!visible)
@@ -90,9 +76,9 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
       ); // 2 DWORDS
       command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart()); // 2 DWORDS
 
-      command_list->IASetVertexBuffers(0, 1, render_element.vertex_buffer.view());
-      command_list->IASetIndexBuffer(render_element.index_buffer.view());
-      command_list->IASetPrimitiveTopology(render_element.topology);
+      command_list->IASetVertexBuffers(0, 1, &render_element.vertices());
+      command_list->IASetIndexBuffer(&render_element.indices());
+      command_list->IASetPrimitiveTopology(render_element.topology());
       command_list->DrawIndexedInstanced(index_count, 1, index_pos, vertex_pos, 0);
     }
   }
@@ -110,32 +96,18 @@ void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource
 }
 
 // NOTE change geometry to mesh when content module update
-void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng, ID3D12Device* device) {
-  auto const geometry = entity.component<core::Geometry>();
-
-  BufferInitInfo<render::Vertex> vertex_buffer_info = {
-    .device = device, .cmd_list = cmd_mng.list(), .view = {geometry.vertices().data(), geometry.vertexCount()}
-  };
-
-  BufferInitInfo<u32> index_buffer_info = {
-    .device   = device,
-    .cmd_list = cmd_mng.list(),
-    .view     = {geometry.indices().data(), geometry.indexCount()},
-    .format   = DXGI_FORMAT_R32_UINT
-  };
-
-  render_elements_.emplace_back(entity, vertex_buffer_info, index_buffer_info);
+void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng) {
+  render_elements_.emplace_back(entity, cmd_mng.list());
 }
 
 
 void Gpass::terminate() {
   for (auto& elem: render_elements_) {
-    elem.vertex_buffer.release();
-    elem.index_buffer.release();
+    elem.release();
   }
 }
 
-void Gpass::buildPsos(ID3D12Device* device) {
+void Gpass::buildPsos() {
   ComPtr<ID3DBlob> vertex_shader;
   ComPtr<ID3DBlob> pixel_shader;
   ComPtr<ID3DBlob> errors;
@@ -173,7 +145,7 @@ void Gpass::buildPsos(ID3D12Device* device) {
   pipeline_states_.at(render::Shader::Opaque).setInputLayout(input_element_descs, _countof(input_element_descs));
   pipeline_states_.at(render::Shader::Opaque).setRootSignature(root_signatures_[render::Shader::Opaque]);
   pipeline_states_.at(render::Shader::Opaque).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(render::Shader::Opaque).finalize(device);
+  pipeline_states_.at(render::Shader::Opaque).finalize();
 
   // TODO Config file for assets path
   hr = D3DCompileFromFile(
@@ -199,7 +171,7 @@ void Gpass::buildPsos(ID3D12Device* device) {
   pipeline_states_.at(render::Shader::Unlit).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
   pipeline_states_.at(render::Shader::Unlit).setRootSignature(root_signatures_[render::Shader::Opaque]);
   pipeline_states_.at(render::Shader::Unlit).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_[render::Shader::Unlit].finalize(device);
+  pipeline_states_[render::Shader::Unlit].finalize();
 
   hr = D3DCompileFromFile(
       relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags,
@@ -221,16 +193,16 @@ void Gpass::buildPsos(ID3D12Device* device) {
   pipeline_states_.at(render::Shader::Grid).setRootSignature(root_signatures_.at(render::Shader::Grid));
   pipeline_states_.at(render::Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
   pipeline_states_.at(render::Shader::Grid).setBlendState(blend_desc);
-  pipeline_states_.at(render::Shader::Grid).finalize(device);
+  pipeline_states_.at(render::Shader::Grid).finalize();
 }
 
-void Gpass::buildRoots(ID3D12Device* device) {
+void Gpass::buildRoots() {
   for (auto& root: root_signatures_) {
     root[0].InitAsConstantBufferView(0);
     root[1].InitAsConstantBufferView(1);
     root[2].InitAsConstantBufferView(2);
     root[3].InitAsShaderResourceView(3);
-    root.finalize(device);
+    root.finalize();
   }
 }
 

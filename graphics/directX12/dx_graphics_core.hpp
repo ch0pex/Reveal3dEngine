@@ -38,7 +38,7 @@ class alignas(16) Dx12 {
 public:
   using surface = dx12::Surface;
 
-  explicit Dx12(window::Resolution const* res);
+  explicit Dx12(window::Resolution res);
 
   void loadPipeline();
 
@@ -54,7 +54,7 @@ public:
 
   void terminate();
 
-  void resize(window::Resolution const& res);
+  void resize(window::Resolution const res);
 
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
 
@@ -63,8 +63,6 @@ public:
   dx12::Heaps& heaps() { return heaps_; }
 
 private:
-  void initDsBuffer();
-
   void ImGuiBegin() const {
 #ifdef IMGUI
     auto* command_list            = cmd_manager_.list();
@@ -85,7 +83,6 @@ private:
   dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
 
   /***************** Depth stencil buffer**********************/
-  ComPtr<ID3D12Resource> depth_stencil_buffer_;
   dx12::DescriptorHandle ds_handle_;
 
   /******************* Gpu heaps and commands **********************/

@@ -35,7 +35,18 @@ struct Constant2 {
 template<typename T>
 class UploadBuffer {
 public:
-  UploadBuffer() = default;
+  explicit UploadBuffer(u64 const count) : capacity_(sizeof(T) * count) {
+
+    auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
+
+    adapter.device->CreateCommittedResource(
+        &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+        IID_PPV_ARGS(&buff_)
+    ) >> utl::DxCheck;
+
+    buff_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_data_)) >> utl::DxCheck;
+  }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
 
@@ -44,8 +55,6 @@ public:
   explicit UploadBuffer(UploadBuffer&&) = delete;
 
   UploadBuffer& operator=(UploadBuffer&&) = delete;
-
-  void init(ID3D12Device* device, u32 count);
 
   [[nodiscard]] ID3D12Resource* get() const { return buff_; };
 
@@ -83,20 +92,8 @@ private:
   u32 size_ {0};
 };
 
-
 template<typename T>
-void UploadBuffer<T>::init(ID3D12Device* device, u32 const count) {
-  capacity_                  = sizeof(T) * count;
-  auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-  auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
+using ConstantBuffer = UploadBuffer<Constant<T>>;
 
-  device->CreateCommittedResource(
-      &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-      IID_PPV_ARGS(&buff_)
-  ) >> utl::DxCheck;
-
-  // TODO: addId option to hide this to cpu with range(0,0)
-  buff_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_data_));
-}
 
 } // namespace reveal3d::graphics::dx12

@@ -20,7 +20,7 @@ namespace reveal3d::graphics::dx12 {
 
 u8 Commands::frame_index_ = 0;
 
-void Commands::init() {
+Commands::Commands() {
   const D3D12_COMMAND_QUEUE_DESC queue_desc {
     .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
     .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,

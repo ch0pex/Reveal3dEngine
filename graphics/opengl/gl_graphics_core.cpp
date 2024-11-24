@@ -26,7 +26,7 @@ namespace reveal3d::graphics {
 
 using namespace opengl;
 
-OpenGL::OpenGL(window::Resolution* res) { }
+OpenGL::OpenGL(window::Resolution res) { }
 
 void OpenGL::loadPipeline() {
   createContext();

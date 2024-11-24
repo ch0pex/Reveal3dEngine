@@ -85,8 +85,6 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
   }
 }
 
-window::Resolution const& Surface::resolution() const { return resolution_; }
-
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {

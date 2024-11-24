@@ -65,9 +65,9 @@ public:
 
   [[nodiscard]] std::span<render::SubMesh> subMeshes() const { return pool.subMeshes(id_); }
 
-  [[nodiscard]] std::vector<render::Vertex>& vertices() const { return pool.mesh(id_).vertices; }
+  [[nodiscard]] std::span<render::Vertex> vertices() const { return pool.mesh(id_).vertices; }
 
-  [[nodiscard]] std::vector<u32>& indices() const { return pool.mesh(id_).indices; }
+  [[nodiscard]] std::span<u32> indices() const { return pool.mesh(id_).indices; }
 
   [[nodiscard]] bool isVisible() const { return pool.subMeshes(id_)[0].visible; }
 

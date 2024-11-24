@@ -22,7 +22,7 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-  explicit Renderer(window::Resolution* res) : graphics_(res), camera_(*res) { }
+  explicit Renderer(window::Resolution const res) : graphics_(res), camera_(res) { }
 
   void init(WHandle w_handle) {
     f32 time = timer_.totalTime();

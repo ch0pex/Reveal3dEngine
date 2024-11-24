@@ -33,6 +33,8 @@ struct DescriptorHandle {
 
 class DescriptorHeap {
 public:
+  DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, u32 capacity, bool is_shader_visible = false);
+
   explicit DescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE type) : type_(type) { }
 
   explicit DescriptorHeap(DescriptorHeap const&) = delete;
@@ -60,7 +62,7 @@ public:
 
   [[nodiscard]] bool isShaderVisible() const { return gpu_start_.ptr != 0; }
 
-  bool initialize(ID3D12Device* device, u32 capacity, bool is_shader_visible);
+  bool initialize(u32 capacity, bool is_shader_visible);
 
   [[nodiscard]] DescriptorHandle alloc();
 
@@ -68,7 +70,7 @@ public:
 
   void cleanDeferreds();
 
-  void release();
+  void release() const;
 
 private:
   ID3D12DescriptorHeap* heap_ {nullptr};
@@ -86,13 +88,9 @@ private:
 
 
 struct Heaps {
-  Heaps();
-
-  void init() {
-    rtv.initialize(adapter.device.Get(), config::render.graphics.buffer_count, false);
-    srv.initialize(adapter.device.Get(), 1U, true);
-    dsv.initialize(adapter.device.Get(), 1U, false);
-  }
+  Heaps() :
+    rtv(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, config::render.graphics.buffer_count), dsv(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1U),
+    srv(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1U, true) { }
 
   void cleanDeferreds() {
     rtv.cleanDeferreds();

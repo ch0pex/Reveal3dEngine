@@ -46,9 +46,9 @@ private:
 
 class RootSignature {
 public:
-  RootSignature(u32 num_root_params = 0);
+  explicit RootSignature(u32 num_root_params = 0);
   void reset(u32 num_root_params);
-  void finalize(ID3D12Device* device);
+  void finalize();
   ID3D12RootSignature* get() const { return signature_.Get(); }
 
   CD3DX12_ROOT_PARAMETER& operator[](size_t entry_index);

@@ -25,7 +25,7 @@ class OpenGL {
 public:
   using surface = Surface;
 
-  explicit OpenGL(window::Resolution* res);
+  explicit OpenGL(window::Resolution res);
 
   void loadPipeline();
 

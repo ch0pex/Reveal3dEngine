@@ -37,7 +37,7 @@ public:
   void closeWindow(input::Action act, input::type type);
   bool shouldClose();
 
-  [[nodiscard]] Resolution& getRes() { return info_.res; }
+  [[nodiscard]] Resolution getRes() const { return info_.res; }
   [[nodiscard]] WHandle getHandle() const { return info_.handle; }
 
 private:

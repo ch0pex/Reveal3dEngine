@@ -22,6 +22,7 @@ set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/resources/dx_resources.hpp
         ${DIRECTX12_DIR}/resources/dx_texture.hpp
         ${DIRECTX12_DIR}/resources/dx_upload_buffer.hpp
+        ${DIRECTX12_DIR}/resources/dx_depth_buffer.hpp
         ${DIRECTX12_DIR}/utils/dx_checker.hpp
         ${DIRECTX12_DIR}/utils/dx_constants.hpp
         ${DIRECTX12_DIR}/utils/dx_utils.hpp

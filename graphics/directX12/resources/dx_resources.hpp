@@ -24,10 +24,9 @@
 namespace reveal3d::graphics::dx12 {
 
 struct FrameResource {
-  DescriptorHandle depth_buffer_handle;
-  UploadBuffer<Constant<PerObjectData>> constant_buffer;
-  UploadBuffer<Constant<GlobalShaderData>> pass_buffer;
-  UploadBuffer<Constant<render::Material>> mat_buffer;
+  ConstantBuffer<PerObjectData> constant_buffer {1};
+  ConstantBuffer<GlobalShaderData> pass_buffer {100'000};
+  ConstantBuffer<render::Material> mat_buffer {100'000};
 };
 
 } // namespace reveal3d::graphics::dx12

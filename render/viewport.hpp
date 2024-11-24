@@ -40,7 +40,7 @@ namespace reveal3d::render {
 
 template<graphics::HRI Gfx, window::Manager<Gfx> Window>
 struct Viewport {
-  explicit Viewport(window::Info const& windowInfo) : window(windowInfo), renderer(&window.getRes()) { }
+  explicit Viewport(window::Info const& windowInfo) : window(windowInfo), renderer(window.getRes()) { }
 
   void init() try {
     window.create(renderer);

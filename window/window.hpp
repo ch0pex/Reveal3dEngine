@@ -30,7 +30,7 @@ concept Manager = requires(T window, render::Renderer<Gfx> renderer) {
   { window.show() } -> std::same_as<void>;
   { window.update(renderer) } -> std::same_as<void>;
   { window.shouldClose() } -> std::same_as<bool>;
-  { window.getRes() } -> std::same_as<Resolution&>;
+  { window.getRes() } -> std::same_as<Resolution>;
   { window.getHandle() } -> std::same_as<WHandle>;
 };
 

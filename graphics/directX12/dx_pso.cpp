@@ -13,6 +13,8 @@
 
 #include "dx_pso.hpp"
 
+#include "dx_adapter.hpp"
+
 namespace reveal3d::graphics::dx12 {
 
 GraphicsPso::GraphicsPso() :
@@ -66,8 +68,8 @@ void GraphicsPso::setSampleDescCount(u32 const sample_count) { pso_desc_.SampleD
 
 void GraphicsPso::setDsvFormat(const DXGI_FORMAT dsv_format) { pso_desc_.DSVFormat = dsv_format; }
 
-void GraphicsPso::finalize(ID3D12Device* device) {
-  device->CreateGraphicsPipelineState(&pso_desc_, IID_PPV_ARGS(&pipeline_state_)) >> utl::DxCheck;
+void GraphicsPso::finalize() {
+  adapter.device->CreateGraphicsPipelineState(&pso_desc_, IID_PPV_ARGS(&pipeline_state_)) >> utl::DxCheck;
 }
 
 } // namespace reveal3d::graphics::dx12

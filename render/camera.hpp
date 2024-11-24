@@ -66,7 +66,7 @@ public:
 
   void resize(window::Resolution const& res) {
     projection_matrix_ = math::perspective_fov(
-        config::camera.fov, res.aspect_ratio, config::camera.near_plane, config::camera.far_plane
+        config::camera.fov, res.aspect_ratio(), config::camera.near_plane, config::camera.far_plane
     );
   }
 

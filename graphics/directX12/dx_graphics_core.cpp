@@ -22,70 +22,9 @@ namespace reveal3d::graphics {
 using namespace render;
 using namespace dx12;
 
-Dx12::Dx12(window::Resolution const* res) : surface_(*res) { }
+Dx12::Dx12(window::Resolution const res) : gpass_(res, heaps_), surface_(res) { }
 
-void Dx12::loadPipeline() {
-  cmd_manager_.init();
-  heaps_.init();
-  surface_.createSwapChain(cmd_manager_, heaps_);
-
-  for (auto& frame_resource: frame_resources_) {
-    frame_resource.constant_buffer.init(adapter.device.Get(), 100'000);
-    frame_resource.mat_buffer.init(adapter.device.Get(), 100'000);
-    frame_resource.pass_buffer.init(adapter.device.Get(), 1U);
-  }
-
-  ds_handle_ = heaps_.dsv.alloc();
-  initDsBuffer();
-  gpass_.init();
-}
-
-void Dx12::initDsBuffer() {
-  const D3D12_RESOURCE_DESC depth_stencil_desc = {
-    .Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
-    .Alignment        = 0,
-    .Width            = surface_.resolution().width,
-    .Height           = surface_.resolution().height,
-    .DepthOrArraySize = 1,
-    .MipLevels        = 1,
-    .Format           = DXGI_FORMAT_R24G8_TYPELESS,
-    .SampleDesc =
-        {
-          .Count   = 1,
-          .Quality = 0,
-        },
-    .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-    .Flags  = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
-  };
-
-  constexpr D3D12_CLEAR_VALUE opt_clear =
-      {.Format       = DXGI_FORMAT_D24_UNORM_S8_UINT,
-       .DepthStencil = {
-         .Depth   = 1.0f,
-         .Stencil = 0,
-       }};
-
-  auto const heap_prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-  adapter.device->CreateCommittedResource(
-      &heap_prop, D3D12_HEAP_FLAG_NONE, &depth_stencil_desc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &opt_clear,
-      IID_PPV_ARGS(depth_stencil_buffer_.GetAddressOf())
-  ) >> utl::DxCheck;
-
-  constexpr D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {
-    .Format        = DXGI_FORMAT_D24_UNORM_S8_UINT,
-    .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-    .Flags         = D3D12_DSV_FLAG_NONE,
-    .Texture2D     = {.MipSlice = 0}
-  };
-
-  depth_stencil_buffer_->SetName(L"Depth Buffer") >> utl::DxCheck;
-  adapter.device->CreateDepthStencilView(depth_stencil_buffer_.Get(), &dsv_desc, ds_handle_.cpu);
-
-  for (auto& frame_resource: frame_resources_) {
-    frame_resource.depth_buffer_handle = ds_handle_;
-  }
-}
-
+void Dx12::loadPipeline() { surface_.createSwapChain(cmd_manager_, heaps_); }
 
 void Dx12::loadAssets() {
   cmd_manager_.reset(nullptr);
@@ -99,7 +38,7 @@ void Dx12::loadAssets() {
   while (geometry.isAlive()) {
     id_t const idx = id::index(geometry.id());
     auto transform = entity.component<Transform>();
-    gpass_.addRenderElement(entity, cmd_manager_, adapter.device.Get());
+    gpass_.addRenderElement(entity, cmd_manager_);
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
     for (auto& frame_resource: frame_resources_) {
@@ -121,19 +60,19 @@ void Dx12::loadAssets() {
 
 void Dx12::loadAsset(core::Entity const id) {
   cmd_manager_.reset(nullptr);
-  gpass_.addRenderElement(id, cmd_manager_, adapter.device.Get());
+  gpass_.addRenderElement(id, cmd_manager_);
   cmd_manager_.list()->Close() >> utl::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
 }
 
 void Dx12::update(Camera const& camera) {
-  auto& [ds_buffer, constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
-  auto const& dirty_transforms = core::scene.componentPool<core::Transform>().dirtyElements();
-  auto const& dirty_mats       = core::scene.componentPool<core::Geometry>().dirtyElements();
-  auto& geometries             = core::scene.componentPool<core::Geometry>();
-  auto new_geometry            = core::Geometry(geometries.popNew());
-  auto removed_geometry        = core::Geometry(geometries.popRemoved());
+  auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
+  auto const& dirty_transforms                     = core::scene.componentPool<core::Transform>().dirtyElements();
+  auto const& dirty_mats                           = core::scene.componentPool<core::Geometry>().dirtyElements();
+  auto& geometries                                 = core::scene.componentPool<core::Geometry>();
+  auto new_geometry                                = core::Geometry(geometries.popNew());
+  auto removed_geometry                            = core::Geometry(geometries.popRemoved());
 
   Constant<GlobalShaderData> pass_constant;
   Constant<PerObjectData> obj_constant;
@@ -202,7 +141,7 @@ void Dx12::renderSurface(Surface& surface) {
 
   command_list->ResourceBarrier(1, &target_barrier);
 
-  Gpass::setRenderTargets(command_list, curr_frame_res, surface.rtv());
+  gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
 
   gpass_.render(command_list, curr_frame_res);
 
@@ -223,21 +162,20 @@ void Dx12::renderSurface(Surface& surface) {
   cmd_manager_.moveToNextFrame();
 }
 
-void Dx12::resize(window::Resolution const& res) {
-  if (res.aspect_ratio == surface_.resolution().aspect_ratio) {
+void Dx12::resize(window::Resolution const res) {
+  if (res == surface_.resolution()) {
     return;
   }
 
-  if (res.width == 0 and res.height == 0) {
+  if (res.null()) {
     return;
   }
 
   cmd_manager_.waitForGpu();
   cmd_manager_.reset(nullptr);
 
-  depth_stencil_buffer_.Reset();
+  gpass_.resize(res, heaps_);
   surface_.resize(res);
-  initDsBuffer();
   cmd_manager_.resetFences();
 
   cmd_manager_.list()->Close() >> utl::DxCheck;

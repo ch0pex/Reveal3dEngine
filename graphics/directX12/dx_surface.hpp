@@ -42,11 +42,11 @@ public:
 
   void resize(window::Resolution const& res);
 
-  ID3D12Resource* const back_buffer() { return render_targets_.at(Commands::frameIndex()).resource_.Get(); }
+  ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource_.Get(); }
 
   D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).rtv_.cpu; }
 
-  [[nodiscard]] window::Resolution const& resolution() const;
+  [[nodiscard]] window::Resolution resolution() const { return resolution_; };
 
 private:
   void allowTearing(IDXGIFactory5* factory);
