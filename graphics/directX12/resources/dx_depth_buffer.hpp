@@ -22,10 +22,7 @@ namespace reveal3d::graphics::dx12 {
 
 class DepthBuffer {
 public:
-  explicit DepthBuffer(window::Resolution const res, Heaps& heaps) {
-    handle_ = heaps.dsv.alloc();
-    init(res);
-  }
+  explicit DepthBuffer(window::Resolution const res, DescriptorHeap& heap) : handle_(heap.alloc()) { init(res); }
 
   auto static constexpr default_desc = [](u64 const width, u32 const height) {
     return D3D12_RESOURCE_DESC {
@@ -57,11 +54,10 @@ public:
     };
   };
 
-  auto const& cpu() const { return handle_.cpu; }
+  [[nodiscard]] constexpr auto const& cpu() const { return handle_.cpu; }
 
   void resize(window::Resolution const res, Heaps& heaps) {
     buff_.release();
-    //    handle_ = heaps.dsv.alloc();
     init(res);
   }
 

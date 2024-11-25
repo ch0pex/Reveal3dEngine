@@ -89,7 +89,7 @@ public:
   }
 
   void materialTransform(math::mat4 const transform) const {
-    pool.material(id_).mat_transform = transform;
+    pool.material(id_).transform = transform;
     setDirty();
   }
 

@@ -26,13 +26,6 @@ public:
   Buffer() = default;
 
   struct InitInfo {
-    static InitInfo
-    Default(ID3D12GraphicsCommandList* cmd_lists, u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
-      return {
-        .cmd_list = cmd_lists,
-        .res_desc = CD3DX12_RESOURCE_DESC::Buffer(width),
-      };
-    }
 
     ID3D12GraphicsCommandList* cmd_list;
     D3D12_RESOURCE_DESC res_desc;
@@ -46,7 +39,7 @@ public:
     init(info);
   }
 
-  template<typename T = i8>
+  template<typename T = void*>
   void init(InitInfo const& info, std::span<T> data = {}) {
     size_                 = info.res_desc.Width * info.res_desc.Height;
     auto const* opt_clear = info.clear_value.has_value() ? &info.clear_value.value() : nullptr;
@@ -58,12 +51,12 @@ public:
     // D3D12_SUBRESOURCE_DATA sub_resource_data = { .pData = info.view.data(), .RowPitch = size_, .SlicePitch = size_
     // };
 
-    if constexpr (not std::same_as<T, i8>) {
+    if constexpr (not std::same_as<T, void*>) {
       auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
       auto barrier =
           CD3DX12_RESOURCE_BARRIER::Transition(buff_, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
       info.cmd_list->ResourceBarrier(1, &barrier);
-      upload_buffer.copyData(0, data.data(), data.size()); // Copying cpu info to upload buvffer
+      upload_buffer.copyData(0, data.data(), data.size()); // Copying cpu info to upload buffer
       info.cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
 
       barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -88,6 +81,14 @@ public:
 
   template<typename T>
   T view();
+
+  static constexpr auto buffer1d = [](ID3D12GraphicsCommandList* cmd_lists, u64 const width,
+                                      DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
+    return InitInfo {
+      .cmd_list = cmd_lists,
+      .res_desc = CD3DX12_RESOURCE_DESC::Buffer(width),
+    };
+  };
 
 private:
   static inline u32 counter = 0;

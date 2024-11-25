@@ -20,11 +20,11 @@
 namespace reveal3d::render {
 
 struct SubMesh {
-  Shader shader   {Opaque};
-  u32 vertex_pos  {0};
-  u32 index_pos   {0};
+  u32 vertex_pos {0};
+  u32 index_pos {0};
   u32 index_count {0};
-  bool visible    {true};
+  bool visible {true};
+  u8 shader {0};
 };
 
 struct Mesh {

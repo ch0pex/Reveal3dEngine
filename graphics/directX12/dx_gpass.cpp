@@ -34,10 +34,10 @@ constexpr D3D12_RENDER_TARGET_BLEND_DESC transparency_blend_desc {
 
 constexpr D3D12_BLEND_DESC blend_desc = {.RenderTarget = transparency_blend_desc};
 
-Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) : depth_buffer_(resolution, heaps) {
-  root_signatures_.at(render::Shader::Opaque).reset(4);
-  root_signatures_.at(render::Shader::Unlit).reset(4);
-  root_signatures_.at(render::Shader::Grid).reset(4);
+Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) : depth_buffer_(resolution, heaps.dsv) {
+  root_signatures_.at(Shader::Opaque).reset(4);
+  root_signatures_.at(Shader::Flat).reset(4);
+  root_signatures_.at(Shader::Grid).reset(4);
   buildRoots();
   buildPsos();
 }
@@ -53,7 +53,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
     auto geometry  = render_element.entity().component<core::Geometry>();
     auto transform = render_element.entity().component<core::Transform>();
 
-    for (auto& [shader, vertex_pos, index_pos, index_count, visible]: geometry.subMeshes()) {
+    for (auto& [vertex_pos, index_pos, index_count, visible, shader]: geometry.subMeshes()) {
       if (!visible)
         continue;
 
@@ -89,8 +89,8 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
 
 void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) const {
   command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  command_list->SetGraphicsRootSignature(root_signatures_[render::Shader::Grid].get());
-  command_list->SetPipelineState(pipeline_states_[render::Shader::Grid].get());
+  command_list->SetGraphicsRootSignature(root_signatures_[Shader::Grid].get());
+  command_list->SetPipelineState(pipeline_states_[Shader::Grid].get());
   command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
   command_list->DrawInstanced(6, 1, 0, 0);
 }
@@ -142,10 +142,10 @@ void Gpass::buildPsos() {
     {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  pipeline_states_.at(render::Shader::Opaque).setInputLayout(input_element_descs, _countof(input_element_descs));
-  pipeline_states_.at(render::Shader::Opaque).setRootSignature(root_signatures_[render::Shader::Opaque]);
-  pipeline_states_.at(render::Shader::Opaque).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(render::Shader::Opaque).finalize();
+  pipeline_states_.at(Shader::Opaque).setInputLayout(input_element_descs, _countof(input_element_descs));
+  pipeline_states_.at(Shader::Opaque).setRootSignature(root_signatures_[Shader::Opaque]);
+  pipeline_states_.at(Shader::Opaque).setShaders(vertex_shader.Get(), pixel_shader.Get());
+  pipeline_states_.at(Shader::Opaque).finalize();
 
   // TODO Config file for assets path
   hr = D3DCompileFromFile(
@@ -168,10 +168,11 @@ void Gpass::buildPsos() {
     {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  pipeline_states_.at(render::Shader::Unlit).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_.at(render::Shader::Unlit).setRootSignature(root_signatures_[render::Shader::Opaque]);
-  pipeline_states_.at(render::Shader::Unlit).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_[render::Shader::Unlit].finalize();
+  pipeline_states_.at(Shader::Flat).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+  pipeline_states_.at(Shader::Flat).setRootSignature(root_signatures_[Shader::Opaque]);
+  pipeline_states_.at(Shader::Flat).setShaders(vertex_shader.Get(), pixel_shader.Get());
+  pipeline_states_.at(Shader::Flat).setBlendState(blend_desc);
+  pipeline_states_[Shader::Flat].finalize();
 
   hr = D3DCompileFromFile(
       relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags,
@@ -189,11 +190,11 @@ void Gpass::buildPsos() {
   hr >> utl::DxCheck;
 
 
-  pipeline_states_.at(render::Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_.at(render::Shader::Grid).setRootSignature(root_signatures_.at(render::Shader::Grid));
-  pipeline_states_.at(render::Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(render::Shader::Grid).setBlendState(blend_desc);
-  pipeline_states_.at(render::Shader::Grid).finalize();
+  pipeline_states_.at(Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
+  pipeline_states_.at(Shader::Grid).setRootSignature(root_signatures_.at(Shader::Grid));
+  pipeline_states_.at(Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
+  pipeline_states_.at(Shader::Grid).setBlendState(blend_desc);
+  pipeline_states_.at(Shader::Grid).finalize();
 }
 
 void Gpass::buildRoots() {

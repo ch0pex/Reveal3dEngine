@@ -23,23 +23,23 @@ class RenderElement {
 public:
   RenderElement(core::Entity const entity, ID3D12GraphicsCommandList* cmd_list) : entity_(entity) {
     auto const geo         = entity.component<core::Geometry>();
-    auto const vertex_info = Buffer::InitInfo::Default(cmd_list, geo.vertices().size() * sizeof(render::Vertex));
-    auto index_info = Buffer::InitInfo::Default(cmd_list, geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT);
+    auto const vertex_info = Buffer::buffer1d(cmd_list, geo.vertices().size() * sizeof(render::Vertex));
+    auto const index_info  = Buffer::buffer1d(cmd_list, geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT);
 
     vertex_buffer_.init(vertex_info, geo.vertices());
-    index_buffer_.init(vertex_info, geo.indices());
+    index_buffer_.init(index_info, geo.indices());
 
     vertex_view_ = vertex_buffer_.view<D3D12_VERTEX_BUFFER_VIEW>();
     index_view_  = index_buffer_.view<D3D12_INDEX_BUFFER_VIEW>();
   }
 
-  auto const& vertices() const { return vertex_view_; }
+  [[nodiscard]] constexpr auto const& vertices() const { return vertex_view_; }
 
-  auto const& indices() const { return index_view_; }
+  [[nodiscard]] constexpr auto const& indices() const { return index_view_; }
 
-  D3D_PRIMITIVE_TOPOLOGY topology() const { return topology_; }
+  [[nodiscard]] constexpr D3D_PRIMITIVE_TOPOLOGY topology() const { return topology_; }
 
-  core::Entity entity() const { return entity_; }
+  [[nodiscard]] core::Entity entity() const { return entity_; }
 
   void release() const {
     vertex_buffer_.release();
@@ -47,13 +47,14 @@ public:
   }
 
 private:
-  D3D_PRIMITIVE_TOPOLOGY topology_ {D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST};
-
+  //******************* Buffers ********************
   Buffer vertex_buffer_;
   Buffer index_buffer_;
 
+  //******************* Buffers views **************
   D3D12_VERTEX_BUFFER_VIEW vertex_view_;
   D3D12_INDEX_BUFFER_VIEW index_view_;
+  D3D_PRIMITIVE_TOPOLOGY topology_ {D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST};
 
   core::Entity entity_;
 };

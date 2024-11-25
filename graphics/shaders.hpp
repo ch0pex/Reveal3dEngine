@@ -3,9 +3,9 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file material.hpp
+ * @file dx_shaders.hpp
  * @version 1.0
- * @date 29/07/2024
+ * @date 25/11/2024
  * @brief Short description
  *
  * Longer description
@@ -13,16 +13,28 @@
 
 #pragma once
 
-#include "common/common.hpp"
-#include "math/math.hpp"
+#include "../common/common.hpp"
 
-namespace reveal3d::render {
 
-struct Material {
-  math::vec4 base_color {0.8F, 0.8F, 0.8F, 0.0F};
-  math::vec3 fresnel {0.8F, 0.8F, 0.8F};
-  f32 roughness {0.8F};
-  math::mat4 transform {math::mat4_identity()};
+namespace reveal3d::graphics {
+
+class Shader {
+public:
+  enum Type : u8 {
+    Flat,
+    Opaque,
+    Grid,
+
+    count
+  };
+
+private:
 };
 
-} // namespace reveal3d::render
+class ShaderCompiler { };
+
+
+inline std::vector<Shader> compileShaders() { }
+
+
+} // namespace reveal3d::graphics

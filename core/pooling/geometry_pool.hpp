@@ -39,11 +39,11 @@ protected:
   void addData(id_t entity_id, init_info& init_info) {
     materials_.emplace_back();
     sub_meshes_.emplace_back(render::SubMesh {
-      .shader      = render::Opaque,
       .vertex_pos  = 0,
       .index_pos   = 0,
       .index_count = static_cast<u32>(init_info.indices.size()),
       .visible     = true,
+      .shader      = 1 // Opaque
     });
     meshes_.push_back(std::move(init_info));
   }

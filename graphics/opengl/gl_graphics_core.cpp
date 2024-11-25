@@ -93,7 +93,7 @@ void OpenGL::renderSurface(surface& surface) {
   );
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  for (u32 i = 0; i < render::Shader::count; ++i) {
+  for (u32 i = 0; i < 4; ++i) {
     render_layers_.draw(render_elements_, pass_constant_, i);
   }
   swapBuffer();

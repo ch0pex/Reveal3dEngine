@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "../shaders.hpp"
 #include "common/common.hpp"
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
@@ -38,12 +39,12 @@ public:
         back_buffer, math::utils::to_array(config::scene.clearColor).data(), 0, nullptr
     );
     command_list->ClearDepthStencilView(
-        depth_buffer_.cpu(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr
+        depth_buffer_.cpu(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0F, 0, 0, nullptr
     );
     command_list->OMSetRenderTargets(1, &back_buffer, TRUE, &depth_buffer_.cpu());
   }
 
-  void depthPrepass(); // TODO
+  void depthPrepass() { } // TODO
 
   void render(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource);
 
@@ -71,8 +72,8 @@ private:
 
 
   /**************** Pipeline state and root signatures *****************/
-  std::array<GraphicsPso, render::Shader::count> pipeline_states_;
-  std::array<RootSignature, render::Shader::count> root_signatures_;
+  std::array<GraphicsPso, Shader::count> pipeline_states_;
+  std::array<RootSignature, Shader::count> root_signatures_;
 
   ID3D12RootSignature* curr_root_signature_ {nullptr};
   ID3D12PipelineState* curr_pipeline_state_ {nullptr};
