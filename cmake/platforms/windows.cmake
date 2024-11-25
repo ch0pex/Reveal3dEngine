@@ -1,7 +1,7 @@
 
 set(PLAT win32)
 set(EXTERN ${PROJECT_SOURCE_DIR}/extern/lib/${PLAT})
-add_compile_options(/Wall /external:anglebrakets /external:W0 /experimental:module)
+add_compile_options(/Wall /Wextra /external:anglebrakets /external:W0 /experimental:module)
 
 include(cmake/backends/graphics/directx12.cmake)
 include(cmake/backends/window/win32.cmake)

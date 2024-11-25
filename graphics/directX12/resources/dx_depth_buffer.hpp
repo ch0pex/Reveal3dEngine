@@ -61,7 +61,7 @@ public:
 
   void resize(window::Resolution const res, Heaps& heaps) {
     buff_.release();
-    handle_ = heaps.dsv.alloc();
+    //    handle_ = heaps.dsv.alloc();
     init(res);
   }
 

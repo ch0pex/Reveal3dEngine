@@ -86,9 +86,9 @@ struct Window {
 };
 
 struct Camera {
-  f32 fov            = 45.0F;
+  f32 fov            = 90.0F;
   f32 near_plane     = 0.1F;
-  f32 far_plane      = 25.0F;
+  f32 far_plane      = 100.0F;
   f32 movement_speed = 5.0F;
   f32 sensitivity    = 50.0F * 0.001F;
   static constexpr math::vec3 world_up {0, 0, 1};
