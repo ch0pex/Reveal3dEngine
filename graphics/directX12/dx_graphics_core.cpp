@@ -42,11 +42,9 @@ void Dx12::loadAssets() {
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
     for (auto& frame_resource: frame_resources_) {
-      obj_constant.data.world_view_proj = transform.world();
-      obj_constant.data.entity_id       = entity.id();
-      mat_constant.data.base_color      = geometry.material().base_color;
-      frame_resource.constant_buffer.copyData(idx, &obj_constant, 1);
-      frame_resource.mat_buffer.copyData(idx, &mat_constant, 1);
+      mat_constant.data.base_color          = geometry.material().base_color;
+      frame_resource.per_obj_buffer.at(idx) = {.world_view_proj = transform.world(), .entity_id = entity.id()};
+      frame_resource.mat_buffer.at(idx)     = geometry.material();
     }
 
     entity   = Entity(geometries.popNew());
@@ -74,42 +72,36 @@ void Dx12::update(Camera const& camera) {
   auto new_geometry                                = core::Geometry(geometries.popNew());
   auto removed_geometry                            = core::Geometry(geometries.popRemoved());
 
-  Constant<GlobalShaderData> pass_constant;
-  Constant<PerObjectData> obj_constant;
-  Constant<Material> mat_constant;
-
   // update pass constants
   auto const view_proj = transpose(camera.getViewProjectionMatrix());
-  pass_constant.data   = {
-      .view          = camera.getViewMatrix(),
-      .inv_view      = inverse(camera.getViewMatrix()),
-      .proj          = camera.getProjectionMatrix(),
-      .inv_proj      = inverse(camera.getProjectionMatrix()),
-      .view_proj     = view_proj,
-      .inv_view_proj = inverse(view_proj),
+  pass_buffer.at(0)    = {
+       .view          = camera.getViewMatrix(),
+       .inv_view      = inverse(camera.getViewMatrix()),
+       .proj          = camera.getProjectionMatrix(),
+       .inv_proj      = inverse(camera.getProjectionMatrix()),
+       .view_proj     = view_proj,
+       .inv_view_proj = inverse(view_proj),
     // .eye_pos       = camera.position(),
-      .near_z = config::camera.near_plane,
-      .far_z  = config::camera.far_plane,
+       .near_z = config::camera.near_plane,
+       .far_z  = config::camera.far_plane,
     // .total_time = ;
   };
 
-  // pass_constant.data.view_proj = transpose(camera.getViewProjectionMatrix());
-  pass_buffer.copyData(0, &pass_constant);
 
   // update object constants
   for (auto const id: dirty_transforms) {
     core::Transform const trans {id};
-    obj_constant.data = {.world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id()};
+    constant_buffer.at(id::index(id)) = {
+      .world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id() //
+    };
     trans.unDirty();
-    constant_buffer.copyData(id::index(id), &obj_constant);
   }
 
   // update material constants
   for (auto const id: dirty_mats) {
     core::Geometry const geo {id};
-    mat_constant.data = geo.material();
+    mat_buffer.at(id::index(geo.id())) = geo.material();
     geo.unDirty();
-    mat_buffer.copyData(id::index(geo.id()), &mat_constant);
   }
 
   // addId new meshes
@@ -194,7 +186,7 @@ void Dx12::terminate() {
   gpass_.terminate();
 
   for (auto& frame_resource: frame_resources_) {
-    frame_resource.constant_buffer.release();
+    frame_resource.per_obj_buffer.release();
     frame_resource.pass_buffer.release();
     frame_resource.mat_buffer.release();
   }

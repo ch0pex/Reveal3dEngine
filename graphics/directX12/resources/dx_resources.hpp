@@ -24,8 +24,8 @@
 namespace reveal3d::graphics::dx12 {
 
 struct FrameResource {
-  ConstantBuffer<PerObjectData> constant_buffer {1};
-  ConstantBuffer<GlobalShaderData> pass_buffer {100'000};
+  ConstantBuffer<PerObjectData> per_obj_buffer {100'000};
+  ConstantBuffer<GlobalShaderData> pass_buffer {1};
   ConstantBuffer<render::Material> mat_buffer {100'000};
 };
 

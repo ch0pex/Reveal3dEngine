@@ -19,33 +19,46 @@
 namespace reveal3d::graphics::dx12 {
 
 
-// All constant items in constant buffers must be aligned with 256 bytes
 template<typename T>
 struct alignas(256) Constant {
   Constant() : data() { }
   T data;
 };
 
-struct Constant2 {
+namespace detail {
 
-  u32 data;
-};
+template<typename T>
+struct is_constant : std::false_type { };
 
-// TODO: Improve Upload buffer and buffer to dynamic like heaps
+template<typename T>
+struct is_constant<Constant<T>> : std::true_type { };
+
+} // namespace detail
+
+template<typename T>
+concept is_constant = requires { detail::is_constant<T>::value; };
+
 template<typename T>
 class UploadBuffer {
 public:
-  explicit UploadBuffer(u64 const count) : capacity_(sizeof(T) * count) {
+  // *** Type Traits
+  using value_type = T;
+  using iterator   = std::span<T>::iterator;
+
+  explicit UploadBuffer(u64 const count) {
 
     auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(capacity_);
+    auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T));
 
     adapter.device->CreateCommittedResource(
         &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
         IID_PPV_ARGS(&buff_)
     ) >> utl::DxCheck;
 
-    buff_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_data_)) >> utl::DxCheck;
+    T* data {nullptr};
+
+    buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utl::DxCheck;
+    mapped_data_ = std::span<T>(data, data + count * sizeof(T));
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
@@ -58,7 +71,7 @@ public:
 
   [[nodiscard]] ID3D12Resource* get() const { return buff_; };
 
-  [[nodiscard]] u32 size() const { return capacity_; };
+  [[nodiscard]] u32 size() const { return mapped_data_.size(); };
 
   [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuStart() const { return buff_->GetGPUVirtualAddress(); }
 
@@ -66,18 +79,27 @@ public:
     return buff_->GetGPUVirtualAddress() + (index * sizeof(T));
   }
 
-  DescriptorHandle createView(ID3D12Device* device, DescriptorHeap& heap) {
-    u64 const buff_address                     = gpuStart() + (sizeof(T) * size_++);
+  DescriptorHandle view(u64 idx, DescriptorHeap& heap) {
+    u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
     const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {.BufferLocation = buff_address, .SizeInBytes = sizeof(T)};
 
     DescriptorHandle const handle = heap.alloc();
-    device->CreateConstantBufferView(&desc, handle.cpu);
+    adapter.device->CreateConstantBufferView(&desc, handle.cpu);
     return handle;
   }
 
-  void copyData(u32 element_index, T const* data, u32 const count = 1) {
-    memcpy(&mapped_data_[element_index], data, sizeof(T) * count);
+  [[nodiscard]] constexpr decltype(auto) at(u64 idx) {
+    if constexpr (is_constant<T>) {
+      return (mapped_data_[idx].data);
+    }
+    else {
+      return (mapped_data_[idx]);
+    }
   }
+
+  [[nodiscard]] constexpr std::span<T>::iterator begin() const { return mapped_data_.begin(); }
+
+  [[nodiscard]] constexpr std::span<T>::iterator end() const { return mapped_data_.begin(); }
 
   void release() const {
     if (buff_ != nullptr)
@@ -86,10 +108,8 @@ public:
   }
 
 private:
-  T* mapped_data_ {nullptr};
+  std::span<T> mapped_data_;
   ID3D12Resource* buff_;
-  u32 capacity_ {0};
-  u32 size_ {0};
 };
 
 template<typename T>

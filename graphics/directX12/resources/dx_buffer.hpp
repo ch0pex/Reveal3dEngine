@@ -56,7 +56,7 @@ public:
       auto barrier =
           CD3DX12_RESOURCE_BARRIER::Transition(buff_, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
       info.cmd_list->ResourceBarrier(1, &barrier);
-      upload_buffer.copyData(0, data.data(), data.size()); // Copying cpu info to upload buffer
+      std::ranges::copy(data, upload_buffer.begin());
       info.cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
 
       barrier = CD3DX12_RESOURCE_BARRIER::Transition(
