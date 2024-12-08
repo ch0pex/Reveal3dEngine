@@ -132,6 +132,7 @@ public:
 
   Entity newChildEntity(id_t const parent) { return newChildEntity(Entity(parent)); }
 
+  /// TODO fix this function
   Entity removeEntity(id_t const id) {
     Entity entity {id};
     Entity nextOrPrev = {};
@@ -258,7 +259,7 @@ private:
 
   /************ Scene entities ***********/
 
-  std::vector<Scene::Node> scene_graph_;
+  std::vector<Node> scene_graph_;
   u32 root_node_;
   u32 last_node_;
   std::deque<u32> free_nodes_;

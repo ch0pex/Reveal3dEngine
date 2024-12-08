@@ -66,11 +66,7 @@ void Dx12::loadAsset(core::Entity const id) {
 
 void Dx12::update(Camera const& camera) {
   auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
-  auto const& dirty_transforms                     = core::scene.componentPool<core::Transform>().dirtyElements();
-  auto const& dirty_mats                           = core::scene.componentPool<core::Geometry>().dirtyElements();
   auto& geometries                                 = core::scene.componentPool<core::Geometry>();
-  auto new_geometry                                = core::Geometry(geometries.popNew());
-  auto removed_geometry                            = core::Geometry(geometries.popRemoved());
 
   // update pass constants
   auto const view_proj = transpose(camera.getViewProjectionMatrix());
@@ -89,7 +85,7 @@ void Dx12::update(Camera const& camera) {
 
 
   // update object constants
-  for (auto const id: dirty_transforms) {
+  for (auto const id: core::scene.componentPool<core::Transform>().dirtyElements()) {
     core::Transform const trans {id};
     constant_buffer.at(id::index(id)) = {
       .world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id() //
@@ -98,21 +94,21 @@ void Dx12::update(Camera const& camera) {
   }
 
   // update material constants
-  for (auto const id: dirty_mats) {
+  for (auto const id: geometries.dirtyElements()) {
     core::Geometry const geo {id};
     mat_buffer.at(id::index(geo.id())) = geo.material();
     geo.unDirty();
   }
 
-  // addId new meshes
-  while (new_geometry.isAlive()) {
-    loadAsset(core::scene.getEntity(new_geometry.entityIdx()));
-    new_geometry = geometries.popNew();
+  // Load new meshes to gpu
+  for (core::Geometry new_geo = geometries.popNew(); new_geo.isAlive(); new_geo = geometries.popNew()) {
+    loadAsset(core::scene.getEntity(new_geo.entityIdx()));
   }
 
-  while (removed_geometry.isAlive()) {
-    gpass_.removeRenderElement(removed_geometry.id());
-    removed_geometry = geometries.popRemoved();
+
+  // Remove elements from gpu
+  for (core::Geometry rem_geo = geometries.popRemoved(); rem_geo.isAlive(); rem_geo = geometries.popRemoved()) {
+    gpass_.removeRenderElement(rem_geo.id());
   }
 }
 
@@ -134,7 +130,6 @@ void Dx12::renderSurface(Surface& surface) {
   command_list->ResourceBarrier(1, &target_barrier);
 
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
-
   gpass_.render(command_list, curr_frame_res);
 
   ImGuiBegin();
@@ -185,10 +180,10 @@ void Dx12::terminate() {
   heaps_.release();
   gpass_.terminate();
 
-  for (auto& frame_resource: frame_resources_) {
-    frame_resource.per_obj_buffer.release();
-    frame_resource.pass_buffer.release();
-    frame_resource.mat_buffer.release();
+  for (auto& [per_obj_buffer, pass_buffer, mat_buffer]: frame_resources_) {
+    per_obj_buffer.release();
+    pass_buffer.release();
+    mat_buffer.release();
   }
   clean_deferred_resources(heaps_);
 }

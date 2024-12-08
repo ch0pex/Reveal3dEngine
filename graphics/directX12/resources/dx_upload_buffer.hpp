@@ -79,7 +79,7 @@ public:
     return buff_->GetGPUVirtualAddress() + (index * sizeof(T));
   }
 
-  DescriptorHandle view(u64 idx, DescriptorHeap& heap) {
+  DescriptorHandle view(u64 const idx, DescriptorHeap& heap) const {
     u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
     const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {.BufferLocation = buff_address, .SizeInBytes = sizeof(T)};
 
@@ -97,9 +97,9 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr std::span<T>::iterator begin() const { return mapped_data_.begin(); }
+  [[nodiscard]] constexpr typename std::span<T>::iterator begin() const { return mapped_data_.begin(); }
 
-  [[nodiscard]] constexpr std::span<T>::iterator end() const { return mapped_data_.begin(); }
+  [[nodiscard]] constexpr typename std::span<T>::iterator end() const { return mapped_data_.begin(); }
 
   void release() const {
     if (buff_ != nullptr)
@@ -108,8 +108,8 @@ public:
   }
 
 private:
-  std::span<T> mapped_data_;
-  ID3D12Resource* buff_;
+  std::span<T> mapped_data_ {};
+  ID3D12Resource* buff_ {};
 };
 
 template<typename T>

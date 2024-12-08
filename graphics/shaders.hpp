@@ -33,7 +33,6 @@ private:
 
 class ShaderCompiler { };
 
-
 inline std::vector<Shader> compileShaders() { }
 
 
