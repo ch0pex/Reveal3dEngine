@@ -28,7 +28,7 @@ struct Resolution {
 
   [[nodiscard]] constexpr f32 aspect_ratio() const { return static_cast<f32>(width) / static_cast<f32>(height); }
 
-  [[nodiscard]] constexpr bool null() const { return width == 0 || height == 0; }
+  [[nodiscard]] constexpr bool null() const { return width == 0 or height == 0; }
 
   constexpr bool operator==(Resolution const other) const { return width == other.width && height == other.height; }
 

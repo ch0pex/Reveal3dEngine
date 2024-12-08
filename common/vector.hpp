@@ -17,7 +17,7 @@
 
 #include "primitive_types.hpp"
 
-#include <cassert>
+#include <algorithm>
 #include <memory>
 #include <ranges>
 
@@ -38,9 +38,9 @@ public:
 
   explicit constexpr vector(u64 const count) { reserve(count); }
 
-  constexpr vector(u64 count, T const& value) {
+  constexpr vector(u64 const count, T const& value) {
     reserve(count);
-    std::ranges::copy(data, data + count, value);
+    std::ranges::fill(data_, value);
   }
 
   constexpr vector(vector const& other) { *this = other; }
@@ -49,11 +49,7 @@ public:
 
   ~vector() { reset(); }
 
-  constexpr vector& operator=(vector const& other) {
-    data_ = other.data_;
-    size_ = other.size_;
-    return *this;
-  }
+  constexpr vector& operator=(vector const& other) = default;
 
   constexpr vector& operator=(vector&& other) noexcept {
     *this       = other;
@@ -133,8 +129,8 @@ public:
 
   constexpr void reserve(u64 new_capacity) {
     if (new_capacity > data_.size()) {
-      if (void* new_buff = std::realloc(data_.data(), new_capacity * sizeof(T)); new_buff != nullptr) {
-        data_ = std::span(static_cast<T*>(new_buff), static_cast<T*>(new_buff) + new_capacity);
+      if (T* new_buff = std::realloc(data_.data(), new_capacity * sizeof(T)); new_buff != nullptr) {
+        data_ = std::span(new_buff, new_buff + new_capacity);
       }
     }
   }
@@ -155,8 +151,8 @@ public:
   }
 
   constexpr void shrink_to_fit() {
-    if (void* new_buff = std::realloc(data_.data(), size_ * sizeof(T)); new_buff != nullptr) {
-      data_ = std::span(static_cast<T*>(new_buff), size_);
+    if (T* new_buff = std::realloc(data_.data(), size_ * sizeof(T)); new_buff != nullptr) {
+      data_ = std::span(new_buff, new_buff + size_);
     }
   }
 

@@ -105,10 +105,10 @@ public:
     return entity;
   }
 
-  Entity newChildEntity(Entity parent) {
+  Entity newChildEntity(Entity const parent) {
     assert(parent.isAlive());
 
-    id_t const id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+    id_t const id = (id::maxFree < free_nodes_.size()) ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
     Entity const child(id);
 
     Node child_node {.entity = child, .parent = parent};
