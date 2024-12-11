@@ -67,7 +67,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
         command_list->SetPipelineState(curr_pipeline_state_);
       }
 
-      // TODO This is the most expensive way to set RootParameters limit 64 DWORDS, currently using 6
+      /// @note This is the most expensive way to set RootParameters limit 64 DWORDS, currently using 6
       command_list->SetGraphicsRootConstantBufferView(
           0, frame_resource.per_obj_buffer.gpuPos(id::index(transform.id()))
       ); // 2 DWORDS

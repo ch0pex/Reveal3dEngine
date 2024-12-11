@@ -21,6 +21,8 @@
 #include <set>
 #include <vector>
 
+#include "config/config.hpp"
+
 namespace reveal3d::core {
 
 namespace detail {
@@ -74,12 +76,20 @@ public:
   id_t addComponent(id_t const entity_id) { return addComponent(entity_id, {}); }
 
   id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
-    id_t component_id {id_factory_.newId(id::index(entity_id))};
+    id_t const component_id {id_factory_.newId(id::index(entity_id))};
+    id_t const component_index {id::index(component_id)};
 
     this->addData(entity_id, init_info);
     if constexpr (stored_in_gpu<T>) {
-      this->dirties().emplace_back(4);
+      // When adding new component it should be marked as dirty
+      if (this->dirties().size() > component_index) {
+        this->dirties().at(component_index) = config::render.graphics.buffer_count + 1;
+      }
+      else {
+        this->dirties().emplace_back(config::render.graphics.buffer_count + 1);
+      }
       this->dirtyIds().insert(component_id);
+
       if constexpr (std::same_as<T, geometry::Pool>) { // TODO change this for a concept
         this->new_components_.push(component_id);
       }
@@ -126,18 +136,21 @@ private:
 
   void removeId(id_t const id) {
     id_t const last = components_ids_.at(id_factory_.back());
-    u32 const idx {id_factory_.mapped(id)};
+    u32 const component_index {id_factory_.mapped(id)};
+    id_t const new_id = id::index(id) | id::generation(last);
     if (last != id) {
-      components_ids_.at(id::index(getMappedId(last))) = (id::index(id) | id::generation(last));
+      components_ids_.at(id::index(getMappedId(last))) = new_id;
     }
-    components_ids_.at(idx) = id::invalid;
+    components_ids_.at(component_index) = id::invalid;
     id_factory_.remove(id);
     if constexpr (stored_in_gpu<T>) {
       if (last != id) {
-        this->dirties_.at(id::index(id)) = 3;
-        this->dirty_ids_.insert(id::index(id) | id::generation(last));
+        this->dirties_.at(id::index(id)) = config::render.graphics.buffer_count;
+        this->dirty_ids_.insert(new_id);
       }
-      this->dirty_ids_.erase(id);
+      if (new_id != id) {
+        this->dirty_ids_.erase(id);
+      }
     }
   }
 

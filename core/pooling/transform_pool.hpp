@@ -41,7 +41,7 @@ public:
   math::mat4& invWorld(id_t const id) { return inv_world_.at(id::index(id)); }
 
 protected:
-  u32 countData() { return pos_rot_scale_.size(); }
+  u32 countData() const { return pos_rot_scale_.size(); }
 
   void addData(id_t entity_id, init_info& init_info) {
     pos_rot_scale_.push_back(std::move(init_info));

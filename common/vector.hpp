@@ -129,7 +129,7 @@ public:
 
   constexpr void reserve(u64 new_capacity) {
     if (new_capacity > data_.size()) {
-      if (T* new_buff = std::realloc(data_.data(), new_capacity * sizeof(T)); new_buff != nullptr) {
+      if (T* new_buff = std::bit_cast<T*>(std::realloc(data_.data(), new_capacity * sizeof(T))); new_buff != nullptr) {
         data_ = std::span(new_buff, new_buff + new_capacity);
       }
     }
@@ -151,7 +151,7 @@ public:
   }
 
   constexpr void shrink_to_fit() {
-    if (T* new_buff = std::realloc(data_.data(), size_ * sizeof(T)); new_buff != nullptr) {
+    if (T* new_buff = std::bit_cast<T*>(std::realloc(data_.data(), size_ * sizeof(T))); new_buff != nullptr) {
       data_ = std::span(new_buff, new_buff + size_);
     }
   }

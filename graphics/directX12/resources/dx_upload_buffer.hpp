@@ -88,8 +88,8 @@ public:
     return handle;
   }
 
-  [[nodiscard]] constexpr decltype(auto) at(u64 idx) {
-    if constexpr (is_constant<T>) {
+  [[nodiscard]] decltype(auto) at(u64 idx) {
+    if constexpr (is_constant<value_type>) {
       return (mapped_data_[idx].data);
     }
     else {
@@ -97,9 +97,9 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr typename std::span<T>::iterator begin() const { return mapped_data_.begin(); }
+  [[nodiscard]] typename std::span<T>::iterator begin() const { return mapped_data_.begin(); }
 
-  [[nodiscard]] constexpr typename std::span<T>::iterator end() const { return mapped_data_.begin(); }
+  [[nodiscard]] typename std::span<T>::iterator end() const { return mapped_data_.begin(); }
 
   void release() const {
     if (buff_ != nullptr)

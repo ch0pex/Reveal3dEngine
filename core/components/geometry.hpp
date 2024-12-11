@@ -36,7 +36,7 @@ public:
 
   constexpr Geometry(Geometry&& other) noexcept : id_ {other.id()} { }
 
-  [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
+  [[nodiscard]] constexpr bool isAlive() const { return id::is_valid(id_); }
 
   [[nodiscard]] constexpr id_t id() const { return id_; }
 
