@@ -80,8 +80,8 @@ public:
   void z(xvec4 z) { mat4_.r[2] = z; }
   void w(xvec4 w) { mat4_.r[3] = w; }
 
-  xvec3 translation() const { return {x().w(), y().w(), z().w()}; }
-  xvec3 scale() const {
+  [[nodiscard]] xvec3 translation() const { return {x().w(), y().w(), z().w()}; }
+  [[nodiscard]] xvec3 scale() const {
     const XMVECTOR scale_x = XMVector3Length(mat4_.r[0]);
     const XMVECTOR scale_y = XMVector3Length(mat4_.r[1]);
     const XMVECTOR scale_z = XMVector3Length(mat4_.r[2]);

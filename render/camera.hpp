@@ -53,7 +53,7 @@ public:
 
   [[nodiscard]] math::mat4 getViewMatrix() const { return view_matrix_; }
 
-  // [[nodiscard]] math::vec3 position() const { return position_; }
+  [[nodiscard]] math::vec3 position() const { return {position_.x(), position_.y(), position_.z()}; }
 
   /********* Input handling ************/
 

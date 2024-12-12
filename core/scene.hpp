@@ -54,7 +54,7 @@ public:
   T component() const;
 
   template<detail::is_component T>
-  T addComponent(typename T::init_info&& init_info);
+  T addComponent(typename T::init_info const& init_info);
 
   template<detail::is_component T>
   void removeComponent();
@@ -242,7 +242,7 @@ private:
     node.entity = {};
   }
 
-  void addNode(Node const& node, id_t id) {
+  void addNode(Node const& node, id_t const id) {
     if (id::maxFree < free_nodes_.size()) {
       scene_graph_.at(id::index(id)) = node;
       free_nodes_.pop_front();
@@ -284,11 +284,11 @@ T Entity::component() const {
 }
 
 template<detail::is_component T>
-T Entity::addComponent(typename T::init_info&& init_info) {
+T Entity::addComponent(typename T::init_info const& init_info) {
   if (not isAlive()) {
     return T();
   }
-  return scene.componentPool<T>().addComponent(id_, std::forward<typename T::init_info>(init_info));
+  return scene.componentPool<T>().addComponent(id_, init_info);
 }
 
 template<detail::is_component T>

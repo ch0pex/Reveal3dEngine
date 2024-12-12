@@ -36,7 +36,7 @@ public:
 protected:
   u32 countData() { return meshes_.size(); }
 
-  void addData(id_t entity_id, init_info& init_info) {
+  void addData(id_t entity_id, init_info const& init_info) {
     materials_.emplace_back();
     sub_meshes_.emplace_back(render::SubMesh {
       .vertex_pos  = 0,

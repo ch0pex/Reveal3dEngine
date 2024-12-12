@@ -75,7 +75,7 @@ public:
 
   id_t addComponent(id_t const entity_id) { return addComponent(entity_id, {}); }
 
-  id_t addComponent(id_t entity_id, typename T::init_info&& init_info) {
+  id_t addComponent(id_t entity_id, typename T::init_info const& init_info) {
     id_t const component_id {id_factory_.newId(id::index(entity_id))};
     id_t const component_index {id::index(component_id)};
 

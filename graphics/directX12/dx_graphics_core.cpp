@@ -77,9 +77,9 @@ void Dx12::update(Camera const& camera) {
        .inv_proj      = inverse(camera.getProjectionMatrix()),
        .view_proj     = view_proj,
        .inv_view_proj = inverse(view_proj),
-    // .eye_pos       = camera.position(),
-       .near_z = config::camera.near_plane,
-       .far_z  = config::camera.far_plane,
+       .eye_pos       = camera.position(),
+       .near_z        = config::camera.near_plane,
+       .far_z         = config::camera.far_plane,
     // .total_time = ;
   };
 

@@ -29,6 +29,7 @@ public:
   xvec3(FXMVECTOR vec) : vec_(vec) { }
   operator XMVECTOR() const { return vec_; }
 
+
   void x(f32 x) { vec_ = XMVectorSetX(vec_, x); }
   void y(f32 y) { vec_ = XMVectorSetY(vec_, y); }
   void z(f32 z) { vec_ = XMVectorSetZ(vec_, z); }

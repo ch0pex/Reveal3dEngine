@@ -28,7 +28,7 @@ public:
 
   u32 countData() const { return names_.size(); }
 
-  void addData(id_t const entity_id, init_info& init_info) {
+  void addData(id_t const entity_id, init_info const& init_info) {
     names_.emplace_back("Entity_" + std::to_string(entity_id));
     comments_.emplace_back();
     dates_.emplace_back("10/12/2024"); // TODO

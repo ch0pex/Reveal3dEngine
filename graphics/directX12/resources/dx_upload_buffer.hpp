@@ -58,7 +58,7 @@ public:
     T* data {nullptr};
 
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utl::DxCheck;
-    mapped_data_ = std::span<T>(data, data + count * sizeof(T));
+    mapped_data_ = std::span<T>(data, data + count);
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
@@ -99,7 +99,7 @@ public:
 
   [[nodiscard]] typename std::span<T>::iterator begin() const { return mapped_data_.begin(); }
 
-  [[nodiscard]] typename std::span<T>::iterator end() const { return mapped_data_.begin(); }
+  [[nodiscard]] typename std::span<T>::iterator end() const { return mapped_data_.end(); }
 
   void release() const {
     if (buff_ != nullptr)

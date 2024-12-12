@@ -24,10 +24,11 @@ struct GlobalShaderData {
   math::mat4 inv_proj;
   math::mat4 view_proj;
   math::mat4 inv_view_proj;
+  math::vec2 padding;
+  math::vec2 render_target_size;
   math::vec3 eye_pos;
   f32 near_z;
   f32 far_z;
-  math::vec2 render_target_size;
   f32 total_time;
   f32 delta_time;
 };

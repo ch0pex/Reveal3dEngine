@@ -43,7 +43,7 @@ concept component = detail::is_component<T>;
 template<typename T>
 concept pool = requires(T pool) {
   { pool.countData() } -> std::same_as<u32>;
-  { pool.addData(std::declval<id_t>(), std::declval<typename T::init_info&>()) } -> std::same_as<void>;
+  { pool.addData(std::declval<id_t>(), std::declval<typename T::init_info const&>()) } -> std::same_as<void>;
   { pool.removeData(std::declval<id_t>()) } -> std::same_as<void>;
 };
 

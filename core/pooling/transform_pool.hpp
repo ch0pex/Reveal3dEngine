@@ -43,8 +43,8 @@ public:
 protected:
   u32 countData() const { return pos_rot_scale_.size(); }
 
-  void addData(id_t entity_id, init_info& init_info) {
-    pos_rot_scale_.push_back(std::move(init_info));
+  void addData(id_t entity_id, init_info const& init_info) {
+    pos_rot_scale_.push_back(init_info);
     auto& [position, rotation, scale] = pos_rot_scale_.at(countData() - 1);
     world_mat_.emplace_back(transpose(affine_transformation(position, scale, rotation)));
     inv_world_.emplace_back(inverse(world_mat_.at(countData() - 1)));
