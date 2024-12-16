@@ -105,9 +105,7 @@ void Dx12::update(Camera const& camera) {
     loadAsset(core::scene.getEntity(new_geo.entityIdx()));
   }
 
-  // Remove elements from gpu
-  // TODO: this is bugged
-  // if we remove parent and child, and child is the last entity
+  // Remove render elements of deleted geometry
   for (id_t rem_geo = geometries.popRemoved(); id::is_valid(rem_geo); rem_geo = geometries.popRemoved()) {
     gpass_.removeRenderElement(rem_geo);
   }

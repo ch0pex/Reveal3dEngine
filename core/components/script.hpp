@@ -12,45 +12,40 @@
  */
 
 #pragma once
-
 #include "core/scene.hpp"
+
+#include "component.hpp"
 
 namespace reveal3d::core {
 
-class Script {
-public:
-    using init_info = std::unique_ptr<script::ScriptBase>;
-    using pool_type = script::Pool;
+struct Script : Component<Script> {
+  using init_info = std::unique_ptr<script::ScriptBase>;
+  using pool_type = script::Pool;
 
-    constexpr Script(id_t id) : id_(id) {}
 
-    constexpr Script(id_t id, init_info script) {}
+  [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
-    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
+  [[nodiscard]] constexpr id_t id() const { return id_; }
 
-    [[nodiscard]] constexpr id_t id() const { return id_; }
+  void begin() { }
 
-    void begin() {}
+  void disableUpdate() { }
 
-    void disableUpdate() {}
+  void enableUpdate() { }
 
-    void enableUpdate() {}
+  void destroyed() { }
 
-    void destroyed() {}
+  void update() { }
 
-    void update() {}
+  void data();
 
-    void data();
+  void enableBegin();
 
-    void enableBegin();
-    void disableBegin();
-    void enableDestroyed();
-    void disableDestroyed();
+  void disableBegin();
 
-private:
-    inline static GenericPool<pool_type>& pool = core::scene.componentPool<Script>();
+  void enableDestroyed();
 
-    id_t id_{id::invalid};
+  void disableDestroyed();
 };
 
 } // namespace reveal3d::core

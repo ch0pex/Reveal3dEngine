@@ -21,8 +21,8 @@ namespace reveal3d::graphics::opengl {
 
 void RenderLayers::init() {
   layers_[4].shaderId = createProgram(
-      relative("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
-      relative("Engine/graphics/opengl/shaders/solidShader.frag").c_str()
+      absolute("Engine/graphics/opengl/shaders/solidShader.vert").c_str(),
+      absolute("Engine/graphics/opengl/shaders/solidShader.frag").c_str()
   );
   //    layers_[render::Shader::unlit].shaderId =
   //    createProgram(relative("Engine/graphics/opengl/shaders/flatShader.vert").c_str(),

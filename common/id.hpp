@@ -31,10 +31,10 @@
 #include <limits>
 #include <vector>
 
-using id_t = reveal3d::u32;
+using id_t    = reveal3d::u32;
+using index_t = id_t;
 
 namespace reveal3d::id {
-
 
 constexpr u32 generationBits {8};
 constexpr u32 indexBits {(sizeof(id_t) * 8) - generationBits};
@@ -47,14 +47,14 @@ constexpr u8 maxGeneration {(std::numeric_limits<u8>::max)()};
 
 using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 
-constexpr bool is_valid(const id_t id) { return id != invalid; }
+constexpr bool is_valid(id_t const id) { return id != invalid; }
 
-constexpr id_t index(const id_t id) { return id & indexMask; }
+constexpr id_t index(id_t const id) { return id & indexMask; }
 
-constexpr id_t generation(const id_t id) { return (id >> indexBits) & generationMask; }
+constexpr id_t generation(id_t const id) { return (id >> indexBits) & generationMask; }
 
-constexpr id_t new_generation(const id_t idx) {
-  const id_t gen {generation(idx) + 1};
+constexpr id_t new_generation(id_t const idx) {
+  id_t const gen {generation(idx) + 1};
   return index(idx) | (gen << indexBits);
 }
 
@@ -68,10 +68,10 @@ public:
 
   id_t back() { return owner_idx_.back(); }
 
-  [[nodiscard]] id_t mapped(const id_t id) const { return mapped_idx_.at(id::index(id)); }
+  [[nodiscard]] id_t mapped(id_t const id) const { return mapped_idx_.at(id::index(id)); }
 
-  [[nodiscard]] bool isAlive(const id_t id) const {
-    if (const id_t idx {index(id)}; idx >= generations_.size()) {
+  [[nodiscard]] bool isAlive(id_t const id) const {
+    if (id_t const idx {index(id)}; idx >= generations_.size()) {
       return false;
     }
     if (id == invalid) {
@@ -83,7 +83,7 @@ public:
     return true;
   }
 
-  id_t newId(const u32 index) {
+  id_t newId(u32 const index) {
     id_t id {invalid};
     if (useFree()) {
       id = free_indices_.front();
@@ -103,11 +103,11 @@ public:
     return id;
   }
 
-  void remove(const id_t id) {
+  void remove(id_t const id) {
     assert(isAlive(id));
-    const id_t index {mapped_idx_.at(id::index(owner_idx_.size() - 1))};
+    id_t const index {mapped_idx_.at(id::index(owner_idx_.size() - 1))};
 
-    mapped_idx_.at(id::index(id)) = index;
+    mapped_idx_.at(id::index(id))         = index;
     mapped_idx_.at(owner_idx_.size() - 1) = id::invalid;
     owner_idx_.unordered_remove(id::index(id));
 

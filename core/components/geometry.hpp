@@ -13,34 +13,24 @@
 
 #pragma once
 
-#include "core/scene.hpp"
-#include "render/mesh.hpp"
+#include "component.hpp"
 
-#include <queue>
 #include <set>
 #include <span>
-#include <vector>
 
 namespace reveal3d::core {
 
-class Geometry {
-public:
-  using init_info = render::Mesh;
+struct Geometry : Component<Geometry> {
   using pool_type = geometry::Pool;
+  using init_info = pool_type::init_info;
 
-  constexpr Geometry() : id_ {id::invalid} { }
+  enum Primitive : u8 { Cube = 0U, Plane, Cylinder, Sphere, Cone, Torus, Custom, count };
 
-  constexpr Geometry(id_t const id) : id_ {id} { }
+  using Component::Component;
 
-  constexpr Geometry(Geometry const& other) : id_ {other.id()} { }
+  constexpr Geometry(Geometry const& other) : Component {other.id()} { }
 
-  constexpr Geometry(Geometry&& other) noexcept : id_ {other.id()} { }
-
-  [[nodiscard]] constexpr bool isAlive() const { return id::is_valid(id_); }
-
-  [[nodiscard]] constexpr id_t id() const { return id_; }
-
-  [[nodiscard]] constexpr u32 entityIdx() const { return pool.getMappedId(id_); }
+  constexpr Geometry(Geometry&& other) noexcept : Component {other.id()} { }
 
   Geometry& operator=(Geometry const& other) = default;
 
@@ -52,59 +42,59 @@ public:
   // Note: for now we only will have one mesh and submesh, so we move the vector instead of appending it
   void addMesh(render::Mesh& mesh) const {
     render::SubMesh sub_mesh;
-    pool.mesh(id_) = std::move(mesh);
+    pool().mesh(id_) = std::move(mesh);
 
     sub_mesh.vertex_pos  = vertexCount();
     sub_mesh.index_pos   = 0;
     sub_mesh.index_count = indexCount();
   }
 
-  [[nodiscard]] u32 vertexCount() const { return pool.mesh(id_).vertices.size(); }
+  [[nodiscard]] u32 vertexCount() const { return pool().mesh(id_).vertices.size(); }
 
-  [[nodiscard]] u32 indexCount() const { return pool.mesh(id_).indices.size(); }
+  [[nodiscard]] u32 indexCount() const { return pool().mesh(id_).indices.size(); }
 
-  [[nodiscard]] std::span<render::SubMesh> subMeshes() const { return pool.subMeshes(id_); }
+  [[nodiscard]] std::span<render::SubMesh> subMeshes() const { return pool().subMeshes(id_); }
 
-  [[nodiscard]] std::span<render::Vertex> vertices() const { return pool.mesh(id_).vertices; }
+  [[nodiscard]] std::span<render::Vertex> vertices() const { return pool().mesh(id_).vertices; }
 
-  [[nodiscard]] std::span<u32> indices() const { return pool.mesh(id_).indices; }
+  [[nodiscard]] std::span<u32> indices() const { return pool().mesh(id_).indices; }
 
-  [[nodiscard]] bool isVisible() const { return pool.subMeshes(id_)[0].visible; }
+  [[nodiscard]] bool isVisible() const { return pool().subMeshes(id_)[0].visible; }
 
-  [[nodiscard]] u8 dirty() const { return pool.dirties().at(id::index(id_)); }
+  [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
-  [[nodiscard]] render::Material const& material() const { return pool.material(id_); }
+  [[nodiscard]] render::Material const& material() const { return pool().material(id_); }
 
-  void visibility(bool const visibility) const { pool.subMeshes(id_)[0].visible = visibility; }
+  void visibility(bool const visibility) const { pool().subMeshes(id_)[0].visible = visibility; }
 
 
   void diffuseColor(math::vec4 const color) const {
-    pool.material(id_).base_color = color;
+    pool().material(id_).base_color = color;
     setDirty();
   }
 
   void fresnel(math::vec3 const fresnel) const {
-    pool.material(id_).fresnel = fresnel;
+    pool().material(id_).fresnel = fresnel;
     setDirty();
   }
 
   void materialTransform(math::mat4 const& transform) const {
-    pool.material(id_).transform = transform;
+    pool().material(id_).transform = transform;
     setDirty();
   }
 
   void roughness(f32 const roughness) const {
-    pool.material(id_).roughness = roughness;
+    pool().material(id_).roughness = roughness;
     setDirty();
   }
 
 
   void unDirty() const {
-    if (id_t const idx = id::index(id_); pool.dirties().at(idx) != 0) {
-      --pool.dirties().at(idx);
+    if (id_t const idx = id::index(id_); pool().dirties().at(idx) != 0) {
+      --pool().dirties().at(idx);
     }
     else {
-      pool.dirties().at(idx) = 0;
+      pool().dirties().at(idx) = 0;
     }
   }
 
@@ -113,18 +103,15 @@ public:
       return;
     }
     if (dirty() == 0) {
-      pool.dirtyIds().insert(id_);
+      pool().dirtyIds().insert(id_);
     }
-    pool.dirties().at(id::index(id_)) = 3;
+    pool().dirties().at(id::index(id_)) = 3;
   }
 
-  enum Primitive : u8 { Cube = 0U, Plane, Cylinder, Sphere, Cone, Torus, Custom, count };
-
 private:
-  inline static GenericPool<pool_type>& pool = scene.componentPool<Geometry>();
-
-  id_t id_;
+  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Geometry>(); };
 };
+static_assert(component<Geometry>);
 
 template<>
 inline void GenericPool<Geometry::pool_type>::update() {

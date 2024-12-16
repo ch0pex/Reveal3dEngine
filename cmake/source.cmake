@@ -4,14 +4,18 @@ set(CORE
         core/components/transform.hpp
         core/components/script.hpp
         core/components/metadata.hpp
+        core/components/light.hpp
         core/pooling/pool.hpp
         core/pooling/transform_pool.hpp
         core/pooling/script_pool.hpp
         core/pooling/metadata_pool.hpp
         core/pooling/geometry_pool.hpp
-        core/concepts.hpp
         core/pooling/rigidbody_pool.hpp
+        core/pooling/light_pool.hpp
         core/components/rigidbody.hpp
+        core/components/component.hpp
+        core/components/concepts.hpp
+        core/pooling/concepts.hpp
 )
 
 set(CONTENT

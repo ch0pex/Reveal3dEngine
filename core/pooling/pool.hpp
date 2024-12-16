@@ -13,9 +13,7 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "core/concepts.hpp"
-#include "core/pooling/geometry_pool.hpp"
-#include "core/pooling/script_pool.hpp"
+#include "core/pooling/concepts.hpp"
 
 #include <queue>
 #include <set>

@@ -122,15 +122,15 @@ void Gpass::buildPsos() {
 
   // TODO Config file for assets path
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags,
-      0, &vertex_shader, &errors
+      absolute(L"graphics/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
+      &vertex_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
   hr >> utl::DxCheck;
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags,
-      0, &pixel_shader, &errors
+      absolute(L"graphics/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
+      &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
@@ -149,15 +149,15 @@ void Gpass::buildPsos() {
 
   // TODO Config file for assets path
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags,
-      0, &vertex_shader, &errors
+      absolute(L"graphics/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
+      &vertex_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
   hr >> utl::DxCheck;
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags,
-      0, &pixel_shader, &errors
+      absolute(L"graphics/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
+      &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
@@ -175,15 +175,15 @@ void Gpass::buildPsos() {
   pipeline_states_[Shader::Flat].finalize();
 
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags,
-      0, &vertex_shader, &errors
+      absolute(L"graphics/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
+      &vertex_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
   hr >> utl::DxCheck;
   hr = D3DCompileFromFile(
-      relative(L"../../Assets/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags,
-      0, &pixel_shader, &errors
+      absolute(L"graphics/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
+      &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());

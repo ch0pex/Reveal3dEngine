@@ -32,15 +32,19 @@
 
 #pragma once
 
-#include "core/pooling/pool.hpp"
-
-#include <deque>
-#include <utility>
-#include <vector>
-
+#include "pooling/geometry_pool.hpp"
+#include "pooling/light_pool.hpp"
 #include "pooling/metadata_pool.hpp"
 #include "pooling/rigidbody_pool.hpp"
+#include "pooling/script_pool.hpp"
 #include "pooling/transform_pool.hpp"
+
+#include "components/concepts.hpp"
+
+#include <deque>
+#include <vector>
+
+#include "pooling/pool.hpp"
 
 namespace reveal3d::core {
 
@@ -181,6 +185,9 @@ public:
     else if constexpr (std::same_as<typename T::pool_type, metadata::Pool>) {
       return (metadata_pool_);
     }
+    else if constexpr (std::same_as<typename T::pool_type, light::Pool>) {
+      return (light_pool_);
+    }
     else {
       return (geometry_pool_);
     }
@@ -271,6 +278,7 @@ private:
   GenericPool<script::Pool> script_pool_;
   GenericPool<metadata::Pool> metadata_pool_;
   GenericPool<rigidbody::Pool> rigidbody_pool_;
+  GenericPool<light::Pool> light_pool_;
 };
 
 inline Scene scene;

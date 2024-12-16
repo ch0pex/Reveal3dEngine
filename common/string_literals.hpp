@@ -14,41 +14,42 @@
 #pragma once
 
 #include <algorithm>
-#include <string>
 #include <codecvt>
+#include <filesystem>
 #include <locale>
+#include <source_location>
+#include <string>
+
+#include "primitive_types.hpp"
 
 namespace reveal3d {
 
+std::filesystem::path const reveal3d_path =
+    std::filesystem::path(std::source_location::current().file_name()).parent_path() / "../";
+
+
+inline std::wstring absolute(std::wstring_view const path) { return (reveal3d_path / path).wstring(); }
+
+inline std::string absolute(std::string_view const path) { return (reveal3d_path / path).string(); }
+
+namespace literals {
+
 template<size_t N>
-struct StringLiteral {
+struct String {
 
-    constexpr StringLiteral(const char (&str)[N]) {
-        std::copy_n(str, N, value);
-    }
+  constexpr String(char const (&str)[N]) { std::copy_n(str, N, value); }
 
-    operator std::string() const {
-        return std::string(value);
-    }
+  operator std::string() const { return std::string(value); }
 
-    char value[N];
+  char value[N];
 };
 
+inline auto operator""_abs(char const* string, u64) -> std::string { return absolute(string); }
 
-constexpr StringLiteral projectDir{PROJECT_ROOT_DIR};
-constexpr wchar_t projectDirL[] = L"" PROJECT_ROOT_DIR;
+inline auto operator""_abs(wchar_t const* string, u64) -> std::wstring { return absolute(string); }
 
+// inline auto operator""_sl(char const (&str)[256]) { return String {str}; }
 
-inline std::wstring relative(const std::wstring_view path) {
-    const std::wstring p = projectDirL;
-    const std::wstring s { path };
-    return (p + L"/Source/Reveal3d/" + s); //TODO: fix relative paths
-}
+} // namespace literals
 
-inline std::string relative(const std::string_view path) {
-    const std::string p = projectDir;
-    const std::string s { path };
-    return (p + "/Source/Reveal3d/" + s); //TODO: fix relative paths
-}
-
-}
+} // namespace reveal3d

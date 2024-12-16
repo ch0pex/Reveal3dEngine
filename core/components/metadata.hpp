@@ -13,33 +13,26 @@
 
 #pragma once
 
-#include "core/scene.hpp"
+#include "component.hpp"
 
 #include <string>
 
+
 namespace reveal3d::core {
 
-class Metadata {
-public:
-    using init_info = std::string;
-    using pool_type = metadata::Pool;
+struct Metadata : Component<Metadata> {
+  using pool_type = metadata::Pool;
+  using init_info = std::string;
+  using Component::Component;
 
-    constexpr Metadata() : id_(id::invalid) {}
+  [[nodiscard]] std::string& name() const { return pool().name(id_); }
 
-    constexpr Metadata(id_t const id) : id_(id) { }
+  [[nodiscard]] std::string& date() const { return pool().date(id_); }
 
-    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
+  [[nodiscard]] std::string& comment() const { return pool().comment(id_); }
 
-    [[nodiscard]] constexpr id_t id() const { return id_; }
-
-    [[nodiscard]] std::string& name() const { return scene.componentPool<Metadata>().name(id_); }
-
-    [[nodiscard]] std::string& date() const { return scene.componentPool<Metadata>().date(id_); }
-
-    [[nodiscard]] std::string& comment() const { return scene.componentPool<Metadata>().comment(id_); }
 private:
-
-    id_t id_;
+  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Metadata>(); };
 };
 
-}
+} // namespace reveal3d::core

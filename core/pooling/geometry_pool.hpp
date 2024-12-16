@@ -13,9 +13,7 @@
 
 #pragma once
 
-#include <span>
 #include "common/common.hpp"
-#include "math/math.hpp"
 #include "render/mesh.hpp"
 
 namespace reveal3d::core::geometry {
@@ -34,7 +32,7 @@ public:
   }
 
 protected:
-  u32 countData() { return meshes_.size(); }
+  [[nodiscard]] u32 countData() const { return meshes_.size(); }
 
   void addData(id_t entity_id, init_info const& init_info) {
     materials_.emplace_back();
