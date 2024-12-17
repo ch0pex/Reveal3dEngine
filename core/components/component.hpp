@@ -29,7 +29,9 @@ public:
 
   [[nodiscard]] constexpr id_t id() const { return id_; }
 
-  [[nodiscard]] constexpr u32 entityIdx() const { return scene.componentPool<T>().getMappedId(id_); }
+  [[nodiscard]] constexpr index_t entityIdx() const { return pool().getMappedId(id_); }
+
+  static constexpr auto pool() -> decltype(auto) { return scene.pool<T>(); };
 
 protected:
   id_t id_;

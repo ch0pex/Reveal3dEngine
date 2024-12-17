@@ -21,6 +21,8 @@ struct Light : Component<Light> {
   using pool_type = light::Pool;
   using init_info = pool_type::init_info;
 
+  using Component::Component;
+
   void setDirty() const {
     if (dirty() == 4) {
       return;
@@ -34,7 +36,7 @@ struct Light : Component<Light> {
   [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
   void active() const {
-    pool().toggleActive();
+    pool().toggleActive(id_);
     setDirty();
   }
 
@@ -50,147 +52,16 @@ struct Light : Component<Light> {
     }
   }
 
-  void direction(math::vec3 direction) const {
+  void direction(math::vec3 const direction) const {
     pool().light(id_).direction = direction;
     setDirty();
   }
 
-  [[nodiscard]] bool isActive() const { pool().isActive(); }
+  [[nodiscard]] bool isActive() const { pool().isActive(id_); }
 
   [[nodiscard]] render::Light::type type() const { return pool().lightType(id_); }
-
-private:
-  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Light>(); };
 };
 
 static_assert(component<Light>);
 
 } // namespace reveal3d::core
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

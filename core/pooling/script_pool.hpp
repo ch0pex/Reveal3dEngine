@@ -36,15 +36,15 @@ struct Data {
 
 class Pool {
 public:
-  using init_info     = std::string;
-  using stored_in_gpu = std::false_type;
+  using init_info  = std::string;
+  using gpu_stored = std::false_type;
 
   ScriptBase* scripts(id_t const id) { return scripts_.at(id::index(id)).get(); }
 
 protected:
   [[nodiscard]] u32 countData() const { return scripts_.size(); }
 
-  void addData(id_t entity_id, init_info const& init_info) {
+  void addData(init_info const& init_info) {
     //        names_.emplace_back("Entity_" + std::to_string(entity_id));
     //        comments_.emplace_back();
     //        dates_.emplace_back("10/12/2024");  //TODO

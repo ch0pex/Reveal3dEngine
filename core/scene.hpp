@@ -58,6 +58,9 @@ public:
   T component() const;
 
   template<detail::is_component T>
+  T addComponent();
+
+  template<detail::is_component T>
   T addComponent(typename T::init_info const& init_info);
 
   template<detail::is_component T>
@@ -175,7 +178,7 @@ public:
 
   /// @note Can't use concept here because T is not complete type
   template<typename T>
-  decltype(auto) componentPool() noexcept {
+  decltype(auto) pool() noexcept {
     if constexpr (std::same_as<typename T::pool_type, transform::Pool>) {
       return (transform_pool_);
     }
@@ -260,16 +263,16 @@ private:
     }
 
     transform_pool_.addComponent(id);
-    metadata_pool_.addComponent(id);
+    metadata_pool_.addComponent(id, {id, fmt::format("Entity_{}", id::index(id))});
   }
 
 
   /************ Scene entities ***********/
 
   std::vector<Node> scene_graph_;
-  u32 root_node_;
-  u32 last_node_;
-  std::deque<u32> free_nodes_;
+  index_t root_node_;
+  index_t last_node_;
+  std::deque<index_t> free_nodes_;
 
   /*********** Components Pools  *************/
 
@@ -288,7 +291,11 @@ T Entity::component() const {
   if (not isAlive()) {
     return T();
   }
-  return scene.componentPool<T>().at(id_);
+  return scene.pool<T>().at(id_);
+}
+template<detail::is_component T>
+T Entity::addComponent() {
+  return addComponent<T>({});
 }
 
 template<detail::is_component T>
@@ -296,13 +303,13 @@ T Entity::addComponent(typename T::init_info const& init_info) {
   if (not isAlive()) {
     return T();
   }
-  return scene.componentPool<T>().addComponent(id_, init_info);
+  return scene.pool<T>().addComponent(id_, init_info);
 }
 
 template<detail::is_component T>
 void Entity::removeComponent() {
   if (isAlive()) {
-    scene.componentPool<T>().removeComponent(id_);
+    scene.pool<T>().removeComponent(id_);
   }
 }
 

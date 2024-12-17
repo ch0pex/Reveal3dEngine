@@ -22,7 +22,8 @@ namespace reveal3d::core {
 
 struct Metadata : Component<Metadata> {
   using pool_type = metadata::Pool;
-  using init_info = std::string;
+  using init_info = pool_type::init_info;
+
   using Component::Component;
 
   [[nodiscard]] std::string& name() const { return pool().name(id_); }
@@ -30,9 +31,6 @@ struct Metadata : Component<Metadata> {
   [[nodiscard]] std::string& date() const { return pool().date(id_); }
 
   [[nodiscard]] std::string& comment() const { return pool().comment(id_); }
-
-private:
-  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Metadata>(); };
 };
 
 } // namespace reveal3d::core

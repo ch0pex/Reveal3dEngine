@@ -31,12 +31,14 @@
 #include <limits>
 #include <vector>
 
-using id_t    = reveal3d::u32;
-using index_t = id_t;
+
+using id_t         = reveal3d::u32; // ID type
+using index_t      = id_t; // Index type, just to differentiate it easier in code from id_t
+using generation_t = reveal3d::u8;
 
 namespace reveal3d::id {
 
-constexpr u32 generationBits {8};
+constexpr u32 generationBits {sizeof(generation_t) * 8};
 constexpr u32 indexBits {(sizeof(id_t) * 8) - generationBits};
 constexpr id_t generationMask {(id_t {1} << generationBits) - 1};
 constexpr id_t indexMask {(id_t {1} << indexBits) - 1};
@@ -45,11 +47,10 @@ constexpr id_t invalid {~id_t {0}};
 constexpr u32 maxFree {1024};
 constexpr u8 maxGeneration {(std::numeric_limits<u8>::max)()};
 
-using generation_t = std::conditional<generationBits <= 16, std::conditional<generationBits <= 8, u8, u16>, u32>;
 
 constexpr bool is_valid(id_t const id) { return id != invalid; }
 
-constexpr id_t index(id_t const id) { return id & indexMask; }
+constexpr index_t index(id_t const id) { return id & indexMask; }
 
 constexpr id_t generation(id_t const id) { return (id >> indexBits) & generationMask; }
 
@@ -68,7 +69,7 @@ public:
 
   id_t back() { return owner_idx_.back(); }
 
-  [[nodiscard]] id_t mapped(id_t const id) const { return mapped_idx_.at(id::index(id)); }
+  [[nodiscard]] index_t mapped(id_t const id) const { return mapped_idx_.at(index(id)); }
 
   [[nodiscard]] bool isAlive(id_t const id) const {
     if (id_t const idx {index(id)}; idx >= generations_.size()) {
@@ -83,8 +84,8 @@ public:
     return true;
   }
 
-  id_t newId(u32 const index) {
-    id_t id {invalid};
+  id_t newId(index_t const index) {
+    id_t id {};
     if (useFree()) {
       id = free_indices_.front();
       ++generations_[id];
@@ -105,10 +106,10 @@ public:
 
   void remove(id_t const id) {
     assert(isAlive(id));
-    id_t const index {mapped_idx_.at(id::index(owner_idx_.size() - 1))};
+    index_t const index {mapped_idx_.at(id::index(owner_idx_.size() - 1))};
 
     mapped_idx_.at(id::index(id))         = index;
-    mapped_idx_.at(owner_idx_.size() - 1) = id::invalid;
+    mapped_idx_.at(owner_idx_.size() - 1) = invalid;
     owner_idx_.unordered_remove(id::index(id));
 
     if (generations_.at(id::index(id)) < maxGeneration) {
@@ -117,10 +118,10 @@ public:
   }
 
 private:
-  std::vector<id_t> generations_;
-  std::deque<id_t> free_indices_;
-  std::vector<id_t> mapped_idx_; // mappedIdx[componentId] == component index
-  utl::vector<id_t> owner_idx_; // ownerIds[dataIndex] == component index
+  std::vector<generation_t> generations_;
+  std::deque<index_t> free_indices_;
+  std::vector<index_t> mapped_idx_; // mappedIdx[componentId] -> component index
+  utl::vector<index_t> owner_idx_; // ownerIds[dataIndex] -> component index
 };
 
 } // namespace reveal3d::id

@@ -22,6 +22,8 @@
 
 namespace reveal3d::content {
 
+namespace detail {
+
 struct FaceElem {
   struct Hash {
     size_t operator()(FaceElem const& p) const { return ((p.pos_index << 16U) | (p.uv_index)); }
@@ -35,7 +37,12 @@ struct FaceElem {
   u32 normal_index;
 };
 
-static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
+} // namespace detail
+
+namespace {
+
+
+void getPoly(std::string const& line, std::vector<detail::FaceElem>& primitives) {
   std::array<std::array<u32, 3>, 3> elem;
 
   std::sscanf(
@@ -47,7 +54,7 @@ static void getPoly(std::string& line, std::vector<FaceElem>& primitives) {
   }
 }
 
-static void getTriangle(std::string& line, std::vector<FaceElem>& primitives) {
+void getTriangle(std::string const& line, std::vector<detail::FaceElem>& primitives) {
   std::array<std::array<u32, 3>, 3> elem;
   std::sscanf(
       line.c_str(), "f %u/%u/%u %u/%u/%u %u/%u/%u", &elem[0][0], &elem[0][1], &elem[0][2], &elem[1][0], &elem[1][1],
@@ -58,6 +65,7 @@ static void getTriangle(std::string& line, std::vector<FaceElem>& primitives) {
   }
 }
 
+} // namespace
 
 std::optional<render::Mesh> import_obj(std::string_view const path) {
   render::Mesh mesh;
@@ -66,7 +74,7 @@ std::optional<render::Mesh> import_obj(std::string_view const path) {
   std::vector<math::vec3> positions;
   std::vector<math::vec3> normals;
   std::vector<math::vec2> uvs;
-  std::vector<FaceElem> primitives;
+  std::vector<detail::FaceElem> primitives;
   std::string line;
 
   if (!file.is_open()) {
@@ -105,10 +113,11 @@ std::optional<render::Mesh> import_obj(std::string_view const path) {
       getTriangle(line, primitives);
     }
   }
+  file.close();
 
   u32 index = 0;
   render::Vertex vert;
-  std::unordered_map<FaceElem, u32, FaceElem::Hash> cache;
+  std::unordered_map<detail::FaceElem, u32, detail::FaceElem::Hash> cache;
   for (auto& primitive: primitives) {
     if (auto [it, inserted] = cache.emplace(primitive, index); inserted) {
       vert.pos    = positions[primitive.pos_index - 1U];
@@ -121,7 +130,9 @@ std::optional<render::Mesh> import_obj(std::string_view const path) {
     }
   }
 
-  file.close();
+  mesh.triangle_count = static_cast<u32>(primitives.size()) / 3;
+  mesh.vertex_count   = static_cast<u32>(positions.size());
+
   logger(LogInfo) << "Time to import: " << Timer::diff(start) << "s";
   return std::move(mesh);
 }

@@ -44,12 +44,14 @@ struct Geometry : Component<Geometry> {
     render::SubMesh sub_mesh;
     pool().mesh(id_) = std::move(mesh);
 
-    sub_mesh.vertex_pos  = vertexCount();
+    sub_mesh.vertex_pos  = vertices().size();
     sub_mesh.index_pos   = 0;
     sub_mesh.index_count = indexCount();
   }
 
-  [[nodiscard]] u32 vertexCount() const { return pool().mesh(id_).vertices.size(); }
+  [[nodiscard]] u32 triangles() const { return pool().mesh(id_).triangle_count; }
+
+  [[nodiscard]] u32 vertexCount() const { return pool().mesh(id_).vertex_count; }
 
   [[nodiscard]] u32 indexCount() const { return pool().mesh(id_).indices.size(); }
 
@@ -107,9 +109,6 @@ struct Geometry : Component<Geometry> {
     }
     pool().dirties().at(id::index(id_)) = 3;
   }
-
-private:
-  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Geometry>(); };
 };
 static_assert(component<Geometry>);
 

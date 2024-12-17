@@ -30,14 +30,14 @@ void Dx12::loadAssets() {
   cmd_manager_.reset(nullptr);
   using namespace core;
 
-  auto& geometries = scene.componentPool<Geometry>();
+  auto& geometries = scene.pool<Geometry>();
 
   auto entity   = Entity(geometries.popNew());
   auto geometry = entity.component<core::Geometry>();
 
   while (geometry.isAlive()) {
-    id_t const idx = id::index(geometry.id());
-    auto transform = entity.component<Transform>();
+    index_t const idx = id::index(geometry.id());
+    auto transform    = entity.component<Transform>();
     gpass_.addRenderElement(entity, cmd_manager_);
     Constant<PerObjectData> obj_constant;
     Constant<Material> mat_constant;
@@ -66,7 +66,7 @@ void Dx12::loadAsset(core::Entity const id) {
 
 void Dx12::update(Camera const& camera) {
   auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
-  auto& geometries                                 = core::scene.componentPool<core::Geometry>();
+  auto& geometries                                 = core::scene.pool<core::Geometry>();
 
   // update pass constants
   auto const view_proj = transpose(camera.getViewProjectionMatrix());
@@ -83,9 +83,8 @@ void Dx12::update(Camera const& camera) {
     // .total_time = ;
   };
 
-
   // update object constants
-  for (auto const id: core::scene.componentPool<core::Transform>().dirtyElements()) {
+  for (auto const id: core::scene.pool<core::Transform>().dirtyElements()) {
     core::Transform const trans {id};
     constant_buffer.at(id::index(id)) = {
       .world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id() //

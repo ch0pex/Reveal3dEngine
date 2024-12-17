@@ -15,10 +15,20 @@
 
 namespace reveal3d::core::metadata {
 
+namespace detail {
+
+struct InitInfo {
+  id_t id;
+  std::string name;
+};
+
+} // namespace detail
+
+
 class Pool {
 public:
-  using init_info     = std::string;
-  using stored_in_gpu = std::false_type;
+  using init_info  = detail::InitInfo;
+  using gpu_stored = std::false_type;
 
   std::string& name(id_t const id) { return names_.at(id::index(id)); }
 
@@ -28,8 +38,8 @@ public:
 
   u32 countData() const { return names_.size(); }
 
-  void addData(id_t const entity_id, init_info const& init_info) {
-    names_.emplace_back("Entity_" + std::to_string(entity_id));
+  void addData(init_info const& init_info) {
+    names_.emplace_back("Entity_" + std::to_string(init_info.id));
     comments_.emplace_back();
     dates_.emplace_back("10/12/2024"); // TODO
     comments_.at(comments_.size() - 1U).reserve(1024);

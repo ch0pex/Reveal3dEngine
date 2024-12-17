@@ -20,7 +20,7 @@
 namespace reveal3d::render {
 
 struct Light {
-  enum class Type : u8 { directional, point, spot, count };
+  enum class Type : u8 { directional = 0, point, spot, count };
   using type = Type;
 
   math::vec3 color; // Light color and strength
@@ -29,26 +29,7 @@ struct Light {
   f32 fall_off_start; // Spot and point only
   f32 fall_off_end; // Spot and point only
   f32 spot_power; // Spot only
+  bool active {true};
 };
-
-/*
-struct SpotLight : Light {
-  math::vec3 position; // Spot and point only
-  math::vec3 direction; // Spot and directional only
-  f32 fall_off_start; // Spot and point only
-  f32 fall_off_end; // Spot and point only
-  f32 spot_power; // Spot only
-};
-
-struct PointLight : Light {
-  math::vec3 position; // Spot and point only
-  f32 fall_off_start; // Spot and point only
-  f32 fall_off_end; // Spot and point only
-};
-
-struct DirectionalLight : Light {
-  math::vec3 direction; // Spot and directional only
-};
-*/
 
 } // namespace reveal3d::render

@@ -25,6 +25,7 @@ public:
   // *** Type Traits ***
   using pool_type = transform::Pool;
   using init_info = pool_type::init_info;
+
   using Component::Component;
 
   // *** Member methods ***
@@ -152,7 +153,7 @@ public:
 
 private:
   static auto constexpr calcWorld = [](id_t const id) {
-    auto& [position, rotation, scale] = scene.componentPool<Transform>().posRotScale(id);
+    auto& [position, rotation, scale] = scene.pool<Transform>().posRotScale(id);
     return transpose(math::affine_transformation(position, scale, rotation));
   };
 
@@ -170,8 +171,6 @@ private:
       child.component<Transform>().setChildrenAsDirty();
     }
   }
-
-  static auto constexpr pool = []() -> GenericPool<pool_type>& { return scene.componentPool<Transform>(); };
 };
 
 static_assert(component<Transform>);

@@ -61,26 +61,28 @@ protected:
 } // namespace detail
 
 template<typename T>
-class GenericPool : public T, public detail::GpuSynchronize<typename T::stored_in_gpu> {
+class GenericPool : public T, public detail::GpuSynchronize<typename T::gpu_stored> {
 public:
+  using value_type = id_t;
+  using iterator   = std::vector<value_type>::iterator;
+
   id_t addComponent() {
     components_ids_.emplace_back(id::invalid);
     if constexpr (stored_in_gpu<T>) {
-      this->dirties_.emplace_back(4);
+      this->dirties_.emplace_back(config::render.graphics.buffer_count + 1);
     }
     return components_ids_.at(components_ids_.size() - 1);
   }
 
   id_t addComponent(id_t const entity_id) { return addComponent(entity_id, {}); }
 
-  id_t addComponent(id_t entity_id, typename T::init_info const& init_info) {
+  id_t addComponent(id_t const entity_id, typename T::init_info const& init_info) {
     id_t const component_id {id_factory_.newId(id::index(entity_id))};
-    id_t const component_index {id::index(component_id)};
+    index_t const component_index {id::index(component_id)};
 
-    this->addData(entity_id, init_info);
+    this->addData(init_info);
     if constexpr (stored_in_gpu<T>) {
-      // When adding new component it should be marked as dirty
-      if (this->dirties().size() > component_index) {
+      if (this->dirties().size() > component_index) { // When adding new component it should be marked as dirty
         this->dirties().at(component_index) = config::render.graphics.buffer_count + 1;
       }
       else {
@@ -100,7 +102,7 @@ public:
   }
 
   void removeComponent(id_t const entity_id) {
-    if (id_t component_id {components_ids_.at(id::index(entity_id))}; id_factory_.isAlive(component_id)) {
+    if (id_t const component_id {components_ids_.at(id::index(entity_id))}; id_factory_.isAlive(component_id)) {
       this->removeData(component_id); // Removes data
       if constexpr (std::same_as<T, geometry::Pool>) { // TODO change this for a concept
         this->deleted_components_.push(component_id);
@@ -116,14 +118,14 @@ public:
 
   id_t at(id_t const id) { return components_ids_.at(id::index(id)); }
 
-  typename std::vector<T>::iterator begin() { return components_ids_.begin(); };
+  iterator begin() { return components_ids_.begin(); }
 
-  typename std::vector<T>::iterator end() { return components_ids_.end(); };
+  iterator end() { return components_ids_.end(); }
 
   constexpr u32 getMappedId(id_t const component_id) { return id_factory_.mapped(id::index(component_id)); }
 
 private:
-  void addId(id_t const index, id_t id) {
+  void addId(index_t const index, id_t id) {
     if (index >= components_ids_.size()) {
       components_ids_.emplace_back(id);
     }
@@ -134,7 +136,7 @@ private:
 
   void removeId(id_t const id) {
     id_t const last = components_ids_.at(id_factory_.back());
-    u32 const component_index {id_factory_.mapped(id)};
+    index_t const component_index {id_factory_.mapped(id)};
     id_t const new_id = id::index(id) | id::generation(last);
     if (last != id) {
       components_ids_.at(id::index(getMappedId(last))) = new_id;

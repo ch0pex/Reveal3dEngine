@@ -20,7 +20,7 @@ namespace reveal3d::core::rigidbody {
 class Pool {
 public:
     using init_info = std::string;
-    using stored_in_gpu = std::false_type;
+    using gpu_stored = std::false_type;
 
 private:
 };
