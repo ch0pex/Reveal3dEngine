@@ -9,8 +9,10 @@
  * @brief ECS
  *
  * Entity component system main header file.
- * In Reveal3D components just holds and ID that points to the real data stored in a pool.
- * Real data is compacted to avoid cache misses, this logic is handled by components pools.
+ * - In Reveal3D components just holds and ID that points to the real data stored in a pool.
+ * - Components are proxy classes to access data stored in an aos pool
+ * - Real data is compacted to avoid cache misses, this logic is handled by components pools.
+ * - Each component has a proxy class (Component class it self) and a pool class with data
  *
  * ************************************************** Components pool **************************************************
  * ************************** IDs **************************************************** data ****************************
@@ -191,6 +193,9 @@ public:
     else if constexpr (std::same_as<typename T::pool_type, light::Pool>) {
       return (light_pool_);
     }
+    else if constexpr (std::same_as<typename T::pool_type, rigidbody::Pool>) {
+      return (rigidbody_pool_);
+    }
     else {
       return (geometry_pool_);
     }
@@ -226,6 +231,9 @@ private:
     transform_pool_.removeComponent(id);
     metadata_pool_.removeComponent(id);
     geometry_pool_.removeComponent(id);
+    rigidbody_pool_.removeComponent(id);
+    light_pool_.removeComponent(id);
+    script_pool_.removeComponent(id);
 
     if (node.prev.isAlive()) {
       Node& prev_node = getNode(node.prev.id());
@@ -260,6 +268,9 @@ private:
     else {
       scene_graph_.push_back(node);
       geometry_pool_.addComponent();
+      rigidbody_pool_.addComponent();
+      light_pool_.addComponent();
+      script_pool_.addComponent();
     }
 
     transform_pool_.addComponent(id);

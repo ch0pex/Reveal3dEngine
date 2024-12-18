@@ -19,9 +19,9 @@
 namespace reveal3d::core {
 
 struct Script : Component<Script> {
-  using init_info = std::unique_ptr<script::ScriptBase>;
+  using init_info = script::Pool::init_info;
   using pool_type = script::Pool;
-
+  using Component::Component;
 
   [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 

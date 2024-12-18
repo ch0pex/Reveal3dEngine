@@ -42,7 +42,7 @@ public:
   ScriptBase* scripts(id_t const id) { return scripts_.at(id::index(id)).get(); }
 
 protected:
-  [[nodiscard]] u32 countData() const { return scripts_.size(); }
+  [[nodiscard]] index_t countData() const { return scripts_.size(); }
 
   void addData(init_info const& init_info) {
     //        names_.emplace_back("Entity_" + std::to_string(entity_id));

@@ -78,7 +78,7 @@ std::optional<render::Mesh> import_obj(std::string_view const path) {
   std::string line;
 
   if (!file.is_open()) {
-    logger(LogError) << "Error opening obj file";
+    logger(LogError) << "Error importing obj file";
     return std::nullopt;
   }
 

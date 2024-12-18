@@ -22,7 +22,7 @@ namespace reveal3d::render {
 
 class Camera {
 public:
-  explicit Camera(window::Resolution const& res) {
+  explicit Camera(window::Resolution const& res) : resolution_(res) {
     using namespace input;
 
     add_handler_down(Action::CameraUp, {.callback = [this](Action const act, type const t) { move(act, t); }});
@@ -44,6 +44,7 @@ public:
     add_mouse_handler(Action::CameraLook, {.mouse_callback = [this](Action const act, math::vec2 const pos) {
                         setNewMousePos(act, pos);
                       }});
+    config_ = config::camera;
     resize(res);
   }
 
@@ -55,6 +56,40 @@ public:
 
   [[nodiscard]] math::vec3 position() const { return {position_.x(), position_.y(), position_.z()}; }
 
+  [[nodiscard]] f32 fov() const { return config_.fov; }
+
+  void fov(f32 const new_fov) {
+    config_.fov = new_fov;
+    updateProjection();
+  }
+
+  [[nodiscard]] f32 farPlane() const { return config_.far_plane; }
+
+  void farPlane(f32 const far_plane) {
+    config_.far_plane = far_plane;
+    updateProjection();
+  }
+
+  [[nodiscard]] f32 nearPlane() const { return config_.near_plane; }
+
+  void nearPlane(f32 const near_plane) {
+    config_.near_plane = near_plane;
+    updateProjection();
+  }
+
+  [[nodiscard]] f32 moveSpeed() const { return config_.movement_speed; }
+
+  void moveSpeed(f32 const speed) { config_.movement_speed = speed; }
+
+  [[nodiscard]] f32 sensitivity() const { return config_.sensitivity; }
+
+  void sensitivity(f32 const sens) { config_.sensitivity = sens; }
+
+  void resize(window::Resolution const& res) {
+    resolution_ = res;
+    updateProjection();
+  }
+
   /********* Input handling ************/
 
   void update(Timer const& timer) {
@@ -64,16 +99,10 @@ public:
     view_projection_matrix_ = view_matrix_ * projection_matrix_;
   }
 
-  void resize(window::Resolution const& res) {
-    projection_matrix_ = math::perspective_fov(
-        config::camera.fov, res.aspect_ratio(), config::camera.near_plane, config::camera.far_plane
-    );
-  }
 
   void move(input::Action const dir, input::type const value) { is_moving_.at(static_cast<u8>(dir)) = (value != 0); }
 
   void setLooking(input::Action const action, input::type const value) {
-    //    input::cursor::shouldClip = (value == input::type::up) ? false : true;
     is_looking_ = (value != 0);
     if (value == input::type::up) {
       first_mouse_ = true;
@@ -94,9 +123,14 @@ public:
   void resetMouse() { first_mouse_ = true; }
 
 private:
+  void updateProjection() {
+    projection_matrix_ =
+        math::perspective_fov(config_.fov, resolution_.aspect_ratio(), config_.near_plane, config_.far_plane);
+  }
+
   void updatePos(math::scalar const dt) {
     u32 dirs                  = 0;
-    math::scalar speed_factor = dt * config::camera.movement_speed;
+    math::scalar speed_factor = dt * config_.movement_speed;
 
     for (auto const dir: is_moving_) {
       if (dir)
@@ -110,9 +144,9 @@ private:
     if (is_moving_.at(Bckwd))
       position_ += speed_factor * -front_;
     if (is_moving_.at(Up))
-      position_ += speed_factor * math::xvec4(config::camera.world_up);
+      position_ += speed_factor * math::xvec4(config_.world_up);
     if (is_moving_.at(Down))
-      position_ += speed_factor * -math::xvec4(config::camera.world_up);
+      position_ += speed_factor * -math::xvec4(config_.world_up);
     if (is_moving_.at(Right))
       position_ += speed_factor * right_;
     if (is_moving_.at(Left))
@@ -125,8 +159,8 @@ private:
     f32 x_offset = new_pos_.x - last_pos_.x;
     f32 y_offset = last_pos_.y - new_pos_.y;
 
-    x_offset *= config::camera.sensitivity;
-    y_offset *= config::camera.sensitivity;
+    x_offset *= config_.sensitivity;
+    y_offset *= config_.sensitivity;
     yaw_ += x_offset;
     pitch_ += y_offset;
 
@@ -139,11 +173,12 @@ private:
     };
 
     front_    = normalize(new_front);
-    right_    = normalize(math::cross(front_, config::camera.world_up));
+    right_    = normalize(math::cross(front_, config_.world_up));
     up_       = normalize(math::cross(right_, front_));
     last_pos_ = new_pos_;
   }
 
+  // *** Data members ***
   math::xvec3 position_ {-6.F, 0.F, 2.F};
   math::xvec3 front_ {1, 0, 0};
   math::xvec3 up_ {0.F, 0.F, 1.F};
@@ -151,6 +186,9 @@ private:
   math::mat4 projection_matrix_;
   math::mat4 view_matrix_;
   math::mat4 view_projection_matrix_;
+  config::Camera config_;
+  window::Resolution resolution_;
+
 
   /********* Input handling ************/ // NOTE: Maybe move this to some mouse class?
   enum Dir : u8 { Fwd, Bckwd, Up, Down, Right, Left, Count };

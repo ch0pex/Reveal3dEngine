@@ -41,6 +41,8 @@ public:
 
   void render() { graphics_.render(); }
 
+  Camera& camera() { return camera_; };
+
   void destroy() {
     logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
     graphics_.terminate();

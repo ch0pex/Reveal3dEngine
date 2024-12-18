@@ -37,8 +37,8 @@ cbuffer cbPerObject : register(b0)
 struct VertexIn
 {
 	float3 pos_l    : POSITION;
-    float4 color   : COLOR;
     float3 normal_l : NORMAL;
+//    float4 color   : COLOR;
 //    float2 texcoord : TEXCOORD0;
 };
 
@@ -46,7 +46,6 @@ struct VertexOut
 {
     float3 pos_w : POSITION;
 	float4 pos_h  : SV_POSITION;
-    float4 color : COLOR;
     float3 normal_w : NORMAL;
 };
 
@@ -59,7 +58,6 @@ VertexOut VS(VertexIn vin)
   vout.pos_w = posW.xyz;
   vout.pos_h = mul(posW, viewProj);
   vout.normal_w = mul(vin.normal_l, (float3x3)objWorld);
-  vout.color = baseDiffuse;
 
   return vout;
 }
@@ -87,7 +85,7 @@ float4 PS(VertexOut pin) : SV_Target
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32) ;
     float4 specularLight = spec * sunLightIntensity * sunLightcolor;
 
-    return pin.color * (ambientLight + diffuseLight + specularLight);
+    return baseDiffuse * (ambientLight + diffuseLight + specularLight);
 }
 
 

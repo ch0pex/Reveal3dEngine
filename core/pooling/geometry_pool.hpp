@@ -31,6 +31,10 @@ public:
     return std::span {sub_meshes_.begin() + id::index(id), sub_meshes_.begin() + id::index(id) + 1};
   }
 
+  [[nodiscard]] u64 vertices() const { return total_vertices_; }
+
+  [[nodiscard]] u64 triangles() const { return total_triangles_; }
+
 protected:
   [[nodiscard]] u32 countData() const { return meshes_.size(); }
 
@@ -43,19 +47,26 @@ protected:
       .visible     = true,
       .shader      = 1 // Opaque
     });
+    total_vertices_ += init_info.vertex_count;
+    total_triangles_ += init_info.triangle_count;
     meshes_.push_back(std::move(init_info));
   }
 
   void removeData(u32 const id) {
-    materials_.unordered_remove(id::index(id));
-    meshes_.unordered_remove(id::index(id));
-    sub_meshes_.unordered_remove(id::index(id));
+    index_t const idx = id::index(id);
+    total_vertices_ -= meshes_.at(idx).vertex_count;
+    total_triangles_ -= meshes_.at(idx).triangle_count;
+    materials_.unordered_remove(idx);
+    meshes_.unordered_remove(idx);
+    sub_meshes_.unordered_remove(idx);
   }
 
 private:
   utl::vector<render::Material> materials_;
   utl::vector<render::SubMesh> sub_meshes_;
   utl::vector<render::Mesh> meshes_;
+  u64 total_vertices_ {0};
+  u64 total_triangles_ {0};
 };
 
 } // namespace reveal3d::core::geometry

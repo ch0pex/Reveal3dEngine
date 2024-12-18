@@ -58,9 +58,9 @@ public:
 
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
 
-  [[nodiscard]] static ID3D12Device* device() { return dx12::adapter.device.Get(); }
+  [[nodiscard]] ID3D12Device* device() const { return dx12::adapter.device.Get(); }
 
-  dx12::Heaps& heaps() { return heaps_; }
+  dx12::Heaps const& heaps() { return heaps_; }
 
 private:
   void ImGuiBegin() const {

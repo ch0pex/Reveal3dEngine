@@ -18,8 +18,10 @@
 namespace reveal3d::core {
 
 struct Rigidbody : Component<Rigidbody> {
-  using init_info = std::string;
+  using init_info = rigidbody::Pool::init_info;
   using pool_type = rigidbody::Pool;
+
+  using Component::Component;
 
   // TODO
 };
