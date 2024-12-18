@@ -43,10 +43,7 @@ public:
 
   Camera& camera() { return camera_; };
 
-  void destroy() {
-    logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
-    graphics_.terminate();
-  }
+  ~Renderer() { logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]"; }
 
   void resize(window::Resolution const& res) {
     camera_.resize(res);

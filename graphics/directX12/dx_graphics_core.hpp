@@ -78,6 +78,8 @@ private:
     ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
 #endif
   }
+  /********************* Resource cleaner ******************/
+  [[no_unique_address]] dx12::GarbageCollector resource_collector_;
 
   /****************** Frame resources *****************/
   dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;

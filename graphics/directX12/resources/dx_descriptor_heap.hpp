@@ -92,7 +92,7 @@ struct Heaps {
     rtv(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, config::render.graphics.buffer_count), dsv(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1U),
     srv(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1U, true) { }
 
-  ~Heaps();
+  ~Heaps() { logger(LogInfo) << "Releasing gpu heaps"; }
 
   void cleanDeferreds() {
     rtv.cleanDeferreds();

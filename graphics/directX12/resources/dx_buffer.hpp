@@ -23,8 +23,6 @@ namespace reveal3d::graphics::dx12 {
 
 class Buffer {
 public:
-  Buffer() = default;
-
   struct InitInfo {
 
     ID3D12GraphicsCommandList* cmd_list;
@@ -34,12 +32,16 @@ public:
     std::optional<D3D12_CLEAR_VALUE> clear_value {std::nullopt};
   };
 
+  Buffer() = default;
+
+  ~Buffer() { release(); }
+
   template<typename T>
   explicit Buffer(InitInfo& info, std::span<T> data = {}) {
     init(info);
   }
 
-  template<typename T = void*>
+  template<typename T = std::monostate>
   void init(InitInfo const& info, std::span<T> data = {}) {
     size_                 = info.res_desc.Width * info.res_desc.Height;
     auto const* opt_clear = info.clear_value.has_value() ? &info.clear_value.value() : nullptr;
@@ -51,7 +53,7 @@ public:
     // D3D12_SUBRESOURCE_DATA sub_resource_data = { .pData = info.view.data(), .RowPitch = size_, .SlicePitch = size_
     // };
 
-    if constexpr (not std::same_as<T, void*>) {
+    if constexpr (not std::same_as<T, std::monostate>) {
       auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
       auto barrier =
           CD3DX12_RESOURCE_BARRIER::Transition(buff_, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -63,15 +65,16 @@ public:
           buff_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
       );
       info.cmd_list->ResourceBarrier(1, &barrier);
-
-      upload_buffer.release();
     }
 
-    std::wstring const name = L"Buffer" + std::to_wstring(counter++);
+    std::wstring const name = L"Buffer " + std::to_wstring(counter++);
     buff_->SetName(name.c_str()) >> utl::DxCheck;
   }
 
-  void release() const { deferred_release(buff_); }
+  void release() const {
+    logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
+    deferred_release(buff_);
+  }
 
   ID3D12Resource*& resource() { return buff_; }
 

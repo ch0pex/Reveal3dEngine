@@ -30,6 +30,8 @@ class Gpass {
 public:
   explicit Gpass(window::Resolution resolution, Heaps& heaps);
 
+  ~Gpass() { logger(LogInfo) << "Releasing G-buffer and depth buffer resources"; }
+
   void setRenderTargets(
       ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource,
       D3D12_CPU_DESCRIPTOR_HANDLE const back_buffer
@@ -53,8 +55,6 @@ public:
   void removeRenderElement(u32 const idx) { render_elements_.unordered_remove(id::index(idx)); }
 
   void resize(window::Resolution const res, Heaps& heaps) { depth_buffer_.resize(res, heaps); }
-
-  void terminate();
 
 private:
   void buildPsos();

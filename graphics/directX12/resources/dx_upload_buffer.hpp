@@ -46,7 +46,6 @@ public:
   using iterator   = std::span<T>::iterator;
 
   explicit UploadBuffer(u64 const count) {
-
     auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T));
 
@@ -62,6 +61,8 @@ public:
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
+
+  ~UploadBuffer() { release(); }
 
   UploadBuffer& operator=(UploadBuffer const&) = delete;
 

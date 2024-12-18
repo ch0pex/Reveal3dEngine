@@ -103,7 +103,7 @@ void queue_info(ID3D12Device* device, const BOOL enable) {
   info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable) >> DxCheck;
 }
 
-void set_reporter(ID3D12Device* device) { device->QueryInterface(&reporter); }
+void set_reporter(ID3D12Device* device) { device->QueryInterface(&reporter) >> DxCheck; }
 
 void report_live_device_objs() {
   reporter->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL) >> DxCheck;

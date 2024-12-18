@@ -56,8 +56,8 @@ void Commands::reset(ID3D12PipelineState* pso) const {
 void Commands::waitForGpu() {
   fence_values_[frame_index_]++;
   command_queue_->Signal(fence_.Get(), fence_values_[frame_index_]) >> utl::DxCheck;
-  auto last_completed = fence_->GetCompletedValue();
-  if (last_completed < fence_values_[frame_index_]) {
+
+  if (fence_->GetCompletedValue() < fence_values_[frame_index_]) {
     fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
     if (WaitForSingleObject(fence_event_, INFINITE) == WAIT_FAILED) {
       GetLastError() >> utl::DxCheck;

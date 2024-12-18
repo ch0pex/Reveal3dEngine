@@ -100,13 +100,6 @@ void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng) {
   render_elements_.emplace_back(entity, cmd_mng.list());
 }
 
-
-void Gpass::terminate() {
-  for (auto& elem: render_elements_) {
-    elem.release();
-  }
-}
-
 void Gpass::buildPsos() {
   ComPtr<ID3DBlob> vertex_shader;
   ComPtr<ID3DBlob> pixel_shader;

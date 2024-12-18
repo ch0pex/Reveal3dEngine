@@ -117,21 +117,26 @@ void Dx12::renderSurface(Surface& surface) {
 
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 
-  clean_deferred_resources(heaps_); // Clean deferred resources
+  // *** Deferred resource cleaning ***
+  clean_deferred_resources();
+  heaps_.cleanDeferreds();
 
   surface.setViewport(command_list);
 
+  // Setting resource to render target state
   auto const target_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       back_buffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
   );
 
   command_list->ResourceBarrier(1, &target_barrier);
 
+  // *** Setting target and rendering to it ***
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
   gpass_.render(command_list, curr_frame_res);
 
   imGuiBegin();
 
+  // Setting resource to present state
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       back_buffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
   );
@@ -148,11 +153,8 @@ void Dx12::renderSurface(Surface& surface) {
 }
 
 void Dx12::resize(window::Resolution const res) {
-  if (res == surface_.resolution()) {
-    return;
-  }
-
-  if (res.null()) {
+  // Check we are not resizing to current res or (0,0)
+  if (res == surface_.resolution() or res.isNull()) {
     return;
   }
 

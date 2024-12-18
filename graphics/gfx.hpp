@@ -32,7 +32,7 @@ concept HRI = requires(Gfx graphics, render::Camera& camera, window::Resolution&
   { graphics.loadAssets() } -> std::same_as<void>;
   { graphics.update(camera) } -> std::same_as<void>;
   { graphics.renderSurface(std::declval<typename Gfx::surface&>()) } -> std::same_as<void>;
-  { graphics.terminate() } -> std::same_as<void>;
+  // { graphics.terminate() } -> std::same_as<void>;
   { graphics.resize(res) } -> std::same_as<void>;
 };
 

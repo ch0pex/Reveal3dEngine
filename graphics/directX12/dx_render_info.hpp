@@ -41,10 +41,7 @@ public:
 
   [[nodiscard]] core::Entity entity() const { return entity_; }
 
-  void release() const {
-    vertex_buffer_.release();
-    index_buffer_.release();
-  }
+  ~RenderElement() { logger(LogInfo) << "Releasing render element of entity with id" << entity_.id(); }
 
 private:
   //******************* Buffers ********************

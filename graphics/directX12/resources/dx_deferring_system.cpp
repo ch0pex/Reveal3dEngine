@@ -37,11 +37,10 @@ void deferred_release(IUnknown* resource) {
   }
 }
 
-void clean_deferred_resources(Heaps& heaps) {
+void clean_deferred_resources() {
   if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags.at(frame_index)) {
 
     deferredReleasesFlags.at(frame_index) = 0;
-    heaps.cleanDeferreds();
 
     if (!deferredReleases[frame_index].empty()) {
       for (auto* resource: deferredReleases[Commands::frameIndex()]) {
