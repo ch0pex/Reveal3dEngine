@@ -40,6 +40,8 @@ public:
 
   explicit Dx12(window::Resolution res);
 
+  ~Dx12();
+
   void loadPipeline();
 
   void loadAssets();
@@ -52,8 +54,6 @@ public:
 
   void renderSurface(dx12::Surface& surface);
 
-  void terminate();
-
   void resize(window::Resolution const res);
 
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
@@ -63,7 +63,7 @@ public:
   dx12::Heaps const& heaps() { return heaps_; }
 
 private:
-  void ImGuiBegin() const {
+  void imGuiBegin() const {
 #ifdef IMGUI
     auto* command_list            = cmd_manager_.list();
     ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
@@ -72,7 +72,7 @@ private:
 #endif
   }
 
-  void ImGuiEnd() const {
+  void imGuiEnd() const {
 #ifdef IMGUI
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
@@ -81,9 +81,6 @@ private:
 
   /****************** Frame resources *****************/
   dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
-
-  /***************** Depth stencil buffer**********************/
-  dx12::DescriptorHandle ds_handle_;
 
   /******************* Gpu heaps and commands **********************/
   dx12::Heaps heaps_;

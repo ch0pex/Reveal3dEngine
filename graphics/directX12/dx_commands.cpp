@@ -85,7 +85,7 @@ void Commands::execute() const {
   ID3D12CommandList* pp_command_lists[] = {command_list_.Get()};
   command_queue_->ExecuteCommandLists(_countof(pp_command_lists), pp_command_lists);
 }
-void Commands::flush() {
+Commands::~Commands() {
   waitForGpu();
   CloseHandle(fence_event_);
 }

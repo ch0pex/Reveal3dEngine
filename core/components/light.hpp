@@ -23,18 +23,6 @@ struct Light : Component<Light> {
 
   using Component::Component;
 
-  void setDirty() const {
-    if (dirty() == 4) {
-      return;
-    }
-    if (dirty() == 0) {
-      pool().dirtyIds().insert(id_);
-    }
-    pool().dirties().at(id::index(id_)) = 4;
-  }
-
-  [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
-
   void active() const {
     pool().toggleActive(id_);
     setDirty();

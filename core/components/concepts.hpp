@@ -28,7 +28,6 @@ concept is_component = requires(T component) {
   { std::is_constructible_v<T, id_t> };
   { sizeof(T) == 4 };
 
-
   typename T::pool_type;
   typename T::init_info;
 };

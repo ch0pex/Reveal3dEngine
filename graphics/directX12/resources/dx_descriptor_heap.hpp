@@ -45,7 +45,7 @@ public:
 
   DescriptorHeap& operator=(DescriptorHeap&&) = delete;
 
-  ~DescriptorHeap() = default;
+  ~DescriptorHeap();
 
   // inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
   [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_; };
@@ -70,7 +70,7 @@ public:
 
   void cleanDeferreds();
 
-  void release() const;
+  void release() const { deferred_release(heap_); }
 
 private:
   ID3D12DescriptorHeap* heap_ {nullptr};
@@ -91,6 +91,8 @@ struct Heaps {
   Heaps() :
     rtv(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, config::render.graphics.buffer_count), dsv(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1U),
     srv(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1U, true) { }
+
+  ~Heaps();
 
   void cleanDeferreds() {
     rtv.cleanDeferreds();

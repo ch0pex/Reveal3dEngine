@@ -63,7 +63,6 @@ struct Geometry : Component<Geometry> {
 
   [[nodiscard]] bool isVisible() const { return pool().subMeshes(id_)[0].visible; }
 
-  [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
   [[nodiscard]] render::Material const& material() const { return pool().material(id_); }
 
@@ -88,26 +87,6 @@ struct Geometry : Component<Geometry> {
   void roughness(f32 const roughness) const {
     pool().material(id_).roughness = roughness;
     setDirty();
-  }
-
-
-  void unDirty() const {
-    if (id_t const idx = id::index(id_); pool().dirties().at(idx) != 0) {
-      --pool().dirties().at(idx);
-    }
-    else {
-      pool().dirties().at(idx) = 0;
-    }
-  }
-
-  void setDirty() const {
-    if (dirty() == 3) {
-      return;
-    }
-    if (dirty() == 0) {
-      pool().dirtyIds().insert(id_);
-    }
-    pool().dirties().at(id::index(id_)) = 3;
   }
 };
 static_assert(component<Geometry>);

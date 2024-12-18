@@ -130,7 +130,7 @@ void Dx12::renderSurface(Surface& surface) {
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
   gpass_.render(command_list, curr_frame_res);
 
-  ImGuiBegin();
+  imGuiBegin();
 
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       back_buffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
@@ -141,7 +141,7 @@ void Dx12::renderSurface(Surface& surface) {
   command_list->Close() >> utl::DxCheck;
   cmd_manager_.execute();
 
-  ImGuiEnd();
+  imGuiEnd();
 
   surface.present();
   cmd_manager_.moveToNextFrame();
@@ -168,13 +168,12 @@ void Dx12::resize(window::Resolution const res) {
   cmd_manager_.waitForGpu();
 }
 
-void Dx12::terminate() {
+Dx12::~Dx12() {
 #ifdef _DEBUG
   utl::queue_info(adapter.device.Get(), FALSE);
   utl::set_reporter(adapter.device.Get());
 #endif
 
-  cmd_manager_.flush();
   heaps_.release();
   gpass_.terminate();
 

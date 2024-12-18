@@ -107,14 +107,6 @@ void DescriptorHeap::cleanDeferreds() {
   }
 }
 
-void DescriptorHeap::release() const { deferred_release(heap_); }
-
-void Heaps::release() {
-  rtv.release();
-  dsv.release();
-  srv.release();
-  //    cbv.release();
-  //    uavHeap.release();
-}
+DescriptorHeap::~DescriptorHeap() { deferred_release(heap_); }
 
 } // namespace reveal3d::graphics::dx12

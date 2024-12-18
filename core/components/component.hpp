@@ -31,6 +31,27 @@ public:
 
   [[nodiscard]] constexpr index_t entityIdx() const { return pool().getMappedId(id_); }
 
+  [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
+
+  void unDirty() const {
+    if (id_t const idx = id::index(id_); pool().dirties().at(idx) != 0) {
+      --pool().dirties().at(idx);
+    }
+    else {
+      pool().dirties().at(idx) = 0;
+    }
+  }
+
+  void setDirty() const {
+    if (dirty() == 3) {
+      return;
+    }
+    if (dirty() == 0) {
+      pool().dirtyIds().insert(id_);
+    }
+    pool().dirties().at(id::index(id_)) = config::render.graphics.buffer_count;
+  }
+
   static constexpr auto pool() -> decltype(auto) { return scene.pool<T>(); };
 
 protected:
