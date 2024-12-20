@@ -34,7 +34,7 @@ public:
 
   Buffer() = default;
 
-  // ~Buffer() { release(); }
+  ~Buffer() { buff_->Release(); }
 
   template<typename T>
   explicit Buffer(InitInfo& info, std::span<T> data = {}) {
@@ -57,16 +57,16 @@ public:
       auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
 
       auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest
-          buff_.Get(), //
+          buff_, //
           D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
       );
       info.cmd_list->ResourceBarrier(1, &barrier);
 
       std::ranges::copy(data, upload_buffer.begin());
-      info.cmd_list->CopyResource(buff_.Get(), upload_buffer.get()); // Coping upload buffer into buffer
+      info.cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
 
       barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Restoring buffer state to generic read
-          buff_.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
+          buff_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
       );
       info.cmd_list->ResourceBarrier(1, &barrier);
     }
@@ -77,10 +77,10 @@ public:
 
   void release() const {
     logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
-    deferred_release(buff_.Get());
+    deferred_release(buff_);
   }
 
-  ID3D12Resource* resource() const { return buff_.Get(); }
+  [[nodiscard]] ID3D12Resource* resource() const { return buff_; }
 
   [[nodiscard]] u32 size() const { return size_; };
 
@@ -99,7 +99,7 @@ public:
 
 private:
   static inline u32 counter = 0;
-  ComPtr<ID3D12Resource> buff_ {};
+  ID3D12Resource* buff_ {};
   u32 size_ {0};
 };
 

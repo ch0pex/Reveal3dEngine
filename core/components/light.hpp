@@ -33,7 +33,7 @@ struct Light : Component<Light> {
     setDirty();
   }
 
-  void spotPower(f32 power) const {
+  void spotPower(f32 const power) const {
     if (pool().lightType(id_) == render::Light::type::spot) {
       pool().light(id_).spot_power = power;
       setDirty();

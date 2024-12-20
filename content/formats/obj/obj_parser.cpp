@@ -86,8 +86,7 @@ std::optional<render::Mesh> import_obj(std::string_view const path) {
     if (line.empty())
       continue;
 
-    char const prefix = line[0];
-    if (prefix == 'v') {
+    if (char const prefix = line[0]; prefix == 'v') {
       if (line[1] == 'n') {
         math::vec3 normal;
         if (std::sscanf(line.c_str(), "vn %f %f %f", &normal.x, &normal.y, &normal.z) == 3) {

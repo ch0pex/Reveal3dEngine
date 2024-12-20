@@ -31,13 +31,17 @@ cbuffer cbMaterial : register(b1)
 cbuffer cbPerObject : register(b0)
 {
 	float4x4 objWorld;
-	uint id;
+	uint id; // this will be used for picking
 };
+
+//cbuffer cbLight : register(b3) {
+//
+//}
 
 struct VertexIn
 {
 	float3 pos_l    : POSITION;
-    float3 normal_l : NORMAL;
+  float3 normal_l : NORMAL;
 //    float4 color   : COLOR;
 //    float2 texcoord : TEXCOORD0;
 };
@@ -45,7 +49,7 @@ struct VertexIn
 struct VertexOut
 {
     float3 pos_w : POSITION;
-	float4 pos_h  : SV_POSITION;
+	  float4 pos_h  : SV_POSITION;
     float3 normal_w : NORMAL;
 };
 
