@@ -36,14 +36,21 @@ struct is_constant<Constant<T>> : std::true_type { };
 } // namespace detail
 
 template<typename T>
-concept is_constant = requires { detail::is_constant<T>::value; };
+concept is_constant = detail::is_constant<T>::value;
 
+/**
+ * Upload buffers need lifetime extension
+ * during a frame so uses delayed destruction
+ *
+ * @note this means ComPtr<ID3D12Resource> can't be used
+ * @tparam T Data type to upload
+ */
 template<typename T>
 class UploadBuffer {
 public:
   // *** Type Traits
   using value_type = T;
-  using iterator   = std::span<T>::iterator;
+  using iterator   = typename std::span<T>::iterator;
 
   explicit UploadBuffer(u64 const count) {
     auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -62,7 +69,15 @@ public:
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
 
-  ~UploadBuffer() { release(); }
+  ~UploadBuffer() {
+    buff_->Unmap(0, nullptr);
+    if constexpr (is_constant<value_type>) {
+      buff_->Release();
+    }
+    else {
+      deferred_release(buff_);
+    }
+  }
 
   UploadBuffer& operator=(UploadBuffer const&) = delete;
 
@@ -70,9 +85,9 @@ public:
 
   UploadBuffer& operator=(UploadBuffer&&) = delete;
 
-  [[nodiscard]] ID3D12Resource* get() const { return buff_; };
+  [[nodiscard]] ID3D12Resource* get() const { return buff_; }
 
-  [[nodiscard]] u32 size() const { return mapped_data_.size(); };
+  [[nodiscard]] u32 size() const { return mapped_data_.size(); }
 
   [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuStart() const { return buff_->GetGPUVirtualAddress(); }
 
@@ -101,12 +116,6 @@ public:
   [[nodiscard]] typename std::span<T>::iterator begin() const { return mapped_data_.begin(); }
 
   [[nodiscard]] typename std::span<T>::iterator end() const { return mapped_data_.end(); }
-
-  void release() const {
-    if (buff_ != nullptr)
-      buff_->Unmap(0, nullptr);
-    deferred_release(buff_);
-  }
 
 private:
   std::span<T> mapped_data_ {};

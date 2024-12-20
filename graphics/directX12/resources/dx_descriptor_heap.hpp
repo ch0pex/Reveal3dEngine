@@ -45,10 +45,10 @@ public:
 
   DescriptorHeap& operator=(DescriptorHeap&&) = delete;
 
-  ~DescriptorHeap();
+  // ~DescriptorHeap();
 
   // inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
-  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_; };
+  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_.Get(); };
 
   [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE cpuStart() const { return cpu_start_; }
 
@@ -70,10 +70,10 @@ public:
 
   void cleanDeferreds();
 
-  void release() const { deferred_release(heap_); }
+  void release() const { deferred_release(heap_.Get()); }
 
 private:
-  ID3D12DescriptorHeap* heap_ {nullptr};
+  ComPtr<ID3D12DescriptorHeap> heap_ {nullptr};
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};

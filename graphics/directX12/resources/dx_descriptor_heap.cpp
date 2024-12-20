@@ -107,6 +107,6 @@ void DescriptorHeap::cleanDeferreds() {
   }
 }
 
-DescriptorHeap::~DescriptorHeap() { deferred_release(heap_); }
+// DescriptorHeap::~DescriptorHeap() { deferred_release(heap_); }
 
 } // namespace reveal3d::graphics::dx12

@@ -40,13 +40,11 @@ public:
 
   explicit Dx12(window::Resolution res);
 
-  ~Dx12();
+  ~Dx12() = default;
 
   void loadPipeline();
 
   void loadAssets();
-
-  void loadAsset(core::Entity id);
 
   void update(render::Camera const& camera);
 
@@ -54,7 +52,7 @@ public:
 
   void renderSurface(dx12::Surface& surface);
 
-  void resize(window::Resolution const res);
+  void resize(window::Resolution res);
 
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
 
@@ -63,23 +61,9 @@ public:
   dx12::Heaps const& heaps() { return heaps_; }
 
 private:
-  void imGuiBegin() const {
-#ifdef IMGUI
-    auto* command_list            = cmd_manager_.list();
-    ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
-    command_list->SetDescriptorHeaps(1, &srvDesc);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), command_list);
-#endif
-  }
+  void imGuiBegin() const;
 
-  void imGuiEnd() const {
-#ifdef IMGUI
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
-#endif
-  }
-  /********************* Resource cleaner ******************/
-  [[no_unique_address]] dx12::GarbageCollector resource_collector_;
+  void imGuiEnd() const;
 
   /****************** Frame resources *****************/
   dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;

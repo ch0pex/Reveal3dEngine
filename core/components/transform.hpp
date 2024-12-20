@@ -28,7 +28,7 @@ public:
 
   using Component::Component;
 
-  // *** Member methods ***
+  // *** Member getters ***
 
   [[nodiscard]] math::mat4& world() const { return pool().world(id_); }
 
@@ -49,7 +49,9 @@ public:
 
   [[nodiscard]] math::xvec3 worldRotation() const { return math::vec_to_degrees(pool().world(id_).rotation()); }
 
-  void position(math::xvec3 pos) const {
+  // *** Member setters ***
+
+  void position(math::xvec3 const pos) const {
     pool().posRotScale(id_).position = pos;
     setDirty();
   }
@@ -79,7 +81,7 @@ public:
       trans.position = pos;
     }
 
-    pool().invWorld(id_) = math::inverse(pool().world(id_));
+    pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();
   }
 
@@ -92,7 +94,7 @@ public:
     else {
       trans.scale = scale;
     }
-    pool().invWorld(id_) = math::inverse(pool().world(id_));
+    pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();
   }
 
@@ -107,9 +109,11 @@ public:
     else {
       trans.rotation = rad;
     }
-    pool().invWorld(id_) = math::inverse(pool().world(id_));
+    pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();
   }
+
+  // *** Updating
 
   void update() const {
     if (pool().dirties().at(id::index(id_)) != 4) {
@@ -154,7 +158,7 @@ public:
 private:
   static auto constexpr calcWorld = [](id_t const id) {
     auto& [position, rotation, scale] = scene.pool<Transform>().posRotScale(id);
-    return transpose(math::affine_transformation(position, scale, rotation));
+    return transpose(affine_transformation(position, scale, rotation));
   };
 
   void softDirty() const {

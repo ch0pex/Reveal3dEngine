@@ -54,7 +54,7 @@ class Entity {
 public:
   Entity() : id_(id::invalid) { }
 
-  explicit Entity(id_t const id) : id_ {id} {};
+  Entity(id_t const id) : id_ {id} {};
 
   template<detail::is_component T>
   T component() const;

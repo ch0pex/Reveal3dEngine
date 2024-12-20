@@ -14,17 +14,20 @@
 #pragma once
 
 #include "dx_common.hpp"
+#include "resources/dx_deferring_system.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
 struct Adapter {
   Adapter() {
     u32 factory_flags = 0;
+
 #ifdef _DEBUG
     utl::enable_cpu_layer(factory_flags);
     utl::log_adapters();
     utl::enable_gpu_layer();
 #endif
+
     ComPtr<IDXGIAdapter1> hardware_adapter;
     CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)) >> utl::DxCheck;
     utl::get_hardware_adapter(factory.Get(), &hardware_adapter);
@@ -32,6 +35,14 @@ struct Adapter {
 
 #ifdef _DEBUG
     utl::queue_info(device.Get(), TRUE);
+#endif
+  }
+
+  ~Adapter() {
+    logger(LogInfo) << "Cleaning deferred resources";
+#ifdef _DEBUG
+    utl::queue_info(device.Get(), FALSE);
+    utl::set_reporter(device.Get());
 #endif
   }
 

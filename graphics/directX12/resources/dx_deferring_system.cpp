@@ -13,7 +13,6 @@
 
 #include "dx_deferring_system.hpp"
 #include "../dx_commands.hpp"
-#include "dx_descriptor_heap.hpp"
 
 #include <array>
 
@@ -47,6 +46,22 @@ void clean_deferred_resources() {
         utl::release(resource);
       }
       deferredReleases[frame_index].clear();
+    }
+  }
+}
+
+void clean_all_resources() {
+  for (auto [idx, flag]: std::views::enumerate(deferredReleasesFlags)) {
+    if (flag) {
+
+      flag = 0;
+
+      if (!deferredReleases[idx].empty()) {
+        for (auto* resource: deferredReleases[Commands::frameIndex()]) {
+          utl::release(resource);
+        }
+        deferredReleases[idx].clear();
+      }
     }
   }
 }

@@ -70,7 +70,6 @@ private:
   /**************** render elements *****************/
   reveal3d::utl::vector<RenderElement> render_elements_;
 
-
   /**************** Pipeline state and root signatures *****************/
   std::array<GraphicsPso, Shader::count> pipeline_states_;
   std::array<RootSignature, Shader::count> root_signatures_;
