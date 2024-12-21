@@ -23,11 +23,7 @@
 
 using namespace std::literals;
 
-enum LogLevel : reveal3d::u8 {
-  LogError = 0,
-  LogWarning,
-  LogInfo,
-};
+enum LogLevel : reveal3d::u8 { LogError = 0, LogWarning, LogInfo, LogAll };
 
 inline constexpr LogLevel loglevel = LogInfo;
 
@@ -41,7 +37,7 @@ public:
     else if constexpr (lvl == LogWarning) {
       buffer_.append("[WARNING]: "s);
     }
-    else {
+    else if constexpr (lvl == LogInfo) {
       buffer_.append("[INFO]: "s);
     }
   }
@@ -51,11 +47,16 @@ public:
     return *this;
   }
 
-  static std::string log() { return fmt::to_string(persistent_logs_.at(lvl)); }
+  static void append(auto const& range) { persistent_log_.append(range); }
+
+  static std::string log() { return fmt::to_string(persistent_log_); }
 
   ~Logger() {
     buffer_.push_back('\n');
-    persistent_logs_.at(lvl).append(buffer_);
+    persistent_log_.append(buffer_);
+    if constexpr (lvl != LogAll) {
+      Logger<LogAll>::append(buffer_);
+    }
 
 #ifdef _WIN32
     OutputDebugString(fmt::to_string(buffer_).data());
@@ -64,11 +65,11 @@ public:
 #endif
   }
 
-  static void clear() { persistent_logs_.at(lvl).clear(); }
+  static void clear() { persistent_log_.clear(); }
 
 private:
   fmt::memory_buffer buffer_;
-  static inline std::array<fmt::memory_buffer, 3> persistent_logs_;
+  static inline fmt::memory_buffer persistent_log_;
 };
 
 // Macro para usar el logger con diferentes niveles

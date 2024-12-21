@@ -13,44 +13,55 @@
 
 #include "dx_deferring_system.hpp"
 #include "../dx_commands.hpp"
-#include "dx_descriptor_heap.hpp"
 
 #include <array>
 
 
 namespace reveal3d::graphics::dx12 {
 
-std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
-std::array<u32, config::render.graphics.max_buffer_count> deferredReleasesFlags;
+namespace {
 
-void set_deferred_flag() { deferredReleasesFlags[Commands::frameIndex()] = 1; }
+std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
+utl::ResourceArray<u32> deferredReleasesFlags;
+
+} // namespace
+
+void set_deferred_flag() { deferredReleasesFlags.at(Commands::frameIndex()) = 1; }
 
 void deferred_release(IUnknown* resource) {
   if (resource != nullptr) {
-    deferredReleases[Commands::frameIndex()].push_back(resource);
-    deferredReleasesFlags[Commands::frameIndex()] = 1;
-    resource                                      = nullptr;
+    deferredReleases.at(Commands::frameIndex()).push_back(resource);
+    deferredReleasesFlags.at(Commands::frameIndex()) = 1;
+    resource                                         = nullptr;
   }
 }
 
-void clean_deferred_resources(Heaps& heaps) {
-  // Will need mutex __declspec(noinline)
+void clean_deferred_resources() {
+  if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags.at(frame_index)) {
 
-  if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags[frame_index]) {
-
-    deferredReleasesFlags[frame_index] = 0;
-
-    heaps.rtv.cleanDeferreds();
-    heaps.dsv.cleanDeferreds();
-    // heaps.cbv.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
+    deferredReleasesFlags.at(frame_index) = 0;
 
     if (!deferredReleases[frame_index].empty()) {
       for (auto* resource: deferredReleases[Commands::frameIndex()]) {
         utl::release(resource);
       }
       deferredReleases[frame_index].clear();
+    }
+  }
+}
+
+void clean_all_resources() {
+  for (auto [idx, flag]: std::views::enumerate(deferredReleasesFlags)) {
+    if (flag) {
+
+      flag = 0;
+
+      if (!deferredReleases[idx].empty()) {
+        for (auto* resource: deferredReleases[Commands::frameIndex()]) {
+          utl::release(resource);
+        }
+        deferredReleases[idx].clear();
+      }
     }
   }
 }

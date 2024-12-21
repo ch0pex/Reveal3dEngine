@@ -22,18 +22,22 @@ namespace reveal3d::window {
 using WCallback = uint8_t*;
 
 struct Resolution {
-  Resolution(const u32 width, const u32 height) :
-    width(width), height(height), aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) { }
-  explicit Resolution(const math::vec2 res) :
-    width(res.x), height(res.y), aspect_ratio(static_cast<f32>(width) / static_cast<f32>(height)) { }
+  constexpr Resolution(u32 const width, u32 const height) : width(width), height(height) { }
+
+  explicit constexpr Resolution(math::vec2 const res) : width(res.x), height(res.y) { }
+
+  [[nodiscard]] constexpr f32 aspect_ratio() const { return static_cast<f32>(width) / static_cast<f32>(height); }
+
+  [[nodiscard]] constexpr bool isNull() const { return width == 0 or height == 0; }
+
+  constexpr bool operator==(Resolution const other) const { return width == other.width && height == other.height; }
+
   u32 width;
   u32 height;
-  f32 aspect_ratio;
 };
 
-
 struct Info {
-  const char* name {config::window.title.data()};
+  char const* name {config::window.title.data()};
   Resolution res {config::window.resolution};
   WHandle handle {nullptr};
   WCallback callback {nullptr};

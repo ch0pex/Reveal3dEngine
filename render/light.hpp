@@ -14,38 +14,22 @@
 #pragma once
 
 #include "common/common.hpp"
-#include "vector.hpp"
+#include "math/math.hpp"
 
 
 namespace reveal3d::render {
 
-class Light {
-public:
-  enum Type { directional, point, spot, count };
+struct Light {
+  enum class Type : u8 { directional = 0, point, spot, count };
+  using type = Type;
 
-  explicit Light(id_t id);
-  constexpr Light() = default;
-  [[nodiscard]] constexpr bool IsValid() const { return id::is_valid(id_); }
-
-  void isEnabled(bool is_enabled) const;
-  void intensity(f32 intensity) const;
-  void color(math::vec3 color) const;
-  void attenuation(math::vec3 attenuation) const;
-  void range(f32 range) const;
-  void coneAngles(f32 umbra, f32 penumbra) const;
-
-  [[nodiscard]] bool isEnabled() const;
-  [[nodiscard]] f32 intensity() const;
-  [[nodiscard]] math::vec3 color() const;
-  [[nodiscard]] math::vec3 attenuation() const;
-  [[nodiscard]] f32 range() const;
-  [[nodiscard]] f32 umbra() const;
-  [[nodiscard]] f32 penumbra() const;
-  [[nodiscard]] Type type() const;
-  [[nodiscard]] id_t id() const;
-
-private:
-  id_t id_ {id::invalid};
+  math::vec3 color; // Light color and strength
+  math::vec3 position; // Spot and point only
+  math::vec3 direction; // Spot and directional only
+  f32 fall_off_start; // Spot and point only
+  f32 fall_off_end; // Spot and point only
+  f32 spot_power; // Spot only
+  bool active {true};
 };
 
 } // namespace reveal3d::render

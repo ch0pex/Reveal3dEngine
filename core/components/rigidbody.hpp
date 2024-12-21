@@ -13,25 +13,17 @@
 
 #pragma once
 
-#include "core/scene.hpp"
+#include "component.hpp"
 
 namespace reveal3d::core {
 
-class Rigidbody {
-public:
-    using init_info = std::string;
-    using pool_type = rigidbody::Pool;
+struct Rigidbody : Component<Rigidbody> {
+  using init_info = rigidbody::Pool::init_info;
+  using pool_type = rigidbody::Pool;
 
-    constexpr Rigidbody(id_t id) : id_(id) {}
+  using Component::Component;
 
-    constexpr Rigidbody() : id_(id::invalid) {}
-
-    [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
-
-    [[nodiscard]] constexpr id_t id() const { return id_; }
-
-private:
-    id_t id_;
+  // TODO
 };
 
 } // namespace reveal3d::core

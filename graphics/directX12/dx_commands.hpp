@@ -22,7 +22,8 @@ namespace reveal3d::graphics::dx12 {
 class Commands {
 public:
   // explicit Commands(bufferCount);
-  void init(ID3D12Device* device);
+  Commands();
+  ~Commands();
   [[nodiscard]] ID3D12CommandQueue* getQueue() const { return command_queue_.Get(); }
   [[nodiscard]] ID3D12GraphicsCommandList* list() const { return command_list_.Get(); }
   [[nodiscard]] static u8 frameIndex() { return frame_index_; }
@@ -33,7 +34,6 @@ public:
   void waitForGpu();
   void moveToNextFrame();
 
-  void flush();
   void addGraphicsList(ID3D12GraphicsCommandList* list);
 
 private:

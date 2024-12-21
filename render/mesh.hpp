@@ -20,16 +20,18 @@
 namespace reveal3d::render {
 
 struct SubMesh {
-  Shader shader   {Opaque};
-  u32 vertex_pos  {0};
-  u32 index_pos   {0};
+  u32 vertex_pos {0};
+  u32 index_pos {0};
   u32 index_count {0};
-  bool visible    {true};
+  bool visible {true};
+  u8 shader {0};
 };
 
 struct Mesh {
-  std::vector<Vertex> vertices;
-  std::vector<u32> indices;
+  std::vector<Vertex> vertices {}; // Unique triangles
+  std::vector<u32> indices {};
+  u32 vertex_count {0}; // Count vertex with different position
+  u32 triangle_count {0}; // Triangle count
 };
 
 } // namespace reveal3d::render

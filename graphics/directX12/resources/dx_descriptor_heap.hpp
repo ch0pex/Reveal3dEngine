@@ -17,6 +17,7 @@
 #include "dx_deferring_system.hpp"
 
 #include <array>
+#include <graphics/directX12/dx_adapter.hpp>
 
 namespace reveal3d::graphics::dx12 {
 
@@ -30,34 +31,49 @@ struct DescriptorHandle {
   u32 index {};
 };
 
-
-// TODO: Concept for checking Descriptor type is D3D12_DESCRIPTOR_HEAP_TYPE
 class DescriptorHeap {
 public:
+  DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, u32 capacity, bool is_shader_visible = false);
+
   explicit DescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE type) : type_(type) { }
-  explicit DescriptorHeap(DescriptorHeap const&)   = delete;
+
+  explicit DescriptorHeap(DescriptorHeap const&) = delete;
+
   DescriptorHeap& operator=(DescriptorHeap const&) = delete;
-  explicit DescriptorHeap(DescriptorHeap&&)        = delete;
-  DescriptorHeap& operator=(DescriptorHeap&&)      = delete;
-  ~DescriptorHeap()                                = default;
+
+  explicit DescriptorHeap(DescriptorHeap&&) = delete;
+
+  DescriptorHeap& operator=(DescriptorHeap&&) = delete;
+
+  // ~DescriptorHeap();
 
   // inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
-  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_; };
+  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_.Get(); };
+
   [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE cpuStart() const { return cpu_start_; }
+
   [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE gpuStart() const { return gpu_start_; }
+
   [[nodiscard]] u32 capacity() const { return capacity_; }
+
   [[nodiscard]] u32 size() const { return size_; }
+
   [[nodiscard]] u32 descriptorSize() const { return capacity_; }
+
   [[nodiscard]] bool isShaderVisible() const { return gpu_start_.ptr != 0; }
 
-  bool initialize(ID3D12Device* device, u32 capacity, bool is_shader_visible);
+  bool initialize(u32 capacity, bool is_shader_visible);
+
   [[nodiscard]] DescriptorHandle alloc();
+
   void free(DescriptorHandle& handle);
+
   void cleanDeferreds();
-  void release();
+
+  void release() const { deferred_release(heap_.Get()); }
 
 private:
-  ID3D12DescriptorHeap* heap_ {nullptr};
+  ComPtr<ID3D12DescriptorHeap> heap_ {nullptr};
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
@@ -72,7 +88,20 @@ private:
 
 
 struct Heaps {
-  Heaps();
+  Heaps() :
+    rtv(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, config::render.graphics.buffer_count), dsv(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1U),
+    srv(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1U, true) { }
+
+  ~Heaps() { logger(LogInfo) << "Releasing gpu heaps"; }
+
+  void cleanDeferreds() {
+    rtv.cleanDeferreds();
+    dsv.cleanDeferreds();
+    srv.cleanDeferreds();
+    //  uavHeap.cleanDeferreds();
+    //  uavHeap.cleanDeferreds();
+  }
+
   void release();
 
   /******************** Descriptor Heaps *************************/

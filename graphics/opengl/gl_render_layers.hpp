@@ -38,8 +38,8 @@ private:
   static u32 createShader(GLenum shader_type, std::string& source, char const* shader_name);
   static u32 createProgram(char const* vs, char const* fs);
 
-  Layer layers_[render::Shader::count];
-  std::array<std::vector<render::SubMesh*>, render::Shader::count> sub_meshes_;
+  Layer layers_[4];
+  std::array<std::vector<render::SubMesh*>, 4> sub_meshes_;
 };
 
 } // namespace reveal3d::graphics::opengl

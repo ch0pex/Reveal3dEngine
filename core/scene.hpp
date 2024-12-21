@@ -9,8 +9,10 @@
  * @brief ECS
  *
  * Entity component system main header file.
- * In Reveal3D components just holds and ID that points to the real data stored in a pool.
- * Real data is compacted to avoid cache misses, this logic is handled by components pools.
+ * - In Reveal3D components just holds and ID that points to the real data stored in a pool.
+ * - Components are proxy classes to access data stored in an aos pool
+ * - Real data is compacted to avoid cache misses, this logic is handled by components pools.
+ * - Each component has a proxy class (Component class it self) and a pool class with data
  *
  * ************************************************** Components pool **************************************************
  * ************************** IDs **************************************************** data ****************************
@@ -32,11 +34,19 @@
 
 #pragma once
 
-#include "core/pooling/pool.hpp"
+#include "pooling/geometry_pool.hpp"
+#include "pooling/light_pool.hpp"
+#include "pooling/metadata_pool.hpp"
+#include "pooling/rigidbody_pool.hpp"
+#include "pooling/script_pool.hpp"
+#include "pooling/transform_pool.hpp"
+
+#include "components/concepts.hpp"
 
 #include <deque>
-#include <utility>
 #include <vector>
+
+#include "pooling/pool.hpp"
 
 namespace reveal3d::core {
 
@@ -44,13 +54,16 @@ class Entity {
 public:
   Entity() : id_(id::invalid) { }
 
-  explicit Entity(id_t const id) : id_ {id} {};
+  Entity(id_t const id) : id_ {id} {};
 
   template<detail::is_component T>
   T component() const;
 
   template<detail::is_component T>
-  T addComponent(typename T::init_info&& init_info);
+  T addComponent();
+
+  template<detail::is_component T>
+  T addComponent(typename T::init_info const& init_info);
 
   template<detail::is_component T>
   void removeComponent();
@@ -101,10 +114,10 @@ public:
     return entity;
   }
 
-  Entity newChildEntity(Entity parent) {
+  Entity newChildEntity(Entity const parent) {
     assert(parent.isAlive());
 
-    id_t const id = id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+    id_t const id = (id::maxFree < free_nodes_.size()) ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
     Entity const child(id);
 
     Node child_node {.entity = child, .parent = parent};
@@ -126,9 +139,10 @@ public:
     return child;
   }
 
-  Entity newChildEntity(id_t parent) { return newChildEntity(Entity(parent)); }
+  Entity newChildEntity(id_t const parent) { return newChildEntity(Entity(parent)); }
 
-  Entity removeEntity(id_t id) {
+  /// TODO fix this function
+  Entity removeEntity(id_t const id) {
     Entity entity {id};
     Entity nextOrPrev = {};
     if (isEntityAlive(id)) {
@@ -143,7 +157,7 @@ public:
     return {}; // TODO fix this can't return nextOrPrev when deleting nested nodes
   }
 
-  bool isEntityAlive(id_t id) {
+  bool isEntityAlive(id_t const id) {
     if (id == id::invalid) {
       return false;
     }
@@ -154,11 +168,11 @@ public:
 
   /******************************* Scene graph methods ******************************/
 
-  [[nodiscard]] std::vector<Scene::Node> const& graph() const { return scene_graph_; }
+  [[nodiscard]] std::vector<Node> const& graph() const { return scene_graph_; }
 
   [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
-  [[nodiscard]] Entity getEntity(id_t id) const { return scene_graph_.at(id::index(id)).entity; }
+  [[nodiscard]] Entity getEntity(id_t const id) const { return scene_graph_.at(id::index(id)).entity; }
 
   Node& getNode(id_t const id) { return scene_graph_.at(id::index(id)); }
 
@@ -166,7 +180,7 @@ public:
 
   /// @note Can't use concept here because T is not complete type
   template<typename T>
-  decltype(auto) componentPool() noexcept {
+  decltype(auto) pool() noexcept {
     if constexpr (std::same_as<typename T::pool_type, transform::Pool>) {
       return (transform_pool_);
     }
@@ -175,6 +189,12 @@ public:
     }
     else if constexpr (std::same_as<typename T::pool_type, metadata::Pool>) {
       return (metadata_pool_);
+    }
+    else if constexpr (std::same_as<typename T::pool_type, light::Pool>) {
+      return (light_pool_);
+    }
+    else if constexpr (std::same_as<typename T::pool_type, rigidbody::Pool>) {
+      return (rigidbody_pool_);
     }
     else {
       return (geometry_pool_);
@@ -201,7 +221,7 @@ public:
   }
 
 private:
-  void removeNode(id_t id) {
+  void removeNode(id_t const id) {
     if (!id::is_valid(id)) {
       return;
     }
@@ -211,6 +231,9 @@ private:
     transform_pool_.removeComponent(id);
     metadata_pool_.removeComponent(id);
     geometry_pool_.removeComponent(id);
+    rigidbody_pool_.removeComponent(id);
+    light_pool_.removeComponent(id);
+    script_pool_.removeComponent(id);
 
     if (node.prev.isAlive()) {
       Node& prev_node = getNode(node.prev.id());
@@ -237,7 +260,7 @@ private:
     node.entity = {};
   }
 
-  void addNode(Node& node, id_t id) {
+  void addNode(Node const& node, id_t const id) {
     if (id::maxFree < free_nodes_.size()) {
       scene_graph_.at(id::index(id)) = node;
       free_nodes_.pop_front();
@@ -245,19 +268,22 @@ private:
     else {
       scene_graph_.push_back(node);
       geometry_pool_.addComponent();
+      rigidbody_pool_.addComponent();
+      light_pool_.addComponent();
+      script_pool_.addComponent();
     }
 
     transform_pool_.addComponent(id);
-    metadata_pool_.addComponent(id);
+    metadata_pool_.addComponent(id, {id, fmt::format("Entity_{}", id::index(id))});
   }
 
 
   /************ Scene entities ***********/
 
-  std::vector<Scene::Node> scene_graph_;
-  u32 root_node_;
-  u32 last_node_;
-  std::deque<u32> free_nodes_;
+  std::vector<Node> scene_graph_;
+  index_t root_node_;
+  index_t last_node_;
+  std::deque<index_t> free_nodes_;
 
   /*********** Components Pools  *************/
 
@@ -266,6 +292,7 @@ private:
   GenericPool<script::Pool> script_pool_;
   GenericPool<metadata::Pool> metadata_pool_;
   GenericPool<rigidbody::Pool> rigidbody_pool_;
+  GenericPool<light::Pool> light_pool_;
 };
 
 inline Scene scene;
@@ -275,21 +302,25 @@ T Entity::component() const {
   if (not isAlive()) {
     return T();
   }
-  return scene.componentPool<T>().at(id_);
+  return scene.pool<T>().at(id_);
+}
+template<detail::is_component T>
+T Entity::addComponent() {
+  return addComponent<T>({});
 }
 
 template<detail::is_component T>
-T Entity::addComponent(typename T::init_info&& init_info) {
+T Entity::addComponent(typename T::init_info const& init_info) {
   if (not isAlive()) {
     return T();
   }
-  return scene.componentPool<T>().addComponent(id_, std::forward<typename T::init_info>(init_info));
+  return scene.pool<T>().addComponent(id_, init_info);
 }
 
 template<detail::is_component T>
 void Entity::removeComponent() {
   if (isAlive()) {
-    scene.componentPool<T>().removeComponent(id_);
+    scene.pool<T>().removeComponent(id_);
   }
 }
 

@@ -19,27 +19,43 @@
 
 namespace reveal3d::graphics {
 
+struct Surface { };
+
 class OpenGL {
 public:
-    explicit OpenGL(window::Resolution* res);
-    void loadPipeline();
-    void loadAssets();
-    void loadAsset();
-    void update(const render::Camera& camera);
-    void renderSurface();
-    void terminate();
-    void resize(const window::Resolution& res);
+  using surface = Surface;
 
-    inline void initWindow(WHandle w_handle) { window_ = w_handle; }
+  explicit OpenGL(window::Resolution res);
+
+  void loadPipeline();
+
+  void loadAssets();
+
+  void loadAsset();
+
+  void update(render::Camera const& camera);
+
+  void render() { }
+
+  void renderSurface(surface& surface);
+
+  void terminate() { }
+
+  void resize(window::Resolution const& res);
+
+  void initWindow(WHandle const& w_handle) { window_ = w_handle; }
 
 private:
-    void createContext();
-    void swapBuffer() const;
-    void terminateContext() const;
-    math::mat4 pass_constant_;
-    std::vector<opengl::RenderElement> render_elements_;
-    opengl::RenderLayers render_layers_;
-    WHandle window_{};
+  void createContext();
+
+  void swapBuffer() const;
+
+  void terminateContext() const;
+
+  math::mat4 pass_constant_;
+  std::vector<opengl::RenderElement> render_elements_;
+  opengl::RenderLayers render_layers_;
+  WHandle window_ {};
 };
 
 } // namespace reveal3d::graphics

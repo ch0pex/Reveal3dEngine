@@ -15,6 +15,8 @@
 
 #include <array>
 
+#include "dx_adapter.hpp"
+
 namespace reveal3d::graphics::dx12 {
 /*
 
@@ -111,9 +113,9 @@ void RootSignature::reset(u32 num_root_params) {
   num_parameters_ = num_root_params;
 }
 
-void RootSignature::finalize(ID3D12Device* device) {
+void RootSignature::finalize() {
   auto static_samplers = getStaticSamplers();
-  CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
+  const CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
       num_parameters_, parameters_.get(), static_samplers.size(), static_samplers.data(),
       D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
   );
@@ -131,7 +133,7 @@ void RootSignature::finalize(ID3D12Device* device) {
   }
   hr >> utl::DxCheck;
 
-  device->CreateRootSignature(
+  adapter.device->CreateRootSignature(
       0, serialized_root_sig->GetBufferPointer(), serialized_root_sig->GetBufferSize(),
       IID_PPV_ARGS(signature_.GetAddressOf())
   ) >> utl::DxCheck;

@@ -26,7 +26,7 @@ namespace reveal3d::graphics {
 
 using namespace opengl;
 
-OpenGL::OpenGL(window::Resolution* res) { }
+OpenGL::OpenGL(window::Resolution res) { }
 
 void OpenGL::loadPipeline() {
   createContext();
@@ -87,13 +87,13 @@ void OpenGL::update(render::Camera const& camera) {
   //    }
 }
 
-void OpenGL::renderSurface() {
+void OpenGL::renderSurface(surface& surface) {
   glClearColor(
       config::scene.clearColor.x, config::scene.clearColor.y, config::scene.clearColor.z, config::scene.clearColor.w
   );
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  for (u32 i = 0; i < render::Shader::count; ++i) {
+  for (u32 i = 0; i < 4; ++i) {
     render_layers_.draw(render_elements_, pass_constant_, i);
   }
   swapBuffer();

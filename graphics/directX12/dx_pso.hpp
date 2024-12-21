@@ -36,7 +36,7 @@ public:
   void setSampleDescCount(u32 sample_count);
   void setDsvFormat(DXGI_FORMAT dsv_format);
 
-  void finalize(ID3D12Device* device);
+  void finalize();
   ID3D12PipelineState* get() const { return pipeline_state_.Get(); }
 
 

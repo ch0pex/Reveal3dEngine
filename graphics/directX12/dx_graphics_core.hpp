@@ -15,9 +15,14 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#include "dx_adapter.hpp"
 #endif
 
-#include <array>
+#ifdef IMGUI
+#include "IMGUI/backends/imgui_impl_dx12.h"
+#include "IMGUI/imgui.h"
+// #include "IMGUI/imgui_internal.h"
+#endif
 
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
@@ -29,37 +34,39 @@
 
 namespace reveal3d::graphics {
 
-__declspec(align(16)) class Dx12 {
+class alignas(16) Dx12 {
 public:
-  explicit Dx12(window::Resolution* res);
+  using surface = dx12::Surface;
+
+  explicit Dx12(window::Resolution res);
+
+  ~Dx12() = default;
+
   void loadPipeline();
+
   void loadAssets();
-  void loadAsset(core::Entity id);
+
   void update(render::Camera const& camera);
-  void renderSurface();
-  void terminate();
-  void resize(window::Resolution const& res);
+
+  void render() { renderSurface(surface_); }
+
+  void renderSurface(dx12::Surface& surface);
+
+  void resize(window::Resolution res);
+
   void initWindow(WHandle const& win_handle) { surface_.setWindow(win_handle); }
-  ID3D12Device* device() const { return device_.Get(); }
-  dx12::Heaps& heaps() { return heaps_; }
+
+  [[nodiscard]] ID3D12Device* device() const { return dx12::adapter.device.Get(); }
+
+  dx12::Heaps const& heaps() { return heaps_; }
 
 private:
-  void initDxgiAdapter();
-  void initFrameResources();
-  void initDsBuffer();
-  void initConstantBuffers();
-  void removeAsset(id_t id);
+  void imGuiBegin() const;
 
-  /****************** Factory and Device *****************/
-  ComPtr<IDXGIFactory5> factory_;
-  ComPtr<ID3D12Device> device_;
+  void imGuiEnd() const;
 
   /****************** Frame resources *****************/
-  dx12::FrameResources frame_resources_ {};
-
-  /***************** Depth stencil buffer**********************/
-  ComPtr<ID3D12Resource> depth_stencil_buffer_;
-  dx12::DescriptorHandle ds_handle_;
+  dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
 
   /******************* Gpu heaps and commands **********************/
   dx12::Heaps heaps_;

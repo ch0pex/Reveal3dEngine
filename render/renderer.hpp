@@ -22,7 +22,7 @@ namespace reveal3d::render {
 template<graphics::HRI Gfx>
 class Renderer {
 public:
-  explicit Renderer(window::Resolution* res) : graphics_(res), camera_(*res) { }
+  explicit Renderer(window::Resolution const res) : graphics_(res), camera_(res) { }
 
   void init(WHandle w_handle) {
     f32 time = timer_.totalTime();
@@ -39,12 +39,11 @@ public:
     graphics_.update(camera_);
   }
 
-  void render() { graphics_.renderSurface(); }
+  void render() { graphics_.render(); }
 
-  void destroy() {
-    logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]";
-    graphics_.terminate();
-  }
+  Camera& camera() { return camera_; };
+
+  ~Renderer() { logger(LogInfo) << "Cleaning pipeline...[" << timer_.totalTime() << "]"; }
 
   void resize(window::Resolution const& res) {
     camera_.resize(res);
@@ -54,6 +53,7 @@ public:
   Gfx& graphics() { return graphics_; }
 
   [[nodiscard]] f32 deltaTime() const { return timer_.deltaTime(); }
+
   [[nodiscard]] Timer& time() { return timer_; }
 
   void cameraResetMouse() { camera_.resetMouse(); }

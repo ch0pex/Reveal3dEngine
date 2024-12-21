@@ -1,6 +1,6 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file gfx.hpp
@@ -23,17 +23,17 @@
 
 namespace reveal3d::graphics {
 
+enum class Backends : uint8_t { directx12 = 0, directx11, openGL, vulkan, metal };
+
 // Hardware render Interface Concept
 template<typename Gfx>
 concept HRI = requires(Gfx graphics, render::Camera& camera, window::Resolution& res) {
-    { graphics.loadPipeline()} ->  std::same_as<void>;
-    { graphics.loadAssets()} ->  std::same_as<void>;
-//    {graphics.loadAsset(std::declval<u32>)} ->  std::same_as<void>;
-    { graphics.update(camera)} ->  std::same_as<void>;
-    { graphics.renderSurface()} ->  std::same_as<void>;
-    { graphics.terminate()} ->  std::same_as<void>;
-    { graphics.resize(res)} ->  std::same_as<void>;
+  { graphics.loadPipeline() } -> std::same_as<void>;
+  { graphics.loadAssets() } -> std::same_as<void>;
+  { graphics.update(camera) } -> std::same_as<void>;
+  { graphics.renderSurface(std::declval<typename Gfx::surface&>()) } -> std::same_as<void>;
+  // { graphics.terminate() } -> std::same_as<void>;
+  { graphics.resize(res) } -> std::same_as<void>;
 };
 
-}
-
+} // namespace reveal3d::graphics
