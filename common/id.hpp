@@ -45,17 +45,22 @@ constexpr id_t indexMask {(id_t {1} << indexBits) - 1};
 
 constexpr id_t invalid {~id_t {0}};
 constexpr u32 maxFree {1024};
-constexpr u8 maxGeneration {(std::numeric_limits<u8>::max)()};
+constexpr u8 maxGeneration {(std::numeric_limits<generation_t>::max)()};
 
 
 constexpr bool is_valid(id_t const id) { return id != invalid; }
 
 constexpr index_t index(id_t const id) { return id & indexMask; }
 
-constexpr id_t generation(id_t const id) { return (id >> indexBits) & generationMask; }
+constexpr generation_t generation(id_t const id) { return (id >> indexBits) & generationMask; }
 
 constexpr id_t new_generation(id_t const idx) {
-  id_t const gen {generation(idx) + 1};
+  id_t const gen = generation(idx) + 1;
+  return index(idx) | (gen << indexBits);
+}
+
+constexpr id_t new_generation(id_t const idx, generation_t generation) {
+  id_t const gen {generation};
   return index(idx) | (gen << indexBits);
 }
 

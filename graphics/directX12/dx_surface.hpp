@@ -21,8 +21,8 @@
 namespace reveal3d::graphics::dx12 {
 
 struct RenderTarget {
-  ComPtr<ID3D12Resource> resource_;
-  DescriptorHandle rtv_;
+  ComPtr<ID3D12Resource> resource;
+  DescriptorHandle rtv;
 };
 
 class Surface {
@@ -42,9 +42,9 @@ public:
 
   void resize(window::Resolution const& res);
 
-  ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource_.Get(); }
+  ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource.Get(); }
 
-  D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).rtv_.cpu; }
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).rtv.cpu; }
 
   [[nodiscard]] window::Resolution resolution() const { return resolution_; };
 

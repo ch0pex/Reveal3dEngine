@@ -41,7 +41,7 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   swap_chain_1.As(&swap_chain_) >> utl::DxCheck;
 
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
-    frame_resource.rtv_ = heaps.rtv.alloc();
+    frame_resource.rtv = heaps.rtv.alloc();
   }
 
   finalize();
@@ -53,10 +53,10 @@ void Surface::finalize() {
     .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
   };
   for (auto [idx, target]: std::views::enumerate(render_targets_)) {
-    getBuffer(idx, target.resource_);
-    adapter.device->CreateRenderTargetView(target.resource_.Get(), &rtv_desc, target.rtv_.cpu);
+    getBuffer(idx, target.resource);
+    adapter.device->CreateRenderTargetView(target.resource.Get(), &rtv_desc, target.rtv.cpu);
     std::wstring name = L"BackBuffer " + std::to_wstring(idx);
-    target.resource_->SetName(name.c_str()) >> utl::DxCheck;
+    target.resource->SetName(name.c_str()) >> utl::DxCheck;
   }
 
   DXGI_SWAP_CHAIN_DESC desc {};
@@ -89,7 +89,7 @@ void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::D
 
 void Surface::resize(window::Resolution const& res) {
   for (auto& render_target: render_targets_) {
-    render_target.resource_.Reset();
+    render_target.resource.Reset();
   }
   resolution_ = res;
   swap_chain_->ResizeBuffers(

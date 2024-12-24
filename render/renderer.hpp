@@ -52,6 +52,7 @@ public:
 
   Gfx& graphics() { return graphics_; }
 
+
   [[nodiscard]] f32 deltaTime() const { return timer_.deltaTime(); }
 
   [[nodiscard]] Timer& time() { return timer_; }

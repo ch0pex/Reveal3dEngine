@@ -137,7 +137,7 @@ private:
   void removeId(id_t const id) {
     id_t const last = components_ids_.at(id_factory_.back());
     index_t const component_index {id_factory_.mapped(id)};
-    id_t const new_id = id::index(id) | id::generation(last);
+    id_t const new_id = id::new_generation(id, id::generation(last));
     if (last != id) {
       components_ids_.at(id::index(getMappedId(last))) = new_id;
     }

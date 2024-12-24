@@ -30,8 +30,10 @@ public:
 
   // *** Member getters ***
 
+  // Todo this should be const reference
   [[nodiscard]] math::mat4& world() const { return pool().world(id_); }
 
+  // Todo this should be const reference
   [[nodiscard]] math::mat4& invWorld() const { return pool().invWorld(id_); }
 
   [[nodiscard]] math::xvec3 position() const { return pool().posRotScale(id_).position; }
