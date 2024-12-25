@@ -13,11 +13,12 @@
 
 #pragma once
 
+#include "concepts.hpp"
 #include "config/config.hpp"
 #include "dx_deferring_system.hpp"
 
 #include <array>
-#include <graphics/directX12/dx_adapter.hpp>
+#include "graphics/directX12/dx_commands.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
@@ -45,10 +46,7 @@ public:
 
   DescriptorHeap& operator=(DescriptorHeap&&) = delete;
 
-  // ~DescriptorHeap();
-
-  // inline D3D12_DESCRIPTOR_HEAP_TYPE GetType() { return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(Type); }
-  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_.Get(); };
+  [[nodiscard]] ID3D12DescriptorHeap* get() const { return heap_.Get(); }
 
   [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE cpuStart() const { return cpu_start_; }
 
@@ -68,12 +66,18 @@ public:
 
   void free(DescriptorHandle& handle);
 
+  template<GpuResource T>
+  void free(T& gpu_resource) {
+    free(gpu_resource.handle());
+    deferred_release(gpu_resource.resource());
+  }
+
   void cleanDeferreds();
 
   void release() const { deferred_release(heap_.Get()); }
 
 private:
-  ComPtr<ID3D12DescriptorHeap> heap_ {nullptr};
+  ComPtr<ID3D12DescriptorHeap> heap_;
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
@@ -83,7 +87,7 @@ private:
   u32 descriptor_size_ {};
   D3D12_DESCRIPTOR_HEAP_TYPE type_;
 
-  // std::mutexmutex in future
+  // std::mutex in future
 };
 
 

@@ -18,88 +18,6 @@
 #include "dx_adapter.hpp"
 
 namespace reveal3d::graphics::dx12 {
-/*
-
-RootParameter::RootParameter() {
-    parameter_.ParameterType = (D3D12_ROOT_PARAMETER_TYPE) 0xFFFFFFFF;
-}
-
-
-RootParameter::~RootParameter()
-{
-    Clear();
-}
-
-void RootParameter::clear()
-{
-    if (parameter_.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
-        delete [] parameter_.DescriptorTable.pDescriptorRanges;
-
-    parameter_.ParameterType = (D3D12_ROOT_PARAMETER_TYPE)0xFFFFFFFF;
-}
-
-void RootParameter::InitAsConstants( UINT Register, UINT NumDwords, D3D12_SHADER_VISIBILITY Visibility =
-D3D12_SHADER_VISIBILITY_ALL, UINT Space = 0 )
-{
-    parameter_.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-    parameter_.ShaderVisibility = Visibility;
-    parameter_.Constants.Num32BitValues = NumDwords;
-    parameter_.Constants.ShaderRegister = Register;
-    parameter_.Constants.RegisterSpace = Space;
-}
-
-void RootParameter::InitAsConstantBuffer( UINT Register, D3D12_SHADER_VISIBILITY Visibility =
-D3D12_SHADER_VISIBILITY_ALL, UINT Space = 0 )
-{
-    parameter_.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    parameter_.ShaderVisibility = Visibility;
-    parameter_.Descriptor.ShaderRegister = Register;
-    parameter_.Descriptor.RegisterSpace = Space;
-}
-
-void RootParameter::InitAsBufferSRV( UINT Register, D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL,
-UINT Space = 0 )
-{
-    parameter_.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    parameter_.ShaderVisibility = Visibility;
-    parameter_.Descriptor.ShaderRegister = Register;
-    parameter_.Descriptor.RegisterSpace = Space;
-}
-
-void RootParameter::InitAsBufferUAV( UINT Register, D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL,
-UINT Space = 0 )
-{
-    parameter_.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
-    parameter_.ShaderVisibility = Visibility;
-    parameter_.Descriptor.ShaderRegister = Register;
-    parameter_.Descriptor.RegisterSpace = Space;
-}
-
-void RootParameter::InitAsDescriptorRange( D3D12_DESCRIPTOR_RANGE_TYPE Type, UINT Register, UINT count,
-D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL, UINT Space = 0 )
-{
-    InitAsDescriptorTable(1, Visibility);
-    SetTableRange(0, Type, Register, count, Space);
-}
-
-void RootParameter::InitAsDescriptorTable( UINT RangeCount, D3D12_SHADER_VISIBILITY Visibility =
-D3D12_SHADER_VISIBILITY_ALL )
-{
-    parameter_.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    parameter_.ShaderVisibility = Visibility;
-    parameter_.DescriptorTable.NumDescriptorRanges = RangeCount;
-    parameter_.DescriptorTable.pDescriptorRanges = new D3D12_DESCRIPTOR_RANGE[RangeCount];
-}
-
-void RootParameter::SetTableRange( UINT RangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE Type, UINT Register, UINT count, UINT
-Space = 0 )
-{
-    D3D12_DESCRIPTOR_RANGE* range = const_cast<D3D12_DESCRIPTOR_RANGE*>(parameter_.DescriptorTable.pDescriptorRanges +
-RangeIndex); range->RangeType = Type; range->NumDescriptors = countData; range->BaseShaderRegister = Register;
-    range->RegisterSpace = Space;
-    range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-}
-*/
 
 RootSignature::RootSignature(u32 num_root_params) : num_parameters_(num_root_params) { reset(num_root_params); }
 
@@ -114,7 +32,7 @@ void RootSignature::reset(u32 num_root_params) {
 }
 
 void RootSignature::finalize() {
-  auto static_samplers = getStaticSamplers();
+  auto const static_samplers = getStaticSamplers();
   const CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
       num_parameters_, parameters_.get(), static_samplers.size(), static_samplers.data(),
       D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT

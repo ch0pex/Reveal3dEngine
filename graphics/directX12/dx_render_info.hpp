@@ -15,22 +15,22 @@
 
 #include "core/components/geometry.hpp"
 #include "core/scene.hpp"
-#include "resources/dx_resources.hpp"
+#include "resources/dx_buffer.hpp"
+#include "resources/dx_frame_resource.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
 class RenderElement {
 public:
-  RenderElement(core::Entity const entity, ID3D12GraphicsCommandList* cmd_list) : entity_(entity) {
-    auto const geo         = entity.component<core::Geometry>();
-    auto const vertex_info = Buffer::buffer1d(cmd_list, geo.vertices().size() * sizeof(render::Vertex));
-    auto const index_info  = Buffer::buffer1d(cmd_list, geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT);
-
-    vertex_buffer_.init(vertex_info, geo.vertices());
-    index_buffer_.init(index_info, geo.indices());
-
-    vertex_view_ = vertex_buffer_.view<D3D12_VERTEX_BUFFER_VIEW>();
-    index_view_  = index_buffer_.view<D3D12_INDEX_BUFFER_VIEW>();
+  RenderElement(core::Geometry const geo, ID3D12GraphicsCommandList* cmd_list) :
+    vertex_buffer_(Buffer::buffer1d(geo.vertices().size() * sizeof(render::Vertex))),
+    index_buffer_(Buffer::buffer1d(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
+    vertex_view_(buffer_view<D3D12_VERTEX_BUFFER_VIEW>(vertex_buffer_)),
+    index_view_(buffer_view<D3D12_INDEX_BUFFER_VIEW>(index_buffer_)), //
+    entity_(core::scene.getEntity(geo.entityIdx())) //
+  {
+    vertex_buffer_.upload(cmd_list, geo.vertices());
+    index_buffer_.upload(cmd_list, geo.indices());
   }
 
   [[nodiscard]] constexpr auto const& vertices() const { return vertex_view_; }

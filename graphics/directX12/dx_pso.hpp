@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include "dx_common.hpp"
 #include "dx_root_signature.hpp"
+#include "utils/dx_debug.hpp"
 
 namespace reveal3d::graphics::dx12 {
 

@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_resources.cpp
+ * @file dx_deferring_system.cpp
  * @version 1.0
  * @date 13/03/2024
  * @brief Short description
@@ -12,7 +12,8 @@
  */
 
 #include "dx_deferring_system.hpp"
-#include "../dx_commands.hpp"
+#include "graphics/directX12/dx_commands.hpp"
+#include "graphics/directX12/utils/dx_resource_array.hpp"
 
 #include <array>
 
@@ -43,7 +44,7 @@ void clean_deferred_resources() {
 
     if (!deferredReleases[frame_index].empty()) {
       for (auto* resource: deferredReleases[Commands::frameIndex()]) {
-        utl::release(resource);
+        release(resource);
       }
       deferredReleases[frame_index].clear();
     }
@@ -58,7 +59,7 @@ void clean_all_resources() {
 
       if (!deferredReleases[idx].empty()) {
         for (auto* resource: deferredReleases[Commands::frameIndex()]) {
-          utl::release(resource);
+          release(resource);
         }
         deferredReleases[idx].clear();
       }

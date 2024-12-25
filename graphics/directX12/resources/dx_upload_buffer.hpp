@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include "../dx_common.hpp"
 #include "dx_descriptor_heap.hpp"
+#include "graphics/directX12/dx_adapter.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
@@ -39,8 +39,8 @@ template<typename T>
 concept is_constant = detail::is_constant<T>::value;
 
 /**
- * Upload buffers need lifetime extension
- * during a frame so uses delayed destruction
+ * Upload buffers need lifetime extension during a frame
+ * so uses delayed destruction
  *
  * @note this means ComPtr<ID3D12Resource> can't be used
  * @tparam T Data type to upload
@@ -65,6 +65,7 @@ public:
 
     buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utl::DxCheck;
     mapped_data_ = std::span<T>(data, data + count);
+    gpu_address_ = buff_->GetGPUVirtualAddress();
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
@@ -89,11 +90,9 @@ public:
 
   [[nodiscard]] u32 size() const { return mapped_data_.size(); }
 
-  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuStart() const { return buff_->GetGPUVirtualAddress(); }
+  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuStart() const { return gpu_address_; }
 
-  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 const index) const {
-    return buff_->GetGPUVirtualAddress() + (index * sizeof(T));
-  }
+  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 const index) const { return gpu_address_ + (index * sizeof(T)); }
 
   DescriptorHandle view(u64 const idx, DescriptorHeap& heap) const {
     u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
@@ -120,6 +119,7 @@ public:
 private:
   std::span<T> mapped_data_ {};
   ID3D12Resource* buff_ {};
+  D3D12_GPU_VIRTUAL_ADDRESS gpu_address_;
 };
 
 template<typename T>

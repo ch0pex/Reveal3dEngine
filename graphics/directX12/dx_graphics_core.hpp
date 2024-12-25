@@ -26,11 +26,11 @@
 
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
-#include "dx_common.hpp"
 #include "dx_gpass.hpp"
 #include "dx_surface.hpp"
 #include "render/camera.hpp"
-#include "resources/dx_resources.hpp"
+#include "resources/dx_frame_resource.hpp"
+#include "utils/dx_resource_array.hpp"
 
 namespace reveal3d::graphics {
 
@@ -68,7 +68,7 @@ private:
   /****************** Frame resources *****************/
   dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
 
-  /******************* Gpu heaps and commands **********************/
+  /******************* Gpu views heaps and commands **********************/
   dx12::Heaps heaps_;
   dx12::Commands cmd_manager_;
 

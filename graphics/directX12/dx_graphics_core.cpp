@@ -34,7 +34,7 @@ void Dx12::loadAssets() {
     cmd_manager_.reset();
 
     for (; new_geo.isAlive(); new_geo = geometry_pool.popNew()) {
-      gpass_.addRenderElement(scene.getEntity(new_geo.entityIdx()), cmd_manager_);
+      gpass_.addRenderElement(new_geo, cmd_manager_);
     }
 
     cmd_manager_.list()->Close() >> utl::DxCheck;
@@ -141,7 +141,7 @@ void Dx12::resize(window::Resolution const res) {
   cmd_manager_.reset(nullptr);
 
   // Resizing rtv and g-buffer
-  gpass_.resize(res, heaps_);
+  gpass_.resize(res);
   surface_.resize(res);
 
   // Resetting commander and executing commands
@@ -161,7 +161,7 @@ void Dx12::imGuiBegin() const {
 void Dx12::imGuiEnd() const {
 #ifdef IMGUI
   ImGui::UpdatePlatformWindows();
-  ImGui::RenderPlatformWindowsDefault(nullptr, (void*)cmd_manager_.list());
+  ImGui::RenderPlatformWindowsDefault(nullptr, cmd_manager_.list());
 #endif
 }
 

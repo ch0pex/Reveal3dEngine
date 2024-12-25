@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_gpass.hpp
+ * @file dx_surface.hpp
  * @version 1.0
  * @date 12/08/2024
  * @brief Short description
@@ -12,11 +12,13 @@
  */
 #pragma once
 
-#include "dx_adapter.hpp"
+
 #include "dx_commands.hpp"
-#include "dx_common.hpp"
 #include "resources/dx_descriptor_heap.hpp"
+#include "utils/dx_debug.hpp"
+#include "utils/dx_resource_array.hpp"
 #include "window/window_info.hpp"
+
 
 namespace reveal3d::graphics::dx12 {
 

@@ -172,7 +172,7 @@ public:
 
   [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
 
-  [[nodiscard]] Entity getEntity(id_t const id) const { return scene_graph_.at(id::index(id)).entity; }
+  [[nodiscard]] Entity getEntity(index_t const idx) const { return scene_graph_.at(id::index(id)).entity; }
 
   Node& getNode(id_t const id) { return scene_graph_.at(id::index(id)); }
 

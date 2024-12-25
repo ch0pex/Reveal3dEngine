@@ -14,7 +14,7 @@
 #pragma once
 
 #include "config/config.hpp"
-#include "dx_common.hpp"
+#include "utils/dx_debug.hpp"
 
 
 namespace reveal3d::graphics::dx12 {

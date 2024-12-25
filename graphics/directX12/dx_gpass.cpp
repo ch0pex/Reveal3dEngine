@@ -16,6 +16,7 @@
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
 
+#include <d3dcompiler.h>
 
 namespace reveal3d::graphics::dx12 {
 
@@ -96,8 +97,8 @@ void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource
 }
 
 // NOTE change geometry to mesh when content module update
-void Gpass::addRenderElement(core::Entity entity, Commands const& cmd_mng) {
-  render_elements_.emplace_back(entity, cmd_mng.list());
+void Gpass::addRenderElement(core::Geometry geo, Commands const& cmd_mng) {
+  render_elements_.emplace_back(geo, cmd_mng.list());
 }
 
 void Gpass::buildPsos() {

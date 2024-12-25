@@ -13,6 +13,7 @@
 
 #include "dx_descriptor_heap.hpp"
 #include "../dx_commands.hpp"
+#include "graphics/directX12/dx_adapter.hpp"
 #include "input/input_types.hpp"
 
 namespace reveal3d::graphics::dx12 {

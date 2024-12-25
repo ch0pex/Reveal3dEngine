@@ -88,8 +88,8 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {
-  for (auto& render_target: render_targets_) {
-    render_target.resource.Reset();
+  for (auto& [resource, rtv]: render_targets_) {
+    resource.Reset();
   }
   resolution_ = res;
   swap_chain_->ResizeBuffers(
