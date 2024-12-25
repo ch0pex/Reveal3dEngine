@@ -13,6 +13,7 @@
 
 #include "dx_pso.hpp"
 
+#include "d3dx12.h"
 #include "dx_adapter.hpp"
 
 namespace reveal3d::graphics::dx12 {

@@ -13,7 +13,8 @@
 
 #pragma once
 
-#include "dx_common.hpp"
+#include "d3dx12.h"
+#include "utils/dx_debug.hpp"
 
 namespace reveal3d::graphics::dx12 {
 

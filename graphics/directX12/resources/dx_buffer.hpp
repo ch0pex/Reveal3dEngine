@@ -13,66 +13,68 @@
 
 #pragma once
 
-#include "../dx_common.hpp"
+
 #include "dx_deferring_system.hpp"
 #include "dx_upload_buffer.hpp"
 #include "render/vertex.hpp"
+#include "utils/dx_checker.hpp"
+#include "utils/dx_debug.hpp"
+#include "window/window_info.hpp"
+
+#include "d3dx12.h"
+
 
 namespace reveal3d::graphics::dx12 {
-
 
 class Buffer {
 public:
   struct InitInfo {
-
-    ID3D12GraphicsCommandList* cmd_list;
-    D3D12_RESOURCE_DESC res_desc;
+    D3D12_RESOURCE_DESC res_desc {};
     D3D12_RESOURCE_STATES res_state {D3D12_RESOURCE_STATE_COMMON};
     D3D12_HEAP_PROPERTIES heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)};
     std::optional<D3D12_CLEAR_VALUE> clear_value {std::nullopt};
   };
 
-  Buffer() = default;
-
-  ~Buffer() { buff_->Release(); }
-
-  template<typename T>
-  explicit Buffer(InitInfo& info, std::span<T> data = {}) {
-    init(info);
-  }
-
-  template<typename T = std::monostate>
-  void init(InitInfo const& info, std::span<T> data = {}) {
-    size_                 = info.res_desc.Width * info.res_desc.Height;
+  explicit Buffer(InitInfo const& info) : size_(info.res_desc.Width * info.res_desc.Height) {
     auto const* opt_clear = info.clear_value.has_value() ? &info.clear_value.value() : nullptr;
 
     adapter.device->CreateCommittedResource(
         &info.heap_properties, D3D12_HEAP_FLAG_NONE, &info.res_desc, info.res_state, opt_clear, IID_PPV_ARGS(&buff_)
     ) >> utl::DxCheck;
 
-    // D3D12_SUBRESOURCE_DATA sub_resource_data = { .pData = info.view.data(), .RowPitch = size_, .SlicePitch = size_
-    // };
-
-    if constexpr (not std::same_as<T, std::monostate>) {
-      auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
-
-      auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest
-          buff_, //
-          D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
-      );
-      info.cmd_list->ResourceBarrier(1, &barrier);
-
-      std::ranges::copy(data, upload_buffer.begin());
-      info.cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
-
-      barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Restoring buffer state to generic read
-          buff_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
-      );
-      info.cmd_list->ResourceBarrier(1, &barrier);
-    }
-
+    gpu_address_            = buff_->GetGPUVirtualAddress();
     std::wstring const name = L"Buffer " + std::to_wstring(counter++);
     buff_->SetName(name.c_str()) >> utl::DxCheck;
+  }
+
+  ~Buffer() { dx12::release(buff_); }
+
+  Buffer& operator=(Buffer&& other) noexcept {
+    release();
+    buff_       = other.buff_;
+    size_       = other.size_;
+    other.buff_ = nullptr;
+    other.size_ = 0;
+    return *this;
+  }
+
+  template<typename T>
+  void upload(ID3D12GraphicsCommandList* cmd_list, std::span<T> data = {}) {
+    auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
+
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest
+        buff_, //
+        D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
+    );
+    cmd_list->ResourceBarrier(1, &barrier);
+
+    std::ranges::copy(data, upload_buffer.begin());
+    cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
+
+    barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Restoring buffer state to generic read
+        buff_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
+    );
+    cmd_list->ResourceBarrier(1, &barrier);
   }
 
   void release() const {
@@ -84,39 +86,41 @@ public:
 
   [[nodiscard]] u32 size() const { return size_; };
 
-  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpu_address() const { return buff_->GetGPUVirtualAddress(); }
+  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpu_address() const { return gpu_address_; }
 
-  template<typename T>
-  T view();
-
-  static constexpr auto buffer1d = [](ID3D12GraphicsCommandList* cmd_lists, u64 const width,
-                                      DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
+  static constexpr auto buffer1d = [](u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
     return InitInfo {
-      .cmd_list = cmd_lists,
-      .res_desc = CD3DX12_RESOURCE_DESC::Buffer(width),
+      .res_desc  = CD3DX12_RESOURCE_DESC::Buffer(width),
+      .res_state = D3D12_RESOURCE_STATE_COMMON,
+      .heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)},
+      .clear_value {std::nullopt},
     };
   };
 
 private:
   static inline u32 counter = 0;
+  D3D12_GPU_VIRTUAL_ADDRESS gpu_address_ {};
   ID3D12Resource* buff_ {};
   u32 size_ {0};
 };
 
+template<typename T>
+T buffer_view(Buffer const& buffer);
+
 template<>
-inline D3D12_VERTEX_BUFFER_VIEW Buffer::view<D3D12_VERTEX_BUFFER_VIEW>() {
+inline D3D12_VERTEX_BUFFER_VIEW buffer_view<D3D12_VERTEX_BUFFER_VIEW>(Buffer const& buffer) {
   return {
-    .BufferLocation = buff_->GetGPUVirtualAddress(),
-    .SizeInBytes    = size_,
+    .BufferLocation = buffer.gpu_address(),
+    .SizeInBytes    = buffer.size(),
     .StrideInBytes  = sizeof(render::Vertex),
   };
 }
 
 template<>
-inline D3D12_INDEX_BUFFER_VIEW Buffer::view<D3D12_INDEX_BUFFER_VIEW>() {
+inline D3D12_INDEX_BUFFER_VIEW buffer_view<D3D12_INDEX_BUFFER_VIEW>(Buffer const& buffer) {
   return {
-    .BufferLocation = buff_->GetGPUVirtualAddress(),
-    .SizeInBytes    = size_,
+    .BufferLocation = buffer.gpu_address(),
+    .SizeInBytes    = buffer.size(),
     .Format         = DXGI_FORMAT_R32_UINT,
   };
 }

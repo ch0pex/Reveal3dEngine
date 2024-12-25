@@ -13,16 +13,21 @@
 
 #pragma once
 
-#include "../dx_common.hpp"
+#include <d3d12.h>
 
 namespace reveal3d::graphics::dx12 {
 
-struct Heaps;
+template<typename T>
+void release(T*& resource) {
+  if (resource) {
+    resource->Release();
+    resource = nullptr;
+  }
+}
 
-void set_deferred_flag();
 void deferred_release(IUnknown* resource);
+void set_deferred_flag();
 void clean_deferred_resources();
 void clean_all_resources();
-
 
 } // namespace reveal3d::graphics::dx12
