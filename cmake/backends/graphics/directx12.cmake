@@ -34,7 +34,7 @@ set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/dx_gpass.hpp
         ${DIRECTX12_DIR}/dx_graphics_core.hpp
         ${DIRECTX12_DIR}/dx_pso.hpp
-        ${DIRECTX12_DIR}/dx_render_info.hpp
+        ${DIRECTX12_DIR}/dx_render_element.hpp
         ${DIRECTX12_DIR}/dx_root_signature.hpp
         ${DIRECTX12_DIR}/dx_surface.hpp
 )

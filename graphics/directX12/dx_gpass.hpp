@@ -19,7 +19,7 @@
 #include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_pso.hpp"
-#include "dx_render_info.hpp"
+#include "dx_render_element.hpp"
 #include "resources/dx_depth_buffer.hpp"
 #include "resources/dx_frame_resource.hpp"
 
