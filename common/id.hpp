@@ -126,7 +126,7 @@ private:
   std::vector<generation_t> generations_;
   std::deque<index_t> free_indices_;
   std::vector<index_t> mapped_idx_; // mappedIdx[componentId] -> component index
-  utl::vector<index_t> owner_idx_; // ownerIds[dataIndex] -> component index
+  utils::vector<index_t> owner_idx_; // ownerIds[dataIndex] -> component index
 };
 
 } // namespace reveal3d::id

@@ -49,12 +49,12 @@ void RootSignature::finalize() {
   if (error_blob != nullptr) {
     OutputDebugStringA((char*)error_blob->GetBufferPointer());
   }
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
 
   adapter.device->CreateRootSignature(
       0, serialized_root_sig->GetBufferPointer(), serialized_root_sig->GetBufferSize(),
       IID_PPV_ARGS(signature_.GetAddressOf())
-  ) >> utl::DxCheck;
+  ) >> utils::DxCheck;
 }
 
 const CD3DX12_ROOT_PARAMETER& RootSignature::operator[](size_t entry_index) const {

@@ -62,9 +62,9 @@ protected:
   }
 
 private:
-  utl::vector<render::Material> materials_;
-  utl::vector<render::SubMesh> sub_meshes_;
-  utl::vector<render::Mesh> meshes_;
+  utils::vector<render::Material> materials_;
+  utils::vector<render::SubMesh> sub_meshes_;
+  utils::vector<render::Mesh> meshes_;
   u64 total_vertices_ {0};
   u64 total_triangles_ {0};
 };

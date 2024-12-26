@@ -28,39 +28,39 @@ Commands::Commands() {
     .NodeMask = 0
   };
   resetFences();
-  adapter.device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utl::DxCheck;
+  adapter.device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utils::DxCheck;
 
-  adapter.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utl::DxCheck;
+  adapter.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utils::DxCheck;
   fence_event_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
   if (fence_event_ == nullptr) {
-    GetLastError() >> utl::DxCheck;
+    GetLastError() >> utils::DxCheck;
     throw std::runtime_error("Failed to create fence event");
   }
 
   for (auto& command_allocator: command_allocators_) {
     adapter.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator)) >>
-        utl::DxCheck;
+        utils::DxCheck;
   }
 
   adapter.device->CreateCommandList(
       0, D3D12_COMMAND_LIST_TYPE_DIRECT, command_allocators_[frame_index_].Get(), nullptr, IID_PPV_ARGS(&command_list_)
-  ) >> utl::DxCheck;
-  command_list_->Close() >> utl::DxCheck;
+  ) >> utils::DxCheck;
+  command_list_->Close() >> utils::DxCheck;
 }
 
 void Commands::reset(ID3D12PipelineState* pso) const {
-  command_allocators_[frame_index_]->Reset() >> utl::DxCheck;
-  command_list_->Reset(command_allocators_[frame_index_].Get(), pso) >> utl::DxCheck;
+  command_allocators_[frame_index_]->Reset() >> utils::DxCheck;
+  command_list_->Reset(command_allocators_[frame_index_].Get(), pso) >> utils::DxCheck;
 }
 
 void Commands::waitForGpu() {
   fence_values_[frame_index_]++;
-  command_queue_->Signal(fence_.Get(), fence_values_[frame_index_]) >> utl::DxCheck;
+  command_queue_->Signal(fence_.Get(), fence_values_[frame_index_]) >> utils::DxCheck;
 
   if (fence_->GetCompletedValue() < fence_values_[frame_index_]) {
-    fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
+    fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utils::DxCheck;
     if (WaitForSingleObject(fence_event_, INFINITE) == WAIT_FAILED) {
-      GetLastError() >> utl::DxCheck;
+      GetLastError() >> utils::DxCheck;
     }
   }
 }
@@ -68,14 +68,14 @@ void Commands::waitForGpu() {
 void Commands::moveToNextFrame() {
   u64 const current_fence_val = fence_values_[frame_index_];
 
-  command_queue_->Signal(fence_.Get(), current_fence_val) >> utl::DxCheck;
+  command_queue_->Signal(fence_.Get(), current_fence_val) >> utils::DxCheck;
 
   frame_index_ = ++frame_index_ % config::render.graphics.buffer_count;
 
   if (fence_->GetCompletedValue() < fence_values_[frame_index_]) {
-    fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utl::DxCheck;
+    fence_->SetEventOnCompletion(fence_values_[frame_index_], fence_event_) >> utils::DxCheck;
     if (WaitForSingleObject(fence_event_, INFINITE) == WAIT_FAILED) {
-      GetLastError() >> utl::DxCheck;
+      GetLastError() >> utils::DxCheck;
     }
   }
 

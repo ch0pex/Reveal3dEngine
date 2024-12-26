@@ -121,14 +121,14 @@ void Gpass::buildPsos() {
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
   hr = D3DCompileFromFile(
       absolute(L"graphics/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
       &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
 
   D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -148,14 +148,14 @@ void Gpass::buildPsos() {
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
   hr = D3DCompileFromFile(
       absolute(L"graphics/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
       &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
 
   D3D12_INPUT_ELEMENT_DESC flat_elements_desc[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -174,14 +174,14 @@ void Gpass::buildPsos() {
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
   hr = D3DCompileFromFile(
       absolute(L"graphics/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
       &pixel_shader, &errors
   );
   if (errors != nullptr)
     logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utl::DxCheck;
+  hr >> utils::DxCheck;
 
 
   pipeline_states_.at(Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));

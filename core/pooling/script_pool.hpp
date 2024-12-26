@@ -58,8 +58,8 @@ protected:
   }
 
 private:
-  utl::vector<Flag> flags_;
-  utl::vector<std::unique_ptr<ScriptBase>> scripts_;
+  utils::vector<Flag> flags_;
+  utils::vector<std::unique_ptr<ScriptBase>> scripts_;
 };
 
 } // namespace reveal3d::core::script

@@ -18,11 +18,11 @@
 #include <concepts>
 #include <type_traits>
 
-namespace reveal3d::math::utils {
+namespace reveal3d::math::utl {
 
-inline auto to_array(xvec3 v) { return std::array{v.x(), v.y(), v.z()}; }
-inline auto to_array(xvec4 v) { return std::array{v.x(), v.y(), v.z(), v.w()}; }
-inline auto to_array(vec3 v) { return std::array{v.x, v.y, v.z}; }
-inline auto to_array(vec4 v) { return std::array{v.x, v.y, v.z, v.w}; }
+inline auto to_array(xvec3 v) { return std::array {v.x(), v.y(), v.z()}; }
+inline auto to_array(xvec4 v) { return std::array {v.x(), v.y(), v.z(), v.w()}; }
+inline auto to_array(vec3 v) { return std::array {v.x, v.y, v.z}; }
+inline auto to_array(vec4 v) { return std::array {v.x, v.y, v.z, v.w}; }
 
-} // namespace reveal3d::math::utils
+} // namespace reveal3d::math::utl

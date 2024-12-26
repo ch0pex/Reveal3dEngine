@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-namespace reveal3d::graphics::dx12::utl {
+namespace reveal3d::graphics::dx12::utils {
 
 /**
  * @class ResourceArray
@@ -52,4 +52,4 @@ private:
   container resource_;
 };
 
-} // namespace reveal3d::graphics::dx12::utl
+} // namespace reveal3d::graphics::dx12::utils

@@ -21,7 +21,7 @@
 #include <memory>
 #include <ranges>
 
-namespace reveal3d::utl {
+namespace reveal3d::utils {
 
 template<typename T, bool destruct = true>
 class vector {
@@ -175,4 +175,4 @@ private:
   std::span<T> data_ {};
 };
 
-} // namespace reveal3d::utl
+} // namespace reveal3d::utils

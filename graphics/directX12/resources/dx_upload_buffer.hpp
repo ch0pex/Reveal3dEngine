@@ -59,11 +59,11 @@ public:
     adapter.device->CreateCommittedResource(
         &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
         IID_PPV_ARGS(&buff_)
-    ) >> utl::DxCheck;
+    ) >> utils::DxCheck;
 
     T* data {nullptr};
 
-    buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utl::DxCheck;
+    buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utils::DxCheck;
     mapped_data_ = std::span<T>(data, data + count);
     gpu_address_ = buff_->GetGPUVirtualAddress();
   }

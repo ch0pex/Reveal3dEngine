@@ -35,10 +35,10 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
 
   adapter.factory->CreateSwapChainForHwnd(
       cmd_manager.getQueue(), window_.hwnd, &swap_chain_desc, nullptr, nullptr, &swap_chain_1
-  ) >> utl::DxCheck;
+  ) >> utils::DxCheck;
   // Disable Alt + Enter for full screen window
-  adapter.factory->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utl::DxCheck;
-  swap_chain_1.As(&swap_chain_) >> utl::DxCheck;
+  adapter.factory->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utils::DxCheck;
+  swap_chain_1.As(&swap_chain_) >> utils::DxCheck;
 
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
     frame_resource.rtv = heaps.rtv.alloc();
@@ -56,19 +56,24 @@ void Surface::finalize() {
     getBuffer(idx, target.resource);
     adapter.device->CreateRenderTargetView(target.resource.Get(), &rtv_desc, target.rtv.cpu);
     std::wstring name = L"BackBuffer " + std::to_wstring(idx);
-    target.resource->SetName(name.c_str()) >> utl::DxCheck;
+    target.resource->SetName(name.c_str()) >> utils::DxCheck;
   }
 
   DXGI_SWAP_CHAIN_DESC desc {};
 
-  swap_chain_->GetDesc(&desc) >> utl::DxCheck;
+  swap_chain_->GetDesc(&desc) >> utils::DxCheck;
   viewport_.TopLeftX = 0.0F;
   viewport_.TopLeftY = 0.0F;
   viewport_.Height   = static_cast<f32>(desc.BufferDesc.Height);
   viewport_.Width    = static_cast<f32>(desc.BufferDesc.Width);
   viewport_.MaxDepth = 1.0F;
   viewport_.MinDepth = 0.0F;
-  scissor_rect_      = {0, 0, static_cast<i32>(desc.BufferDesc.Width), static_cast<i32>(desc.BufferDesc.Height)};
+  scissor_rect_      = {
+         .left   = 0,
+         .top    = 0,
+         .right  = static_cast<i32>(desc.BufferDesc.Width),
+         .bottom = static_cast<i32>(desc.BufferDesc.Height)
+  };
 }
 
 void Surface::setViewport(ID3D12GraphicsCommandList* cmd_list) const {
@@ -85,7 +90,7 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
   }
 }
 
-void Surface::present() const { swap_chain_->Present(0, present_info_) >> utl::DxCheck; }
+void Surface::present() const { swap_chain_->Present(0, present_info_) >> utils::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {
   for (auto& [resource, rtv]: render_targets_) {
@@ -95,13 +100,13 @@ void Surface::resize(window::Resolution const& res) {
   swap_chain_->ResizeBuffers(
       config::render.graphics.buffer_count, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
       swap_chain_flags_
-  ) >> utl::DxCheck;
+  ) >> utils::DxCheck;
 
   finalize();
 }
 
 void Surface::getBuffer(u32 const index, ComPtr<ID3D12Resource>& buffer) const {
-  swap_chain_->GetBuffer(index, IID_PPV_ARGS(&buffer)) >> utl::DxCheck;
+  swap_chain_->GetBuffer(index, IID_PPV_ARGS(&buffer)) >> utils::DxCheck;
 }
 
 void Surface::setWindow(WHandle const& win_handle) { window_ = win_handle; }

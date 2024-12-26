@@ -57,9 +57,9 @@ protected:
   }
 
 private:
-  utl::vector<math::mat4> world_mat_;
-  utl::vector<math::mat4> inv_world_;
-  utl::vector<detail::Transform> pos_rot_scale_;
+  utils::vector<math::mat4> world_mat_;
+  utils::vector<math::mat4> inv_world_;
+  utils::vector<detail::Transform> pos_rot_scale_;
 };
 
 

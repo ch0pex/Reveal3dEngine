@@ -61,8 +61,8 @@ protected:
   }
 
 private:
-  std::array<utl::vector<render::Light>, static_cast<u64>(render::Light::type::count)> lights_;
-  utl::vector<std::pair<index_t, render::Light::type>> light_desc_;
+  std::array<utils::vector<render::Light>, static_cast<u64>(render::Light::type::count)> lights_;
+  utils::vector<std::pair<index_t, render::Light::type>> light_desc_;
 };
 
 } // namespace reveal3d::core::light

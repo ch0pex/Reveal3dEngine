@@ -31,7 +31,7 @@ inline void get_hardware_adapter(IDXGIFactory1* p_factory, IDXGIAdapter1** pp_ad
          ));
          ++adapter_index) {
       DXGI_ADAPTER_DESC1 desc;
-      adapter->GetDesc1(&desc) >> utl::DxCheck;
+      adapter->GetDesc1(&desc) >> utils::DxCheck;
 
       if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
         continue;
@@ -44,7 +44,7 @@ inline void get_hardware_adapter(IDXGIFactory1* p_factory, IDXGIAdapter1** pp_ad
   if (adapter.Get() == nullptr) {
     for (UINT adapter_index = 0; SUCCEEDED(p_factory->EnumAdapters1(adapter_index, &adapter)); ++adapter_index) {
       DXGI_ADAPTER_DESC1 desc;
-      adapter->GetDesc1(&desc) >> utl::DxCheck;
+      adapter->GetDesc1(&desc) >> utils::DxCheck;
 
       if ((desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) != 0u)
         continue;
@@ -64,26 +64,26 @@ struct Adapter {
     u32 factory_flags = 0;
 
 #ifdef _DEBUG
-    utl::enable_cpu_layer(factory_flags);
-    utl::log_adapters();
-    utl::enable_gpu_layer();
+    utils::enable_cpu_layer(factory_flags);
+    utils::log_adapters();
+    utils::enable_gpu_layer();
 #endif
 
     ComPtr<IDXGIAdapter1> hardware_adapter;
-    CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)) >> utl::DxCheck;
+    CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)) >> utils::DxCheck;
     detail::get_hardware_adapter(factory.Get(), &hardware_adapter);
-    D3D12CreateDevice(hardware_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device)) >> utl::DxCheck;
+    D3D12CreateDevice(hardware_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device)) >> utils::DxCheck;
 
 #ifdef _DEBUG
-    utl::queue_info(device.Get(), TRUE);
+    utils::queue_info(device.Get(), TRUE);
 #endif
   }
 
   ~Adapter() {
     logger(LogInfo) << "Cleaning deferred resources";
 #ifdef _DEBUG
-    utl::queue_info(device.Get(), FALSE);
-    utl::set_reporter(device.Get());
+    utils::queue_info(device.Get(), FALSE);
+    utils::set_reporter(device.Get());
 #endif
   }
 

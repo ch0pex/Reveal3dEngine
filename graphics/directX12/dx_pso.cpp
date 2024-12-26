@@ -70,7 +70,7 @@ void GraphicsPso::setSampleDescCount(u32 const sample_count) { pso_desc_.SampleD
 void GraphicsPso::setDsvFormat(const DXGI_FORMAT dsv_format) { pso_desc_.DSVFormat = dsv_format; }
 
 void GraphicsPso::finalize() {
-  adapter.device->CreateGraphicsPipelineState(&pso_desc_, IID_PPV_ARGS(&pipeline_state_)) >> utl::DxCheck;
+  adapter.device->CreateGraphicsPipelineState(&pso_desc_, IID_PPV_ARGS(&pipeline_state_)) >> utils::DxCheck;
 }
 
 } // namespace reveal3d::graphics::dx12
