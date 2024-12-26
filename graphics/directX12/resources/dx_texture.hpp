@@ -27,7 +27,7 @@ public:
 
   explicit Texture(InitInfo info, DescriptorHeap& heap) : handle_(heap.alloc()), buffer_(Buffer::buffer1d(1)) { }
 
-  [[nodiscard]] auto& handle() { return srv_; }
+  [[nodiscard]] auto const& srv() const { return srv_; }
 
   [[nodiscard]] auto resource() const { return buffer_.resource(); }
 
@@ -40,6 +40,7 @@ class RenderTexture {
 public:
 private:
   DescriptorHandle rtv_;
+  Texture texture_;
 };
 
 } // namespace reveal3d::graphics::dx12
