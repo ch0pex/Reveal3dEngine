@@ -15,7 +15,7 @@
 #include "dx_checker.hpp"
 
 
-namespace reveal3d::graphics::dx12::utl {
+namespace reveal3d::graphics::dx12::utils {
 
 ID3D12DebugDevice2* reporter;
 

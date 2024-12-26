@@ -40,11 +40,11 @@ public:
 
     adapter.device->CreateCommittedResource(
         &info.heap_properties, D3D12_HEAP_FLAG_NONE, &info.res_desc, info.res_state, opt_clear, IID_PPV_ARGS(&buff_)
-    ) >> utl::DxCheck;
+    ) >> utils::DxCheck;
 
     gpu_address_            = buff_->GetGPUVirtualAddress();
     std::wstring const name = L"Buffer " + std::to_wstring(counter++);
-    buff_->SetName(name.c_str()) >> utl::DxCheck;
+    buff_->SetName(name.c_str()) >> utils::DxCheck;
   }
 
   ~Buffer() { dx12::release(buff_); }

@@ -37,7 +37,7 @@ void Dx12::loadAssets() {
       gpass_.addRenderElement(new_geo, cmd_manager_);
     }
 
-    cmd_manager_.list()->Close() >> utl::DxCheck;
+    cmd_manager_.list()->Close() >> utils::DxCheck;
     cmd_manager_.execute();
     cmd_manager_.waitForGpu();
   }
@@ -120,7 +120,7 @@ void Dx12::renderSurface(Surface& surface) {
   command_list->ResourceBarrier(1, &present_barrier);
 
   // Executing commands
-  command_list->Close() >> utl::DxCheck;
+  command_list->Close() >> utils::DxCheck;
   cmd_manager_.execute();
 
   imGuiEnd();
@@ -146,7 +146,7 @@ void Dx12::resize(window::Resolution const res) {
 
   // Resetting commander and executing commands
   cmd_manager_.resetFences();
-  cmd_manager_.list()->Close() >> utl::DxCheck;
+  cmd_manager_.list()->Close() >> utils::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
 }

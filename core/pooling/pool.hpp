@@ -49,13 +49,13 @@ public:
   }
   std::set<id_t>& dirtyElements() { return dirty_ids_; }
   std::set<id_t>& dirtyIds() { return dirty_ids_; }
-  utl::vector<u8>& dirties() { return dirties_; }
+  utils::vector<u8>& dirties() { return dirties_; }
 
 protected:
   std::queue<id_t> new_components_;
   std::queue<id_t> deleted_components_;
   std::set<id_t> dirty_ids_;
-  utl::vector<u8> dirties_;
+  utils::vector<u8> dirties_;
 };
 
 } // namespace detail

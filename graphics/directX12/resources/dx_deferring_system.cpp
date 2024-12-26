@@ -23,7 +23,7 @@ namespace reveal3d::graphics::dx12 {
 namespace {
 
 std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
-utl::ResourceArray<u32> deferredReleasesFlags;
+utils::ResourceArray<u32> deferredReleasesFlags;
 
 } // namespace
 

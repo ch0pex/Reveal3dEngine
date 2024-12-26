@@ -26,7 +26,7 @@
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
-namespace reveal3d::graphics::dx12::utl {
+namespace reveal3d::graphics::dx12::utils {
 
 
 struct Checker { };

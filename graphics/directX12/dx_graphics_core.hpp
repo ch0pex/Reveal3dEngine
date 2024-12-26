@@ -66,7 +66,7 @@ private:
   void imGuiEnd() const;
 
   /****************** Frame resources *****************/
-  dx12::utl::ResourceArray<dx12::FrameResource> frame_resources_;
+  dx12::utils::ResourceArray<dx12::FrameResource> frame_resources_;
 
   /******************* Gpu views heaps and commands **********************/
   dx12::Heaps heaps_;

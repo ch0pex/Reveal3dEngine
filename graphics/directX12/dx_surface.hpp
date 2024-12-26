@@ -57,7 +57,7 @@ private:
 
   void getBuffer(u32 index, ComPtr<ID3D12Resource>& buffer) const;
 
-  utl::ResourceArray<RenderTarget> render_targets_;
+  utils::ResourceArray<RenderTarget> render_targets_;
   window::Resolution resolution_;
   ComPtr<IDXGISwapChain3> swap_chain_;
   u32 swap_chain_flags_;

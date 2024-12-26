@@ -52,9 +52,9 @@ public:
   }
 
 private:
-  utl::vector<std::string> names_;
-  utl::vector<std::string> comments_;
-  utl::vector<std::string> dates_;
+  utils::vector<std::string> names_;
+  utils::vector<std::string> comments_;
+  utils::vector<std::string> dates_;
 };
 
 
