@@ -16,8 +16,6 @@
 
 #ifdef _WIN32
 
-#define NOMINMAX
-
 #include <DirectXMath.h>
 #include <windows.h>
 
