@@ -19,9 +19,9 @@
 
 namespace reveal3d::graphics::dx12 {
 
-RootSignature::RootSignature(u32 num_root_params) : num_parameters_(num_root_params) { reset(num_root_params); }
+RootSignature::RootSignature(u32 const num_root_params) : num_parameters_(num_root_params) { reset(num_root_params); }
 
-void RootSignature::reset(u32 num_root_params) {
+void RootSignature::reset(u32 const num_root_params) {
   if (num_root_params > 0) {
     parameters_.reset(new CD3DX12_ROOT_PARAMETER[num_root_params]);
   }
@@ -57,12 +57,12 @@ void RootSignature::finalize() {
   ) >> utils::DxCheck;
 }
 
-const CD3DX12_ROOT_PARAMETER& RootSignature::operator[](size_t entry_index) const {
+const CD3DX12_ROOT_PARAMETER& RootSignature::operator[](size_t const entry_index) const {
   assert(entry_index < num_parameters_);
   return parameters_.get()[entry_index];
 }
 
-CD3DX12_ROOT_PARAMETER& RootSignature::operator[](size_t entry_index) {
+CD3DX12_ROOT_PARAMETER& RootSignature::operator[](size_t const entry_index) {
   assert(entry_index < num_parameters_);
   return parameters_.get()[entry_index];
 }
@@ -109,7 +109,7 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> RootSignature::getStaticSampler
       D3D12_TEXTURE_ADDRESS_MODE_WRAP, // addressU
       D3D12_TEXTURE_ADDRESS_MODE_WRAP, // addressV
       D3D12_TEXTURE_ADDRESS_MODE_WRAP, // addressW
-      0.0f, // mipLODBias
+      0.0F, // mipLODBias
       8
   ); // maxAnisotropy
 

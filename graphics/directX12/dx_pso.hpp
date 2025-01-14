@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "dx_adapter.hpp"
 #include "dx_root_signature.hpp"
 #include "utils/dx_debug.hpp"
 
@@ -20,28 +21,29 @@ namespace reveal3d::graphics::dx12 {
 
 class GraphicsPso {
 public:
-  GraphicsPso();
-
-  void setPsoDesc(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
-  void setInputLayout(const D3D12_INPUT_ELEMENT_DESC* input_layout, u32 count);
-  void setRootSignature(RootSignature& root_signature);
-  void setShaders(ID3DBlob* vs, ID3DBlob* ps);
-  void setRasterizerCullMode(D3D12_CULL_MODE mode);
-  void setBlendState(const D3D12_BLEND_DESC& blend_desc);
-  void setDepthStencil(const D3D12_DEPTH_STENCIL_DESC& ds_desc);
-  void setSampleMask(u32 mask);
-  void setPrimitive(D3D12_PRIMITIVE_TOPOLOGY_TYPE primitive);
-  void setNumRenderTargets(u32 number);
-  void setRtvFormats(u32 index, DXGI_FORMAT format);
-  void setSampleDescCount(u32 sample_count);
-  void setDsvFormat(DXGI_FORMAT dsv_format);
-
-  void finalize();
+  using descriptor = D3D12_GRAPHICS_PIPELINE_STATE_DESC;
+  explicit GraphicsPso(descriptor const& desc) {
+    adapter.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state_)) >> utils::DxCheck;
+  };
   ID3D12PipelineState* get() const { return pipeline_state_.Get(); }
 
+  constexpr static auto default_ = [] {
+    descriptor desc = {
+      .SampleMask            = std::numeric_limits<u32>::max(),
+      .RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
+      .DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
+      .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+      .NumRenderTargets      = 1,
+      .DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT,
+      .SampleDesc            = {.Count = 1},
+    };
+    desc.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    desc.RTVFormats[0]            = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+    return desc;
+  };
 
 private:
-  D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc_ = {};
   ComPtr<ID3D12PipelineState> pipeline_state_;
 };
 
