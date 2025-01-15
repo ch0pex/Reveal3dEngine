@@ -37,7 +37,7 @@ namespace literals {
 template<size_t N>
 struct String {
 
-  constexpr String(char const (&str)[N]) { std::copy_n(str, N, value); }
+  constexpr String(char const (&str)[N]) { std::ranges::copy_n(str, N, value); }
 
   operator std::string() const { return std::string(value); }
 

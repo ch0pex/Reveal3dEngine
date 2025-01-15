@@ -38,9 +38,9 @@ public:
 
     command_list->ClearRenderTargetView(back_buffer, math::utl::to_array(config::scene.clearColor).data(), 0, nullptr);
     command_list->ClearDepthStencilView(
-        depth_buffer_.dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0F, 0, 0, nullptr
+        depth_buffer_.handle().cpu, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0F, 0, 0, nullptr
     );
-    command_list->OMSetRenderTargets(1, &back_buffer, TRUE, &depth_buffer_.dsv());
+    command_list->OMSetRenderTargets(1, &back_buffer, TRUE, &depth_buffer_.handle().cpu);
   }
 
   void depthPrepass() { } // TODO

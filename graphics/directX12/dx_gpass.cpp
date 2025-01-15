@@ -35,7 +35,8 @@ constexpr D3D12_RENDER_TARGET_BLEND_DESC transparency_blend_desc {
 
 constexpr D3D12_BLEND_DESC blend_desc = {.RenderTarget = transparency_blend_desc};
 
-Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) : depth_buffer_(resolution, heaps.dsv) {
+Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) :
+  depth_buffer_(heaps.dsv.alloc<DepthBuffer>(resolution)), pipeline_states_() {
   root_signatures_.at(Shader::Opaque).reset(4);
   root_signatures_.at(Shader::Flat).reset(4);
   root_signatures_.at(Shader::Grid).reset(4);
