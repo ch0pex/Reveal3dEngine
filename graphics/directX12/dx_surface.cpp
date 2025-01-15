@@ -11,7 +11,7 @@
 namespace reveal3d::graphics::dx12 {
 
 Surface::Surface(window::Resolution const& resolution, u32 const swap_chain_flags, u32 const present_info) :
-  resolution_(resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
+  render_targets_(), resolution_(resolution), swap_chain_flags_(swap_chain_flags), present_info_(present_info) { }
 
 void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   ComPtr<IDXGISwapChain1> swap_chain_1;
@@ -41,7 +41,7 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   swap_chain_1.As(&swap_chain_) >> utils::DxCheck;
 
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
-    frame_resource.rtv = heaps.rtv.alloc();
+    frame_resource = heaps.rtv.alloc<RenderTarget>(rtv_default_desc);
   }
 
   finalize();
@@ -49,14 +49,9 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
 
 void Surface::finalize() {
 
-  constexpr D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
-    .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
-  };
   for (auto [idx, target]: std::views::enumerate(render_targets_)) {
-    getBuffer(idx, target.resource);
-    adapter.device->CreateRenderTargetView(target.resource.Get(), &rtv_desc, target.rtv.cpu);
-    std::wstring name = L"BackBuffer " + std::to_wstring(idx);
-    target.resource->SetName(name.c_str()) >> utils::DxCheck;
+    auto buf = target.resource();
+    swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buf)) >> utils::DxCheck;
   }
 
   DXGI_SWAP_CHAIN_DESC desc {};
@@ -93,9 +88,10 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utils::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {
-  for (auto& [resource, rtv]: render_targets_) {
-    resource.Reset();
-  }
+  // for (auto target: render_targets_) {
+  //   target.resource().Reset();
+  // }
+
   resolution_ = res;
   swap_chain_->ResizeBuffers(
       config::render.graphics.buffer_count, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -103,10 +99,6 @@ void Surface::resize(window::Resolution const& res) {
   ) >> utils::DxCheck;
 
   finalize();
-}
-
-void Surface::getBuffer(u32 const index, ComPtr<ID3D12Resource>& buffer) const {
-  swap_chain_->GetBuffer(index, IID_PPV_ARGS(&buffer)) >> utils::DxCheck;
 }
 
 void Surface::setWindow(WHandle const& win_handle) { window_ = win_handle; }

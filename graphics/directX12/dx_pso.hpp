@@ -22,6 +22,9 @@ namespace reveal3d::graphics::dx12 {
 class GraphicsPso {
 public:
   using descriptor = D3D12_GRAPHICS_PIPELINE_STATE_DESC;
+
+  GraphicsPso() = default;
+
   explicit GraphicsPso(descriptor const& desc) {
     adapter.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state_)) >> utils::DxCheck;
   };

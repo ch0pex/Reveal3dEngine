@@ -75,21 +75,21 @@ inline auto depth_buffer_info(window::Resolution const res) {
 class DepthBuffer {
 public:
   // *** Constructors ***
-
   /**
    * @param res Depth buffer resolution
+   * @param handle
    * @param heap Depth stencil descriptor heap where descriptor will be allocated
    */
-  explicit DepthBuffer(window::Resolution const res, DescriptorHeap& heap) :
-    dsv_(heap.alloc()), buff_(defaults::depth_buffer_info(res)) {
+  explicit DepthBuffer(DescriptorHandle const& handle, window::Resolution const res) :
+    dsv_(handle), buff_(defaults::depth_buffer_info(res)) {
     createView();
   }
 
-  explicit DepthBuffer(Buffer::InitInfo const& info, DescriptorHeap& heap) : dsv_(heap.alloc()), buff_(info) {
+  explicit DepthBuffer(DescriptorHandle const& handle, Buffer::InitInfo const& info) : dsv_(handle), buff_(info) {
     createView();
   }
 
-  [[nodiscard]] auto& dsv() const { return dsv_.cpu; }
+  [[nodiscard]] auto const& handle() const { return dsv_; }
 
   // [[nodiscard]] auto& srv() const { return dsv_.cpu; }
 

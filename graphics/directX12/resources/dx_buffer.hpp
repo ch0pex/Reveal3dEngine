@@ -42,15 +42,17 @@ public:
         &info.heap_properties, D3D12_HEAP_FLAG_NONE, &info.res_desc, info.res_state, opt_clear, IID_PPV_ARGS(&buff_)
     ) >> utils::DxCheck;
 
-    gpu_address_            = buff_->GetGPUVirtualAddress();
     std::wstring const name = L"Buffer " + std::to_wstring(counter++);
     buff_->SetName(name.c_str()) >> utils::DxCheck;
   }
 
-  ~Buffer() { dx12::release(buff_); }
+  ~Buffer() {
+    release(buff_);
+    logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
+  }
 
   Buffer& operator=(Buffer&& other) noexcept {
-    release();
+    deferred_release(buff_);
     buff_       = other.buff_;
     size_       = other.size_;
     other.buff_ = nullptr;
@@ -77,16 +79,11 @@ public:
     cmd_list->ResourceBarrier(1, &barrier);
   }
 
-  void release() const {
-    logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
-    deferred_release(buff_);
-  }
-
   [[nodiscard]] ID3D12Resource* resource() const { return buff_; }
 
   [[nodiscard]] u32 size() const { return size_; };
 
-  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpu_address() const { return gpu_address_; }
+  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpu_address() const { return buff_->GetGPUVirtualAddress(); }
 
   static constexpr auto buffer1d = [](u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
     return InitInfo {
@@ -99,7 +96,6 @@ public:
 
 private:
   static inline u32 counter = 0;
-  D3D12_GPU_VIRTUAL_ADDRESS gpu_address_ {};
   ID3D12Resource* buff_ {};
   u32 size_ {0};
 };

@@ -94,14 +94,14 @@ public:
 
   [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 const index) const { return gpu_address_ + (index * sizeof(T)); }
 
-  DescriptorHandle view(u64 const idx, DescriptorHeap& heap) const {
-    u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
-    const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {.BufferLocation = buff_address, .SizeInBytes = sizeof(T)};
+  // DescriptorHandle view(u64 const idx, DescriptorHeap& heap) const {
+  // u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
+  // const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {.BufferLocation = buff_address, .SizeInBytes = sizeof(T)};
 
-    DescriptorHandle const handle = heap.alloc();
-    adapter.device->CreateConstantBufferView(&desc, handle.cpu);
-    return handle;
-  }
+  // DescriptorHandle const handle = heap.alloc();
+  // adapter.device->CreateConstantBufferView(&desc, handle.cpu);
+  // return handle;
+  // }
 
   [[nodiscard]] decltype(auto) at(u64 idx) {
     if constexpr (is_constant<value_type>) {

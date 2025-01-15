@@ -5,12 +5,10 @@ set(DIRECTX12_DIR graphics/directX12)
 # Archivos de DirectX12
 set(DIRECTX12_SOURCES
         ${DIRECTX12_DIR}/resources/dx_deferring_system.cpp
-        ${DIRECTX12_DIR}/resources/dx_descriptor_heap.cpp
         ${DIRECTX12_DIR}/utils/dx_debug.cpp
         ${DIRECTX12_DIR}/dx_commands.cpp
         ${DIRECTX12_DIR}/dx_gpass.cpp
         ${DIRECTX12_DIR}/dx_graphics_core.cpp
-        ${DIRECTX12_DIR}/dx_pso.cpp
         ${DIRECTX12_DIR}/dx_root_signature.cpp
         ${DIRECTX12_DIR}/dx_surface.cpp
 )
@@ -19,6 +17,8 @@ set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/resources/dx_buffer.hpp
         ${DIRECTX12_DIR}/resources/dx_deferring_system.hpp
         ${DIRECTX12_DIR}/resources/dx_descriptor_heap.hpp
+        ${DIRECTX12_DIR}/resources/dx_descriptor_heap_type.hpp
+        ${DIRECTX12_DIR}/resources/dx_descriptors.hpp
         ${DIRECTX12_DIR}/resources/dx_frame_resource.hpp
         ${DIRECTX12_DIR}/resources/dx_texture.hpp
         ${DIRECTX12_DIR}/resources/dx_upload_buffer.hpp

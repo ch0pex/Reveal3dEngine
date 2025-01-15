@@ -22,9 +22,27 @@
 
 namespace reveal3d::graphics::dx12 {
 
-struct RenderTarget {
-  ComPtr<ID3D12Resource> resource;
-  DescriptorHandle rtv;
+constexpr D3D12_RENDER_TARGET_VIEW_DESC rtv_default_desc = {
+  .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
+};
+
+class RenderTarget {
+public:
+  using init_info = D3D12_RENDER_TARGET_VIEW_DESC;
+
+  RenderTarget() = default;
+
+  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc) : rtv_(handle) {
+    adapter.device->CreateRenderTargetView(buf_.Get(), &desc, rtv_.cpu);
+  }
+
+  [[nodiscard]] auto const& handle() const { return rtv_; }
+
+  [[nodiscard]] auto resource() const { return buf_.Get(); }
+
+private:
+  ComPtr<ID3D12Resource> buf_ {};
+  DescriptorHandle rtv_ {};
 };
 
 class Surface {
@@ -44,9 +62,9 @@ public:
 
   void resize(window::Resolution const& res);
 
-  ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource.Get(); }
+  ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource(); }
 
-  D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).rtv.cpu; }
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv() { return render_targets_.at(Commands::frameIndex()).handle().cpu; }
 
   [[nodiscard]] window::Resolution resolution() const { return resolution_; };
 
@@ -55,7 +73,6 @@ private:
 
   void finalize();
 
-  void getBuffer(u32 index, ComPtr<ID3D12Resource>& buffer) const;
 
   utils::ResourceArray<RenderTarget> render_targets_;
   window::Resolution resolution_;
