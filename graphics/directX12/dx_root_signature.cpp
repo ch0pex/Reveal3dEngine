@@ -47,7 +47,7 @@ void RootSignature::finalize() {
   );
 
   if (error_blob != nullptr) {
-    OutputDebugStringA((char*)error_blob->GetBufferPointer());
+    OutputDebugStringA(static_cast<char*>(error_blob->GetBufferPointer()));
   }
   hr >> utils::DxCheck;
 

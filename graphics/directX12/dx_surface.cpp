@@ -41,19 +41,15 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   swap_chain_1.As(&swap_chain_) >> utils::DxCheck;
 
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
-    frame_resource = heaps.rtv.alloc<RenderTarget>(rtv_default_desc);
+    ID3D12Resource* buff_ptr;
+    swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buff_ptr)) >> utils::DxCheck;
+    frame_resource = heaps.rtv.alloc<RenderTarget>(rtv_default_desc, buff_ptr);
   }
 
   finalize();
 }
 
 void Surface::finalize() {
-
-  for (auto [idx, target]: std::views::enumerate(render_targets_)) {
-    auto buf = target.resource();
-    swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buf)) >> utils::DxCheck;
-  }
-
   DXGI_SWAP_CHAIN_DESC desc {};
 
   swap_chain_->GetDesc(&desc) >> utils::DxCheck;
@@ -88,15 +84,18 @@ void Surface::allowTearing(IDXGIFactory5* factory) {
 void Surface::present() const { swap_chain_->Present(0, present_info_) >> utils::DxCheck; }
 
 void Surface::resize(window::Resolution const& res) {
-  // for (auto target: render_targets_) {
-  //   target.resource().Reset();
-  // }
 
   resolution_ = res;
   swap_chain_->ResizeBuffers(
       config::render.graphics.buffer_count, resolution_.width, resolution_.height, DXGI_FORMAT_R8G8B8A8_UNORM,
       swap_chain_flags_
   ) >> utils::DxCheck;
+
+  for (auto [idx, target]: std::views::enumerate(render_targets_)) {
+    ID3D12Resource* buff_ptr;
+    swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buff_ptr)) >> utils::DxCheck;
+    target.resetBuffer(buff_ptr);
+  }
 
   finalize();
 }
