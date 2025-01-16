@@ -64,8 +64,8 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
         command_list->SetGraphicsRootSignature(curr_root_signature_);
       }
 
-      if (curr_pipeline_state_ != pipeline_states_.at(shader).get()) {
-        curr_pipeline_state_ = pipeline_states_.at(shader).get();
+      if (curr_pipeline_state_ != pipeline_states_.at(shader)->get()) {
+        curr_pipeline_state_ = pipeline_states_.at(shader)->get();
         command_list->SetPipelineState(curr_pipeline_state_);
       }
 
@@ -92,7 +92,7 @@ void Gpass::render(ID3D12GraphicsCommandList* command_list, FrameResource const&
 void Gpass::drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) const {
   command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   command_list->SetGraphicsRootSignature(root_signatures_[Shader::Grid].get());
-  command_list->SetPipelineState(pipeline_states_[Shader::Grid].get());
+  command_list->SetPipelineState(pipeline_states_[Shader::Grid]->get());
   command_list->SetGraphicsRootConstantBufferView(2, frame_resource.pass_buffer.gpuStart());
   command_list->DrawInstanced(6, 1, 0, 0);
 }
@@ -103,93 +103,54 @@ void Gpass::addRenderElement(core::Geometry geo, Commands const& cmd_mng) {
 }
 
 void Gpass::buildPsos() {
-  ComPtr<ID3DBlob> vertex_shader;
-  ComPtr<ID3DBlob> pixel_shader;
-  ComPtr<ID3DBlob> errors;
 
-#if defined(_DEBUG)
-  // Enable better Shader debugging with the graphics debugging tools.
-  UINT compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-  UINT compile_flags = 0;
-#endif
-  HRESULT hr = S_OK;
-
-  // TODO Config file for assets path
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
-      &vertex_shader, &errors
+  ShaderBinary const opaque_shader_binary = compile_shader(
+      L"graphics/shaders/hlsl/OpaqueShader.hlsl", //
+      L"graphics/shaders/hlsl/OpaqueShader.hlsl"
   );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/OpaqueShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
-      &pixel_shader, &errors
+  ShaderBinary const grid_shader_binary = compile_shader(
+      L"graphics/shaders/hlsl/GridShader.hlsl", //
+      L"graphics/shaders/hlsl/GridShader.hlsl"
   );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
+  ShaderBinary const flat_shader_binary = compile_shader(
+      L"graphics/shaders/hlsl/FlatShader.hlsl", //
+      L"graphics/shaders/hlsl/FlatShader.hlsl"
+  );
 
-  D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
+  D3D12_INPUT_ELEMENT_DESC input_element_desc[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
-
-  pipeline_states_.at(Shader::Opaque).setInputLayout(input_element_descs, _countof(input_element_descs));
-  pipeline_states_.at(Shader::Opaque).setRootSignature(root_signatures_[Shader::Opaque]);
-  pipeline_states_.at(Shader::Opaque).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(Shader::Opaque).finalize();
-
-  // TODO Config file for assets path
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
-      &vertex_shader, &errors
-  );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/FlatShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
-      &pixel_shader, &errors
-  );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
 
   D3D12_INPUT_ELEMENT_DESC flat_elements_desc[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  pipeline_states_.at(Shader::Flat).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_.at(Shader::Flat).setRootSignature(root_signatures_[Shader::Opaque]);
-  pipeline_states_.at(Shader::Flat).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(Shader::Flat).setBlendState(blend_desc);
-  pipeline_states_[Shader::Flat].finalize();
+  GraphicsPso::descriptor desc_opaque = GraphicsPso::default_desc();
+  desc_opaque.pRootSignature          = root_signatures_[Shader::Opaque].get();
+  desc_opaque.VS                      = CD3DX12_SHADER_BYTECODE(opaque_shader_binary.vs.Get());
+  desc_opaque.PS                      = CD3DX12_SHADER_BYTECODE(opaque_shader_binary.ps.Get());
+  desc_opaque.InputLayout             = {input_element_desc, _countof(input_element_desc)};
 
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "VS", "vs_5_0", compile_flags, 0,
-      &vertex_shader, &errors
-  );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
-  hr = D3DCompileFromFile(
-      absolute(L"graphics/shaders/hlsl/GridShader.hlsl").c_str(), nullptr, nullptr, "PS", "ps_5_0", compile_flags, 0,
-      &pixel_shader, &errors
-  );
-  if (errors != nullptr)
-    logger(LogInfo) << static_cast<char*>(errors->GetBufferPointer());
-  hr >> utils::DxCheck;
+  GraphicsPso::descriptor desc_flat = GraphicsPso::default_desc();
+  desc_flat.pRootSignature          = root_signatures_[Shader::Opaque].get();
+  desc_flat.VS                      = CD3DX12_SHADER_BYTECODE(flat_shader_binary.vs.Get());
+  desc_flat.PS                      = CD3DX12_SHADER_BYTECODE(flat_shader_binary.ps.Get());
+  desc_flat.BlendState              = blend_desc;
+  desc_flat.InputLayout             = {flat_elements_desc, _countof(flat_elements_desc)};
 
+  GraphicsPso::descriptor desc_grid = GraphicsPso::default_desc();
+  desc_grid.pRootSignature          = root_signatures_[Shader::Grid].get();
+  desc_grid.VS                      = CD3DX12_SHADER_BYTECODE(grid_shader_binary.vs.Get());
+  desc_grid.PS                      = CD3DX12_SHADER_BYTECODE(grid_shader_binary.ps.Get());
+  desc_grid.BlendState              = blend_desc;
+  desc_grid.InputLayout             = {flat_elements_desc, _countof(flat_elements_desc)};
 
-  pipeline_states_.at(Shader::Grid).setInputLayout(flat_elements_desc, _countof(flat_elements_desc));
-  pipeline_states_.at(Shader::Grid).setRootSignature(root_signatures_.at(Shader::Grid));
-  pipeline_states_.at(Shader::Grid).setShaders(vertex_shader.Get(), pixel_shader.Get());
-  pipeline_states_.at(Shader::Grid).setBlendState(blend_desc);
-  pipeline_states_.at(Shader::Grid).finalize();
+  pipeline_states_.at(Shader::Opaque).emplace(desc_opaque);
+  // pipeline_states_.at(Shader::Flat).emplace(desc_flat);
+  pipeline_states_.at(Shader::Grid).emplace(desc_grid);
 }
 
 void Gpass::buildRoots() {

@@ -68,7 +68,7 @@ private:
   reveal3d::utils::vector<RenderElement> render_elements_;
 
   /**************** Pipeline state and root signatures *****************/
-  std::array<GraphicsPso, Shader::count> pipeline_states_;
+  std::array<std::optional<GraphicsPso>, Shader::count> pipeline_states_;
   std::array<RootSignature, Shader::count> root_signatures_;
 
   ID3D12RootSignature* curr_root_signature_ {nullptr};

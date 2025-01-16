@@ -32,13 +32,19 @@ public:
 
   RenderTarget() = default;
 
-  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc) : rtv_(handle) {
+  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc, ID3D12Resource* buffer) :
+    buf_(buffer), rtv_(handle) {
     adapter.device->CreateRenderTargetView(buf_.Get(), &desc, rtv_.cpu);
   }
 
   [[nodiscard]] auto const& handle() const { return rtv_; }
 
   [[nodiscard]] auto resource() const { return buf_.Get(); }
+
+  void resetBuffer(ID3D12Resource* buffer) {
+    buf_.Reset();
+    buf_ = buffer;
+  }
 
 private:
   ComPtr<ID3D12Resource> buf_ {};

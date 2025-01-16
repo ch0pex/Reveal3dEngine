@@ -111,7 +111,7 @@ public:
       handle.gpu.ptr = gpu_start_.ptr + offset;
     }
 
-    return T {handle, init_info};
+    return T {handle, init_info, args...};
   }
 
   template<resource T>
