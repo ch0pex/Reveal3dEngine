@@ -54,10 +54,6 @@ public:
   void resize(window::Resolution const res) { depth_buffer_.resize(res); }
 
 private:
-  void buildPsos();
-
-  void buildRoots();
-
   void drawWorldGrid(ID3D12GraphicsCommandList* command_list, FrameResource const& frame_resource) const;
 
   /******************** Buffers *********************/
@@ -68,8 +64,8 @@ private:
   reveal3d::utils::vector<RenderElement> render_elements_;
 
   /**************** Pipeline state and root signatures *****************/
-  std::array<std::optional<GraphicsPso>, Shader::count> pipeline_states_;
-  std::array<RootSignature, Shader::count> root_signatures_;
+  std::array<RootSignature, static_cast<u8>(EngineShader::count)> root_signatures_;
+  std::array<GraphicsPso, static_cast<u8>(EngineShader::count)> pipeline_states_;
 
   ID3D12RootSignature* curr_root_signature_ {nullptr};
   ID3D12PipelineState* curr_pipeline_state_ {nullptr};

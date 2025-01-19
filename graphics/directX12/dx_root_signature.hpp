@@ -21,6 +21,7 @@ namespace reveal3d::graphics::dx12 {
 class RootSignature {
 public:
   explicit RootSignature(u32 num_root_params = 0);
+  explicit RootSignature(u32 num_root_params, auto& init_function);
   void reset(u32 num_root_params);
   void finalize();
   ID3D12RootSignature* get() const { return signature_.Get(); }
@@ -31,8 +32,13 @@ public:
 private:
   static std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> getStaticSamplers();
   u32 num_parameters_ {0};
-  std::unique_ptr<CD3DX12_ROOT_PARAMETER[]> parameters_;
+  std::unique_ptr<CD3DX12_ROOT_PARAMETER[]> parameters_ {};
   ComPtr<ID3D12RootSignature> signature_;
 };
+
+RootSignature::RootSignature(u32 const num_root_params, auto& init_function) : num_parameters_(num_root_params) {
+  reset(num_root_params);
+  init_function(*this);
+}
 
 } // namespace reveal3d::graphics::dx12

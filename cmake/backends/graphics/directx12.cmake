@@ -28,7 +28,10 @@ set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/utils/dx_resource_array.hpp
         ${DIRECTX12_DIR}/utils/dx_constants.hpp
         ${DIRECTX12_DIR}/utils/dx_debug.hpp
+        ${DIRECTX12_DIR}/utils/imgui.hpp
         ${DIRECTX12_DIR}/d3dx12.h
+        ${DIRECTX12_DIR}/dx_shader.hpp
+        ${DIRECTX12_DIR}/dx_build_pso.hpp
         ${DIRECTX12_DIR}/dx_adapter.hpp
         ${DIRECTX12_DIR}/dx_commands.hpp
         ${DIRECTX12_DIR}/dx_gpass.hpp

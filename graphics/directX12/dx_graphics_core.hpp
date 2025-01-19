@@ -40,8 +40,6 @@ public:
 
   explicit Dx12(window::Resolution res);
 
-  ~Dx12() = default;
-
   void loadPipeline();
 
   void loadAssets();
@@ -61,10 +59,6 @@ public:
   dx12::Heaps const& heaps() { return heaps_; }
 
 private:
-  void imGuiBegin() const;
-
-  void imGuiEnd() const;
-
   /****************** Frame resources *****************/
   dx12::utils::ResourceArray<dx12::FrameResource> frame_resources_;
 

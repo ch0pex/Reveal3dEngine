@@ -17,6 +17,11 @@
 
 namespace reveal3d::graphics::dx12 {
 
+enum class ReleasingPolicy {
+  hard = 0,
+  deferred,
+};
+
 template<typename T>
 void release(T*& resource) {
   if (resource) {

@@ -47,7 +47,7 @@ public:
   }
 
   ~Buffer() {
-    release(buff_);
+    release();
     logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
   }
 
@@ -93,6 +93,8 @@ public:
       .clear_value {std::nullopt},
     };
   };
+
+  void release() { dx12::release(buff_); }
 
 private:
   static inline u32 counter = 0;

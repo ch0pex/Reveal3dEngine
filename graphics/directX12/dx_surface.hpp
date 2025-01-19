@@ -32,7 +32,7 @@ public:
 
   RenderTarget() = default;
 
-  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc, ID3D12Resource* buffer) :
+  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc, ComPtr<ID3D12Resource> const& buffer) :
     buf_(buffer), rtv_(handle) {
     adapter.device->CreateRenderTargetView(buf_.Get(), &desc, rtv_.cpu);
   }
@@ -41,10 +41,7 @@ public:
 
   [[nodiscard]] auto resource() const { return buf_.Get(); }
 
-  void resetBuffer(ID3D12Resource* buffer) {
-    buf_.Reset();
-    buf_ = buffer;
-  }
+  void release() { buf_.Reset(); }
 
 private:
   ComPtr<ID3D12Resource> buf_ {};
@@ -66,7 +63,7 @@ public:
 
   void present() const;
 
-  void resize(window::Resolution const& res);
+  void resize(window::Resolution const& res, Heaps& heaps);
 
   ID3D12Resource* back_buffer() { return render_targets_.at(Commands::frameIndex()).resource(); }
 
@@ -77,7 +74,7 @@ public:
 private:
   void allowTearing(IDXGIFactory5* factory);
 
-  void finalize();
+  void finalize(Heaps& heaps);
 
 
   utils::ResourceArray<RenderTarget> render_targets_;

@@ -46,6 +46,7 @@ concept resource = requires(T t, auto args) {
   // { T(std::declval<DescriptorHandle const&>(), args) };
   { t.resource() } -> std::same_as<ID3D12Resource*>;
   { t.handle() } -> std::same_as<DescriptorHandle const&>;
+  { t.release() } -> std::same_as<void>;
 };
 
 template<HeapType Type>

@@ -18,22 +18,15 @@
 
 namespace reveal3d::graphics {
 
-class Shader {
-public:
-  enum Type : u8 {
-    Flat,
-    Opaque,
-    Grid,
+enum class EngineShader : u8 {
+  Flat = 0,
+  Opaque,
+  Grid,
 
-    count
-  };
-
-private:
+  count
 };
 
-class ShaderCompiler { };
-
-inline std::vector<Shader> compileShaders() { }
+inline std::vector<EngineShader> compileShaders() { }
 
 
 } // namespace reveal3d::graphics

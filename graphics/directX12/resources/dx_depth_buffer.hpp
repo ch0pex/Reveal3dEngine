@@ -78,7 +78,7 @@ public:
   /**
    * @param res Depth buffer resolution
    * @param handle
-   * @param heap Depth stencil descriptor heap where descriptor will be allocated
+   * @param res
    */
   explicit DepthBuffer(DescriptorHandle const& handle, window::Resolution const res) :
     dsv_(handle), buff_(defaults::depth_buffer_info(res)) {
@@ -99,6 +99,8 @@ public:
     buff_ = Buffer {defaults::depth_buffer_info(res)};
     createView();
   }
+
+  void release() { }
 
 private:
   void createView() const { adapter.device->CreateDepthStencilView(buff_.resource(), &defaults::dsv_desc, dsv_.cpu); }

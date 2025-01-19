@@ -16,6 +16,7 @@
 
 #include "core/components/geometry.hpp"
 #include "core/components/transform.hpp"
+#include "utils/imgui.hpp"
 
 namespace reveal3d::graphics {
 
@@ -110,7 +111,7 @@ void Dx12::renderSurface(Surface& surface) {
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
   gpass_.render(command_list, curr_frame_res);
 
-  imGuiBegin();
+  imgui_start(command_list, heaps_.srv.get());
 
   // Setting resource to present state
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -123,7 +124,7 @@ void Dx12::renderSurface(Surface& surface) {
   command_list->Close() >> utils::DxCheck;
   cmd_manager_.execute();
 
-  imGuiEnd();
+  imgui_end(command_list);
 
   // Presenting frame
   surface.present();
@@ -142,27 +143,13 @@ void Dx12::resize(window::Resolution const res) {
 
   // Resizing rtv and g-buffer
   gpass_.resize(res);
-  surface_.resize(res);
+  surface_.resize(res, heaps_);
 
   // Resetting commander and executing commands
   cmd_manager_.resetFences();
   cmd_manager_.list()->Close() >> utils::DxCheck;
   cmd_manager_.execute();
   cmd_manager_.waitForGpu();
-}
-void Dx12::imGuiBegin() const {
-#ifdef IMGUI
-  auto* command_list            = cmd_manager_.list();
-  ID3D12DescriptorHeap* srvDesc = heaps_.srv.get();
-  command_list->SetDescriptorHeaps(1, &srvDesc);
-  ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), command_list);
-#endif
-}
-void Dx12::imGuiEnd() const {
-#ifdef IMGUI
-  ImGui::UpdatePlatformWindows();
-  ImGui::RenderPlatformWindowsDefault(nullptr, cmd_manager_.list());
-#endif
 }
 
 } // namespace reveal3d::graphics

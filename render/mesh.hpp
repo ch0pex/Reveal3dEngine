@@ -34,4 +34,6 @@ struct Mesh {
   u32 triangle_count {0}; // Triangle count
 };
 
+auto constexpr is_visible = [](SubMesh const& mesh) { return mesh.visible; };
+
 } // namespace reveal3d::render
