@@ -14,6 +14,7 @@ set(DIRECTX12_SOURCES
 )
 
 set(DIRECTX12_HEADERS
+        ${DIRECTX12_DIR}/utils/dx_defaults.hpp
         ${DIRECTX12_DIR}/resources/dx_buffer.hpp
         ${DIRECTX12_DIR}/resources/dx_deferring_system.hpp
         ${DIRECTX12_DIR}/resources/dx_descriptor_heap.hpp

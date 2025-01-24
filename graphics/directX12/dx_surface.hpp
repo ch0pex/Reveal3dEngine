@@ -22,10 +22,6 @@
 
 namespace reveal3d::graphics::dx12 {
 
-constexpr D3D12_RENDER_TARGET_VIEW_DESC rtv_default_desc = {
-  .Format = DXGI_FORMAT_R8G8B8A8_UNORM, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D
-};
-
 class RenderTarget {
 public:
   using init_info = D3D12_RENDER_TARGET_VIEW_DESC;

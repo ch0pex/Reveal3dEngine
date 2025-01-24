@@ -13,11 +13,19 @@
 
 #pragma once
 
+#include <common/primitive_types.hpp>
+
 #include <d3d12.h>
 
 namespace reveal3d::graphics::dx12 {
 
-enum class ReleasingPolicy {
+/**
+ * @enum ReleasingPolicy
+ * - Hard: Direct release, only when pipeline is blocked
+ * - Deferred: Deferred release of resources, mark and release the resources only when
+ *   aren't being used by the gpu
+ */
+enum class ReleasingPolicy : u8 {
   hard = 0,
   deferred,
 };

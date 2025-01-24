@@ -17,11 +17,11 @@
 #include "config/config.hpp"
 #include "dx_deferring_system.hpp"
 
-#include <array>
-
 #include "dx_descriptor_heap_type.hpp"
 #include "graphics/directX12/dx_adapter.hpp"
 #include "graphics/directX12/dx_commands.hpp"
+
+#include <array>
 
 namespace reveal3d::graphics::dx12 {
 
@@ -149,7 +149,7 @@ private:
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
-  std::array<std::vector<u32>, config::render.graphics.max_buffer_count> deferred_indices_;
+  std::array<std::vector<u32>, config::render.graphics.max_buffer_count> deferred_indices_{};
   u32 capacity_ {0};
   u32 size_ {0};
   u32 descriptor_size_ {};

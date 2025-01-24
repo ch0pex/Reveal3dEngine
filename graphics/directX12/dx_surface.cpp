@@ -8,6 +8,8 @@
 
 #include <ranges>
 
+#include "utils/dx_defaults.hpp"
+
 namespace reveal3d::graphics::dx12 {
 
 Surface::Surface(window::Resolution const& resolution, u32 const swap_chain_flags, u32 const present_info) :
@@ -49,7 +51,7 @@ void Surface::finalize(Heaps& heaps) {
   ComPtr<ID3D12Resource> buff_ptr;
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
     swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buff_ptr)) >> utils::DxCheck;
-    frame_resource = heaps.rtv.alloc<RenderTarget>(rtv_default_desc, buff_ptr);
+    frame_resource = heaps.rtv.alloc<RenderTarget>(defaults::rtv_descriptor, buff_ptr);
   }
 
   swap_chain_->GetDesc(&desc) >> utils::DxCheck;

@@ -321,8 +321,8 @@ struct CD3DX12_RESOURCE_ALLOCATION_INFO : public D3D12_RESOURCE_ALLOCATION_INFO 
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_HEAP_PROPERTIES : public D3D12_HEAP_PROPERTIES {
   CD3DX12_HEAP_PROPERTIES() = default;
-  explicit CD3DX12_HEAP_PROPERTIES(const D3D12_HEAP_PROPERTIES& o) noexcept : D3D12_HEAP_PROPERTIES(o) { }
-  CD3DX12_HEAP_PROPERTIES(
+  explicit constexpr CD3DX12_HEAP_PROPERTIES(const D3D12_HEAP_PROPERTIES& o) noexcept : D3D12_HEAP_PROPERTIES(o) { }
+  constexpr CD3DX12_HEAP_PROPERTIES(
       D3D12_CPU_PAGE_PROPERTY cpuPageProperty, D3D12_MEMORY_POOL memoryPoolPreference, UINT creationNodeMask = 1,
       UINT nodeMask = 1
   ) noexcept {
@@ -332,7 +332,8 @@ struct CD3DX12_HEAP_PROPERTIES : public D3D12_HEAP_PROPERTIES {
     CreationNodeMask     = creationNodeMask;
     VisibleNodeMask      = nodeMask;
   }
-  explicit CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE type, UINT creationNodeMask = 1, UINT nodeMask = 1) noexcept {
+  explicit constexpr
+  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE type, UINT creationNodeMask = 1, UINT nodeMask = 1) noexcept {
     Type                 = type;
     CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
@@ -1306,8 +1307,8 @@ inline UINT8 D3D12GetFormatPlaneCount(_In_ ID3D12Device* pDevice, DXGI_FORMAT Fo
 //------------------------------------------------------------------------------------------------
 struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC {
   CD3DX12_RESOURCE_DESC() = default;
-  explicit CD3DX12_RESOURCE_DESC(const D3D12_RESOURCE_DESC& o) noexcept : D3D12_RESOURCE_DESC(o) { }
-  CD3DX12_RESOURCE_DESC(
+  explicit constexpr CD3DX12_RESOURCE_DESC(const D3D12_RESOURCE_DESC& o) noexcept : D3D12_RESOURCE_DESC(o) { }
+  constexpr CD3DX12_RESOURCE_DESC(
       D3D12_RESOURCE_DIMENSION dimension, UINT64 alignment, UINT64 width, UINT height, UINT16 depthOrArraySize,
       UINT16 mipLevels, DXGI_FORMAT format, UINT sampleCount, UINT sampleQuality, D3D12_TEXTURE_LAYOUT layout,
       D3D12_RESOURCE_FLAGS flags
@@ -1324,7 +1325,7 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC {
     Layout             = layout;
     Flags              = flags;
   }
-  static inline CD3DX12_RESOURCE_DESC Buffer(
+  static constexpr CD3DX12_RESOURCE_DESC Buffer(
       const D3D12_RESOURCE_ALLOCATION_INFO& resAllocInfo, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE
   ) noexcept {
     return CD3DX12_RESOURCE_DESC(

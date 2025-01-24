@@ -63,7 +63,6 @@ struct Geometry : Component<Geometry> {
 
   [[nodiscard]] bool isVisible() const { return pool().subMeshes(id_)[0].visible; }
 
-
   [[nodiscard]] render::Material const& material() const { return pool().material(id_); }
 
   void visibility(bool const visibility) const { pool().subMeshes(id_)[0].visible = visibility; }
@@ -89,6 +88,7 @@ struct Geometry : Component<Geometry> {
     setDirty();
   }
 };
+
 static_assert(component<Geometry>);
 
 template<>

@@ -15,7 +15,6 @@
 
 
 #include "dx_deferring_system.hpp"
-#include "dx_upload_buffer.hpp"
 #include "render/vertex.hpp"
 #include "utils/dx_checker.hpp"
 #include "utils/dx_debug.hpp"
@@ -60,24 +59,6 @@ public:
     return *this;
   }
 
-  template<typename T>
-  void upload(ID3D12GraphicsCommandList* cmd_list, std::span<T> data = {}) {
-    auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
-
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest
-        buff_, //
-        D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
-    );
-    cmd_list->ResourceBarrier(1, &barrier);
-
-    std::ranges::copy(data, upload_buffer.begin());
-    cmd_list->CopyResource(buff_, upload_buffer.get()); // Coping upload buffer into buffer
-
-    barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Restoring buffer state to generic read
-        buff_, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
-    );
-    cmd_list->ResourceBarrier(1, &barrier);
-  }
 
   [[nodiscard]] ID3D12Resource* resource() const { return buff_; }
 
@@ -101,6 +82,7 @@ private:
   ID3D12Resource* buff_ {};
   u32 size_ {0};
 };
+
 
 template<typename T>
 T buffer_view(Buffer const& buffer);

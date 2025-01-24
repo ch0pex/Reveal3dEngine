@@ -23,15 +23,23 @@ class Commands {
 public:
   // explicit Commands(bufferCount);
   Commands();
+
   ~Commands();
+
   [[nodiscard]] ID3D12CommandQueue* getQueue() const { return command_queue_.Get(); }
+
   [[nodiscard]] ID3D12GraphicsCommandList* list() const { return command_list_.Get(); }
+
   [[nodiscard]] static u8 frameIndex() { return frame_index_; }
+
   void reset(ID3D12PipelineState* pso = nullptr) const;
+
   void resetFences();
+
   void execute() const;
 
   void waitForGpu();
+
   void moveToNextFrame();
 
   void addGraphicsList(ID3D12GraphicsCommandList* list);

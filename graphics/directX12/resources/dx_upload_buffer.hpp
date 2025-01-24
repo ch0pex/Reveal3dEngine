@@ -13,11 +13,12 @@
 
 #pragma once
 
+#include "d3dx12.h"
+#include "dx_buffer.hpp"
 #include "dx_descriptor_heap.hpp"
 #include "graphics/directX12/dx_adapter.hpp"
 
 namespace reveal3d::graphics::dx12 {
-
 
 template<typename T>
 struct alignas(256) Constant {
@@ -52,31 +53,28 @@ public:
   using value_type = T;
   using iterator   = typename std::span<T>::iterator;
 
-  explicit UploadBuffer(u64 const count) {
-    auto const heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto const res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T));
-
-    adapter.device->CreateCommittedResource(
-        &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-        IID_PPV_ARGS(&buff_)
-    ) >> utils::DxCheck;
-
+  explicit UploadBuffer(u64 const count) :
+    buff_(Buffer::InitInfo {
+      .res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T)),
+      .heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+    }) //
+  {
     T* data {nullptr};
 
-    buff_->Map(0, nullptr, reinterpret_cast<void**>(&data)) >> utils::DxCheck;
+    buff_.resource()->Map(0, nullptr, std::bit_cast<void**>(&data)) >> utils::DxCheck;
     mapped_data_ = std::span<T>(data, data + count);
-    gpu_address_ = buff_->GetGPUVirtualAddress();
+    gpu_address_ = buff_.gpu_address();
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
 
   ~UploadBuffer() {
-    buff_->Unmap(0, nullptr);
+    buff_.resource()->Unmap(0, nullptr);
     if constexpr (is_constant<value_type>) {
-      buff_->Release();
+      buff_.release();
     }
     else {
-      deferred_release(buff_);
+      deferred_release(buff_.resource());
     }
   }
 
@@ -86,22 +84,13 @@ public:
 
   UploadBuffer& operator=(UploadBuffer&&) = delete;
 
-  [[nodiscard]] ID3D12Resource* get() const { return buff_; }
+  [[nodiscard]] ID3D12Resource* get() const { return buff_.resource(); }
 
   [[nodiscard]] u32 size() const { return mapped_data_.size(); }
 
   [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuStart() const { return gpu_address_; }
 
   [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuPos(u32 const index) const { return gpu_address_ + (index * sizeof(T)); }
-
-  // DescriptorHandle view(u64 const idx, DescriptorHeap& heap) const {
-  // u64 const buff_address                     = gpuStart() + (sizeof(T) * idx);
-  // const D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {.BufferLocation = buff_address, .SizeInBytes = sizeof(T)};
-
-  // DescriptorHandle const handle = heap.alloc();
-  // adapter.device->CreateConstantBufferView(&desc, handle.cpu);
-  // return handle;
-  // }
 
   [[nodiscard]] decltype(auto) at(u64 idx) {
     if constexpr (is_constant<value_type>) {
@@ -118,12 +107,30 @@ public:
 
 private:
   std::span<T> mapped_data_ {};
-  ID3D12Resource* buff_ {};
+  Buffer buff_;
   D3D12_GPU_VIRTUAL_ADDRESS gpu_address_;
 };
 
 template<typename T>
 using ConstantBuffer = UploadBuffer<Constant<T>>;
 
+template<typename T>
+void upload_resource(ID3D12GraphicsCommandList* cmd_list, Buffer& buffer, std::span<T> data = {}) {
+  auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
+
+  auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest
+      buffer.resource(), //
+      D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST
+  );
+  cmd_list->ResourceBarrier(1, &barrier);
+
+  std::ranges::copy(data, upload_buffer.begin());
+  cmd_list->CopyResource(buffer.resource(), upload_buffer.get()); // Coping upload buffer into buffer
+
+  barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Restoring buffer state to generic read
+      buffer.resource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ
+  );
+  cmd_list->ResourceBarrier(1, &barrier);
+}
 
 } // namespace reveal3d::graphics::dx12

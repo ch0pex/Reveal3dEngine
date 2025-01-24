@@ -29,8 +29,8 @@ public:
     index_view_(buffer_view<D3D12_INDEX_BUFFER_VIEW>(index_buffer_)), //
     entity_(core::scene.getEntity(geo.entityIdx())) //
   {
-    vertex_buffer_.upload(cmd_list, geo.vertices());
-    index_buffer_.upload(cmd_list, geo.indices());
+    upload_resource(cmd_list, vertex_buffer_, geo.vertices());
+    upload_resource(cmd_list, index_buffer_, geo.indices());
   }
 
   [[nodiscard]] constexpr auto const& vertices() const { return vertex_view_; }
