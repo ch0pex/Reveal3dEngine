@@ -12,8 +12,8 @@
  */
 
 #include "dx_commands.hpp"
-
 #include "dx_adapter.hpp"
+#include "utils/dx_defaults.hpp"
 
 
 namespace reveal3d::graphics::dx12 {
@@ -21,14 +21,8 @@ namespace reveal3d::graphics::dx12 {
 u8 Commands::frame_index_ = 0;
 
 Commands::Commands() {
-  constexpr D3D12_COMMAND_QUEUE_DESC queue_desc {
-    .Type     = D3D12_COMMAND_LIST_TYPE_DIRECT,
-    .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-    .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
-    .NodeMask = 0
-  };
   resetFences();
-  adapter.device->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_)) >> utils::DxCheck;
+  adapter.device->CreateCommandQueue(&defaults::queue_desc, IID_PPV_ARGS(&command_queue_)) >> utils::DxCheck;
 
   adapter.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)) >> utils::DxCheck;
   fence_event_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);

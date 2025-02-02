@@ -32,22 +32,6 @@ public:
   };
   [[nodiscard]] ID3D12PipelineState* get() const { return pipeline_state_.Get(); }
 
-  constexpr static auto default_desc = [] {
-    descriptor desc = {
-      .SampleMask            = std::numeric_limits<u32>::max(),
-      .RasterizerState       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-      .DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-      .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
-      .NumRenderTargets      = 1,
-      .DSVFormat             = DXGI_FORMAT_D24_UNORM_S8_UINT,
-      .SampleDesc            = {.Count = 1},
-    };
-    desc.BlendState               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    desc.RTVFormats[0]            = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    return desc;
-  };
-
 private:
   ComPtr<ID3D12PipelineState> pipeline_state_;
 };

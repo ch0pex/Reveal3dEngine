@@ -17,16 +17,16 @@
 #include "core/scene.hpp"
 #include "resources/dx_buffer.hpp"
 #include "resources/dx_frame_resource.hpp"
+#include "utils/dx_defaults.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
 class RenderElement {
 public:
   RenderElement(core::Geometry const geo, ID3D12GraphicsCommandList* cmd_list) :
-    vertex_buffer_(Buffer::buffer1d(geo.vertices().size() * sizeof(render::Vertex))),
-    index_buffer_(Buffer::buffer1d(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
-    vertex_view_(buffer_view<D3D12_VERTEX_BUFFER_VIEW>(vertex_buffer_)),
-    index_view_(buffer_view<D3D12_INDEX_BUFFER_VIEW>(index_buffer_)), //
+    vertex_buffer_(defaults::buffer1d(geo.vertices().size() * sizeof(render::Vertex))),
+    index_buffer_(defaults::buffer1d(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
+    vertex_view_(vertex_view(vertex_buffer_)), index_view_(index_view(index_buffer_)), //
     entity_(core::scene.getEntity(geo.entityIdx())) //
   {
     upload_resource(cmd_list, vertex_buffer_, geo.vertices());

@@ -3,12 +3,11 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
- * @file dx_debugger.hpp
+ * @file dx_debug.hpp
  * @version 1.0
  * @date 27/02/2024
- * @brief Short description
+ * @brief Directx12 debug functionality
  *
- * Longer description
  */
 
 #pragma once
@@ -30,4 +29,4 @@ void queue_info(ID3D12Device* device, BOOL enable);
 void log_adapters();
 void set_reporter(ID3D12Device* device);
 
-} // namespace reveal3d::graphics::dx12::utl
+} // namespace reveal3d::graphics::dx12::utils

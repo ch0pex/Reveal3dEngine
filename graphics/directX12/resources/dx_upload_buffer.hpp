@@ -53,28 +53,31 @@ public:
   using value_type = T;
   using iterator   = typename std::span<T>::iterator;
 
-  explicit UploadBuffer(u64 const count) :
-    buff_(Buffer::InitInfo {
+  explicit UploadBuffer(u64 const count) {
+    auto const [res_desc, res_state, heap_properties, clear_value] = Buffer::init_info {
       .res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T)),
       .heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-    }) //
-  {
+    };
+
+    adapter.device->CreateCommittedResource(
+        &heap_properties, D3D12_HEAP_FLAG_NONE, &res_desc, res_state, nullptr, IID_PPV_ARGS(&buff_)
+    ) >> utils::DxCheck;
     T* data {nullptr};
 
-    buff_.resource()->Map(0, nullptr, std::bit_cast<void**>(&data)) >> utils::DxCheck;
+    buff_->Map(0, nullptr, std::bit_cast<void**>(&data)) >> utils::DxCheck;
     mapped_data_ = std::span<T>(data, data + count);
-    gpu_address_ = buff_.gpu_address();
+    gpu_address_ = buff_->GetGPUVirtualAddress();
   }
 
   explicit UploadBuffer(UploadBuffer const&) = delete;
 
   ~UploadBuffer() {
-    buff_.resource()->Unmap(0, nullptr);
+    buff_->Unmap(0, nullptr);
     if constexpr (is_constant<value_type>) {
-      buff_.release();
+      release(buff_);
     }
     else {
-      deferred_release(buff_.resource());
+      deferred_release(buff_);
     }
   }
 
@@ -84,7 +87,7 @@ public:
 
   UploadBuffer& operator=(UploadBuffer&&) = delete;
 
-  [[nodiscard]] ID3D12Resource* get() const { return buff_.resource(); }
+  [[nodiscard]] ID3D12Resource* get() const { return buff_; }
 
   [[nodiscard]] u32 size() const { return mapped_data_.size(); }
 
@@ -107,13 +110,19 @@ public:
 
 private:
   std::span<T> mapped_data_ {};
-  Buffer buff_;
+  ID3D12Resource* buff_ {nullptr};
   D3D12_GPU_VIRTUAL_ADDRESS gpu_address_;
 };
 
 template<typename T>
 using ConstantBuffer = UploadBuffer<Constant<T>>;
 
+/**
+ * @name upload_resource
+ * @param cmd_list command that will upload the data
+ * @param buffer Gpu buffer where to copy the date
+ * @param data data to upload
+ */
 template<typename T>
 void upload_resource(ID3D12GraphicsCommandList* cmd_list, Buffer& buffer, std::span<T> data = {}) {
   auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu

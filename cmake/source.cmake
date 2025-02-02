@@ -30,7 +30,10 @@ set(COMMON
         common/id.hpp
         common/vector.hpp
         common/string_literals.hpp
-        common/string_literals.hpp
+        common/primitive_types.hpp
+        common/tuple.hpp
+        common/logger.hpp
+        common/platform.hpp
 )
 
 set(RENDER

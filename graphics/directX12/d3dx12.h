@@ -1333,14 +1333,14 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC {
         1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, flags
     );
   }
-  static inline CD3DX12_RESOURCE_DESC
+  static constexpr CD3DX12_RESOURCE_DESC
   Buffer(UINT64 width, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE, UINT64 alignment = 0) noexcept {
     return CD3DX12_RESOURCE_DESC(
         D3D12_RESOURCE_DIMENSION_BUFFER, alignment, width, 1, 1, 1, DXGI_FORMAT_UNKNOWN, 1, 0,
         D3D12_TEXTURE_LAYOUT_ROW_MAJOR, flags
     );
   }
-  static inline CD3DX12_RESOURCE_DESC Tex1D(
+  static constexpr CD3DX12_RESOURCE_DESC Tex1D(
       DXGI_FORMAT format, UINT64 width, UINT16 arraySize = 1, UINT16 mipLevels = 0,
       D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
       UINT64 alignment = 0
@@ -1349,7 +1349,7 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC {
         D3D12_RESOURCE_DIMENSION_TEXTURE1D, alignment, width, 1, arraySize, mipLevels, format, 1, 0, layout, flags
     );
   }
-  static inline CD3DX12_RESOURCE_DESC Tex2D(
+  static constexpr CD3DX12_RESOURCE_DESC Tex2D(
       DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize = 1, UINT16 mipLevels = 0, UINT sampleCount = 1,
       UINT sampleQuality = 0, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
       D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN, UINT64 alignment = 0
@@ -1359,7 +1359,7 @@ struct CD3DX12_RESOURCE_DESC : public D3D12_RESOURCE_DESC {
         sampleQuality, layout, flags
     );
   }
-  static inline CD3DX12_RESOURCE_DESC Tex3D(
+  static constexpr CD3DX12_RESOURCE_DESC Tex3D(
       DXGI_FORMAT format, UINT64 width, UINT height, UINT16 depth, UINT16 mipLevels = 0,
       D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE, D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
       UINT64 alignment = 0

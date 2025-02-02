@@ -43,10 +43,16 @@ public:
 
   constexpr iterator end() { return iterator(resource_.begin() + config::render.graphics.buffer_count); }
 
-  constexpr T& at(u8 const index) {
-    assert(index < config::render.graphics.buffer_count);
-    return resource_.at(index);
+  template<typename Self>
+  constexpr auto&& at(this Self&& self, u8 const index) {
+    return std::forward<Self>(self).resource_.at(index);
   }
+
+  template<typename Self>
+  constexpr auto&& operator[](this Self&& self, u8 const index) {
+    return std::forward<Self>(self).at(index);
+  }
+
 
 private:
   container resource_;

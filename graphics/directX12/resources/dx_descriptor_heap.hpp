@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include "concepts.hpp"
 #include "config/config.hpp"
 #include "dx_deferring_system.hpp"
 
@@ -22,6 +21,9 @@
 #include "graphics/directX12/dx_commands.hpp"
 
 #include <array>
+#include <unordered_map>
+
+#include "dx_release_policies.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
@@ -61,13 +63,26 @@ public:
     gpu_start_ = is_shader_visible<Type> ? heap_->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE {};
   }
 
-  explicit DescriptorHeap(DescriptorHeap const&) = delete;
+  // Operador de asignación por movimiento
+  DescriptorHeap& operator=(DescriptorHeap&& other) noexcept {
+    if (this != &other) {
+      heap_             = std::move(other.heap_);
+      cpu_start_        = other.cpu_start_;
+      gpu_start_        = other.gpu_start_;
+      free_handles_     = std::move(other.free_handles_);
+      deferred_indices_ = std::move(other.deferred_indices_);
+      capacity_         = other.capacity_;
+      size_             = other.size_;
+      descriptor_size_  = other.descriptor_size_;
+      other.capacity_   = 0;
+      other.size_       = 0;
+    }
+    return *this;
+  }
+
+  DescriptorHeap(DescriptorHeap const&) = delete;
 
   DescriptorHeap& operator=(DescriptorHeap const&) = delete;
-
-  explicit DescriptorHeap(DescriptorHeap&&) = delete;
-
-  DescriptorHeap& operator=(DescriptorHeap&&) = delete;
 
   ~DescriptorHeap() { release(); }
 
@@ -83,8 +98,7 @@ public:
 
   [[nodiscard]] u32 descriptorSize() const { return capacity_; }
 
-  template<resource T, typename... Args>
-  T alloc(auto const& init_info, Args... args) {
+  DescriptorHandle alloc() {
     assert(heap_);
     assert(size_ < capacity_);
 
@@ -104,36 +118,10 @@ public:
       handle.gpu.ptr = gpu_start_.ptr + offset;
     }
 
-    return T {handle, init_info, args...};
+    return handle;
   }
 
-  template<ReleasingPolicy mode = ReleasingPolicy::deferred>
-  void free(resource auto& r) {
-    if constexpr (mode == ReleasingPolicy::hard) {
-      r.release();
-      --size_;
-      free_handles_[size_] = r.handle().index; // For cleaning Deferreds we just set them in free handles
-    }
-    else {
-      free_handle(r.handle());
-      deferred_release(r.resource());
-    }
-  }
-
-  void cleanDeferreds() {
-    if (std::vector<u32> & indices {deferred_indices_[Commands::frameIndex()]}; !indices.empty()) {
-      for (auto const index: indices) {
-        --size_;
-        free_handles_[size_] = index; // For cleaning Deferreds we just set them in free handles
-      }
-      indices.clear();
-    }
-  }
-
-  void release() const { deferred_release(heap_.Get()); }
-
-private:
-  void free_handle(DescriptorHandle const& handle) {
+  void deferredFree(DescriptorHandle const& handle) {
     assert(heap_ && size_);
     assert(handle.cpu.ptr >= cpu_start_.ptr);
     assert((handle.cpu.ptr - cpu_start_.ptr) % descriptor_size_ == 0);
@@ -145,38 +133,33 @@ private:
     // handle = {};
   }
 
+  void free(DescriptorHandle const& handle) {
+    --size_;
+    free_handles_[size_] = handle.index;
+  }
+
+  void cleanDeferreds() {
+    if (std::vector<u32> & indices {deferred_indices_[Commands::frameIndex()]}; !indices.empty()) {
+      for (auto const index: indices) {
+        // For cleaning Deferreds we just set them in free handles, so can be overwritten later
+        --size_;
+        free_handles_[size_] = index;
+      }
+      indices.clear();
+    }
+  }
+
+  void release() const { deferred_release(heap_.Get()); }
+
+private:
   ComPtr<ID3D12DescriptorHeap> heap_;
   D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ {};
   D3D12_GPU_DESCRIPTOR_HANDLE gpu_start_ {};
   std::unique_ptr<u32[]> free_handles_ {};
-  std::array<std::vector<u32>, config::render.graphics.max_buffer_count> deferred_indices_{};
+  std::array<std::vector<u32>, config::render.graphics.max_buffer_count> deferred_indices_ {};
   u32 capacity_ {0};
   u32 size_ {0};
   u32 descriptor_size_ {};
-};
-
-
-struct Heaps {
-  Heaps() : rtv(config::render.graphics.buffer_count), dsv(1U), srv(1U) { }
-
-  ~Heaps() {
-    logger(LogInfo) << "Releasing gpu heaps";
-    cleanDeferreds();
-  }
-
-  void cleanDeferreds() {
-    rtv.cleanDeferreds();
-    dsv.cleanDeferreds();
-    srv.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
-    //  uavHeap.cleanDeferreds();
-  }
-  /******************** Descriptor Heaps *************************/
-  DescriptorHeap<HeapType::Rtv> rtv;
-  DescriptorHeap<HeapType::Dsv> dsv;
-  DescriptorHeap<HeapType::Srv> srv;
-  //    DescriptorHeap cbv;
-  //    DescriptorHeap uavHeap; //TODO
 };
 
 

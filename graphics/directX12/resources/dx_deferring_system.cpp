@@ -25,6 +25,18 @@ namespace {
 std::array<std::vector<IUnknown*>, config::render.graphics.max_buffer_count> deferredReleases;
 utils::ResourceArray<u32> deferredReleasesFlags;
 
+void clean_deferred(u8 const index) {
+  deferredReleasesFlags.at(index) = 0;
+
+  if (!deferredReleases[index].empty()) {
+    for (auto* resource: deferredReleases[Commands::frameIndex()]) {
+      release(resource);
+    }
+    deferredReleases[index].clear();
+  }
+}
+
+
 } // namespace
 
 void set_deferred_flag() { deferredReleasesFlags.at(Commands::frameIndex()) = 1; }
@@ -39,30 +51,14 @@ void deferred_release(IUnknown* resource) {
 
 void clean_deferred_resources() {
   if (u8 const frame_index = Commands::frameIndex(); deferredReleasesFlags.at(frame_index)) {
-
-    deferredReleasesFlags.at(frame_index) = 0;
-
-    if (!deferredReleases[frame_index].empty()) {
-      for (auto* resource: deferredReleases[Commands::frameIndex()]) {
-        release(resource);
-      }
-      deferredReleases[frame_index].clear();
-    }
+    clean_deferred(frame_index);
   }
 }
 
 void clean_all_resources() {
   for (auto [idx, flag]: std::views::enumerate(deferredReleasesFlags)) {
     if (flag) {
-
-      flag = 0;
-
-      if (!deferredReleases[idx].empty()) {
-        for (auto* resource: deferredReleases[Commands::frameIndex()]) {
-          release(resource);
-        }
-        deferredReleases[idx].clear();
-      }
+      clean_deferred(idx);
     }
   }
 }

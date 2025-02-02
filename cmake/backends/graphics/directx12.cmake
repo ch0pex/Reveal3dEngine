@@ -16,6 +16,9 @@ set(DIRECTX12_SOURCES
 set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/utils/dx_defaults.hpp
         ${DIRECTX12_DIR}/resources/dx_buffer.hpp
+        ${DIRECTX12_DIR}/resources/dx_render_target.hpp
+        ${DIRECTX12_DIR}/resources/dx_release_policies.hpp
+        ${DIRECTX12_DIR}/resources/dx_render_texture.hpp
         ${DIRECTX12_DIR}/resources/dx_deferring_system.hpp
         ${DIRECTX12_DIR}/resources/dx_descriptor_heap.hpp
         ${DIRECTX12_DIR}/resources/dx_descriptor_heap_type.hpp
@@ -24,7 +27,8 @@ set(DIRECTX12_HEADERS
         ${DIRECTX12_DIR}/resources/dx_texture.hpp
         ${DIRECTX12_DIR}/resources/dx_upload_buffer.hpp
         ${DIRECTX12_DIR}/resources/dx_depth_buffer.hpp
-        ${DIRECTX12_DIR}/resources/concepts.hpp
+        ${DIRECTX12_DIR}/resources/dx_heaps.hpp
+        ${DIRECTX12_DIR}/resources/dx_concepts.hpp
         ${DIRECTX12_DIR}/utils/dx_checker.hpp
         ${DIRECTX12_DIR}/utils/dx_resource_array.hpp
         ${DIRECTX12_DIR}/utils/dx_constants.hpp

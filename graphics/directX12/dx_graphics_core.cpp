@@ -111,7 +111,7 @@ void Dx12::renderSurface(Surface& surface) {
   gpass_.setRenderTargets(command_list, curr_frame_res, surface.rtv());
   gpass_.render(command_list, curr_frame_res);
 
-  imgui_start(command_list, heaps_.srv.get());
+  imgui_start(command_list, heaps_.heap<HeapType::Srv>().get());
 
   // Setting resource to present state
   auto const present_barrier = CD3DX12_RESOURCE_BARRIER::Transition(

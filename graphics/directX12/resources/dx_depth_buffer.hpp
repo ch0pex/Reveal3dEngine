@@ -27,13 +27,16 @@ namespace reveal3d::graphics::dx12 {
  */
 class DepthBuffer {
 public:
+  using init_info = window::Resolution;
+  using heap_type = DescriptorHeap<HeapType::Dsv>;
+
   // *** Constructors ***
-  explicit DepthBuffer(DescriptorHandle const& handle, window::Resolution const res) :
+  DepthBuffer(DescriptorHandle const& handle, window::Resolution const res) :
     dsv_(handle), buff_(defaults::depth_buffer_info(res)) {
     createView();
   }
 
-  explicit DepthBuffer(DescriptorHandle const& handle, Buffer::InitInfo const& info) : dsv_(handle), buff_(info) {
+  DepthBuffer(DescriptorHandle const& handle, Buffer::init_info const& info) : dsv_(handle), buff_(info) {
     createView();
   }
 
@@ -46,13 +49,12 @@ public:
     createView();
   }
 
-  void release() { buff_.release(); }
-
 private:
   void createView() const { adapter.device->CreateDepthStencilView(buff_.resource(), &defaults::dsv_desc, dsv_.cpu); }
 
   DescriptorHandle dsv_;
   Buffer buff_; // TODO change this for Texture
 };
+
 
 } // namespace reveal3d::graphics::dx12

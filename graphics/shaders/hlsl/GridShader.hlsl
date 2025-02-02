@@ -2,18 +2,19 @@
 
 cbuffer cbPass : register(b2)
 {
-    float4x4 view;
-    float4x4 invView;
-    float4x4 proj;
-    float4x4 invProj;
-    float4x4 viewProj;
-    float4x4 invViewProj;
-    float3 eyePos;
-    float nearZ;
-    float farZ;
-    float2 renderTargetSize;
-    float totalTime;
-    float deltaTime;
+    float4x4    view;
+    float4x4    invView;
+    float4x4    proj;
+    float4x4    invProj;
+    float4x4    viewProj;
+    float4x4    invViewProj;
+    float2      cbPerObjectPad1;
+    float2      renderTargetSize;
+    float3      eyePos;
+    float       nearZ;
+    float       farZ;
+    float       totalTime;
+    float       deltaTime;
 };
 
 struct VertexIn
@@ -111,8 +112,8 @@ float computeDepth(float3 pos) {
 float computeLinearDepth(float3 pos) {
   float4 clip_space_pos =  mul(float4(pos.xyz, 1.0), viewProj);
   float clip_space_depth = (clip_space_pos.z / clip_space_pos.w) * 2.0 - 1.0; // put back between -1 and 1
-  float linearDepth = (2.0 * 0.01 * 100) / (100 + 0.01 - clip_space_depth * (100 - 0.01)); // get linear value between 0.01 and 100
-  return linearDepth / 100; // normalizealize
+  float linearDepth = (2.0 * nearZ * farZ) / (farZ + nearZ - clip_space_depth * (farZ - nearZ)); // get linear value between 0.01 and 100
+  return linearDepth / farZ; // normalizealize
 }
 
 VertexOut VS(VertexIn input)

@@ -47,7 +47,7 @@ inline GraphicsPso build_opaque(ID3D12RootSignature* root_signature) {
     {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  GraphicsPso::descriptor desc_opaque = GraphicsPso::default_desc();
+  GraphicsPso::descriptor desc_opaque = defaults::pipeline_desc();
   desc_opaque.pRootSignature          = root_signature;
   desc_opaque.VS                      = CD3DX12_SHADER_BYTECODE(vs.Get());
   desc_opaque.PS                      = CD3DX12_SHADER_BYTECODE(ps.Get());
@@ -68,7 +68,7 @@ inline GraphicsPso build_flat(ID3D12RootSignature* root_signature) {
     {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  GraphicsPso::descriptor desc_flat = GraphicsPso::default_desc();
+  GraphicsPso::descriptor desc_flat = defaults::pipeline_desc();
   desc_flat.pRootSignature          = root_signature;
   desc_flat.VS                      = CD3DX12_SHADER_BYTECODE(vs.Get());
   desc_flat.PS                      = CD3DX12_SHADER_BYTECODE(ps.Get());
@@ -89,7 +89,7 @@ inline GraphicsPso build_grid(ID3D12RootSignature* root_signature) {
     {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
 
-  GraphicsPso::descriptor desc_grid = GraphicsPso::default_desc();
+  GraphicsPso::descriptor desc_grid = defaults::pipeline_desc();
   desc_grid.pRootSignature          = root_signature;
   desc_grid.VS                      = CD3DX12_SHADER_BYTECODE(vs.Get());
   desc_grid.PS                      = CD3DX12_SHADER_BYTECODE(ps.Get());

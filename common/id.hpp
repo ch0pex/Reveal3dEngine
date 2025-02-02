@@ -11,11 +11,9 @@
  * Generation and index identifiers
  *
  *  |----------------------32 bits ---------------------|
- *
  *  |-----8 bits-----|-------------24 bits--------------|
- *
  *  -----------------------------------------------------
- *  |  Generation   |              Index                |
+ *  |  Generation    |              Index               |
  *  -----------------------------------------------------
  *
  *  Invalid Value: 0xFFFFFFFF
@@ -24,9 +22,11 @@
 
 #pragma once
 
+
 #include "primitive_types.hpp"
 #include "vector.hpp"
 
+#include <cassert>
 #include <deque>
 #include <limits>
 #include <vector>

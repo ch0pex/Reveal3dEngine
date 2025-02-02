@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "resources/dx_deferring_system.hpp"
 #include "utils/dx_checker.hpp"
 #include "utils/dx_debug.hpp"
 
@@ -81,6 +82,7 @@ struct Adapter {
 
   ~Adapter() {
     logger(LogInfo) << "Cleaning deferred resources";
+    clean_all_resources();
 #ifdef _DEBUG
     utils::queue_info(device.Get(), FALSE);
     utils::set_reporter(device.Get());

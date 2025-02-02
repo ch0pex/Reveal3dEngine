@@ -22,6 +22,7 @@
 #include "dx_render_element.hpp"
 #include "resources/dx_depth_buffer.hpp"
 #include "resources/dx_frame_resource.hpp"
+#include "resources/dx_heaps.hpp"
 
 namespace reveal3d::graphics::dx12 {
 

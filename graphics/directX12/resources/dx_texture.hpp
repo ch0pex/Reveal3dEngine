@@ -14,18 +14,25 @@
 #pragma once
 
 #include "dx_buffer.hpp"
-#include "graphics/directX12/utils/dx_debug.hpp"
+#include "dx_descriptor_heap.hpp"
+#include "dx_descriptor_heap_type.hpp"
+#include "dx_descriptors.hpp"
+#include "graphics/directX12/utils/dx_defaults.hpp"
 
 namespace reveal3d::graphics::dx12 {
 
 class Texture {
 public:
-  struct InitInfo {
-    window::Resolution res;
-    DXGI_FORMAT format;
-  };
+  using init_info = Buffer::init_info;
+  using heap_type = DescriptorHeap<HeapType::Srv>;
 
-  explicit Texture(InitInfo info) : buffer_(Buffer::buffer1d(1)) { }
+  constexpr static u32 max_mips {14};
+
+  Texture(DescriptorHandle const& handle, init_info const& info) : buffer_(defaults::texture2d()), srv_(handle) { }
+
+  Texture(Texture&& other) noexcept : buffer_(std::move(other.buffer_)), srv_(std::move(other.srv_)) {
+    // other.reset();
+  }
 
   [[nodiscard]] auto const& handle() const { return srv_; }
 
@@ -34,11 +41,6 @@ public:
 private:
   Buffer buffer_;
   DescriptorHandle srv_;
-};
-
-struct RenderTexture {
-  DescriptorHandle rtv;
-  Texture texture;
 };
 
 

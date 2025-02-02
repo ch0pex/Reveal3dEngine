@@ -15,6 +15,8 @@
 
 #include "dx_commands.hpp"
 #include "resources/dx_descriptor_heap.hpp"
+#include "resources/dx_heaps.hpp"
+#include "resources/dx_render_target.hpp"
 #include "utils/dx_debug.hpp"
 #include "utils/dx_resource_array.hpp"
 #include "window/window_info.hpp"
@@ -22,27 +24,6 @@
 
 namespace reveal3d::graphics::dx12 {
 
-class RenderTarget {
-public:
-  using init_info = D3D12_RENDER_TARGET_VIEW_DESC;
-
-  RenderTarget() = default;
-
-  explicit RenderTarget(DescriptorHandle const& handle, init_info const& desc, ComPtr<ID3D12Resource> const& buffer) :
-    buf_(buffer), rtv_(handle) {
-    adapter.device->CreateRenderTargetView(buf_.Get(), &desc, rtv_.cpu);
-  }
-
-  [[nodiscard]] auto const& handle() const { return rtv_; }
-
-  [[nodiscard]] auto resource() const { return buf_.Get(); }
-
-  void release() { buf_.Reset(); }
-
-private:
-  ComPtr<ID3D12Resource> buf_ {};
-  DescriptorHandle rtv_ {};
-};
 
 class Surface {
 public:
@@ -82,5 +63,6 @@ private:
   D3D12_VIEWPORT viewport_ {};
   D3D12_RECT scissor_rect_ {};
 };
+
 
 } // namespace reveal3d::graphics::dx12

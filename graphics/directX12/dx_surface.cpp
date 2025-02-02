@@ -42,16 +42,15 @@ void Surface::createSwapChain(Commands const& cmd_manager, Heaps& heaps) {
   adapter.factory->MakeWindowAssociation(window_.hwnd, DXGI_MWA_NO_ALT_ENTER) >> utils::DxCheck;
   swap_chain_1.As(&swap_chain_) >> utils::DxCheck;
 
-
   finalize(heaps);
 }
 
 void Surface::finalize(Heaps& heaps) {
   DXGI_SWAP_CHAIN_DESC desc {};
-  ComPtr<ID3D12Resource> buff_ptr;
+  ID3D12Resource* buff_ptr {};
   for (auto [idx, frame_resource]: std::views::enumerate(render_targets_)) {
     swap_chain_->GetBuffer(idx, IID_PPV_ARGS(&buff_ptr)) >> utils::DxCheck;
-    frame_resource = heaps.rtv.alloc<RenderTarget>(defaults::rtv_descriptor, buff_ptr);
+    frame_resource = heaps.alloc<RenderTarget>(defaults::rtv_descriptor, std::move(buff_ptr));
   }
 
   swap_chain_->GetDesc(&desc) >> utils::DxCheck;
@@ -90,7 +89,7 @@ void Surface::resize(window::Resolution const& res, Heaps& heaps) {
   resolution_ = res;
 
   for (auto& target: render_targets_) {
-    heaps.rtv.free<ReleasingPolicy::hard>(target);
+    heaps.free<policy::Hard>(target);
   }
 
   swap_chain_->ResizeBuffers(

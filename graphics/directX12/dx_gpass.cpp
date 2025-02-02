@@ -28,7 +28,7 @@ auto constexpr build_root = [](RootSignature& root) {
 };
 
 Gpass::Gpass(window::Resolution const resolution, Heaps& heaps) :
-  depth_buffer_(heaps.dsv.alloc<DepthBuffer>(resolution)), //
+  depth_buffer_(heaps.alloc<DepthBuffer>(resolution)), //
   root_signatures_ {RootSignature {4, build_root}, RootSignature {4, build_root}, RootSignature {4, build_root}},
   pipeline_states_ {
     build_flat(root_signatures_.at(static_cast<u8>(EngineShader::Flat)).get()), //

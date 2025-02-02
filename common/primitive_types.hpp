@@ -1,12 +1,12 @@
 /************************************************************************
  * Copyright (c) 2024 Alvaro Cabrera Barrio
- * This code is licensed under MIT license (see LICENSE.txt for details) 
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  ************************************************************************/
 /**
  * @file primitive_types.hpp
  * @version 1.0
  * @date 26/02/2024
- * @brief Types 
+ * @brief Types
  *
  * Primitive types
  */
@@ -15,7 +15,7 @@
 
 #include <cstdint>
 
-namespace reveal3d{
+namespace reveal3d {
 
 using u8  = uint8_t;
 using u16 = uint16_t;
@@ -28,5 +28,4 @@ using i64 = int64_t;
 using f32 = float;
 using f64 = double;
 
-}
-
+} // namespace reveal3d

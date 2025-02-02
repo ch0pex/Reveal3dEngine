@@ -15,13 +15,13 @@
 
 #include "config/config.hpp"
 #include "utils/dx_debug.hpp"
+#include "utils/dx_resource_array.hpp"
 
 
 namespace reveal3d::graphics::dx12 {
 
 class Commands {
 public:
-  // explicit Commands(bufferCount);
   Commands();
 
   ~Commands();
@@ -47,7 +47,7 @@ public:
 private:
   ComPtr<ID3D12CommandQueue> command_queue_;
   ComPtr<ID3D12GraphicsCommandList> command_list_;
-  std::array<ComPtr<ID3D12CommandAllocator>, config::Render::Graphics::max_buffer_count> command_allocators_;
+  utils::ResourceArray<ComPtr<ID3D12CommandAllocator>> command_allocators_;
 
   // Synchronization objects.
   static u8 frame_index_;

@@ -25,16 +25,18 @@
 
 namespace reveal3d::graphics::dx12 {
 
+struct BufferDescriptor {
+  D3D12_RESOURCE_DESC res_desc {};
+  D3D12_RESOURCE_STATES res_state {D3D12_RESOURCE_STATE_COMMON};
+  D3D12_HEAP_PROPERTIES heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)};
+  std::optional<D3D12_CLEAR_VALUE> clear_value {std::nullopt};
+};
+
 class Buffer {
 public:
-  struct InitInfo {
-    D3D12_RESOURCE_DESC res_desc {};
-    D3D12_RESOURCE_STATES res_state {D3D12_RESOURCE_STATE_COMMON};
-    D3D12_HEAP_PROPERTIES heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)};
-    std::optional<D3D12_CLEAR_VALUE> clear_value {std::nullopt};
-  };
+  using init_info = BufferDescriptor;
 
-  explicit Buffer(InitInfo const& info) : size_(info.res_desc.Width * info.res_desc.Height) {
+  explicit Buffer(init_info const& info) : size_(info.res_desc.Width * info.res_desc.Height) {
     auto const* opt_clear = info.clear_value.has_value() ? &info.clear_value.value() : nullptr;
 
     adapter.device->CreateCommittedResource(
@@ -43,63 +45,53 @@ public:
 
     std::wstring const name = L"Buffer " + std::to_wstring(counter++);
     buff_->SetName(name.c_str()) >> utils::DxCheck;
+    logger(LogInfo) << "Allocated buffer with size: " << size_;
   }
 
-  ~Buffer() {
-    release();
-    logger(LogInfo) << "Releasing gpu memory buffer with size " << size_;
-  }
+  Buffer(Buffer&& other) noexcept : buff_(other.buff_), size_(other.size_) { other.reset(); }
+
+  Buffer(Buffer& other) = delete;
+
+  ~Buffer() { release(buff_); }
+
+  Buffer& operator=(Buffer& other) = delete;
 
   Buffer& operator=(Buffer&& other) noexcept {
     deferred_release(buff_);
-    buff_       = other.buff_;
-    size_       = other.size_;
-    other.buff_ = nullptr;
-    other.size_ = 0;
+    buff_ = other.buff_;
+    size_ = other.size_;
+    other.reset();
     return *this;
   }
-
 
   [[nodiscard]] ID3D12Resource* resource() const { return buff_; }
 
   [[nodiscard]] u32 size() const { return size_; };
 
-  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpu_address() const { return buff_->GetGPUVirtualAddress(); }
-
-  static constexpr auto buffer1d = [](u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
-    return InitInfo {
-      .res_desc  = CD3DX12_RESOURCE_DESC::Buffer(width),
-      .res_state = D3D12_RESOURCE_STATE_COMMON,
-      .heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)},
-      .clear_value {std::nullopt},
-    };
-  };
-
-  void release() { dx12::release(buff_); }
+  [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS gpuAddress() const { return buff_->GetGPUVirtualAddress(); }
 
 private:
+  void reset() {
+    buff_ = nullptr;
+    size_ = 0;
+  }
+
   static inline u32 counter = 0;
   ID3D12Resource* buff_ {};
-  u32 size_ {0};
+  u32 size_;
 };
 
-
-template<typename T>
-T buffer_view(Buffer const& buffer);
-
-template<>
-inline D3D12_VERTEX_BUFFER_VIEW buffer_view<D3D12_VERTEX_BUFFER_VIEW>(Buffer const& buffer) {
+inline D3D12_VERTEX_BUFFER_VIEW vertex_view(Buffer const& buffer) {
   return {
-    .BufferLocation = buffer.gpu_address(),
+    .BufferLocation = buffer.gpuAddress(),
     .SizeInBytes    = buffer.size(),
     .StrideInBytes  = sizeof(render::Vertex),
   };
 }
 
-template<>
-inline D3D12_INDEX_BUFFER_VIEW buffer_view<D3D12_INDEX_BUFFER_VIEW>(Buffer const& buffer) {
+inline D3D12_INDEX_BUFFER_VIEW index_view(Buffer const& buffer) {
   return {
-    .BufferLocation = buffer.gpu_address(),
+    .BufferLocation = buffer.gpuAddress(),
     .SizeInBytes    = buffer.size(),
     .Format         = DXGI_FORMAT_R32_UINT,
   };
