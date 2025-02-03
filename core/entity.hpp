@@ -20,16 +20,16 @@ namespace reveal3d::core {
 
 class Entity {
 public:
-  Entity() : id_(id::invalid) { }
+  explicit Entity(Scene* scene) : id_(id::invalid), scene_(scene) { }
 
-  Entity(id_t const id) : id_ {id} {};
+  Entity(Scene* scene, id_t const id) : id_ {id}, scene_(scene) {};
 
   template<detail::is_component T>
   T component() const {
     if (not isAlive()) {
       return T();
     }
-    return scene.pool<T>().at(id_);
+    return scene_->pool<T>().at(id_);
   }
   template<detail::is_component T>
   T addComponent() {
@@ -41,31 +41,31 @@ public:
     if (not isAlive()) {
       return T();
     }
-    return scene.pool<T>().addComponent(id_, init_info);
+    return scene_->pool<T>().addComponent(id_, init_info);
   }
 
   template<detail::is_component T>
   void removeComponent() {
     if (isAlive()) {
-      scene.pool<T>().removeComponent(id_);
+      scene_->pool<T>().removeComponent(id_);
     }
   }
 
   [[nodiscard]] u32 id() const { return id_; }
 
-  [[nodiscard]] bool isAlive() const { return scene.isAlive(id_); }
+  [[nodiscard]] bool isAlive() const { return scene_->isAlive(id_); }
 
-  Entity addChild() const { return scene.newChildEntity(id_); }
+  Entity addChild() const { return {scene_, scene_->newChildEntity(id_)}; }
 
-  Entity parent() const { return scene.getNode(id_).parent; }
+  Entity parent() const { return {scene_, scene_->getNode(id_).parent}; }
 
-  Entity next() const { return scene.getNode(id_).next; }
+  Entity next() const { return {scene_, scene_->getNode(id_).next}; }
 
-  Entity prev() const { return scene.getNode(id_).prev; }
+  Entity prev() const { return {scene_, scene_->getNode(id_).prev}; }
 
-  Entity firstChild() const { return scene.getNode(id_).first_child; }
+  Entity firstChild() const { return {scene_, scene_->getNode(id_).first_child}; }
 
-  auto children() const { return scene.getNode(id_).getChildren(); }
+  auto children() const { return scene_->getNode(id_).getChildren(); }
 
   bool operator==(Entity const& other) const { return id_ == other.id_; }
 
@@ -73,6 +73,7 @@ public:
 
 private:
   id_t id_;
+  Scene* scene_;
 };
 
 } // namespace reveal3d::core
