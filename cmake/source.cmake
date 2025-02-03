@@ -16,6 +16,7 @@ set(CORE
         core/components/component.hpp
         core/components/concepts.hpp
         core/pooling/concepts.hpp
+        core/pooling/pools_map.hpp
 )
 
 set(CONTENT

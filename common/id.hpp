@@ -30,6 +30,7 @@
 #include <deque>
 #include <limits>
 #include <vector>
+#include <cassert>
 
 
 using id_t         = reveal3d::u32; // ID type
