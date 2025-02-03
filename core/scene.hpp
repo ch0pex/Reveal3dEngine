@@ -195,14 +195,9 @@ public:
    *
    * @param[in] dt Delta time
    * @return None
-   *
-   * @note Not all components need to be updated every frame
    */
   void update(f32 dt) {
-    pools_.get<transform::Pool>().update();
-    pools_.get<geometry::Pool>().update();
-    //    assert(transform_pool_.count() == count());
-    //    assert(metadata_pool_.count() == count());
+    tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(); });
   }
 
 private:

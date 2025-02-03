@@ -32,6 +32,7 @@ public:
     new_components_.pop();
     return id;
   }
+
   id_t popRemoved() {
     if (deleted_components_.empty()) {
       return id::invalid;
