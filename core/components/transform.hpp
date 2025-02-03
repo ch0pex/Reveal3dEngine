@@ -77,7 +77,7 @@ public:
   void worldPosition(math::xvec3 const pos) const {
     transform::detail::Transform& trans = pool().posRotScale(id_);
     pool().world(id_)                   = transpose(affine_transformation(pos, trans.scale, trans.rotation));
-    if (Entity const parent = scene.getNode(entityIdx()).parent; parent.isAlive()) {
+    if (auto const parent = entity().parent(); parent.isAlive()) {
       trans.position = transpose(parent.component<Transform>().invWorld()) * pos;
     }
     else {
@@ -91,7 +91,7 @@ public:
   void worldScale(math::xvec3 const scale) const {
     transform::detail::Transform& trans = pool().posRotScale(id_);
     pool().world(id_)                   = transpose(affine_transformation(trans.position, scale, trans.rotation));
-    if (Entity const parent = scene.getNode(entityIdx()).parent; parent.isAlive()) {
+    if (Entity const parent = entity().parent(); parent.isAlive()) {
       trans.scale = parent.component<Transform>().invWorld() * scale;
     }
     else {
@@ -106,7 +106,7 @@ public:
 
     auto const rad = vec_to_radians(rot);
     world()        = transpose(affine_transformation(trans.position, trans.scale, rad));
-    if (Entity const parent = scene.getNode(entityIdx()).parent; parent.isAlive()) {
+    if (Entity const parent = entity().parent(); parent.isAlive()) {
       trans.rotation = parent.component<Transform>().invWorld() * rad;
     }
     else {
@@ -123,7 +123,7 @@ public:
       return;
     }
 
-    if (Entity const curr_node = scene.entity(entityIdx()); curr_node.parent().isAlive()) {
+    if (Entity const curr_node = entity(); curr_node.parent().isAlive()) {
       id_t const parent_id = curr_node.parent().id();
       curr_node.parent().component<Transform>().update();
       math::mat4 const parent_world = pool().world(parent_id);
@@ -159,8 +159,8 @@ public:
   [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
 private:
-  static auto constexpr calcWorld = [](id_t const id) {
-    auto& [position, rotation, scale] = scene.pool<Transform>().posRotScale(id);
+  auto calcWorld(id_t const id) const {
+    auto& [position, rotation, scale] = scene_->pool<Transform>().posRotScale(id);
     return transpose(affine_transformation(position, scale, rotation));
   };
 
@@ -171,9 +171,8 @@ private:
   }
 
   void setChildrenAsDirty() const {
-    Scene::Node const& node = scene.getNode(entityIdx());
-    for (auto const children = node.getChildren(); auto const child_id: children) {
-      auto const child = Entity(child_id);
+
+    for (auto const children = entity().children(); auto const child: children) {
       child.component<Transform>().setDirty();
       child.component<Transform>().setChildrenAsDirty();
     }
@@ -183,9 +182,9 @@ private:
 static_assert(component<Transform>);
 
 template<>
-inline void GenericPool<Transform::pool_type>::update() {
+inline void GenericPool<Transform::pool_type>::update(Scene* scene) {
   for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-    Transform component {*it};
+    Transform component {scene, *it};
     component.update();
     if (this->dirties_.at(id::index(*it)) == 0) {
       it = this->dirty_ids_.erase(it);

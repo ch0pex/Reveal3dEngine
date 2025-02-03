@@ -20,16 +20,18 @@ namespace reveal3d::core {
 
 class Entity {
 public:
-  explicit Entity(Scene* scene) : id_(id::invalid), scene_(scene) { }
+  Entity() : scene_(nullptr), id_(id::invalid) { }
+
+  explicit Entity(Scene* scene) : scene_(scene), id_(id::invalid) { }
 
   Entity(Scene* scene, id_t const id) : id_ {id}, scene_(scene) {};
 
   template<detail::is_component T>
   T component() const {
     if (not isAlive()) {
-      return T();
+      return T(scene_);
     }
-    return scene_->pool<T>().at(id_);
+    return {scene_, scene_->pool<T>().at(id_)};
   }
   template<detail::is_component T>
   T addComponent() {
@@ -39,9 +41,9 @@ public:
   template<detail::is_component T>
   T addComponent(typename T::init_info const& init_info) {
     if (not isAlive()) {
-      return T();
+      return T(scene_);
     }
-    return scene_->pool<T>().addComponent(id_, init_info);
+    return {scene_, scene_->pool<T>().addComponent(id_, init_info)};
   }
 
   template<detail::is_component T>
@@ -55,25 +57,44 @@ public:
 
   [[nodiscard]] bool isAlive() const { return scene_->isAlive(id_); }
 
-  Entity addChild() const { return {scene_, scene_->newChildEntity(id_)}; }
+   Entity addChild() const { return {scene_, scene_->newChildEntity(id_)}; }
 
-  Entity parent() const { return {scene_, scene_->getNode(id_).parent}; }
+  [[nodiscard]] Entity parent() const { return {scene_, scene_->getNode(id_).parent}; }
 
-  Entity next() const { return {scene_, scene_->getNode(id_).next}; }
+  [[nodiscard]] Entity next() const { return {scene_, scene_->getNode(id_).next}; }
 
-  Entity prev() const { return {scene_, scene_->getNode(id_).prev}; }
+  [[nodiscard]] Entity prev() const { return {scene_, scene_->getNode(id_).prev}; }
 
-  Entity firstChild() const { return {scene_, scene_->getNode(id_).first_child}; }
+  [[nodiscard]] Entity firstChild() const { return {scene_, scene_->getNode(id_).first_child}; }
 
-  auto children() const { return scene_->getNode(id_).getChildren(); }
+  [[nodiscard]] auto children() const {
+    std::vector<Entity> children;
+    if (scene_->isAlive(firstChild())) {
+      Entity current = firstChild();
+      while (true) {
+        children.push_back(current);
+        if (scene_->isAlive(current.next())) {
+          current = current.next();
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return children;
+  }
 
   bool operator==(Entity const& other) const { return id_ == other.id_; }
 
   operator id_t() const { return id_; }
 
 private:
-  id_t id_;
   Scene* scene_;
+  id_t id_;
+
+  u32 flags_; // TODO maybe some flags here?
 };
+
+inline Entity new_entity(Scene& scene) { return {&scene, scene.newEntity()}; }
 
 } // namespace reveal3d::core

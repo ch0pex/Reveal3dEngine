@@ -16,16 +16,8 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include "dx_adapter.hpp"
-#include "resources/dx_render_texture.hpp"
 #endif
 
-#ifdef IMGUI
-#include "IMGUI/backends/imgui_impl_dx12.h"
-#include "IMGUI/imgui.h"
-// #include "IMGUI/imgui_internal.h"
-#endif
-
-#include "core/scene.hpp"
 #include "dx_commands.hpp"
 #include "dx_gpass.hpp"
 #include "dx_surface.hpp"
@@ -43,9 +35,9 @@ public:
 
   void loadPipeline();
 
-  void loadAssets();
+  void loadAssets(core::Scene& scene);
 
-  void update(render::Camera const& camera);
+  void update(core::Scene& scene, render::Camera const& camera);
 
   void render() { renderSurface(surface_); }
 

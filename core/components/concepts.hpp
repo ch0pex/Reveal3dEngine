@@ -13,8 +13,6 @@
 
 #pragma once
 
-#include "common/common.hpp"
-
 #include <concepts>
 
 namespace reveal3d::core {
@@ -23,10 +21,7 @@ namespace detail {
 
 template<typename T>
 concept is_component = requires(T component) {
-  { T {} };
-  { T {}.id() == id::invalid };
-  { std::is_constructible_v<T, id_t> };
-  { sizeof(T) == 4 };
+  { sizeof(T) == 8 };
 
   typename T::pool_type;
   typename T::init_info;

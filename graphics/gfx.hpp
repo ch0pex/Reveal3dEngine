@@ -27,13 +27,19 @@ enum class Backends : uint8_t { directx12 = 0, directx11, openGL, vulkan, metal 
 
 // Hardware render Interface Concept
 template<typename Gfx>
-concept HRI = requires(Gfx graphics, render::Camera& camera, window::Resolution& res) {
+concept HRI = requires(Gfx graphics, core::Scene& scene) {
   { graphics.loadPipeline() } -> std::same_as<void>;
-  { graphics.loadAssets() } -> std::same_as<void>;
-  { graphics.update(camera) } -> std::same_as<void>;
+  { graphics.loadAssets(scene) } -> std::same_as<void>;
+  { graphics.update(scene, std::declval<render::Camera>()) } -> std::same_as<void>;
   { graphics.renderSurface(std::declval<typename Gfx::surface&>()) } -> std::same_as<void>;
   // { graphics.terminate() } -> std::same_as<void>;
-  { graphics.resize(res) } -> std::same_as<void>;
+  { graphics.resize(std::declval<window::Resolution>()) } -> std::same_as<void>;
 };
+
+#ifdef WIN32
+static_assert(HRI<Dx12>);
+#endif
+
+static_assert(HRI<OpenGL>);
 
 } // namespace reveal3d::graphics

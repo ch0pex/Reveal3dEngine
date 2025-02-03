@@ -14,6 +14,7 @@
 #pragma once
 
 
+#include "core/entity.hpp"
 #include "core/scene.hpp"
 
 namespace reveal3d::core {
@@ -21,15 +22,15 @@ namespace reveal3d::core {
 template<typename T>
 class Component {
 public:
-  constexpr Component() : id_(id::invalid) { }
+  constexpr Component(Scene* scene) : id_(id::invalid), scene_(scene) { }
 
-  constexpr Component(id_t const id) : id_(id) { }
+  constexpr Component(Scene* scene, id_t const id) : id_(id), scene_(scene) { }
 
   [[nodiscard]] constexpr bool isAlive() const { return id_ != id::invalid; }
 
   [[nodiscard]] constexpr id_t id() const { return id_; }
 
-  [[nodiscard]] constexpr index_t entityIdx() const { return pool().getMappedId(id_); }
+  [[nodiscard]] constexpr Entity entity() const { return {scene_, scene_->entity(pool().getMappedId(id_))}; }
 
   [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
@@ -52,10 +53,11 @@ public:
     pool().dirties().at(id::index(id_)) = config::render.graphics.buffer_count;
   }
 
-  static constexpr auto pool() -> decltype(auto) { return scene.pool<T>(); };
+  auto pool() const -> decltype(auto) { return scene_->pool<T>(); };
 
 protected:
   id_t id_;
+  Scene* scene_;
 };
 
 

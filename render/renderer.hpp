@@ -30,13 +30,12 @@ public:
     graphics_.loadPipeline();
     logger(LogInfo) << "Initializing Pipeline...[" << timer_.diff(time) * 1000 << "ms]";
     time = timer_.totalTime();
-    graphics_.loadAssets();
     logger(LogInfo) << "Loading assets...[" << timer_.diff(time) * 1000 << "ms]";
   }
 
-  void update() {
+  void update(core::Scene& scene) {
     camera_.update(timer_);
-    graphics_.update(camera_);
+    graphics_.update(scene, camera_);
   }
 
   void render() { graphics_.render(); }

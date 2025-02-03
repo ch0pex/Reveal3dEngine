@@ -34,7 +34,7 @@ struct Metadata : Component<Metadata> {
 };
 
 template<>
-inline void GenericPool<Metadata::pool_type>::update() {
+inline void GenericPool<Metadata::pool_type>::update(Scene* scene) {
   // Metadata components for now don't need to be updated per frame
 }
 

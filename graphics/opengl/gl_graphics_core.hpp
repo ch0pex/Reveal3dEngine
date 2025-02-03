@@ -15,6 +15,7 @@
 #include "gl_render_info.hpp"
 #include "render/camera.hpp"
 
+#include "core/scene.hpp"
 #include "gl_render_layers.hpp"
 
 namespace reveal3d::graphics {
@@ -29,11 +30,11 @@ public:
 
   void loadPipeline();
 
-  void loadAssets();
+  void loadAssets(core::Scene& scene);
 
   void loadAsset();
 
-  void update(render::Camera const& camera);
+  void update(core::Scene& scene, render::Camera const& camera);
 
   void render() { }
 

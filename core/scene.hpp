@@ -53,7 +53,6 @@ namespace reveal3d::core {
 class Scene {
 public:
   struct Node {
-    [[nodiscard]] std::vector<id_t> getChildren() const;
     id_t entity {id::invalid};
     id_t parent {id::invalid};
     id_t first_child {id::invalid};
@@ -166,7 +165,7 @@ public:
    * @return None
    */
   void update(f32 dt) {
-    tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(); });
+    tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(this); });
   }
 
 private:
@@ -178,6 +177,23 @@ private:
       rigidbody::Pool, //
       light::Pool //
       >;
+
+  std::vector<id_t> getChildren(Node const& node) {
+    std::vector<id_t> children;
+    if (isAlive(node.first_child)) {
+      Node const* curr_node = &getNode(node.first_child);
+      while (true) {
+        children.push_back(curr_node->entity);
+        if (isAlive(curr_node->next)) {
+          curr_node = &getNode(curr_node->next);
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return children;
+  }
 
   void removeNode(id_t const id) {
     if (not id::is_valid(id)) {
@@ -207,7 +223,7 @@ private:
     }
 
     if (isAlive(node.first_child)) {
-      for (auto const children = node.getChildren(); auto const child: children) {
+      for (auto const children = getChildren(node); auto const child: children) {
         removeNode(child);
       }
     }
@@ -241,24 +257,5 @@ private:
   pool_map_type pools_;
 };
 
-inline Scene scene;
-
-
-inline std::vector<id_t> Scene::Node::getChildren() const {
-  std::vector<id_t> children;
-  if (scene.isAlive(first_child)) {
-    Node const* curr_node = &scene.getNode(first_child);
-    while (true) {
-      children.push_back(curr_node->entity);
-      if (scene.isAlive(curr_node->next)) {
-        curr_node = &scene.getNode(curr_node->next);
-      }
-      else {
-        break;
-      }
-    }
-  }
-  return children;
-}
 
 } // namespace reveal3d::core

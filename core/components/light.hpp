@@ -51,7 +51,7 @@ struct Light : Component<Light> {
 };
 
 template<>
-inline void GenericPool<Light::pool_type>::update() {
+inline void GenericPool<Light::pool_type>::update(Scene* scene) {
   // TODO
 }
 

@@ -31,14 +31,13 @@ Dx12::Dx12(window::Resolution const res) :
 
 void Dx12::loadPipeline() { surface_.createSwapChain(cmd_manager_, heaps_); }
 
-void Dx12::loadAssets() {
-  using namespace core;
-  auto& geometry_pool = scene.pool<Geometry>();
+void Dx12::loadAssets(core::Scene& scene) {
+  auto& geometry_pool = scene.pool<core::Geometry>();
 
-  if (Geometry new_geo = geometry_pool.popNew(); new_geo.isAlive()) {
+  if (auto new_geo = core::Geometry {&scene, geometry_pool.popNew()}; new_geo.isAlive()) {
     cmd_manager_.reset();
 
-    for (; new_geo.isAlive(); new_geo = geometry_pool.popNew()) {
+    for (; new_geo.isAlive(); new_geo = {&scene, geometry_pool.popNew()}) {
       gpass_.addRenderElement(new_geo, cmd_manager_);
     }
 
@@ -48,9 +47,9 @@ void Dx12::loadAssets() {
   }
 }
 
-void Dx12::update(Camera const& camera) {
+void Dx12::update(core::Scene& scene, Camera const& camera) {
   auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
-  auto& geometries                                 = core::scene.pool<core::Geometry>();
+  auto& geometries                                 = scene.pool<core::Geometry>();
 
   // update pass constants
   auto const view_proj = transpose(camera.getViewProjectionMatrix());
@@ -67,23 +66,23 @@ void Dx12::update(Camera const& camera) {
   };
 
   // update object constants
-  for (auto const id: core::scene.pool<core::Transform>().dirtyElements()) {
-    core::Transform const trans {id};
+  for (auto const id: scene.pool<core::Transform>().dirtyElements()) {
+    core::Transform const trans {&scene, id};
     constant_buffer.at(id::index(id)) = {
-      .world_view_proj = trans.world(), .entity_id = core::scene.entity(trans.entityIdx()) //
+      .world_view_proj = trans.world(), .entity_id = trans.entity() //
     };
     trans.unDirty();
   }
 
   // update material constants
   for (auto const id: geometries.dirtyElements()) {
-    core::Geometry const geo {id};
+    core::Geometry const geo {&scene, id};
     mat_buffer.at(id::index(geo.id())) = geo.material();
     geo.unDirty();
   }
 
   // Load new meshes to gpu
-  loadAssets();
+  loadAssets(scene);
 
   // Remove render elements of deleted geometry
   for (id_t rem_geo = geometries.popRemoved(); id::is_valid(rem_geo); rem_geo = geometries.popRemoved()) {

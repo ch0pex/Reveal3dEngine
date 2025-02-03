@@ -21,6 +21,7 @@
 #include "config/config.hpp"
 
 namespace reveal3d::core {
+class Scene;
 
 template<typename T>
 class GenericPool : public T, public detail::GpuSynchronize<typename T::gpu_stored> {
@@ -76,7 +77,7 @@ public:
   /**
    * @note this must be specialized in every component header file
    */
-  void update();
+  void update(Scene* scene);
 
   u32 count() { return this->countData(); }
 

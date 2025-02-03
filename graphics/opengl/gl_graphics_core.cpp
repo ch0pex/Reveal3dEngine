@@ -44,7 +44,7 @@ void OpenGL::loadPipeline() {
   render_layers_.init();
 }
 
-void OpenGL::loadAssets() {
+void OpenGL::loadAssets(core::Scene& scene) {
   // TODO
   //    std::vector<core::Transform> &transforms = core::scene.Transforms();
   //    std::vector<core::Geometry> &geometries = core::scene.Geometries();
@@ -74,7 +74,7 @@ void OpenGL::loadAsset() {
   // TODO
 }
 
-void OpenGL::update(render::Camera const& camera) {
+void OpenGL::update(core::Scene& scene, render::Camera const& camera) {
   pass_constant_ = camera.getViewProjectionMatrix();
 
   //    auto &transforms = core::scene.Transforms();

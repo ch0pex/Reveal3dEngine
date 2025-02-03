@@ -49,7 +49,7 @@ struct Script : Component<Script> {
 };
 
 template<>
-inline void GenericPool<Script::pool_type>::update() {
+inline void GenericPool<Script::pool_type>::update(Scene* scene) {
   // TODO
 }
 
