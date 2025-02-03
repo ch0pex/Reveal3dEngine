@@ -26,4 +26,9 @@ struct Rigidbody : Component<Rigidbody> {
   // TODO
 };
 
+template<>
+inline void GenericPool<Rigidbody::pool_type>::update() {
+  // TODO
+}
+
 } // namespace reveal3d::core

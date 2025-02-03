@@ -33,4 +33,9 @@ struct Metadata : Component<Metadata> {
   [[nodiscard]] std::string& comment() const { return pool().comment(id_); }
 };
 
+template<>
+inline void GenericPool<Metadata::pool_type>::update() {
+  // Metadata components for now don't need to be updated per frame
+}
+
 } // namespace reveal3d::core

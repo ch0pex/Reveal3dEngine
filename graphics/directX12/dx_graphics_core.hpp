@@ -16,6 +16,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include "dx_adapter.hpp"
+#include "resources/dx_render_texture.hpp"
 #endif
 
 #ifdef IMGUI
@@ -71,6 +72,7 @@ private:
 
   /***************** Surface and swapchain pos_rot_scale **********************/
   dx12::Surface surface_;
+  // dx12::RenderTexture texture_;
 };
 
 } // namespace reveal3d::graphics

@@ -84,12 +84,27 @@ constexpr auto buffer1d(u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOW
   };
 }
 
-constexpr auto texture2d(window::Resolution const resolution, DXGI_FORMAT const format = DXGI_FORMAT_UNKNOWN) {
+constexpr auto texture2d(
+    window::Resolution const resolution, DXGI_FORMAT const format,
+    D3D12_RESOURCE_FLAGS const flags = D3D12_RESOURCE_FLAG_NONE
+) {
   return Buffer::init_info {
-    .res_desc  = CD3DX12_RESOURCE_DESC::Tex2D(format, resolution.width, resolution.height),
-    .res_state = D3D12_RESOURCE_STATE_COMMON,
-    .heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)},
-    .clear_value {std::nullopt},
+    .res_desc =
+        {
+          .Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+          .Alignment        = 0,
+          .Width            = resolution.width,
+          .Height           = resolution.height,
+          .DepthOrArraySize = 1,
+          .MipLevels        = 1,
+          .Format           = format,
+          .SampleDesc       = {1, 0},
+          .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+          .Flags            = flags,
+        },
+    .res_state       = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+    .heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+    .clear_value     = clear_value,
   };
 }
 

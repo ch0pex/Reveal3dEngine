@@ -23,7 +23,11 @@ namespace reveal3d::graphics {
 using namespace render;
 using namespace dx12;
 
-Dx12::Dx12(window::Resolution const res) : gpass_(res, heaps_), surface_(res) { }
+Dx12::Dx12(window::Resolution const res) :
+  gpass_(res, heaps_), surface_(res)
+// texture_(heaps_.alloc<RenderTexture>(
+// defaults::texture2d({1920, 1080}, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)
+{ }
 
 void Dx12::loadPipeline() { surface_.createSwapChain(cmd_manager_, heaps_); }
 
@@ -66,7 +70,7 @@ void Dx12::update(Camera const& camera) {
   for (auto const id: core::scene.pool<core::Transform>().dirtyElements()) {
     core::Transform const trans {id};
     constant_buffer.at(id::index(id)) = {
-      .world_view_proj = trans.world(), .entity_id = core::scene.getEntity(trans.entityIdx()).id() //
+      .world_view_proj = trans.world(), .entity_id = core::scene.entity(trans.entityIdx()) //
     };
     trans.unDirty();
   }

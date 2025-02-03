@@ -14,6 +14,7 @@
 #pragma once
 
 #include "component.hpp"
+#include "core/entity.hpp"
 
 #include <set>
 #include <vector>
@@ -122,9 +123,9 @@ public:
       return;
     }
 
-    if (Scene::Node const& curr_node = scene.getNode(entityIdx()); curr_node.parent.isAlive()) {
-      id_t const parent_id = curr_node.parent.id();
-      curr_node.parent.component<Transform>().update();
+    if (Entity const curr_node = scene.entity(entityIdx()); curr_node.parent().isAlive()) {
+      id_t const parent_id = curr_node.parent().id();
+      curr_node.parent().component<Transform>().update();
       math::mat4 const parent_world = pool().world(parent_id);
       world()                       = parent_world * calcWorld(id_);
     }

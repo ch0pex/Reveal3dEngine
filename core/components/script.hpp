@@ -48,4 +48,9 @@ struct Script : Component<Script> {
   void disableDestroyed();
 };
 
+template<>
+inline void GenericPool<Script::pool_type>::update() {
+  // TODO
+}
+
 } // namespace reveal3d::core

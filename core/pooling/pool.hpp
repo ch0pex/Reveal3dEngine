@@ -14,51 +14,13 @@
 
 #include "common/common.hpp"
 #include "core/pooling/concepts.hpp"
+#include "pool_detail.hpp"
 
-#include <queue>
-#include <set>
 #include <vector>
 
 #include "config/config.hpp"
 
 namespace reveal3d::core {
-
-namespace detail {
-
-template<typename InGPU>
-class GpuSynchronize { };
-
-template<>
-class GpuSynchronize<std::true_type> {
-public:
-  id_t popNew() {
-    if (new_components_.empty()) {
-      return id::invalid;
-    }
-    auto const id = new_components_.front();
-    new_components_.pop();
-    return id;
-  }
-  id_t popRemoved() {
-    if (deleted_components_.empty()) {
-      return id::invalid;
-    }
-    auto const id = deleted_components_.front();
-    deleted_components_.pop();
-    return id;
-  }
-  std::set<id_t>& dirtyElements() { return dirty_ids_; }
-  std::set<id_t>& dirtyIds() { return dirty_ids_; }
-  utils::vector<u8>& dirties() { return dirties_; }
-
-protected:
-  std::queue<id_t> new_components_;
-  std::queue<id_t> deleted_components_;
-  std::set<id_t> dirty_ids_;
-  utils::vector<u8> dirties_;
-};
-
-} // namespace detail
 
 template<typename T>
 class GenericPool : public T, public detail::GpuSynchronize<typename T::gpu_stored> {
@@ -111,7 +73,9 @@ public:
     }
   }
 
-  /// @note for now this must be specialized in every component header file
+  /**
+   * @note this must be specialized in every component header file
+   */
   void update();
 
   u32 count() { return this->countData(); }
@@ -137,12 +101,15 @@ private:
   void removeId(id_t const id) {
     id_t const last = components_ids_.at(id_factory_.back());
     index_t const component_index {id_factory_.mapped(id)};
-    id_t const new_id = id::new_generation(id, id::generation(last));
+    id_t const new_id = id::new_generation(id, id::generation(last)); // TODO think about this
+
     if (last != id) {
       components_ids_.at(id::index(getMappedId(last))) = new_id;
     }
+
     components_ids_.at(component_index) = id::invalid;
     id_factory_.remove(id);
+
     if constexpr (stored_in_gpu<T>) {
       if (last != id) {
         this->dirties_.at(id::index(id)) = config::render.graphics.buffer_count;

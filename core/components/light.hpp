@@ -50,6 +50,10 @@ struct Light : Component<Light> {
   [[nodiscard]] render::Light::type type() const { return pool().lightType(id_); }
 };
 
-static_assert(component<Light>);
+template<>
+inline void GenericPool<Light::pool_type>::update() {
+  // TODO
+}
 
+static_assert(component<Light>);
 } // namespace reveal3d::core

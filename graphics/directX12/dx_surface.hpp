@@ -53,7 +53,6 @@ private:
 
   void finalize(Heaps& heaps);
 
-
   utils::ResourceArray<RenderTarget> render_targets_;
   window::Resolution resolution_;
   ComPtr<IDXGISwapChain3> swap_chain_;

@@ -14,6 +14,7 @@
 #pragma once
 
 #include "core/components/geometry.hpp"
+#include "core/entity.hpp"
 #include "core/scene.hpp"
 #include "resources/dx_buffer.hpp"
 #include "resources/dx_frame_resource.hpp"
@@ -27,7 +28,7 @@ public:
     vertex_buffer_(defaults::buffer1d(geo.vertices().size() * sizeof(render::Vertex))),
     index_buffer_(defaults::buffer1d(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
     vertex_view_(vertex_view(vertex_buffer_)), index_view_(index_view(index_buffer_)), //
-    entity_(core::scene.getEntity(geo.entityIdx())) //
+    entity_(core::scene.entity(geo.entityIdx())) //
   {
     upload_resource(cmd_list, vertex_buffer_, geo.vertices());
     upload_resource(cmd_list, index_buffer_, geo.indices());

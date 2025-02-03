@@ -26,11 +26,13 @@ public:
   RenderTexture(Texture&& texture, std::vector<DescriptorHandle>&& rtv_descriptors) :
     texture_(std::move(texture)), rtv_(std::move(rtv_descriptors)) { }
 
-  auto resource() const { return texture_.resource(); }
+  RenderTexture(RenderTexture&& other) noexcept : texture_(std::move(other.texture_)), rtv_(std::move(other.rtv_)) { }
 
-  auto rtv(u32 const index = 0) const { return rtv_.at(index); }
+  [[nodiscard]] auto resource() const { return texture_.resource(); }
 
-  auto srv() const { return texture_.handle(); }
+  auto& rtv(u32 const index = 0) const { return rtv_.at(index); }
+
+  auto& srv() const { return texture_.handle(); }
 
 private:
   Texture texture_;
@@ -43,7 +45,7 @@ private:
  * @return RenderTexture
  */
 template<>
-inline RenderTexture Heaps::alloc<RenderTexture>(Texture::init_info const& info) {
+inline RenderTexture Heaps::alloc<RenderTexture>(Texture::init_info&& info) {
   assert(info.res_desc.MipLevels <= Texture::max_mips);
 
   Texture texture {heap<HeapType::Srv>().alloc(), info};
@@ -52,7 +54,7 @@ inline RenderTexture Heaps::alloc<RenderTexture>(Texture::init_info const& info)
   rtv_descriptors.reserve(info.res_desc.MipLevels);
 
   D3D12_RENDER_TARGET_VIEW_DESC desc {
-    .Format = info.res_desc.Format, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D, .Texture2D.MipSlice = 0
+    .Format = info.res_desc.Format, .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D, .Texture2D = {.MipSlice = 0}
   };
 
   for (u32 i {0}; i < info.res_desc.MipLevels; ++i) {

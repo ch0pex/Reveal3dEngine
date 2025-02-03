@@ -28,7 +28,17 @@ public:
 
   constexpr static u32 max_mips {14};
 
-  Texture(DescriptorHandle const& handle, init_info const& info) : buffer_(defaults::texture2d()), srv_(handle) { }
+  Texture(DescriptorHandle const& handle, init_info const& info) : buffer_(info), srv_(handle) {
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+    srv_desc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srv_desc.Format                          = info.res_desc.Format;
+    srv_desc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srv_desc.Texture2D.MostDetailedMip       = 0;
+    srv_desc.Texture2D.MipLevels             = 1;
+
+    adapter.device->CreateShaderResourceView(buffer_.resource(), &srv_desc, srv_.cpu);
+  }
 
   Texture(Texture&& other) noexcept : buffer_(std::move(other.buffer_)), srv_(std::move(other.srv_)) {
     // other.reset();

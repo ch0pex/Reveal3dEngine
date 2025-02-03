@@ -18,6 +18,8 @@
 #include <set>
 #include <span>
 
+#include <ranges>
+
 namespace reveal3d::core {
 
 struct Geometry : Component<Geometry> {
@@ -89,8 +91,6 @@ struct Geometry : Component<Geometry> {
   }
 };
 
-static_assert(component<Geometry>);
-
 template<>
 inline void GenericPool<Geometry::pool_type>::update() {
   for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
@@ -103,4 +103,5 @@ inline void GenericPool<Geometry::pool_type>::update() {
   }
 }
 
+static_assert(component<Geometry>);
 } // namespace reveal3d::core

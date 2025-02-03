@@ -1,5 +1,6 @@
 set(CORE
         core/scene.hpp
+        core/entity.hpp
         core/components/geometry.hpp
         core/components/transform.hpp
         core/components/script.hpp
@@ -16,6 +17,7 @@ set(CORE
         core/components/component.hpp
         core/components/concepts.hpp
         core/pooling/concepts.hpp
+        core/pooling/pools_map.hpp
 )
 
 set(CONTENT
