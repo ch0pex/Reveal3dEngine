@@ -46,6 +46,8 @@
 #include <deque>
 #include <vector>
 
+#include "common/tuple.hpp"
+#include "core/pooling/pools_map.hpp"
 #include "pooling/pool.hpp"
 
 namespace reveal3d::core {
@@ -181,24 +183,7 @@ public:
   /// @note Can't use concept here because T is not complete type
   template<typename T>
   decltype(auto) pool() noexcept {
-    if constexpr (std::same_as<typename T::pool_type, transform::Pool>) {
-      return (transform_pool_);
-    }
-    else if constexpr (std::same_as<typename T::pool_type, script::Pool>) {
-      return (script_pool_);
-    }
-    else if constexpr (std::same_as<typename T::pool_type, metadata::Pool>) {
-      return (metadata_pool_);
-    }
-    else if constexpr (std::same_as<typename T::pool_type, light::Pool>) {
-      return (light_pool_);
-    }
-    else if constexpr (std::same_as<typename T::pool_type, rigidbody::Pool>) {
-      return (rigidbody_pool_);
-    }
-    else {
-      return (geometry_pool_);
-    }
+    return (pools_.get<typename T::pool_type>());
   }
 
   void init() { }
@@ -214,13 +199,22 @@ public:
    * @note Not all components need to be updated every frame
    */
   void update(f32 dt) {
-    transform_pool_.update();
-    geometry_pool_.update();
-    assert(transform_pool_.count() == count());
-    assert(metadata_pool_.count() == count());
+    pools_.get<transform::Pool>().update();
+    pools_.get<geometry::Pool>().update();
+    //    assert(transform_pool_.count() == count());
+    //    assert(metadata_pool_.count() == count());
   }
 
 private:
+  using pool_map_type = PoolMap< //
+      transform::Pool, //
+      geometry::Pool, //
+      script::Pool, //
+      metadata::Pool, //
+      rigidbody::Pool, //
+      light::Pool //
+      >;
+
   void removeNode(id_t const id) {
     if (!id::is_valid(id)) {
       return;
@@ -228,12 +222,8 @@ private:
 
     Node& node = getNode(id);
     free_nodes_.push_back(node.entity.id());
-    transform_pool_.removeComponent(id);
-    metadata_pool_.removeComponent(id);
-    geometry_pool_.removeComponent(id);
-    rigidbody_pool_.removeComponent(id);
-    light_pool_.removeComponent(id);
-    script_pool_.removeComponent(id);
+
+    tuple::for_each(pools_.data, [&](auto&& pool) { pool.removeComponent(id); });
 
     if (node.prev.isAlive()) {
       Node& prev_node = getNode(node.prev.id());
@@ -267,14 +257,11 @@ private:
     }
     else {
       scene_graph_.push_back(node);
-      geometry_pool_.addComponent();
-      rigidbody_pool_.addComponent();
-      light_pool_.addComponent();
-      script_pool_.addComponent();
+      tuple::for_each(pools_.data, [&](auto&& pool) { pool.addComponent(); });
     }
 
-    transform_pool_.addComponent(id);
-    metadata_pool_.addComponent(id, {id, fmt::format("Entity_{}", id::index(id))});
+    pools_.get<transform::Pool>().addComponent(id, {});
+    pools_.get<metadata::Pool>().addComponent(id, {id, fmt::format("Entity_{}", id::index(id))});
   }
 
 
@@ -287,12 +274,7 @@ private:
 
   /*********** Components Pools  *************/
 
-  GenericPool<transform::Pool> transform_pool_;
-  GenericPool<geometry::Pool> geometry_pool_;
-  GenericPool<script::Pool> script_pool_;
-  GenericPool<metadata::Pool> metadata_pool_;
-  GenericPool<rigidbody::Pool> rigidbody_pool_;
-  GenericPool<light::Pool> light_pool_;
+  pool_map_type pools_;
 };
 
 inline Scene scene;
