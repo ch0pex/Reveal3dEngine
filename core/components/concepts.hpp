@@ -22,7 +22,6 @@ namespace detail {
 template<typename T>
 concept is_component = requires(T component) {
   { sizeof(T) == 8 };
-
   typename T::pool_type;
   typename T::init_info;
 };

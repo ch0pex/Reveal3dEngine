@@ -30,7 +30,7 @@ public:
 
   [[nodiscard]] constexpr id_t id() const { return id_; }
 
-  [[nodiscard]] constexpr Entity entity() const { return {scene_, scene_->entity(pool().getMappedId(id_))}; }
+  [[nodiscard]] Entity entity() const { return {scene_, scene_->entity(pool().getMappedId(id_))}; }
 
   [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
