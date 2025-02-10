@@ -37,10 +37,6 @@ public:
     return lights_.at(static_cast<u8>(type)).at(index);
   }
 
-  bool isActive(id_t const id) { return light(id).active; }
-
-  void toggleActive(id_t const id) { light(id).active = !light(id).active; }
-
 protected:
   [[nodiscard]] index_t countData() {
     auto sizes_vec {lights_ | std::views::transform([](auto const& vec) { return vec.size(); })};

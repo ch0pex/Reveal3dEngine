@@ -19,9 +19,10 @@
 
 namespace reveal3d::render {
 
+enum class LightType : u8 { directional = 0, point, spot, count };
+
 struct Light {
-  enum class Type : u8 { directional = 0, point, spot, count };
-  using type = Type;
+  using type = LightType;
 
   math::vec3 color; // Light color and strength
   math::vec3 position; // Spot and point only
