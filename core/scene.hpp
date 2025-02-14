@@ -47,40 +47,30 @@
 #include "common/tuple.hpp"
 #include "core/pooling/pools_map.hpp"
 #include "pooling/pool.hpp"
+#include "scene_graph.hpp"
 
 namespace reveal3d::core {
 
 class Scene {
 public:
-  struct Node {
-    id_t entity {id::invalid};
-    id_t parent {id::invalid};
-    id_t first_child {id::invalid};
-    id_t next {id::invalid};
-    id_t prev {id::invalid};
-  };
+  using Node = SceneGraph::Node;
 
-  Scene() : root_node_(id::invalid), last_node_(id::invalid) { }
+  Scene() { }
 
   ~Scene() = default;
 
   id_t newEntity() {
-    id_t const entity =
-        id::maxFree < free_nodes_.size() ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
-
+    id_t const entity = scene_graph_.newId();
     Node node {.entity = entity};
 
-    if (root_node_ == id::invalid) {
-      root_node_ = id::index(entity);
+
+    scene_graph_.addNode(node, entity);
+    if (id::maxFree >= scene_graph_.freeNodes()) {
+      tuple::for_each(pools_.data, [&](auto&& pool) { pool.addComponent(); });
     }
 
-    if (id::is_valid(last_node_)) {
-      node.prev                        = scene_graph_.at(last_node_).entity;
-      scene_graph_.at(last_node_).next = node.entity;
-    }
-
-    addNode(node, entity);
-    last_node_ = id::index(entity);
+    pools_.get<transform::Pool>().addComponent(entity, {});
+    pools_.get<metadata::Pool>().addComponent(entity, {entity, fmt::format("Entity_{}", id::index(entity))});
 
     return entity;
   }
@@ -88,8 +78,7 @@ public:
   id_t newChildEntity(id_t const parent) {
     assert(isAlive(parent));
 
-    id_t const child =
-        (id::maxFree < free_nodes_.size()) ? id::new_generation(free_nodes_.front()) : scene_graph_.size();
+    id_t const child = scene_graph_.newId();
 
     Node child_node {.entity = child, .parent = parent};
 
@@ -105,7 +94,10 @@ public:
       parent_node.first_child = child_node.entity;
     }
 
-    addNode(child_node, child);
+    scene_graph_.addNode(child_node, child);
+
+    pools_.get<transform::Pool>().addComponent(child, {});
+    pools_.get<metadata::Pool>().addComponent(child, {child, fmt::format("Entity_{}", id::index(child))});
 
     return child;
   }
@@ -113,40 +105,19 @@ public:
   /// TODO fix this function
   id_t removeEntity(id_t const id) {
     id_t nextOrPrev = {};
+    id_t index      = id::index(id);
     if (isAlive(id)) {
-      if (isAlive(getNode(id).next)) {
-        nextOrPrev = getNode(id).next;
+      if (isAlive(scene_graph_.at(index).next)) {
+        nextOrPrev = scene_graph_.at(index).next;
       }
-      else if (isAlive(getNode(id).prev)) {
-        nextOrPrev = getNode(id).prev;
+      else if (isAlive(scene_graph_.at(index).prev)) {
+        nextOrPrev = scene_graph_.at(index).prev;
       }
-      removeNode(id);
+      tuple::for_each(pools_.data, [&](auto&& pool) { pool.removeComponent(id); });
+      scene_graph_.removeNode(id);
     }
     return {}; // TODO fix this can't return nextOrPrev when deleting nested nodes
   }
-
-  bool isAlive(id_t const id) {
-    if (id == id::invalid) {
-      return false;
-    }
-    if (id::index(id) >= scene_graph_.size())
-      return false;
-    return getNode(id).entity != id::invalid;
-  }
-
-  /******************************* Scene graph methods ******************************/
-
-  [[nodiscard]] std::vector<Node> const& graph() const { return scene_graph_; }
-
-  [[nodiscard]] u32 count() const { return scene_graph_.size() - free_nodes_.size(); }
-
-  [[nodiscard]] id_t entity(index_t const idx) const {
-    return scene_graph_.at(id::index(idx)).entity;
-  } // @note carefull with id::index
-
-  Node const& getNode(id_t const id) { return scene_graph_.at(id::index(id)); }
-
-  Node& root() { return scene_graph_.at(root_node_); }
 
   /// @note Can't use concept here because T is not complete type
   template<typename T>
@@ -168,92 +139,26 @@ public:
     tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(this); });
   }
 
+  bool isAlive(id_t const id) { return scene_graph_.isAlive(id); }
+
+  [[nodiscard]] auto node(id_t const id) const { return scene_graph_.at(id::index(id)); }
+
+  [[nodiscard]] auto graph() const { return std::span {scene_graph_}; }
+
+  [[nodiscard]] id_t entity(id_t const index) const { return scene_graph_.at(index).entity; }
+
+  auto count() const { return scene_graph_.count(); }
+
 private:
-  using pool_map_type = PoolMap< //
-      transform::Pool, //
-      geometry::Pool, //
-      script::Pool, //
-      metadata::Pool, //
-      rigidbody::Pool, //
-      light::Pool //
+  using pool_map_type = PoolMap<
+      transform::Pool, geometry::Pool, script::Pool, //
+      metadata::Pool, rigidbody::Pool, light::Pool //
       >;
 
-  std::vector<id_t> getChildren(Node const& node) {
-    std::vector<id_t> children;
-    if (isAlive(node.first_child)) {
-      Node const* curr_node = &getNode(node.first_child);
-      while (true) {
-        children.push_back(curr_node->entity);
-        if (isAlive(curr_node->next)) {
-          curr_node = &getNode(curr_node->next);
-        }
-        else {
-          break;
-        }
-      }
-    }
-    return children;
-  }
-
-  void removeNode(id_t const id) {
-    if (not id::is_valid(id)) {
-      return;
-    }
-
-    Node& node = scene_graph_.at(id::index(id));
-    free_nodes_.push_back(node.entity);
-
-    tuple::for_each(pools_.data, [&](auto&& pool) { pool.removeComponent(id); });
-
-    if (isAlive(node.prev)) {
-      Node& prev_node = scene_graph_.at(id::index(node.prev));
-      prev_node.next  = node.next;
-    }
-    else if (not isAlive(node.parent)) {
-      // Change root node
-      root_node_ = isAlive(node.next) ? node.next : id::invalid;
-    }
-
-    if (isAlive(node.next)) {
-      Node& next_node = scene_graph_.at(id::index(node.next));
-      next_node.prev  = node.prev;
-    }
-    else if (not isAlive(node.parent)) {
-      last_node_ = isAlive(node.prev) ? node.prev : id::invalid;
-    }
-
-    if (isAlive(node.first_child)) {
-      for (auto const children = getChildren(node); auto const child: children) {
-        removeNode(child);
-      }
-    }
-    node.entity = {id::invalid};
-  }
-
-  void addNode(Node const& node, id_t const id) {
-    if (id::maxFree < free_nodes_.size()) {
-      scene_graph_.at(id::index(id)) = node;
-      free_nodes_.pop_front();
-    }
-    else {
-      scene_graph_.push_back(node);
-      tuple::for_each(pools_.data, [&](auto&& pool) { pool.addComponent(); });
-    }
-
-    pools_.get<transform::Pool>().addComponent(id, {});
-    pools_.get<metadata::Pool>().addComponent(id, {id, fmt::format("Entity_{}", id::index(id))});
-  }
-
-
   /************ Scene entities ***********/
-
-  std::vector<Node> scene_graph_;
-  index_t root_node_;
-  index_t last_node_;
-  std::deque<index_t> free_nodes_;
+  SceneGraph scene_graph_ {};
 
   /*********** Components Pools  *************/
-
   pool_map_type pools_;
 };
 

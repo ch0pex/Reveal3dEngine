@@ -57,23 +57,23 @@ public:
 
   [[nodiscard]] bool isAlive() const { return scene_->isAlive(id_); }
 
-   Entity addChild() const { return {scene_, scene_->newChildEntity(id_)}; }
+  Entity addChild() const { return {scene_, scene_->newChildEntity(id_)}; }
 
-  [[nodiscard]] Entity parent() const { return {scene_, scene_->getNode(id_).parent}; }
+  [[nodiscard]] Entity parent() const { return {scene_, scene_->node(id_).parent}; }
 
-  [[nodiscard]] Entity next() const { return {scene_, scene_->getNode(id_).next}; }
+  [[nodiscard]] Entity next() const { return {scene_, scene_->node(id_).next}; }
 
-  [[nodiscard]] Entity prev() const { return {scene_, scene_->getNode(id_).prev}; }
+  [[nodiscard]] Entity prev() const { return {scene_, scene_->node(id_).prev}; }
 
-  [[nodiscard]] Entity firstChild() const { return {scene_, scene_->getNode(id_).first_child}; }
+  [[nodiscard]] Entity firstChild() const { return {scene_, scene_->node(id_).first_child}; }
 
   [[nodiscard]] auto children() const {
     std::vector<Entity> children;
-    if (scene_->isAlive(firstChild())) {
+    if (firstChild().isAlive()) {
       Entity current = firstChild();
       while (true) {
         children.push_back(current);
-        if (scene_->isAlive(current.next())) {
+        if (current.next().isAlive()) {
           current = current.next();
         }
         else {

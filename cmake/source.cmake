@@ -1,5 +1,6 @@
 set(CORE
         core/scene.hpp
+        core/scene_graph.hpp
         core/entity.hpp
         core/components/geometry.hpp
         core/components/transform.hpp
