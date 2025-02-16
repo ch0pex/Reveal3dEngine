@@ -20,7 +20,7 @@ public:
   struct Node {
     id_t entity {id::invalid};
     id_t parent {id::invalid};
-    id_t first_child {id::invalid};
+    id_t firstChild {id::invalid};
     id_t next {id::invalid};
     id_t prev {id::invalid};
   };
@@ -61,15 +61,9 @@ public:
     Node& node = nodes.at(id::index(id));
     free_nodes_.push_back(node.entity);
 
-    // tuple::for_each(pools_.data, [&](auto&& pool) { pool.removeComponent(id); });
-
     if (isAlive(node.prev)) {
       Node& prev_node = nodes.at(id::index(node.prev));
       prev_node.next  = node.next;
-    }
-    else if (not isAlive(node.parent)) {
-      // Change root node
-      root_node_ = isAlive(node.next) ? node.next : id::invalid;
     }
 
     if (isAlive(node.next)) {
@@ -80,19 +74,17 @@ public:
       last_node_ = isAlive(node.prev) ? node.prev : id::invalid;
     }
 
-    if (isAlive(node.first_child)) {
-      for (auto const children = getChildren(node); auto const child: children) {
-        removeNode(child);
+    if (; isAlive(node.parent)) {
+      Node& parent_node = nodes.at(id::index(node.parent));
+      if (parent_node.firstChild == id) {
+        parent_node.firstChild = node.next;
       }
     }
+
     node.entity = {id::invalid};
   }
 
   void addNode(Node& node, id_t const id) {
-    if (root_node_ == id::invalid) {
-      root_node_ = id::index(id);
-    }
-
     if (id::is_valid(last_node_) and not id::is_valid(node.parent)) {
       node.prev                 = nodes.at(last_node_).entity;
       nodes.at(last_node_).next = node.entity;
@@ -110,8 +102,8 @@ public:
 
   std::vector<id_t> getChildren(Node const& node) {
     std::vector<id_t> children;
-    if (isAlive(node.first_child)) {
-      Node const* curr_node = &at(id::index(node.first_child));
+    if (isAlive(node.firstChild)) {
+      Node const* curr_node = &at(id::index(node.firstChild));
       while (true) {
         children.push_back(curr_node->entity);
         if (isAlive(curr_node->next)) {
@@ -129,7 +121,6 @@ public:
 
 private:
   std::vector<Node> nodes {};
-  index_t root_node_ {id::invalid};
   index_t last_node_ {id::invalid};
   std::deque<index_t> free_nodes_ {};
 };

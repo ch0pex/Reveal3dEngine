@@ -9,7 +9,7 @@
  * @brief ECS
  *
  * Entity component system main header file.
- * - In Reveal3D components just holds and ID that points to the real data stored in a pool.
+ * - In Reveal3D components classes are proxy classes that has an scene pointer and the id to the real data in a pool
  * - Components are proxy classes to access data stored in an aos pool
  * - Real data is compacted to avoid cache misses, this logic is handled by components pools.
  * - Each component has a proxy class (Component class it self) and a pool class with data
@@ -84,17 +84,20 @@ public:
 
     Node& parent_node = scene_graph_.at(id::index(parent));
 
-    if (not isAlive(parent_node.first_child)) {
-      parent_node.first_child = child;
+    if (not isAlive(parent_node.firstChild)) {
+      parent_node.firstChild = child;
     }
     else {
-      Node& first_child       = scene_graph_.at(id::index(parent_node.first_child));
-      first_child.prev        = child_node.entity;
-      child_node.next         = parent_node.first_child;
-      parent_node.first_child = child_node.entity;
+      Node& first_child      = scene_graph_.at(id::index(parent_node.firstChild));
+      first_child.prev       = child_node.entity;
+      child_node.next        = parent_node.firstChild;
+      parent_node.firstChild = child_node.entity;
     }
 
     scene_graph_.addNode(child_node, child);
+    if (id::maxFree >= scene_graph_.freeNodes()) {
+      tuple::for_each(pools_.data, [&](auto&& pool) { pool.addComponent(); });
+    }
 
     pools_.get<transform::Pool>().addComponent(child, {});
     pools_.get<metadata::Pool>().addComponent(child, {child, fmt::format("Entity_{}", id::index(child))});
@@ -102,10 +105,9 @@ public:
     return child;
   }
 
-  /// TODO fix this function
   id_t removeEntity(id_t const id) {
-    id_t nextOrPrev = {};
-    id_t index      = id::index(id);
+    id_t nextOrPrev  = {};
+    id_t const index = id::index(id);
     if (isAlive(id)) {
       if (isAlive(scene_graph_.at(index).next)) {
         nextOrPrev = scene_graph_.at(index).next;
@@ -113,16 +115,22 @@ public:
       else if (isAlive(scene_graph_.at(index).prev)) {
         nextOrPrev = scene_graph_.at(index).prev;
       }
+
+      // Delete children nodes
+      for (auto const children = scene_graph_.getChildren(scene_graph_.at(id)); auto const child: children) {
+        removeEntity(child);
+      }
+
+      // Delete node
       tuple::for_each(pools_.data, [&](auto&& pool) { pool.removeComponent(id); });
       scene_graph_.removeNode(id);
     }
     return {}; // TODO fix this can't return nextOrPrev when deleting nested nodes
   }
 
-  /// @note Can't use concept here because T is not complete type
-  template<typename T>
+  template<typename Component>
   decltype(auto) pool() noexcept {
-    return (pools_.get<typename T::pool_type>());
+    return (pools_.get<typename Component::pool_type>());
   }
 
   void init() { }
@@ -147,7 +155,7 @@ public:
 
   [[nodiscard]] id_t entity(id_t const index) const { return scene_graph_.at(index).entity; }
 
-  auto count() const { return scene_graph_.count(); }
+  [[nodiscard]] auto count() const { return scene_graph_.count(); }
 
 private:
   using pool_map_type = PoolMap<

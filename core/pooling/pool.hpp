@@ -104,14 +104,12 @@ private:
     index_t const component_index {id_factory_.mapped(id)};
     id_t const new_id = id::new_generation(id, id::generation(last)); // TODO think about this
 
-    if (last != id) {
-      components_ids_.at(id::index(getMappedId(last))) = new_id;
-    }
-
-    components_ids_.at(component_index) = id::invalid;
+    components_ids_.at(id_factory_.back()) = new_id;
+    components_ids_.at(component_index)    = id::invalid;
     id_factory_.remove(id);
 
     if constexpr (stored_in_gpu<T>) {
+      this->dirty_ids_.erase(last);
       if (last != id) {
         this->dirties_.at(id::index(id)) = config::render.graphics.buffer_count;
         this->dirty_ids_.insert(new_id);

@@ -74,43 +74,43 @@ public:
     setDirty();
   }
 
-  void worldPosition(math::xvec3 const pos) const {
-    transform::detail::Transform& trans = pool().posRotScale(id_);
-    pool().world(id_)                   = transpose(affine_transformation(pos, trans.scale, trans.rotation));
+  void worldPosition(math::xvec3 const new_position) const {
+    auto& [position, rotation, scale] = pool().posRotScale(id_);
+    pool().world(id_)                 = transpose(affine_transformation(new_position, scale, rotation));
     if (auto const parent = entity().parent(); parent.isAlive()) {
-      trans.position = transpose(parent.component<Transform>().invWorld()) * pos;
+      position = transpose(parent.component<Transform>().invWorld()) * new_position;
     }
     else {
-      trans.position = pos;
+      position = new_position;
     }
 
     pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();
   }
 
-  void worldScale(math::xvec3 const scale) const {
-    transform::detail::Transform& trans = pool().posRotScale(id_);
-    pool().world(id_)                   = transpose(affine_transformation(trans.position, scale, trans.rotation));
+  void worldScale(math::xvec3 const new_scale) const {
+    auto& [position, rotation, scale] = pool().posRotScale(id_);
+    pool().world(id_)                 = transpose(affine_transformation(position, new_scale, rotation));
     if (Entity const parent = entity().parent(); parent.isAlive()) {
-      trans.scale = parent.component<Transform>().invWorld() * scale;
+      scale = parent.component<Transform>().invWorld() * new_scale;
     }
     else {
-      trans.scale = scale;
+      scale = new_scale;
     }
     pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();
   }
 
-  void worldRotation(math::xvec3 const rot) const {
-    transform::detail::Transform& trans = pool().posRotScale(id_);
+  void worldRotation(math::xvec3 const new_rot) const {
+    auto& [position, rotation, scale] = pool().posRotScale(id_);
 
-    auto const rad = vec_to_radians(rot);
-    world()        = transpose(affine_transformation(trans.position, trans.scale, rad));
+    auto const rad = vec_to_radians(new_rot);
+    world()        = transpose(affine_transformation(position, scale, rad));
     if (Entity const parent = entity().parent(); parent.isAlive()) {
-      trans.rotation = parent.component<Transform>().invWorld() * rad;
+      rotation = parent.component<Transform>().invWorld() * rad;
     }
     else {
-      trans.rotation = rad;
+      rotation = rad;
     }
     pool().invWorld(id_) = inverse(pool().world(id_));
     softDirty();

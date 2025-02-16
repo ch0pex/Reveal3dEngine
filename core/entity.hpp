@@ -65,7 +65,7 @@ public:
 
   [[nodiscard]] Entity prev() const { return {scene_, scene_->node(id_).prev}; }
 
-  [[nodiscard]] Entity firstChild() const { return {scene_, scene_->node(id_).first_child}; }
+  [[nodiscard]] Entity firstChild() const { return {scene_, scene_->node(id_).firstChild}; }
 
   [[nodiscard]] auto children() const {
     std::vector<Entity> children;
