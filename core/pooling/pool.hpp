@@ -77,7 +77,7 @@ public:
   /**
    * @note this must be specialized in every component header file
    */
-  void update(Scene* scene);
+  void update(Scene& scene);
 
   u32 count() { return this->countData(); }
 
@@ -102,7 +102,7 @@ private:
   void removeId(id_t const id) {
     id_t const last = components_ids_.at(id_factory_.back());
     index_t const component_index {id_factory_.mapped(id)};
-    id_t const new_id = id::new_generation(id, id::generation(last)); // TODO think about this
+    id_t const new_id = id::new_generation(id, id::generation(last));
 
     components_ids_.at(id_factory_.back()) = new_id;
     components_ids_.at(component_index)    = id::invalid;

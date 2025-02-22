@@ -93,7 +93,7 @@ struct Geometry : Component<Geometry> {
 };
 
 template<>
-inline void GenericPool<Geometry::pool_type>::update(Scene* scene) {
+inline void GenericPool<Geometry::pool_type>::update(Scene& scene) {
   for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
     if (this->dirties_.at(id::index(*it)) == 0) {
       it = this->dirty_ids_.erase(it);

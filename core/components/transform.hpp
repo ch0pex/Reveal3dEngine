@@ -159,7 +159,7 @@ public:
   [[nodiscard]] u8 dirty() const { return pool().dirties().at(id::index(id_)); }
 
 private:
-  auto calcWorld(id_t const id) const {
+  [[nodiscard]] auto calcWorld(id_t const id) const {
     auto& [position, rotation, scale] = scene_->pool<Transform>().posRotScale(id);
     return transpose(affine_transformation(position, scale, rotation));
   };
@@ -182,9 +182,9 @@ private:
 static_assert(component<Transform>);
 
 template<>
-inline void GenericPool<Transform::pool_type>::update(Scene* scene) {
+inline void GenericPool<Transform::pool_type>::update(Scene& scene) {
   for (auto it = this->dirty_ids_.begin(); it != this->dirty_ids_.end();) {
-    Transform component {scene, *it};
+    Transform component {&scene, *it};
     component.update();
     if (this->dirties_.at(id::index(*it)) == 0) {
       it = this->dirty_ids_.erase(it);

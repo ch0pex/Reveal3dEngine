@@ -144,7 +144,7 @@ public:
    * @return None
    */
   void update(f32 dt) {
-    tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(this); });
+    tuple::for_each(pools_.data, [&](auto&& pool) { pool.update(*this); });
   }
 
   bool isAlive(id_t const id) { return scene_graph_.isAlive(id); }

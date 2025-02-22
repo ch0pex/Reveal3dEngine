@@ -27,7 +27,7 @@ struct Rigidbody : Component<Rigidbody> {
 };
 
 template<>
-inline void GenericPool<Rigidbody::pool_type>::update(Scene* scene) {
+inline void GenericPool<Rigidbody::pool_type>::update(Scene& scene) {
   // TODO
 }
 
