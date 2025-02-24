@@ -9,12 +9,14 @@
  * @brief ECS
  *
  * Entity component system main header file.
- * - In Reveal3D components classes are proxy classes that has an scene pointer and the id to the real data in a pool
- * - Components are proxy classes to access data stored in an aos pool
+ * - In Reveal3D components classes are proxy classes that has an scene pointer and the id to the real data in a
+ * pool_impl
+ * - Components are proxy classes to access data stored in an aos pool_impl
  * - Real data is compacted to avoid cache misses, this logic is handled by components pools.
- * - Each component has a proxy class (Component class it self) and a pool class with data
+ * - Each component has a proxy class (Component class it self) and a pool_impl class with data
  *
- * ************************************************** Components pool **************************************************
+ * ************************************************** Components pool_impl
+ * **************************************************
  * ************************** IDs **************************************************** data ****************************
  *                                                          *                                                          *
  * Entity IDs        |  00   | 01    |  02   |  03  | ...   * Entity IDs        |  00   | 01    |  02   |  03  | ...   *
@@ -138,7 +140,7 @@ public:
   /**
    * @brief Updating scene function
    *
-   * This function updates every component pool each frame
+   * This function updates every component pool_impl each frame
    *
    * @param[in] dt Delta time
    * @return None

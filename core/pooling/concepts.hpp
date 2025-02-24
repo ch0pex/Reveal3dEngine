@@ -21,10 +21,10 @@
 namespace reveal3d::core {
 
 template<typename T>
-concept pool = requires(T pool) {
+concept pool_impl = requires(T pool) {
   typename T::gpu_stored;
   typename T::init_info;
-  { pool.countData() } -> std::same_as<u32>;
+  { pool.countData() } -> std::same_as<index_t>;
   { pool.addData(std::declval<typename T::init_info const&>()) } -> std::same_as<void>;
   { pool.removeData(std::declval<id_t>()) } -> std::same_as<void>;
 };

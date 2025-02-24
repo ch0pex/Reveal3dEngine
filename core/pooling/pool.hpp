@@ -3,7 +3,7 @@
  * this code is licensed under mit license (see license.txt for details)
  ************************************************************************/
 /**
- * @file pool.hpp
+ * @file pool_impl.hpp
  * @version 1.0
  * @date 26/03/2024
  * @brief GenericPool virtual class
@@ -13,22 +13,17 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "config/config.hpp"
 #include "core/pooling/concepts.hpp"
 #include "pool_detail.hpp"
 
-#include <vector>
-
-#include "config/config.hpp"
-
 namespace reveal3d::core {
+
 class Scene;
 
-template<typename T>
+template<pool_impl T>
 class GenericPool : public T, public detail::GpuSynchronize<typename T::gpu_stored> {
 public:
-  using value_type = id_t;
-  using iterator   = std::vector<value_type>::iterator;
-
   id_t addComponent() {
     components_ids_.emplace_back(id::invalid);
     if constexpr (stored_in_gpu<T>) {
@@ -83,9 +78,9 @@ public:
 
   id_t at(id_t const id) { return components_ids_.at(id::index(id)); }
 
-  iterator begin() { return components_ids_.begin(); }
+  auto begin() { return components_ids_.begin(); }
 
-  iterator end() { return components_ids_.end(); }
+  auto end() { return components_ids_.end(); }
 
   constexpr u32 getMappedId(id_t const component_id) { return id_factory_.mapped(id::index(component_id)); }
 

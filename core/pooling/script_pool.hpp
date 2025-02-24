@@ -41,7 +41,6 @@ public:
 
   ScriptBase* scripts(id_t const id) { return scripts_.at(id::index(id)).get(); }
 
-protected:
   [[nodiscard]] index_t countData() const { return scripts_.size(); }
 
   void addData(init_info const& init_info) {
@@ -61,5 +60,7 @@ private:
   utils::vector<Flag> flags_;
   utils::vector<std::unique_ptr<ScriptBase>> scripts_;
 };
+
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::script

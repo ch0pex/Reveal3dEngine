@@ -14,6 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "concepts.hpp"
 
 namespace reveal3d::core::rigidbody {
 
@@ -22,7 +23,6 @@ public:
   using init_info  = std::string;
   using gpu_stored = std::false_type;
 
-protected:
   [[nodiscard]] index_t countData() const { return 0; }
 
   void addData(init_info const& init_info) {
@@ -40,5 +40,7 @@ protected:
 
 private:
 };
+
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::rigidbody

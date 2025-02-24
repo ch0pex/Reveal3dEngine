@@ -14,6 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "concepts.hpp"
 #include "render/mesh.hpp"
 
 namespace reveal3d::core::geometry {
@@ -35,7 +36,6 @@ public:
 
   [[nodiscard]] u64 triangles() const { return total_triangles_; }
 
-protected:
   [[nodiscard]] u32 countData() const { return meshes_.size(); }
 
   void addData(init_info const& init_info) {
@@ -68,5 +68,7 @@ private:
   u64 total_vertices_ {0};
   u64 total_triangles_ {0};
 };
+
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::geometry

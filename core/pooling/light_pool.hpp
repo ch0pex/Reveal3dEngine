@@ -15,6 +15,7 @@
 
 
 #include "common/common.hpp"
+#include "concepts.hpp"
 #include "render/light.hpp"
 #include "script_pool.hpp"
 
@@ -37,7 +38,6 @@ public:
     return lights_.at(static_cast<u8>(type)).at(index);
   }
 
-protected:
   [[nodiscard]] index_t countData() {
     auto sizes_vec {lights_ | std::views::transform([](auto const& vec) { return vec.size(); })};
     return static_cast<index_t>(std::accumulate(sizes_vec.begin(), sizes_vec.end(), u64 {0}));
@@ -60,5 +60,7 @@ private:
   std::array<utils::vector<render::Light>, static_cast<u64>(render::Light::type::count)> lights_;
   utils::vector<std::pair<index_t, render::Light::type>> light_desc_;
 };
+
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::light

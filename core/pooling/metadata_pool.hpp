@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include "concepts.hpp"
+
 namespace reveal3d::core::metadata {
 
 namespace detail {
@@ -57,5 +59,6 @@ private:
   utils::vector<std::string> dates_;
 };
 
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::metadata

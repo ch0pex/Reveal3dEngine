@@ -14,6 +14,7 @@
 #pragma once
 
 #include "common/common.hpp"
+#include "concepts.hpp"
 #include "math/math.hpp"
 
 
@@ -40,7 +41,6 @@ public:
 
   math::mat4& invWorld(id_t const id) { return inv_world_.at(id::index(id)); }
 
-protected:
   [[nodiscard]] index_t countData() const { return pos_rot_scale_.size(); }
 
   void addData(init_info const& init_info) {
@@ -62,5 +62,6 @@ private:
   utils::vector<detail::Transform> pos_rot_scale_;
 };
 
+static_assert(pool_impl<Pool>);
 
 } // namespace reveal3d::core::transform
