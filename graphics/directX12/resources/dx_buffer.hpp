@@ -21,6 +21,7 @@
 #include "window/window_info.hpp"
 
 #include "d3dx12.h"
+#include "dx_release_policies.hpp"
 
 
 namespace reveal3d::graphics::dx12 {
@@ -32,6 +33,7 @@ struct BufferDescriptor {
   std::optional<D3D12_CLEAR_VALUE> clear_value {std::nullopt};
 };
 
+template<typename Policy = policy::Hard>
 class Buffer {
 public:
   using init_info = BufferDescriptor;
@@ -52,7 +54,7 @@ public:
 
   Buffer(Buffer& other) = delete;
 
-  ~Buffer() { release(buff_); }
+  ~Buffer() { Policy::release(buff_); }
 
   Buffer& operator=(Buffer& other) = delete;
 
@@ -81,7 +83,7 @@ private:
   u32 size_;
 };
 
-inline D3D12_VERTEX_BUFFER_VIEW vertex_view(Buffer const& buffer) {
+inline D3D12_VERTEX_BUFFER_VIEW vertex_view(Buffer<policy::Deferred> const& buffer) {
   return {
     .BufferLocation = buffer.gpuAddress(),
     .SizeInBytes    = buffer.size(),
@@ -89,7 +91,7 @@ inline D3D12_VERTEX_BUFFER_VIEW vertex_view(Buffer const& buffer) {
   };
 }
 
-inline D3D12_INDEX_BUFFER_VIEW index_view(Buffer const& buffer) {
+inline D3D12_INDEX_BUFFER_VIEW index_view(Buffer<policy::Deferred> const& buffer) {
   return {
     .BufferLocation = buffer.gpuAddress(),
     .SizeInBytes    = buffer.size(),

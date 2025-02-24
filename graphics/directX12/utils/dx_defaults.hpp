@@ -38,13 +38,14 @@ constexpr D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {
   .Texture2D     = {.MipSlice = 0}
 };
 
-constexpr D3D12_CLEAR_VALUE clear_value = { //
-  .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
-  .DepthStencil =
-      {
-        .Depth   = 1.0F,
-        .Stencil = 0,
-      }
+constexpr D3D12_CLEAR_VALUE clear_value =
+    { //
+      .Format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+      .DepthStencil =
+          {
+            .Depth   = 1.0F,
+            .Stencil = 0,
+          }
 };
 
 constexpr auto depth_buffer_desc(window::Resolution const res) {
@@ -68,15 +69,16 @@ constexpr auto depth_buffer_desc(window::Resolution const res) {
 
 
 constexpr auto depth_buffer_info(window::Resolution const res) {
-  return Buffer::init_info {
+  return BufferDescriptor {
     .res_desc    = depth_buffer_desc(res),
     .res_state   = D3D12_RESOURCE_STATE_DEPTH_WRITE,
     .clear_value = clear_value,
   };
 }
 
+template<typename Policy = policy::Hard>
 constexpr auto buffer1d(u64 const width, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN) {
-  return Buffer::init_info {
+  return BufferDescriptor {
     .res_desc  = CD3DX12_RESOURCE_DESC::Buffer(width),
     .res_state = D3D12_RESOURCE_STATE_COMMON,
     .heap_properties {CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT)},
@@ -88,7 +90,7 @@ constexpr auto texture2d(
     window::Resolution const resolution, DXGI_FORMAT const format,
     D3D12_RESOURCE_FLAGS const flags = D3D12_RESOURCE_FLAG_NONE
 ) {
-  return Buffer::init_info {
+  return Buffer<>::init_info {
     .res_desc =
         {
           .Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D,

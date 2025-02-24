@@ -36,7 +36,7 @@ public:
     createView();
   }
 
-  DepthBuffer(DescriptorHandle const& handle, Buffer::init_info const& info) : dsv_(handle), buff_(info) {
+  DepthBuffer(DescriptorHandle const& handle, Buffer<>::init_info const& info) : dsv_(handle), buff_(info) {
     createView();
   }
 
@@ -53,7 +53,7 @@ private:
   void createView() const { adapter.device->CreateDepthStencilView(buff_.resource(), &defaults::dsv_desc, dsv_.cpu); }
 
   DescriptorHandle dsv_;
-  Buffer buff_; // TODO change this for Texture
+  Buffer<> buff_; // TODO change this for Texture
 };
 
 

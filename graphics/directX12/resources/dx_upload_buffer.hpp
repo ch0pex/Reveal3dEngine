@@ -54,7 +54,7 @@ public:
   using iterator   = typename std::span<T>::iterator;
 
   explicit UploadBuffer(u64 const count) {
-    auto const [res_desc, res_state, heap_properties, clear_value] = Buffer::init_info {
+    auto const [res_desc, res_state, heap_properties, clear_value] = BufferDescriptor {
       .res_desc        = CD3DX12_RESOURCE_DESC::Buffer(count * sizeof(T)),
       .heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
     };
@@ -124,7 +124,7 @@ using ConstantBuffer = UploadBuffer<Constant<T>>;
  * @param data data to upload
  */
 template<typename T>
-void upload_resource(ID3D12GraphicsCommandList* cmd_list, Buffer& buffer, std::span<T> data = {}) {
+void upload_resource(ID3D12GraphicsCommandList* cmd_list, auto& buffer, std::span<T> data = {}) {
   auto upload_buffer = UploadBuffer<T>(data.size()); // Upload buffer is created in order to store buffer in gpu
 
   auto barrier = CD3DX12_RESOURCE_BARRIER::Transition( // Barrier, changing buffer state to copy dest

@@ -25,8 +25,8 @@ namespace reveal3d::graphics::dx12 {
 class RenderElement {
 public:
   RenderElement(core::Geometry const geo, ID3D12GraphicsCommandList* cmd_list) :
-    vertex_buffer_(defaults::buffer1d(geo.vertices().size() * sizeof(render::Vertex))),
-    index_buffer_(defaults::buffer1d(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
+    vertex_buffer_(defaults::buffer1d<policy::Deferred>(geo.vertices().size() * sizeof(render::Vertex))),
+    index_buffer_(defaults::buffer1d<policy::Deferred>(geo.indices().size() * sizeof(u32), DXGI_FORMAT_R32_UINT)),
     vertex_view_(vertex_view(vertex_buffer_)), index_view_(index_view(index_buffer_)), //
     entity_(geo.entity()) //
   {
@@ -46,8 +46,8 @@ public:
 
 private:
   //******************* Buffers ********************
-  Buffer vertex_buffer_;
-  Buffer index_buffer_;
+  Buffer<policy::Deferred> vertex_buffer_;
+  Buffer<policy::Deferred> index_buffer_;
 
   //******************* Buffers views **************
   D3D12_VERTEX_BUFFER_VIEW vertex_view_;
