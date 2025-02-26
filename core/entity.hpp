@@ -20,37 +20,29 @@ namespace reveal3d::core {
 
 class Entity {
 public:
-  Entity() : scene_(nullptr), id_(id::invalid) { }
-
-  explicit Entity(Scene* scene) : scene_(scene), id_(id::invalid) { }
-
   Entity(Scene* scene, id_t const id) : id_ {id}, scene_(scene) {};
 
   template<detail::is_component T>
   T component() const {
-    if (not isAlive()) {
-      return T(scene_);
-    }
+    assert(isAlive());
     return {scene_, scene_->pool<T>().at(id_)};
   }
   template<detail::is_component T>
   T addComponent() {
+    assert(isAlive());
     return addComponent<T>({});
   }
 
   template<detail::is_component T>
   T addComponent(typename T::init_info const& init_info) {
-    if (not isAlive()) {
-      return T(scene_);
-    }
+    assert(isAlive());
     return {scene_, scene_->pool<T>().addComponent(id_, init_info)};
   }
 
   template<detail::is_component T>
   void removeComponent() {
-    if (isAlive()) {
-      scene_->pool<T>().removeComponent(id_);
-    }
+    assert(isAlive());
+    scene_->pool<T>().removeComponent(id_);
   }
 
   [[nodiscard]] u32 id() const { return id_; }

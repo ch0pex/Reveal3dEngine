@@ -52,11 +52,11 @@ public:
   dx12::Heaps const& heaps() { return heaps_; }
 
 private:
-  /****************** Frame resources *****************/
+  /****************** Resources *****************/
   dx12::utils::ResourceArray<dx12::FrameResource> frame_resources_;
-
-  /******************* Gpu views heaps and commands **********************/
   dx12::Heaps heaps_;
+
+  /******************* Commands manager **********************/
   dx12::Commands cmd_manager_;
 
   /******************* Gpass class **********************/
@@ -64,7 +64,6 @@ private:
 
   /***************** Surface and swapchain pos_rot_scale **********************/
   dx12::Surface surface_;
-  // dx12::RenderTexture texture_;
 };
 
 } // namespace reveal3d::graphics
