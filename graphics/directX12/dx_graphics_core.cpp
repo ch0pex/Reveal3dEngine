@@ -73,7 +73,6 @@ void Dx12::renderSurface(Surface& surface) {
 
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 
-  // *** Deferred resource cleaning ***
 
   surface.setViewport(command_list);
 
