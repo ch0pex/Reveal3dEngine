@@ -6,7 +6,7 @@ if (WIN32)
 elseif (UNIX)
     message("-- UNIX")
     message("-- Source dir: ${PROJECT_SOURCE_DIR}")
-    include(cmake/platforms/windows.cmake)
+    include(cmake/platforms/unix.cmake)
 endif ()
 
 # Cross platform backends

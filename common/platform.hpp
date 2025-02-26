@@ -32,9 +32,10 @@ struct WHandle {
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 #else
+#include "GL/glew.h"
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "GL/glew.h"
 
 using WHandle = GLFWwindow*;
 

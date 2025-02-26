@@ -18,6 +18,7 @@
 #include "primitive_types.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <memory>
 #include <ranges>
 
