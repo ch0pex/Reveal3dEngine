@@ -47,42 +47,15 @@ void Dx12::loadAssets(core::Scene& scene) {
   }
 }
 
-void Dx12::update(core::Scene& scene, Camera const& camera) {
-  auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
-  auto& geometries                                 = scene.pool<core::Geometry>();
+void Dx12::update(core::Scene& scene, render::Camera const& camera) {
+  auto& geometries = scene.pool<core::Geometry>();
 
+  // Clean deferred resources of the current frame
   clean_deferred_resources();
   heaps_.cleanDeferreds();
 
-  // update pass constants
-  auto const view_proj = transpose(camera.getViewProjectionMatrix());
-  pass_buffer.at(0)    = {
-       .view          = camera.getViewMatrix(),
-       .inv_view      = inverse(camera.getViewMatrix()),
-       .proj          = camera.getProjectionMatrix(),
-       .inv_proj      = inverse(camera.getProjectionMatrix()),
-       .view_proj     = view_proj,
-       .inv_view_proj = inverse(view_proj),
-       .eye_pos       = camera.position(),
-       .near_z        = camera.nearPlane(),
-       .far_z         = camera.farPlane(),
-  };
-
-  // update object constants
-  for (auto const id: scene.pool<core::Transform>().dirtyElements()) {
-    core::Transform const trans {&scene, id};
-    constant_buffer.at(id::index(id)) = {
-      .world_view_proj = trans.world(), .entity_id = trans.entity() //
-    };
-    trans.unDirty();
-  }
-
-  // update material constants
-  for (auto const id: geometries.dirtyElements()) {
-    core::Geometry const geo {&scene, id};
-    mat_buffer.at(id::index(geo.id())) = geo.material();
-    geo.unDirty();
-  }
+  // Updates all resources for current frame
+  frame_resources_.at(Commands::frameIndex()).update(scene, camera);
 
   // Load new meshes to gpu
   loadAssets(scene);
