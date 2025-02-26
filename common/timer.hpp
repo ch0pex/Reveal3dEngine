@@ -27,18 +27,12 @@ namespace reveal3d {
 
 class Timer {
 public:
-  Timer() {
-    queryFrequency(counts_per_second_);
-    second_per_count_ = 1.0 / static_cast<f64>(counts_per_second_);
-    add_handler_up(input::Action::ScenePause, {[this](input::Action const act, input::type const type) {
-                     pause(act, type);
-                   }});
-  }
+  Timer() { reset(); }
 
   [[nodiscard]] static auto now() { return std::chrono::high_resolution_clock::now(); }
 
   // template<typename T>
-  [[nodiscard]] static auto diff(std::chrono::time_point<std::chrono::steady_clock> const& time) {
+  [[nodiscard]] static auto diff(std::chrono::time_point<std::chrono::high_resolution_clock> const& time) {
     return std::chrono::duration<f64>(now() - time).count();
   }
 
@@ -46,81 +40,70 @@ public:
 
   [[nodiscard]] f64 frameTime() const { return frame_time_; }
 
-  [[nodiscard]] f64 fps() const { return 1 / delta_time_; }
+  [[nodiscard]] f64 fps() const { return 1.0 / delta_time_; }
 
   [[nodiscard]] f64 meanFps() const { return static_cast<f64>(total_frames_) / totalTime(); }
 
-  [[nodiscard]] u64 averageFps() const { return fps_; }
+  [[nodiscard]] uint64_t averageFps() const { return fps_; }
 
-  [[nodiscard]] u64 totalFrames() const { return total_frames_; }
+  [[nodiscard]] uint64_t totalFrames() const { return total_frames_; }
 
-  [[nodiscard]] bool isRunning() const { return !stopped_; };
+  [[nodiscard]] bool isRunning() const { return !stopped_; }
 
   [[nodiscard]] f64 diff(f64 const time) const { return totalTime() - time; }
 
   [[nodiscard]] f64 totalTime() const {
-    if (stopped_)
-      return (stop_time_ - paused_time_ - base_time_) * second_per_count_;
-    i64 curr_time = 0;
-
-    queryCounter(curr_time);
-    return (curr_time - paused_time_ - base_time_) * second_per_count_;
+    auto const end_time = stopped_ ? stop_time_ : now();
+    return std::chrono::duration<f64>(end_time - base_time_ - paused_duration_).count();
   }
 
   void reset() {
-    i64 curr_time = 0;
-    queryCounter(curr_time);
-
-    base_time_ = curr_time;
-    prev_time_ = curr_time;
-    stop_time_ = 0;
-    stopped_   = false;
+    base_time_       = now();
+    prev_time_       = base_time_;
+    stop_time_       = {};
+    paused_duration_ = std::chrono::duration<f64>::zero();
+    stopped_         = false;
+    total_frames_    = 0;
   }
 
   void start() {
     if (stopped_) {
-      i64 start_time = 0;
-      queryCounter(start_time);
-
-      paused_time_ += (start_time - stop_time_);
+      auto const start_time = now();
+      paused_duration_ += start_time - stop_time_;
       prev_time_ = start_time;
       stopped_   = false;
-      stop_time_ = 0;
+      stop_time_ = {};
     }
   }
 
   void stop() {
     if (!stopped_) {
-      i64 curr_time = 0;
-      queryCounter(curr_time);
-      stop_time_ = curr_time;
+      stop_time_ = now();
       stopped_   = true;
     }
   }
 
   void tick() {
-    i64 curr_time = 0;
-    queryCounter(curr_time);
+    auto const curr_time = now();
     total_frames_++;
 
-    curr_time_  = curr_time;
-    delta_time_ = (curr_time - prev_time_) * second_per_count_;
+    delta_time_ = std::chrono::duration<f64>(curr_time - prev_time_).count();
     frame_time_ = delta_time_;
-    prev_time_  = curr_time_;
+    prev_time_  = curr_time;
 
-    if (u64 const new_total_seconds = static_cast<u64>(floor((curr_time - base_time_) * second_per_count_));
-        total_time_ < new_total_seconds) {
-      total_time_        = new_total_seconds;
+    if (auto const elapsed = std::chrono::duration_cast<std::chrono::seconds>(curr_time - base_time_).count();
+        total_time_ < elapsed) {
+      total_time_        = elapsed;
       fps_               = total_frames_ - prev_total_frames_;
       prev_total_frames_ = total_frames_;
     }
 
     delta_time_ = std::max(delta_time_, 0.0);
-
-    [[unlikely]] if (stopped_) { delta_time_ = 0.0; }
+    if (stopped_)
+      delta_time_ = 0.0;
   }
 
-  void pause(input::Action act, input::type type) {
+  void pause() {
     if (stopped_)
       start();
     else
@@ -128,34 +111,21 @@ public:
   }
 
 private:
-#ifdef _WIN32
-  static void queryFrequency(i64& time) { QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&time)); }
-  static void queryCounter(i64& time) { QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&time)); }
-#else
-  static inline void QueryFrequency(i64& time) { time = 1000000000; }
-  static inline void QueryCounter(i64& time) {
-    auto now    = std::chrono::high_resolution_clock::now();
-    auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-    time        = now_ns.time_since_epoch().count();
-  }
-#endif
+  using clock      = std::chrono::high_resolution_clock;
+  using time_point = std::chrono::time_point<clock>;
 
-  f64 second_per_count_ {};
-  i64 counts_per_second_ {};
-  f64 delta_time_ {}; // Affected by pause
-  f64 frame_time_ {}; // Non afected by pause
+  time_point base_time_ {};
+  time_point stop_time_ {};
+  time_point prev_time_ {};
+  std::chrono::duration<f64> paused_duration_ {};
 
-  i64 base_time_ {};
-  i64 paused_time_ {};
-  i64 stop_time_ {};
-  i64 prev_time_ {};
-  i64 curr_time_ {};
-
-  u64 total_time_ {};
-  u16 fps_ {};
-  u64 total_frames_ {};
-  u64 prev_total_frames_ {};
-  bool stopped_ {false};
+  f64 delta_time_        = 0.0;
+  f64 frame_time_        = 0.0;
+  u64 total_time_        = 0;
+  u64 fps_               = 0;
+  u64 total_frames_      = 0;
+  u64 prev_total_frames_ = 0;
+  bool stopped_          = false;
 };
 
 

@@ -14,7 +14,10 @@ add_library(Reveal3d STATIC)
 include(cmake/source.cmake)
 include(cmake/extern.cmake)
 include(cmake/platform.cmake)
-include(cmake/imgui.cmake)
+
+if (IMGUI)
+    include(cmake/imgui.cmake)
+endif ()
 
 target_include_directories(Reveal3d PUBLIC .)
 target_include_directories(Reveal3d PUBLIC math/${PLAT})

@@ -19,8 +19,6 @@
 
 #include "GLFW/glfw3.h"
 
-#include <glfw/glfw3native.h>
-
 
 namespace reveal3d::window {
 
@@ -45,7 +43,7 @@ private:
   void clipMouse(render::Renderer<Gfx>& renderer);
 
   Info info_;
-  GLFWwindow* win_ptr_;
+  GLFWwindow* window_pointer_;
 };
 
 template<graphics::HRI Gfx>
@@ -74,8 +72,8 @@ void Glfw::create(render::Renderer<Gfx>& renderer) {
   }
 
 #else
-  winPtr_      = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
-  info_.handle = winPtr_;
+  window_pointer_ = glfwCreateWindow(1920, 1080, "CraftGL", NULL, NULL);
+  info_.handle    = window_pointer_;
   if (!info_.handle) {
     glfwTerminate();
     std::terminate();
