@@ -51,6 +51,9 @@ void Dx12::update(core::Scene& scene, Camera const& camera) {
   auto& [constant_buffer, pass_buffer, mat_buffer] = frame_resources_.at(Commands::frameIndex());
   auto& geometries                                 = scene.pool<core::Geometry>();
 
+  clean_deferred_resources();
+  heaps_.cleanDeferreds();
+
   // update pass constants
   auto const view_proj = transpose(camera.getViewProjectionMatrix());
   pass_buffer.at(0)    = {
@@ -98,8 +101,6 @@ void Dx12::renderSurface(Surface& surface) {
   cmd_manager_.reset(); // Resets commands list and current frame allocator
 
   // *** Deferred resource cleaning ***
-  clean_deferred_resources();
-  heaps_.cleanDeferreds();
 
   surface.setViewport(command_list);
 
