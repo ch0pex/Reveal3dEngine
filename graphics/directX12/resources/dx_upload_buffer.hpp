@@ -46,7 +46,7 @@ concept is_constant = detail::is_constant<T>::value;
  * @note this means ComPtr<ID3D12Resource> can't be used
  * @tparam T Data type to upload
  */
-template<typename T>
+template<typename T, typename Policy = policy::Deferred>
 class UploadBuffer {
 public:
   // *** Type Traits
@@ -73,12 +73,7 @@ public:
 
   ~UploadBuffer() {
     buff_->Unmap(0, nullptr);
-    if constexpr (is_constant<value_type>) {
-      release(buff_);
-    }
-    else {
-      deferred_release(buff_);
-    }
+    Policy::release(buff_);
   }
 
   UploadBuffer& operator=(UploadBuffer const&) = delete;
@@ -115,7 +110,7 @@ private:
 };
 
 template<typename T>
-using ConstantBuffer = UploadBuffer<Constant<T>>;
+using ConstantBuffer = UploadBuffer<Constant<T>, policy::Hard>;
 
 /**
  * @name upload_resource
